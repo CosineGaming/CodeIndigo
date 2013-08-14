@@ -82,26 +82,27 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CodeIndigo.cpp" />
-    <ClCompile Include="Direction.cpp" />
-    <ClCompile Include="Indigo.cpp" />
-    <ClCompile Include="Lighting.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Vertex.cpp" />
-    <ClCompile Include="World.cpp" />
+    <ClInclude Include="CodeIndigo.h" />
+    <ClInclude Include="Indigo\Camera.h" />
+    <ClInclude Include="Indigo\Direction.h" />
+    <ClInclude Include="Indigo\Indigo.h" />
+    <ClInclude Include="Indigo\IndigoEngine.h" />
+    <ClInclude Include="Indigo\Lighting.h" />
+    <ClInclude Include="Indigo\Mesh.h" />
+    <ClInclude Include="Indigo\Object.h" />
+    <ClInclude Include="Indigo\Vertex.h" />
+    <ClInclude Include="Indigo\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CodeIndigo.h" />
-    <ClInclude Include="Direction.h" />
-    <ClInclude Include="Indigo.h" />
-    <ClInclude Include="Lighting.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="World.h" />
+    <ClCompile Include="CodeIndigo.cpp" />
+    <ClCompile Include="Indigo\Camera.cpp" />
+    <ClCompile Include="Indigo\Direction.cpp" />
+    <ClCompile Include="Indigo\Indigo.cpp" />
+    <ClCompile Include="Indigo\Lighting.cpp" />
+    <ClCompile Include="Indigo\Mesh.cpp" />
+    <ClCompile Include="Indigo\Object.cpp" />
+    <ClCompile Include="Indigo\Vertex.cpp" />
+    <ClCompile Include="Indigo\World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -71,7 +71,7 @@ void Direction::Add_Coordinates (float x, float y, float z)
 
 void Direction::Set_Direction (float in_distance, float in_angle_x, float in_angle_y)
 {
-	distance = in_distance / DEGREES_PER_RADIAN;
+	distance = in_distance;
 	angle_x = in_angle_x / DEGREES_PER_RADIAN;
 	angle_y = in_angle_y / DEGREES_PER_RADIAN;
 	return;
@@ -80,7 +80,7 @@ void Direction::Set_Direction (float in_distance, float in_angle_x, float in_ang
 
 void Direction::Add_Direction (float in_distance, float in_angle_x, float in_angle_y)
 {
-	Set_Direction (distance + (in_distance / DEGREES_PER_RADIAN),
+	Set_Direction (distance + in_distance,
 		angle_x + (in_angle_x / DEGREES_PER_RADIAN),
 		angle_y + (in_angle_y / DEGREES_PER_RADIAN));
 }

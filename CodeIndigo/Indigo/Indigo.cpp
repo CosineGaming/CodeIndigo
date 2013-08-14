@@ -59,6 +59,7 @@ namespace Indigo
 	void Reshape (int width, int height)
 	{
 		// Acts for when the window reshapes
+		glViewport (0, 0, width, height);
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
@@ -122,6 +123,7 @@ namespace Indigo
 			Update_Function (frame);
 		}
 		Current_World.Update (frame);
+		glutPostRedisplay ();
 		glutTimerFunc (Frame_Length_Minimum, Update, frame + 1);
 		return;
 	}

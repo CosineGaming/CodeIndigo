@@ -49,14 +49,7 @@ void World::Render (void) const
 	glLoadIdentity ();
 	camera.Look ();
 	glMatrixMode (GL_MODELVIEW);
-	glColor3f (1.0, 0.0, 0.0);
 	lighting.Position_Lights ();
-	//glBegin (GL_QUADS);
-		//glVertex3f (-1.0, -1.0, -1.0);
-		//glVertex3f ( 1.0, -1.0, -1.0);
-		//glVertex3f ( 1.0,  1.0, -1.0);
-		//glVertex3f (-1.0,  1.0, -1.0);
-	//glEnd ();
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
 		const_cast <Object&> (objects [Object_ID]).Render ();

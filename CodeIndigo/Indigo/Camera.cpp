@@ -86,7 +86,9 @@ void Camera::Watch (Object object, Direction relative_camera_position)
 void Camera::Look (void) const
 {
 	// Look through the camera for this frame
-	gluLookAt (eye.Get_X (), eye.Get_Y (), eye.Get_Z (), X, Y, Z,
+	glMatrixMode (GL_PROJECTION);
+	gluLookAt (X, Y, Z, eye.Get_X (), eye.Get_Y (), eye.Get_Z (),
 		up.Get_X (), up.Get_Y (), up.Get_Z ());
+	glMatrixMode (GL_MODELVIEW);
 	return;
 }
