@@ -8,12 +8,11 @@
 
 namespace Indigo
 {
-
+	// Initializes window and rendering matrices.
 	void Initialize (int argc, char ** argv, const char * window_name,
 		const int& window_width, const int& window_height, const bool& fullscreen,
 		int field_of_view, float * background, int max_framerate)
 	{
-		// Initializes window and rendering matrices.
 		glutInit (&argc, argv);
 		glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 		glutInitWindowSize (window_width, window_height);
@@ -39,7 +38,8 @@ namespace Indigo
 		glutMouseFunc (Mouse_Button);
 		glutKeyboardFunc (Key_Pressed);
 		glutKeyboardUpFunc (Key_Released);
-		Reshape (glutGet(GLUT_WINDOW_WIDTH), (double)glutGet(GLUT_WINDOW_HEIGHT));
+		glMatrixMode (GL_PROJECTION);
+		Reshape ();
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 		glShadeModel (GL_SMOOTH);
@@ -47,31 +47,51 @@ namespace Indigo
 		return;
 	}
 
-
+	// Starts the main loop with update, render, and input
 	void Run (void)
 	{
-		// Starts the main loop with update, render, and input
 		glutMainLoop ();
 		return;
 	}
 
+	
+	// Centers the mouse every frame and hides the mouse
+	void FPS_Mouse (bool hide, bool center)
+	{
+		if (hide)
+		{
+			glutSetCursor (GLUT_CURSOR_NONE);
+		}
+		Center_Mouse = center;
+	}
 
+	// Acts for when the window reshapes
 	void Reshape (int width, int height)
 	{
-		// Acts for when the window reshapes
-		glViewport (0, 0, width, height);
-		glMatrixMode (GL_PROJECTION);
+		bool viewport = true;
+		if (0 == width)
+		{
+			width = glutGet (GLUT_WINDOW_WIDTH);
+			viewport = false;
+		}
+		if (0 == height)
+		{
+			height = glutGet (GLUT_WINDOW_HEIGHT);
+			viewport = false;
+		}
+		if (viewport)
+		{
+			glViewport (0, 0, width, height);
+		}
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			0.05, 1000.0);
-		glMatrixMode (GL_MODELVIEW);
+			1.0, 500.0);
 	}
 
-
+	// Acts for keys which act once, and stores for multi-acting keys
 	void Key_Pressed (unsigned char key, int x, int y)
 	{
-		// Acts for keys which act once, and stores for multi-acting keys
 		if (Key_Pressed_Function)
 		{
 			Key_Pressed_Function (key, x, y);
@@ -80,10 +100,9 @@ namespace Indigo
 		return;
 	}
 
-
+	// Acts for keys which act on release, and removes stored keys
 	void Key_Released (unsigned char key, int x, int y)
 	{
-		// Acts for keys which act on release, and removes stored keys
 		if (Key_Released_Function)
 		{
 			Key_Released_Function (key, x, y);
@@ -92,10 +111,9 @@ namespace Indigo
 		return;
 	}
 
-
+	// Acts for when the mouse is pressed or released
 	void Mouse_Button (int button, int state, int x, int y)
 	{
-		// Acts for when the mouse is pressed or released
 		if (Mouse_Button_Function)
 		{
 			Mouse_Button_Function (button, state, x, y);
@@ -103,21 +121,32 @@ namespace Indigo
 		return;
 	}
 
-
+	// Acts for when the mouse is moved
 	void Mouse_Moved (int x, int y)
 	{
-		// Acts for when the mouse is moved
-		if (Mouse_Moved_Function)
+		static bool call = true;
+		if (Mouse_Moved_Function && call)
 		{
 			Mouse_Moved_Function (x, y);
+		}
+		call = true;
+		if (Center_Mouse)
+		{
+			static const int margin = 60;
+			int width = glutGet (GLUT_WINDOW_WIDTH);
+			int height = glutGet (GLUT_WINDOW_HEIGHT);
+			if (x < margin || x > width - margin || y < margin || y > height - margin)
+			{
+				glutWarpPointer (width / 2, height / 2);
+				call = false;
+			}
 		}
 		return;
 	}
 
-
+	// Updates world
 	void Update (int frame)
 	{
-		// Updates world
 		if (Update_Function)
 		{
 			Update_Function (frame);
@@ -128,10 +157,9 @@ namespace Indigo
 		return;
 	}
 
-
+	// Renders world
 	void Render (void)
 	{
-		// Renders world
 		if (Render_Function)
 		{
 			Render_Function ();
@@ -151,6 +179,9 @@ namespace Indigo
 	// Stors the field of view
 	int Field_Of_View;
 
+	// Stores whether to center the mouse every frame or not
+	bool Center_Mouse = false;
+
 	// Stores the function to call when a key is pressed
 	void (*Key_Pressed_Function) (unsigned char key, int x, int y);
 
@@ -168,7 +199,8 @@ namespace Indigo
 
 	// ... just before the rendering of objects in the world
 	void (*Render_Function) (void);
-
+	
+	// Members with the index of a key which is currently down are true
 	bool keys [256];
 
 

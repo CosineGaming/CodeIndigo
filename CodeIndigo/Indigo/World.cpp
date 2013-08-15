@@ -1,6 +1,7 @@
 // Defines a class for holding objects
 
 #include "World.h"
+#include "Indigo.h"
 #include <stdlib.h>
 #include "glut.h"
 
@@ -46,7 +47,7 @@ void World::Render (void) const
 	// Renders every object in the world
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
+	Indigo::Reshape ();
 	camera.Look ();
 	glMatrixMode (GL_MODELVIEW);
 	lighting.Position_Lights ();

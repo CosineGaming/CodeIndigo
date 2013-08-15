@@ -15,8 +15,10 @@ namespace Indigo
 		float * background=nullptr, int max_framerate=48);
 	// Starts the main loop with update, render, and input
 	void Run (void);
+	// Centers the mouse every frame and hides the mouse
+	void FPS_Mouse (bool hide=true, bool center=true);
 	// Acts for when the window reshapes
-	void Reshape (int width, int height);
+	void Reshape (int width=0, int height=0);
 	// Acts for keys which act once, and stores for multi-acting keys
 	void Key_Pressed (unsigned char key, int x, int y);
 	// Acts for keys which act on release, and removes stored keys
@@ -36,6 +38,8 @@ namespace Indigo
 	extern int Frame_Length_Minimum;
 	// Stores the field of view
 	extern int Field_Of_View;
+	// Stores whether to center the mouse every frame or not
+	extern bool Center_Mouse;
 	// Stores the function to call when a key is pressed
 	extern void (*Key_Pressed_Function) (unsigned char key, int x, int y);
 	// ... when a key is released
