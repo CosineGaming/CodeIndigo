@@ -44,6 +44,12 @@ void mouse_moved (int x, int y)
 {
 	static int lastX = 0;
 	static int lastY = 0;
+	if (x == 0 && y == 0)
+	{
+		lastX = 0;
+		lastY = 0;
+		return;
+	}
 	static const float sensitivity = 1;
 	Indigo::Current_World.camera.eye.Add_Direction (0.0, (x - lastX) * sensitivity,
 		(y - lastY) * sensitivity);

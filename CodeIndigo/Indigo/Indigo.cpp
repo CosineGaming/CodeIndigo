@@ -123,13 +123,11 @@ namespace Indigo
 
 	// Acts for when the mouse is moved
 	void Mouse_Moved (int x, int y)
-	{
-		static bool call = true;
-		if (Mouse_Moved_Function && call)
+	{\
+		if (Mouse_Moved_Function)
 		{
 			Mouse_Moved_Function (x, y);
 		}
-		call = true;
 		if (Center_Mouse)
 		{
 			static const int margin = 60;
@@ -137,8 +135,7 @@ namespace Indigo
 			int height = glutGet (GLUT_WINDOW_HEIGHT);
 			if (x < margin || x > width - margin || y < margin || y > height - margin)
 			{
-				glutWarpPointer (width / 2, height / 2);
-				call = false;
+				glutWarpPointer (width / 2, height / 2);\
 			}
 		}
 		return;
