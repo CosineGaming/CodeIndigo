@@ -42,20 +42,10 @@ void update (int frame)
 
 void mouse_moved (int x, int y)
 {
-	static int lastX = 0;
-	static int lastY = 0;
-	if (x == 0 && y == 0)
-	{
-		lastX = 0;
-		lastY = 0;
-		return;
-	}
-	static const float sensitivity = 1;
-	Indigo::Current_World.camera.eye.Add_Direction (0.0, (x - lastX) * sensitivity,
-		(y - lastY) * sensitivity);
-	std::cout << x - lastX << ", " << y - lastY << std::endl;
-	lastX = x;
-	lastY = y;
+	static const float sensitivity = 0.5;
+	Indigo::Current_World.camera.eye.Add_Direction (0.0, x * sensitivity,
+		y * -1 * sensitivity);
+	std::cout << x << ", " << y << std::endl;
 }
 
 int main(int argc, char ** argv)
@@ -66,8 +56,7 @@ int main(int argc, char ** argv)
 	Object add = Object(0.0, 0.0, -1.0, box, Indigo::White_Color, 40.0f, box_update);
 	int object = Indigo::Current_World.Add_Object (add);
 	Indigo::Update_Function = update;
-	Indigo::FPS_Mouse (false);
-	Indigo::Mouse_Moved_Function = mouse_moved;
+	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 2.0, 2.0);
 	Direction distance (5.0, 0.0, 15.0);
 	Indigo::Current_World.camera.Watch (Indigo::Current_World.Get_Object (object), distance);

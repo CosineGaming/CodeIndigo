@@ -25,7 +25,11 @@ public:
 	void Look_At (Direction direction);
 	// Look at a point
 	void Look_At (float x, float y, float z);
-	// Watch an object
+	// Look in a direction relative to the camera
+	void Look_Towards (Direction direction);
+	// Look at a point relative to the camera
+	void Look_Towards (float x, float y, float z);
+	// Look at an object
 	void Watch (Object object, Direction direction);
 	// Look through the camera for this frame
 	void Look (void) const;

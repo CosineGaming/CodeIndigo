@@ -48,8 +48,8 @@ void World::Render (void) const
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode (GL_PROJECTION);
 	Indigo::Reshape ();
-	camera.Look ();
 	glMatrixMode (GL_MODELVIEW);
+	camera.Look ();
 	lighting.Position_Lights ();
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{

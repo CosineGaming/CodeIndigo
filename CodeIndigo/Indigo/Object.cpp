@@ -52,6 +52,8 @@ void Object::Render (void) const
 	glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, object_color ? object_color : full_array);
 	glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 	glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
+	glPushMatrix ();
+	glTranslatef (X, Y, Z);
 	std::vector <Vertex> points = Data.Get_Vertices ();
 	glBegin (Render_Types [Data.Group_Size]);
 	for (int Point=0; Point<points.size (); Point++)
@@ -60,6 +62,7 @@ void Object::Render (void) const
 		glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);
 	}
 	glEnd ();
+	glPopMatrix ();
 	return;
 }
 

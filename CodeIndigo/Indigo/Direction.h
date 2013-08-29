@@ -11,6 +11,8 @@ class Direction
 public:
 	// Construct a new direction based off of distance and 2 angles
 	Direction (float in_distance=0.0, float in_angle_x=0.0, float in_angle_y=0.0);
+	// Construct a new direction based off of x, y, and z
+	static Direction Coordinates (float x, float y, float z);
 	// Destroy a direction
 	~Direction (void);
 	// Get the relative coordinates of the direction
@@ -29,6 +31,8 @@ public:
 	void Set_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
 	// Add values to the distance and angles
 	void Add_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
+	// Find the distance between this direction and another
+	Direction Distance (Direction to);
 private:
 	// The distance stretched when getting coords (1 for a normalized direction)
 	float distance;

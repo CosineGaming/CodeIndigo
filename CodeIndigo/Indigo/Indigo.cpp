@@ -54,17 +54,6 @@ namespace Indigo
 		return;
 	}
 
-	
-	// Centers the mouse every frame and hides the mouse
-	void FPS_Mouse (bool hide, bool center)
-	{
-		if (hide)
-		{
-			glutSetCursor (GLUT_CURSOR_NONE);
-		}
-		Center_Mouse = center;
-	}
-
 	// Acts for when the window reshapes
 	void Reshape (int width, int height)
 	{
@@ -86,7 +75,7 @@ namespace Indigo
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			1.0, 500.0);
+			0.1, 1000.0);
 	}
 
 	// Acts for keys which act once, and stores for multi-acting keys
@@ -123,20 +112,30 @@ namespace Indigo
 
 	// Acts for when the mouse is moved
 	void Mouse_Moved (int x, int y)
-	{\
+	{
+		if (Relative_Mouse_Moved_Function)
+		{
+			int width = glutGet (GLUT_WINDOW_WIDTH);
+			int height = glutGet (GLUT_WINDOW_HEIGHT);
+			static int last_x = 0;
+			static int last_y = 0;
+			if (!((width / 2 == x && height / 2 == y)
+				|| (0 == x - last_x && 0 == y - last_y)))
+			{
+				Relative_Mouse_Moved_Function (x - last_x, y - last_y);
+			}
+			static const int margin = 75;
+			if (x < margin || x > width - margin || y < margin || y > height - margin)
+			{
+				glutWarpPointer (width / 2, height / 2);
+			}
+			last_x = x;
+			last_y = y;
+			glutSetCursor (GLUT_CURSOR_NONE);
+		}
 		if (Mouse_Moved_Function)
 		{
 			Mouse_Moved_Function (x, y);
-		}
-		if (Center_Mouse)
-		{
-			static const int margin = 60;
-			int width = glutGet (GLUT_WINDOW_WIDTH);
-			int height = glutGet (GLUT_WINDOW_HEIGHT);
-			if (x < margin || x > width - margin || y < margin || y > height - margin)
-			{
-				glutWarpPointer (width / 2, height / 2);\
-			}
 		}
 		return;
 	}
@@ -176,9 +175,6 @@ namespace Indigo
 	// Stors the field of view
 	int Field_Of_View;
 
-	// Stores whether to center the mouse every frame or not
-	bool Center_Mouse = false;
-
 	// Stores the function to call when a key is pressed
 	void (*Key_Pressed_Function) (unsigned char key, int x, int y);
 
@@ -190,6 +186,10 @@ namespace Indigo
 
 	// ... when the mouse is moved
 	void (*Mouse_Moved_Function) (int x, int y);
+
+	// ... when the mouse is moved, given relative to the center.
+		// Also hides mouse when defined.
+	void (*Relative_Mouse_Moved_Function) (int x, int y);
 
 	// ... every time the world updates
 	void (*Update_Function) (int frame);
