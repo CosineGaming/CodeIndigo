@@ -39,7 +39,19 @@ Mesh::~Mesh (void)
 
 Mesh Mesh::Sphere (const float& radius, const int& slices, const int& stacks)
 {
-	return (Mesh ());
+	Mesh mesh (0);
+	Direction cursor (radius, 0.0, 0.0);
+	float each_x = 360.0 / slices;
+	float each_y = 360.0 / stacks;
+	for (float angle_x=0.0; angle_x<=360.0; angle_x+=each_x)
+	{
+		for (float angle_y=0.0; angle_y<=360.0; angle_y+=each_y)
+		{
+			cursor.Set_Direction (radius, angle_x, angle_y);
+			mesh += Vertex (cursor.Get_X (), cursor.Get_Y (), cursor.Get_Z ());
+		}
+	}
+	return (mesh);
 }
 
 

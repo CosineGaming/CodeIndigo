@@ -87,4 +87,4 @@ void Object::Move (const float& x, const float& y, const float& z)
 }
 
 
-const int Object::Render_Types [5] = {GL_POLYGON, 0, 0, GL_TRIANGLES, GL_QUADS};
+const int Object::Render_Types [5] = {GL_TRIANGLE_STRIP, 0, 0, GL_TRIANGLES, GL_QUADS};

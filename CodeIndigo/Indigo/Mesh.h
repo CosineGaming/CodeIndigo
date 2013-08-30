@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Direction.h"
 
 class Vertex;
 
@@ -19,7 +20,7 @@ public:
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.
 	// /*Example*/ Mesh myCubeMesh = Mesh::Cube (1.0, 50.0, 24.2, 13.5);
-	static Mesh Sphere (const float& radius, const int& slices=0, const int& stacks=0);
+	static Mesh Sphere (const float& radius, const int& slices=25, const int& stacks=25);
 	static Mesh Box (const float& width, const float& height, const float& length);
 	static Mesh Line (const float& width, const float& height=0.0, const float& length=0.0);
 	static Mesh Cube (const float& side);

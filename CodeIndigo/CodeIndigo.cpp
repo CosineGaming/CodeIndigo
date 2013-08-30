@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
 {
 	Indigo::Initialize (argc, argv, " ~ Code Indigo",
 		800, 600, false, 60, Indigo::Sky_Color, 60);
-	Mesh box = Mesh::Cube (0.75);
+	Mesh box = Mesh::Sphere (0.5);
 	Object add = Object(0.0, 0.0, -1.0, box, Indigo::White_Color, 40.0f, box_update);
 	int object = Indigo::Current_World.Add_Object (add);
 	Indigo::Update_Function = update;
