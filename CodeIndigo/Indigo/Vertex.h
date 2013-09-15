@@ -16,6 +16,8 @@ public:
 	~Vertex (void);
 	// Enables += to add the X, Y, and Z values to a vertex
 	Vertex& operator+= (const Vertex& vertex);
+	// Enables - to subtract values, useful for calculating light normals
+	Vertex operator- (const Vertex& vertex) const;
 	// Enables + to put values together into a mesh
 	Mesh operator+ (const Vertex& vertex) const;
 	// Position of the vertex

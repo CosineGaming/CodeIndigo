@@ -13,8 +13,8 @@ public:
 	// Destroy a lighting arrangement, reset to default
 	~Lighting (void);
 	// Add a light source
-	void Add_Light (float X, float Y, float Z, float ambient=0.2,
-		float specular=1.0, float * color_offset=nullptr);
+	void Add_Light (float X, float Y, float Z, bool infinity=false,
+		float ambient=0.2, float specular=1.0, float * color_offset=nullptr);
 	// Update the positions of all lights
 	void Position_Lights (void) const;
 	// Get the number of lights in the scene

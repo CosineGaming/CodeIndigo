@@ -3,6 +3,7 @@
 #include "Vertex.h"
 
 
+// Create a new, blank vertex
 Vertex::Vertex (void)
 {
 	X = 0.0;
@@ -12,6 +13,7 @@ Vertex::Vertex (void)
 }
 
 
+// Copies a vertex
 Vertex::Vertex (const Vertex& vertex)
 {
 	X = vertex.X;
@@ -21,6 +23,7 @@ Vertex::Vertex (const Vertex& vertex)
 }
 
 
+// Create a vertex with these values
 Vertex::Vertex (const float& x, const float& y, const float& z)
 {
 	X = x;
@@ -30,25 +33,39 @@ Vertex::Vertex (const float& x, const float& y, const float& z)
 }
 
 
+// Destroy a vertex
 Vertex::~Vertex (void)
 {
 	return;
 }
 
 
+// Enables += to add the X, Y, and Z values to a vertex
 Vertex& Vertex::operator+= (const Vertex& vertex)
 {
 	X += vertex.X;
 	Y += vertex.Y;
 	Z += vertex.Z;
-	return *this;
+	return (*this);
 }
 
 
+// Enables - to subtract values, useful for calculating light normals
+Vertex Vertex::operator- (const Vertex& vertex) const
+{
+	Vertex copy = *this;
+	copy.X -= vertex.X;
+	copy.Y -= vertex.Y;
+	copy.Z -= vertex.Z;
+	return (copy);
+}
+
+
+// Enables + to put values together into a mesh
 Mesh Vertex::operator+ (const Vertex& vertex) const
 {
 	Mesh mesh;
 	mesh += *this;
 	mesh += vertex;
 	return (mesh);
-}            
+}

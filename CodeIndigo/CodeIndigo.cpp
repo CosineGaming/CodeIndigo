@@ -51,16 +51,15 @@ void mouse_moved (int x, int y)
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize (argc, argv, " ~ Code Indigo",
-		800, 600, false, 60, Indigo::Sky_Color, 60);
+		800, 600, true, 60, Indigo::Sky_Color, 60);
 	Mesh box = Mesh::Sphere (0.5);
 	Object add = Object(0.0, 0.0, -1.0, box, Indigo::White_Color, 40.0f, box_update);
 	int object = Indigo::Current_World.Add_Object (add);
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
-	Indigo::Current_World.lighting.Add_Light (0.0, 2.0, 2.0);
-	Direction distance (5.0, 0.0, 15.0);
-	Indigo::Current_World.camera.Watch (Indigo::Current_World.Get_Object (object), distance);
-	Indigo::Current_World.camera.Look_At (0.0, 0.0, -1.0);
+	Indigo::Current_World.lighting.Add_Light (0.0, 2.0, 0.0);
+	Indigo::Current_World.camera.Place (0.0, 0.0, 0.0);
+	Indigo::Current_World.camera.eye.Set_Direction (1.0, 90.0, -2.8);
 	Indigo::Run ();
 	return (0);
 }

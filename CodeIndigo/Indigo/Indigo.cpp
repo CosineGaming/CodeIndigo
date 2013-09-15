@@ -75,7 +75,7 @@ namespace Indigo
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			0.1, 1000.0);
+			0.5, 1000.0);
 	}
 
 	// Acts for keys which act once, and stores for multi-acting keys

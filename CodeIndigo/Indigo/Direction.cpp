@@ -65,8 +65,8 @@ float Direction::Get_Y_Angle (void) const
 void Direction::Set_Coordinates (float x, float y, float z)
 {
 	float mid_direction = sqrt (z*z + x*x);
-	angle_x = atan (z / x);
-	angle_y = atan (y / mid_direction);
+	angle_x = atan2 (z, x);
+	angle_y = atan2 (y, mid_direction);
 	distance = sqrt (mid_direction*mid_direction + y*y);
 	return;
 }
