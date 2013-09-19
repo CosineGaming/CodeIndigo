@@ -14,7 +14,7 @@ public:
 	// and whether the object should render in wireframe
 	Object (const float& x=0.0, const float& y=0.0, const float& z=0.0,
 		const Mesh& mesh=Mesh(), float *color=nullptr, float shine=40.0,
-		void (*update_function) (const int& frame, const Object& self)=nullptr,
+		void (*update_function) (const int& frame, Object& self)=nullptr,
 		const bool& line=false);
 	// Copy an object
 	Object (const Object& object);
@@ -35,7 +35,7 @@ public:
 	// An ID used for accessing and deleting the object
 	int ID;
 	// Called every time the World updates, set this as you please
-	void (*Update) (const int& frame, const Object& self);
+	void (*Update) (const int& frame, Object& self);
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y;

@@ -18,7 +18,7 @@ public:
 	// Deletes the world, opens memory
 	~World (void);
 	// Updates every object in the world, prepares to render again
-	void Update (const int& frame) const;
+	void Update (const int& frame);
 	// Renders every object in the world
 	void Render (void) const;
 	// Adds an object to the world to be rendered and updated,

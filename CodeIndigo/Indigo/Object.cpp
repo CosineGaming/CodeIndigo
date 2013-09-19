@@ -8,7 +8,7 @@
 
 Object::Object (const float& x, const float& y, const float& z,
 	const Mesh& mesh, float *color, float shine,
-	void (*update_function) (const int& frame, const Object& self),
+	void (*update_function) (const int& frame, Object& self),
 	const bool& line)
 {
 	Place (x, y, z);
@@ -48,24 +48,37 @@ Object::~Object (void)
 // Renders the object
 void Object::Render (void) const
 {
+	glPushMatrix ();
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, object_color ? object_color : full_array);
 	glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 	glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
-	glPushMatrix ();
 	glTranslatef (X, Y, Z);
+	if (Line)
+	{
+		glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	}
 	std::vector <Vertex> points = Data.Get_Vertices ();
 	glBegin (Render_Types [Data.Group_Size]);
 	for (int Point=0; Point<points.size (); Point++)
 	{
 		// When each polygon is finished, calculate a light normal
-		if ((Point + 1) % (Data.Group_Size == 0 ? 3 : Data.Group_Size) == 0)
+		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size ()) == 0 ||
+			(Data.Group_Size == 0 && Point <= points.size () - 3))
 		{
-			Vertex two = points [Point - 1] - points [Point - 2];
-			Vertex three = points [Point] - points [Point - 2];
-			glNormal3f (two.Z * three.Y - two.Y * three.Z,
+			Vertex two = points [Point + 1] - points [Point];
+			Vertex three = points [Point + 2] - points [Point];
+			Direction normal = Direction::Coordinates (
+				two.Z * three.Y - two.Y * three.Z,
 				two.X * three.Z - two.Z * three.X,
 				two.Y * three.X - two.X * three.Y);
+			normal.Set_Direction (1.0,
+				normal.Get_X_Angle (), normal.Get_Y_Angle ());
+			glNormal3f (normal.Get_X (), normal.Get_Y (), normal.Get_Z ());
 		}
 		Vertex Cursor = points [Point];
 		glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);

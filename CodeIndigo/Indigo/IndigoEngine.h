@@ -1,3 +1,5 @@
+// Include all files required for the Indigo Engine
+
 #include "Indigo.h"
 #include "World.h"
 #include "Object.h"

@@ -20,7 +20,7 @@ public:
 	// Place the camera at a point
 	void Place (float x, float y, float z);
 	// Move relative to the way it's pointing and where it is
-	void Move (float foward, float side=0.0);
+	void Move (float foward, float side=0.0, float up=0.0);
 	// Look in a direction
 	void Look_At (Direction direction);
 	// Look at a point

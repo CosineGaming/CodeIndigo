@@ -29,7 +29,7 @@ World::~World (void)
 }
 
 
-void World::Update (const int& frame) const
+void World::Update (const int& frame)
 {
 	// Updates every object in the world, prepares to render again
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
@@ -52,13 +52,7 @@ void World::Render (void) const
 	glMatrixMode (GL_MODELVIEW);
 	camera.Look ();
 	lighting.Position_Lights ();
-	// <DELETE>
-	float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, full_array);
-	glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
-	glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, 60.0);
 	glutSolidTeapot (0.3);
-	// </DELETE>
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
 		const_cast <Object&> (objects [Object_ID]).Render ();

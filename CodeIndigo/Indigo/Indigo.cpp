@@ -44,6 +44,8 @@ namespace Indigo
 		glLoadIdentity ();
 		glShadeModel (GL_SMOOTH);
 		glEnable (GL_DEPTH_TEST);
+		glEnable (GL_AUTO_NORMAL);
+		glEnable (GL_LIGHTING);
 		return;
 	}
 
@@ -75,7 +77,7 @@ namespace Indigo
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			0.5, 1000.0);
+			0.01, 30.0);
 	}
 
 	// Acts for keys which act once, and stores for multi-acting keys

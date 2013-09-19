@@ -8,7 +8,6 @@
 Lighting::Lighting (void)
 {
 	glLightModeli (GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-	glEnable (GL_LIGHTING);
 	Number_Of_Lights = 0;
 	return;
 }
@@ -16,7 +15,6 @@ Lighting::Lighting (void)
 
 Lighting::Lighting (const Lighting& arrangement)
 {
-	glEnable (GL_LIGHTING);
 	Number_Of_Lights = arrangement.Get_Number_Of_Lights ();
 	return;
 }
@@ -24,7 +22,6 @@ Lighting::Lighting (const Lighting& arrangement)
 
 Lighting::~Lighting (void)
 {
-	glDisable (GL_LIGHTING);
 	for (int Light_Index=0; Light_Index<Number_Of_Lights; ++Light_Index)
 	{
 		glDisable (Light_Values [Light_Index]);
@@ -37,8 +34,7 @@ void Lighting::Add_Light (float X, float Y, float Z, bool infinity,
 		float ambient, float specular, float * color_offset)
 {
 	int Light = Light_Values [Number_Of_Lights];
-	glEnable (Light);
-	float position_array [] = {X, Y, Z, (float)infinity};
+	float position_array [] = {X, Y, Z, 1.0 - (float)infinity};
 	float ambient_array  [] = {ambient, ambient, ambient, 1.0};
 	float diffuse_array  [] = {1.0 - ambient, 1.0 - ambient, 1.0 - ambient, 1.0};
 	float specular_array [] = {specular, specular, specular, 1.0};
@@ -50,6 +46,7 @@ void Lighting::Add_Light (float X, float Y, float Z, bool infinity,
 		}
 	}
 	Light_Positions [Number_Of_Lights] = position_array;
+	glEnable (Light);
 	glLightfv (Light, GL_POSITION, position_array);
 	glLightfv (Light, GL_AMBIENT, ambient_array);
 	glLightfv (Light, GL_DIFFUSE, diffuse_array);

@@ -41,7 +41,7 @@ void Camera::Place (float x, float y, float z)
 }
 
 
-void Camera::Move (float forward, float side)
+void Camera::Move (float forward, float side, float up)
 {
 	// Move relative to the way it's pointing and where it is
 	Direction direction = eye;
@@ -50,6 +50,10 @@ void Camera::Move (float forward, float side)
 	Y += direction.Get_Y ();
 	Z += direction.Get_Z ();
 	direction.Set_Direction (side, direction.Get_X_Angle () + 90.0, 0.0);
+	X += direction.Get_X ();
+	Y += direction.Get_Y ();
+	Z += direction.Get_Z ();
+	direction.Set_Direction (up, direction.Get_X_Angle (), 90.0);
 	X += direction.Get_X ();
 	Y += direction.Get_Y ();
 	Z += direction.Get_Z ();
