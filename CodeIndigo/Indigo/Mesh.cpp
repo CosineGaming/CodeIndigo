@@ -37,20 +37,21 @@ Mesh::~Mesh (void)
 }
 
 
-Mesh Mesh::Sphere (const float& radius, const int& slices, const int& stacks)
+Mesh Mesh::Sphere (const float& radius, const int& recursions, const bool& draw_sphere)
 {
-	Mesh mesh (0);
+	Mesh mesh (3);
+	Vertex top = Vertex (0.0, radius, 0.0);
 	Direction cursor (radius, 0.0, 0.0);
-	float each_x = 360.0 / slices;
-	float each_y = 360.0 / stacks;
-	for (float angle_x=0.0; angle_x<=360.0; angle_x+=each_x)
+	for (int triangle=0; triangle<8; ++triangle)
 	{
-		for (float angle_y=0.0; angle_y<=360.0; angle_y+=each_y)
+		if (triangle == 4)
 		{
-			cursor.Set_Direction (radius, angle_x
-				+ each_y * ((int)(angle_y / each_y + 0.5) % 2 == 0), angle_y);
-			mesh += Vertex (cursor.Get_X (), cursor.Get_Y (), cursor.Get_Z ());
+			top = Vertex (0.0, -1 * radius, 0.0);
 		}
+		Vertex left = cursor.To_Vertex ();
+		cursor.Add_Direction (0.0, 90.0, 0.0);
+		Vertex right = cursor.To_Vertex ();
+		mesh += Bulge_Sphere (radius, recursions, left, right, top);
 	}
 	return (mesh);
 }
@@ -74,11 +75,15 @@ Mesh Mesh::Box (const float& width, const float& height, const float& length)
 			for (int Point=0; Point<4; Point++)
 			{
 				Half_Lengths [Pair [Point % 2]] *= -1;
-				mesh += Vertex (Half_Lengths [0], Half_Lengths [1], Half_Lengths [2]);
+				mesh += Vertex (Half_Lengths [0],
+					Half_Lengths [1], Half_Lengths [2]);
 			}
 			if (0 == Twice)
 			{
-				Half_Lengths [Pair [1]] *= -1;
+				Half_Lengths [0] *= -1;
+				Half_Lengths [1] *= -1;
+				Half_Lengths [2] *= -1;
+				Half_Lengths [Pair [0]] *= -1;
 			}
 		}
 		Pair [2 != Pair [1]] += 1; // 0, 1; 0, 2; 1, 2
@@ -90,6 +95,7 @@ Mesh Mesh::Box (const float& width, const float& height, const float& length)
 Mesh Mesh::Line (const float& width, const float& height, const float& length)
 {
 	Mesh mesh;
+	mesh += Vertex (0.0, 0.0, 0.0);
 	mesh += Vertex (width, height, length);
 	return (mesh);
 }
@@ -110,6 +116,36 @@ Mesh Mesh::Regular_Shape (const int& sides, const float& side_length)
 Mesh Mesh::Rectangle (const float& width, const float& height)
 {
 	return (Mesh ());
+}
+
+
+// Used in recursion for the Sphere function
+Mesh Mesh::Bulge_Sphere (const float& radius, const int& recursions,
+	const Vertex& left, const Vertex& right, const Vertex& top)
+{
+	Mesh mesh (0);
+	if (recursions > 0)
+	{
+		Vertex mid_left = left.Midpoint (top);
+		Vertex mid_right = top.Midpoint (right);
+		Vertex mid_top = left.Midpoint (right);
+		mesh += Bulge_Sphere (radius, recursions - 1, mid_left, mid_right, mid_top);
+		mesh += Bulge_Sphere (radius, recursions - 1, mid_left, mid_right, top);
+		mesh += Bulge_Sphere (radius, recursions - 1, left, mid_top, mid_left);
+		mesh += Bulge_Sphere (radius, recursions - 1, mid_top, right, mid_right);
+	}
+	else
+	{
+		Vertex vertices [3] = {left, right, top};
+		for (int vertex=0; vertex<3; ++vertex)
+		{
+			Direction distance = vertices [vertex].To_Direction ();
+			distance.Set_Direction (radius, distance.Get_X_Angle (),
+				distance.Get_Y_Angle ());
+			mesh += Vertex (distance.Get_X (), distance.Get_Y (), distance.Get_Z ());
+		}
+	}
+	return (mesh);
 }
 
 

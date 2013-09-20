@@ -2,6 +2,8 @@
 
 #include "Mesh.h"
 
+class Direction;
+
 
 class Vertex
 {
@@ -20,6 +22,10 @@ public:
 	Vertex operator- (const Vertex& vertex) const;
 	// Enables + to put values together into a mesh
 	Mesh operator+ (const Vertex& vertex) const;
+	// Finds the midpoint between 2 vertices, useful for triangular recursion
+	Vertex Midpoint (const Vertex& vertex) const;
+	// Returns a direction with the coordinates of the vertex
+	Direction To_Direction (void) const;
 	// Position of the vertex
 	float X;
 	float Y;

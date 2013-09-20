@@ -63,9 +63,8 @@ void mouse_moved (int x, int y)
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize (argc, argv, " ~ Code Indigo",
-		800, 600, true, 60, nullptr, 60);
-	Mesh box = Mesh::Sphere (0.5);
+	Indigo::Initialize (argc, argv, " ~ Code Indigo");
+	Mesh box = Mesh::Sphere (0.5, 4);
 	Object add = Object (0.0, 0.0, -1.0, box,
 		Indigo::White_Color, 40.0f, nullptr, true);
 	object = Indigo::Current_World.Add_Object (add);

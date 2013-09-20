@@ -20,12 +20,15 @@ public:
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.
 	// /*Example*/ Mesh myCubeMesh = Mesh::Cube (1.0, 50.0, 24.2, 13.5);
-	static Mesh Sphere (const float& radius, const int& slices=25, const int& stacks=25);
+	static Mesh Sphere (const float& radius, const int& recusions=3, const bool& draw_sphere=true);
 	static Mesh Box (const float& width, const float& height, const float& length);
 	static Mesh Line (const float& width, const float& height=0.0, const float& length=0.0);
 	static Mesh Cube (const float& side);
 	static Mesh Regular_Shape (const int& sides, const float& side_length);
 	static Mesh Rectangle (const float& width, const float& height);
+	// Used in recursion for the Sphere function
+	static Mesh Bulge_Sphere (const float& radius, const int& recursions,
+		const Vertex& left, const Vertex& right, const Vertex& top);
 	// Allows [] to get a vertex like an array
 	Vertex& operator[] (const int& index) const;
 	// Allows += to add a vertex to the end

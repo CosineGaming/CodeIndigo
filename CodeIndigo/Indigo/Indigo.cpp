@@ -13,6 +13,7 @@ namespace Indigo
 		const int& window_width, const int& window_height, const bool& fullscreen,
 		int field_of_view, float * background, int max_framerate)
 	{
+		// Initiate glut
 		glutInit (&argc, argv);
 		glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 		glutInitWindowSize (window_width, window_height);
@@ -29,6 +30,8 @@ namespace Indigo
 		{
 			glClearColor (Sky_Color [0], Sky_Color [1], Sky_Color [2], 1.0);
 		}
+
+		// Set callbacks
 		Frame_Length_Minimum = 1000 / max_framerate;
 		glutSetKeyRepeat (GLUT_KEY_REPEAT_OFF);
 		glutDisplayFunc (Render);
@@ -38,14 +41,15 @@ namespace Indigo
 		glutMouseFunc (Mouse_Button);
 		glutKeyboardFunc (Key_Pressed);
 		glutKeyboardUpFunc (Key_Released);
-		glMatrixMode (GL_PROJECTION);
-		Reshape ();
+
+		// Enable rendering options
+		glShadeModel (GL_SMOOTH);
+		glDisable (GL_CULL_FACE);
+		glEnable (GL_DEPTH_TEST);
+		glEnable (GL_LIGHTING);
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
-		glShadeModel (GL_SMOOTH);
-		glEnable (GL_DEPTH_TEST);
-		glEnable (GL_AUTO_NORMAL);
-		glEnable (GL_LIGHTING);
+
 		return;
 	}
 
@@ -74,10 +78,13 @@ namespace Indigo
 		{
 			glViewport (0, 0, width, height);
 		}
+		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			0.01, 30.0);
+			0.1, 500.0);
+		//glOrtho (-2.0, 2.0, -2.0, 2.0, 0.1, 500.0); // DELETE
+		glMatrixMode (GL_MODELVIEW);
 	}
 
 	// Acts for keys which act once, and stores for multi-acting keys

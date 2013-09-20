@@ -1,4 +1,5 @@
 #include "Direction.h"
+#include "Vertex.h"
 
 
 // Construct a new direction based off of distance and 2 angles
@@ -108,4 +109,11 @@ Direction Direction::Distance (Direction to)
 {
 	to.Add_Coordinates (-1 * Get_X (), -1 * Get_Y (), -1 * Get_Z ());
 	return to;
+}
+
+
+// Makes a vertex with the X, Y, and Z values
+Vertex Direction::To_Vertex (void) const
+{
+	return Vertex (Get_X (), Get_Y (), Get_Z ());
 }

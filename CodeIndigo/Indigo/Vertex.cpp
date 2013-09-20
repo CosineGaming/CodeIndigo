@@ -1,5 +1,6 @@
 // Defines a three-dimensional position
 
+#include "Direction.h"
 #include "Vertex.h"
 
 
@@ -68,4 +69,22 @@ Mesh Vertex::operator+ (const Vertex& vertex) const
 	mesh += *this;
 	mesh += vertex;
 	return (mesh);
+}
+
+
+// Finds the midpoint between 2 vertices, useful for triangular recursion
+Vertex Vertex::Midpoint (const Vertex& vertex) const
+{
+	Vertex copy = *this;
+	copy.X = (X + vertex.X) / 2;
+	copy.Y = (Y + vertex.Y) / 2;
+	copy.Z = (Z + vertex.Z) / 2;
+	return copy;
+}
+
+
+// Returns a direction with the coordinates of the vertex
+Direction Vertex::To_Direction (void) const
+{
+	return (Direction::Coordinates (X, Y, Z));
 }

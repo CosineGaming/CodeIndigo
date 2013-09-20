@@ -5,6 +5,8 @@
 
 #define DEGREES_PER_RADIAN (180 / M_PI)
 
+class Vertex;
+
 
 class Direction
 {
@@ -33,6 +35,8 @@ public:
 	void Add_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
 	// Find the distance between this direction and another
 	Direction Distance (Direction to);
+	// Makes a vertex with the X, Y, and Z values
+	Vertex To_Vertex (void) const;
 private:
 	// The distance stretched when getting coords (1 for a normalized direction)
 	float distance;
