@@ -26,6 +26,24 @@ Direction::~Direction (void)
 }
 
 
+// Make the distance 1
+void Direction::Normalize (void)
+{
+	Set_Direction (1.0, Get_X_Angle (), Get_Y_Angle ());
+}
+
+
+// Dot product. Useful for lighting
+float Direction::Dot (Direction direction) const
+{
+	Direction copy;
+	copy.Normalize ();
+	direction.Normalize ();
+	return (copy.Get_X () * direction.Get_X ()
+		+ copy.Get_Y () * direction.Get_Y () + copy.Get_Z () * direction.Get_Z ());
+}
+
+
 float Direction::Get_X (void) const
 {
 	return (sin (angle_x) * cos (angle_y) * distance);

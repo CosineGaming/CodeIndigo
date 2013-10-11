@@ -47,6 +47,7 @@ namespace Indigo
 		glDisable (GL_CULL_FACE);
 		glEnable (GL_DEPTH_TEST);
 		glEnable (GL_LIGHTING);
+		glEnable (GL_NORMALIZE);
 		glMatrixMode (GL_MODELVIEW);
 		glLoadIdentity ();
 

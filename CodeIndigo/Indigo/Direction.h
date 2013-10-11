@@ -17,6 +17,10 @@ public:
 	static Direction Coordinates (float x, float y, float z);
 	// Destroy a direction
 	~Direction (void);
+	// Make the distance 1
+	void Normalize (void);
+	// Dot product. Useful for lighting
+	float Dot (Direction direction) const;
 	// Get the relative coordinates of the direction
 	float Get_X (void) const;
 	float Get_Y (void) const;

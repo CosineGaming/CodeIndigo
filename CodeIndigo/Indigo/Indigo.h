@@ -11,7 +11,7 @@ namespace Indigo
 	// Initializes window and rendering matrices.
 	void Initialize (int argc, char ** argv, const char * window_name="Indigo",
 		const int& window_width=800, const int& window_height=600,
-		const bool& fullscreen=1, int field_of_view_y=25,
+		const bool& fullscreen=1, int field_of_view=120,
 		float * background=nullptr, int max_framerate=48);
 	// Starts the main loop with update, render, and input
 	void Run (void);
