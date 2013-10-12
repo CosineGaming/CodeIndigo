@@ -49,12 +49,10 @@ float Direction::Get_X (void) const
 	return (sin (angle_x) * cos (angle_y) * distance);
 }
 
-
 float Direction::Get_Y (void) const
 {
 	return (sin (angle_y) * distance);
 }
-
 
 float Direction::Get_Z (void) const
 {

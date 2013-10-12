@@ -66,14 +66,16 @@ void mouse_moved (int x, int y)
 
 	Camera * camera = &Indigo::Current_World.camera;
 
+	camera->eye.Normalize ();
+
 	static const float sensitivity = 0.5;
 
-	float y_angle = camera->eye.Get_Y_Angle () + y * sensitivity;
+	float y_angle = camera->eye.Get_Y_Angle () + y * -1 * sensitivity;
 
 	if (!(y_angle >= 89.9 && y_angle <= 270.1))
 	{
 		camera->eye.Add_Direction (0.0, x * sensitivity,
-			y * sensitivity);
+			y * -1 * sensitivity);
 	}
 	else
 	{
@@ -89,7 +91,7 @@ void mouse_moved (int x, int y)
 	Indigo::Current_World.Get_Object (eyeMark).X = camera->X; // <DELETE>
 	Indigo::Current_World.Get_Object (eyeMark).Y = camera->Y;
 	Indigo::Current_World.Get_Object (eyeMark).Z = camera->Z;
-	std::cout << camera->X << "," << camera->Y << "," << camera->X << std::endl; // </DELETE>
+	std::cout << camera->eye.Get_X_Angle () << "," << camera->eye.Get_Y_Angle () << "," << camera->eye.Get_Distance () << std::endl; // </DELETE>
 
 }
 
@@ -101,10 +103,12 @@ int main(int argc, char ** argv)
 		Indigo::White_Color, 40.0f, nullptr, true);
 	object = Indigo::Current_World.Add_Object (add);
 	Mesh wall = Mesh::Cube (0.5);
-	Object thewall = Object (1.0, 0.5, -1.0, wall,
+	Object thewall = Object (1.0, 0.5, -1.0, wall, 
 		Indigo::White_Color, 60.0f, nullptr, false);
 	Object marker = Object (0.0, 0.0, 0.0, Mesh::Sphere (0.05, 1), Indigo::White_Color);
 	eyeMark = Indigo::Current_World.Add_Object (marker);
+	Object cage = Object (0.0, 0.0, 0.0, Mesh::Cube (2.0));
+	//Indigo::Current_World.Add_Object (cage);
 	Indigo::Current_World.Add_Object (thewall);
 	Indigo::Update_Function = update;
 	Indigo::Key_Pressed_Function = pressed;

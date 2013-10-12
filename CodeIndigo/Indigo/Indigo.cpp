@@ -134,7 +134,7 @@ namespace Indigo
 			{
 				Relative_Mouse_Moved_Function (x - last_x, y - last_y);
 			}
-			static const int margin = 75;
+			static const int margin = 100;
 			if (x < margin || x > width - margin || y < margin || y > height - margin)
 			{
 				glutWarpPointer (width / 2, height / 2);

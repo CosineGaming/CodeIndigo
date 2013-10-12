@@ -53,7 +53,8 @@ void Object::Render (void) const
 	static int skip; // DELETE
 	glPushMatrix ();
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, object_color ? object_color : full_array);
+	glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
+		object_color ? object_color : full_array);
 	glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 	glMaterialf (GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
 	glTranslatef (X, Y, Z);
