@@ -64,6 +64,7 @@ void Camera::Move (float forward, float side, float up)
 void Camera::Look_At (Direction direction)
 {
 	eye = direction.Distance (Direction::Coordinates (X, Y, Z));
+	eye.Normalize ();
 	return;
 }
 
@@ -72,6 +73,7 @@ void Camera::Look_At (Direction direction)
 void Camera::Look_At (float x, float y, float z)
 {
 	eye.Set_Coordinates (x - X, y - Y, z - Z);
+	eye.Normalize ();
 	return;
 }
 
@@ -107,7 +109,7 @@ void Camera::Look (void) const
 {
 	// Look through the camera for this frame
 	glLoadIdentity ();
-	gluLookAt (X, Y, Z, X + eye.Get_X (), Y + eye.Get_Y (), Z + eye.Get_Z (),
-		up.Get_X (), up.Get_Y (), up.Get_Z ());
+	gluLookAt (X + eye.Get_X (), Y + eye.Get_Y (), Z + eye.Get_Z (),
+		X, Y, Z, up.Get_X (), up.Get_Y (), up.Get_Z ());
 	return;
 }
