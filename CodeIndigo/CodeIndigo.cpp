@@ -86,25 +86,25 @@ void mouse_moved (int x, int y)
 			camera->eye.Set_Direction (1.0, camera->eye.Get_X_Angle () + x * sensitivity, 270.1);
 		}
 	}
-	//Indigo::Current_World.Get_Object (eyeMark).X = camera->X;
-	//Indigo::Current_World.Get_Object (eyeMark).Y = camera->Y;
-	//Indigo::Current_World.Get_Object (eyeMark).Z = camera->Z;
-	std::cout << camera->X << "," << camera->Y << "," << camera->X << std::endl;
+	Indigo::Current_World.Get_Object (eyeMark).X = camera->X; // <DELETE>
+	Indigo::Current_World.Get_Object (eyeMark).Y = camera->Y;
+	Indigo::Current_World.Get_Object (eyeMark).Z = camera->Z;
+	std::cout << camera->X << "," << camera->Y << "," << camera->X << std::endl; // </DELETE>
 
 }
 
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize (argc, argv, "Code Indigo");
-	Mesh box = Mesh::Sphere (0.5, 4);
+	Mesh box = Mesh::Sphere (0.5, 2);
 	Object add = Object (0.0, 0.0, -1.0, box,
 		Indigo::White_Color, 40.0f, nullptr, true);
 	object = Indigo::Current_World.Add_Object (add);
 	Mesh wall = Mesh::Cube (0.5);
 	Object thewall = Object (1.0, 0.5, -1.0, wall,
 		Indigo::White_Color, 60.0f, nullptr, false);
-	//Object marker = Object (0.0, 0.0, 0.0, Mesh::Sphere (0.05, 1), Indigo::White_Color);
-	//eyeMark = Indigo::Current_World.Add_Object (marker);
+	Object marker = Object (0.0, 0.0, 0.0, Mesh::Sphere (0.05, 1), Indigo::White_Color);
+	eyeMark = Indigo::Current_World.Add_Object (marker);
 	Indigo::Current_World.Add_Object (thewall);
 	Indigo::Update_Function = update;
 	Indigo::Key_Pressed_Function = pressed;

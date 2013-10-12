@@ -108,7 +108,7 @@ void Object::Render (void) const
 				//glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
 				//++flipped; // DELETE
 				//if (Indigo::keys ['3']) skip = 3;
-				//std::cout << normal.Get_X_Angle () << ", " << normal.Get_Y_Angle ()
+				//std::cout << normal.Get_X_Angle () << ", " << normal.Get_Y_Angle () // DELETE
 				//	<< std::endl;
 			//}
 			/*Direction pointing = eye.Distance (points [Point].To_Direction ());

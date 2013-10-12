@@ -47,6 +47,7 @@ void World::Render (void) const
 {
 	// Renders every object in the world
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode (GL_MODELVIEW);
 	camera.Look ();
 	lighting.Position_Lights ();
 	glutSolidTeapot (0.3); // DELETE

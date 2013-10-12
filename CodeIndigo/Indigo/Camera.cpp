@@ -109,7 +109,7 @@ void Camera::Look (void) const
 {
 	// Look through the camera for this frame
 	glLoadIdentity ();
-	gluLookAt (X + eye.Get_X (), Y + eye.Get_Y (), Z + eye.Get_Z (),
-		X, Y, Z, up.Get_X (), up.Get_Y (), up.Get_Z ());
+	gluLookAt (X, Y, Z, X + eye.Get_X (), Y + eye.Get_Y (), Z + eye.Get_Z (),
+		up.Get_X (), up.Get_Y (), up.Get_Z ());
 	return;
 }
