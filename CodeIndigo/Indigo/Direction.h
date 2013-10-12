@@ -38,7 +38,7 @@ public:
 	// Add values to the distance and angles
 	void Add_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
 	// Find the distance between this direction and another
-	Direction Distance (Direction to);
+	Direction Distance (Direction to) const;
 	// Makes a vertex with the X, Y, and Z values
 	Vertex To_Vertex (void) const;
 private:

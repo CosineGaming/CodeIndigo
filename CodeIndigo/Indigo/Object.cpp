@@ -8,10 +8,12 @@
 #include "glut.h"
 
 
+// Create an object given optional position, a mesh,
+// and whether the object should render in wireframe
 Object::Object (const float& x, const float& y, const float& z,
 	const Mesh& mesh, float *color, float shine,
 	void (*update_function) (const int& frame, Object& self),
-	const bool& line)
+	const bool& line, const Direction& towards)
 {
 	Place (x, y, z);
 	Data = mesh;
@@ -19,6 +21,7 @@ Object::Object (const float& x, const float& y, const float& z,
 	object_shine = shine;
 	Update = update_function;
 	Line = line;
+	facing = towards;
 	Is_Blank = mesh.Size () == 0;
 	ID = -1;
 	return;
@@ -34,6 +37,7 @@ Object::Object (const Object& object)
 	object_shine = object.object_shine;
 	Update = object.Update;
 	Line = object.Line;
+	facing = object.facing;
 	Is_Blank = object.Is_Blank;
 	ID = object.ID;
 	return;
@@ -153,6 +157,87 @@ void Object::Move (const float& x, const float& y, const float& z)
 	Y += y;
 	Z += z;
 	return;
+}
+
+
+// Checks whether this object collides with another object
+bool Object::Collide (const Object& object, const float add_x, const float add_y, const float add_z)
+{
+	return (
+		   object.Data.Hitbox [0].X + object.X < Data.Hitbox [1].X + X
+		&& object.Data.Hitbox [0].Y + object.Y < Data.Hitbox [1].Y + Y
+		&& object.Data.Hitbox [0].Z + object.Z < Data.Hitbox [1].Z + Z
+		&& object.Data.Hitbox [1].X + object.X > Data.Hitbox [0].X + X
+		&& object.Data.Hitbox [1].Y + object.Y > Data.Hitbox [0].Y + Y
+		&& object.Data.Hitbox [1].Z + object.Z > Data.Hitbox [0].Z + Z);
+}
+
+
+// Checks whether this object will ever be intersected by a direction
+bool Object::CollideDirection (const Direction& position, const Direction& direction)
+{
+
+	Vertex * hitbox = Data.Hitbox;
+
+	if (position.Get_Z () < Data.Hitbox [0].Z)
+	{
+
+		hitbox [0].X = Data.Hitbox [1].X;
+
+		hitbox [1].X = Data.Hitbox [0].X;
+		if (position.Get_X () > Data.Hitbox [0].X)
+			hitbox [1].Z = Data.Hitbox [0].Z;
+
+	}
+
+	if (position.Get_X () > Data.Hitbox [1].X)
+	{
+
+		hitbox [0].X = Data.Hitbox [1].X;
+		hitbox [0].Z = Data.Hitbox [1].Z;
+
+		hitbox [1].X = Data.Hitbox [0].X;
+		hitbox [1].Z = Data.Hitbox [0].Z;
+		if (position.Get_Z () > Data.Hitbox [0].Z)
+			hitbox [1].X = Data.Hitbox [1].X;
+
+	}
+
+	if (position.Get_Z () > Data.Hitbox [1].Z
+		&& position.Get_X () > Data.Hitbox [0].X)
+	{
+
+		hitbox [0].X = Data.Hitbox [0].X;
+		hitbox [0].Z = Data.Hitbox [1].Z;
+
+		hitbox [1].X = Data.Hitbox [1].X;
+		hitbox [1].Z = Data.Hitbox [0].Z;
+		if (position.Get_X () < Data.Hitbox [1].X)
+			hitbox [1].Z = Data.Hitbox [1].Z;
+		
+	}
+
+	Direction least = position.Distance (hitbox [0].To_Direction ());
+	Direction most = position.Distance (hitbox [1].To_Direction ());
+
+	return (direction.Get_X_Angle () > least.Get_X_Angle ()
+		&& direction.Get_X_Angle () < most.Get_X_Angle ()
+		&& direction.Get_Y_Angle () > least.Get_Y_Angle ()
+		&& direction.Get_Y_Angle () < most.Get_Y_Angle ());
+
+}
+
+
+// Checks whether this vertex is withing this object
+bool Object::CollideVertex (const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+{
+	return (
+		   vertex.X < Data.Hitbox [1].X + X
+		&& vertex.Y < Data.Hitbox [1].Y + Y
+		&& vertex.Z < Data.Hitbox [1].Z + Z
+		&& vertex.X > Data.Hitbox [0].X + X
+		&& vertex.Y > Data.Hitbox [0].Y + Y
+		&& vertex.Z > Data.Hitbox [0].Z + Z);
 }
 
 

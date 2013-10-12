@@ -2,8 +2,7 @@
 
 #include <vector>
 #include "Direction.h"
-
-class Vertex;
+#include "Vertex.h"
 
 
 class Mesh
@@ -59,6 +58,8 @@ public:
 	int Size (void) const;
 	// How many sides to each polygon
 	int Group_Size;
+	// Hitbox used for collision, normally auto-generated. Bottom Left Back to Top Right Front
+	Vertex Hitbox [2];
 	// Add points to the mesh in function notation
 	void Add (const Vertex& vertex);
 	void Add (const Mesh& mesh);

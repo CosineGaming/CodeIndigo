@@ -8,6 +8,8 @@ int object;
 
 int eyeMark;
 
+int fun;
+
 
 void pressed (unsigned char key, int x, int y)
 {
@@ -16,6 +18,29 @@ void pressed (unsigned char key, int x, int y)
 		Indigo::Current_World.Get_Object (object).Line = !Indigo::Current_World.Get_Object (object).Line;
 	}
 	return;
+}
+
+void sphere (const int& frame, Object& self)
+{
+	
+	float X = 0;
+	float Z = 0;
+
+	if (Indigo::keys ['l'])
+		X += 0.05;
+	if (Indigo::keys ['j'])
+		X -= 0.05;
+	if (Indigo::keys ['i'])
+		Z -= 0.05;
+	if (Indigo::keys ['k'])
+		Z += 0.05;
+
+	if (!(self.Collide (Indigo::Current_World.Get_Object (fun), X, 0, Z)))
+	{
+		self.X += X;
+		self.Z += Z;
+	}
+
 }
 
 void update (int frame)
@@ -100,7 +125,7 @@ int main(int argc, char ** argv)
 	Indigo::Initialize (argc, argv, "Code Indigo");
 	Mesh box = Mesh::Sphere (0.5, 2);
 	Object add = Object (0.0, 0.0, -1.0, box,
-		Indigo::White_Color, 40.0f, nullptr, true);
+		Indigo::White_Color, 40.0f, sphere, true);
 	object = Indigo::Current_World.Add_Object (add);
 	Mesh wall = Mesh::Cube (0.5);
 	Object thewall = Object (1.0, 0.5, -1.0, wall, 
@@ -109,7 +134,7 @@ int main(int argc, char ** argv)
 	eyeMark = Indigo::Current_World.Add_Object (marker);
 	Object cage = Object (0.0, 0.0, 0.0, Mesh::Cube (2.0));
 	//Indigo::Current_World.Add_Object (cage);
-	Indigo::Current_World.Add_Object (thewall);
+	fun = Indigo::Current_World.Add_Object (thewall);
 	Indigo::Update_Function = update;
 	Indigo::Key_Pressed_Function = pressed;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;

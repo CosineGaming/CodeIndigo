@@ -129,10 +129,11 @@ void Direction::Add_Direction (float in_distance, float in_angle_x, float in_ang
 
 
 // Find the distance between this direction and another
-Direction Direction::Distance (Direction to)
+Direction Direction::Distance (Direction to) const
 {
-	to.Add_Coordinates (-1 * Get_X (), -1 * Get_Y (), -1 * Get_Z ());
-	return to;
+	Direction copy = to;
+	copy.Add_Coordinates (-1 * Get_X (), -1 * Get_Y (), -1 * Get_Z ());
+	return copy;
 }
 
 

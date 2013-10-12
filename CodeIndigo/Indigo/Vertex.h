@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+class Mesh;
 
 class Direction;
 

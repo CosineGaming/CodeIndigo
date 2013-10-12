@@ -2,6 +2,7 @@
 
 #include "Direction.h"
 #include "Vertex.h"
+#include "Mesh.h"
 
 
 // Create a new, blank vertex

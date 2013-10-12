@@ -7,6 +7,8 @@
 Mesh::Mesh (const int& group_size)
 {
 	// Create a new, empty mesh
+	Hitbox [0] = Vertex (0, 0, 0);
+	Hitbox [1] = Vertex (0, 0, 0);
 	Group_Size = group_size;
 	return;
 }
@@ -284,6 +286,31 @@ void Mesh::Add (const Vertex& vertex)
 {
 	// Add a new vertex to the end of the mesh
 	vertices.push_back (vertex);
+	// Update the hitbox with the new vertex
+	if (vertex.X < Hitbox [0].X)
+	{
+		Hitbox [0].X = vertex.X;
+	}
+	if (vertex.Y < Hitbox [0].Y)
+	{
+		Hitbox [0].Y = vertex.Y;
+	}
+	if (vertex.Z < Hitbox [0].Z)
+	{
+		Hitbox [0].Z = vertex.Z;
+	}
+	if (vertex.X > Hitbox [1].X)
+	{
+		Hitbox [1].X = vertex.X;
+	}
+	if (vertex.Y > Hitbox [1].Y)
+	{
+		Hitbox [1].Y = vertex.Y;
+	}
+	if (vertex.Z > Hitbox [1].Z)
+	{
+		Hitbox [1].Z = vertex.Z;
+	}
 	return;
 }
 
@@ -292,7 +319,7 @@ void Mesh::Add (const Mesh& mesh)
 {
 	// Add new vertices to the end of the mesh
 	for (int Point=0; Point<mesh.Size (); ++Point)
-	vertices.push_back (mesh [Point]);
+	Add (mesh [Point]);
 	return;
 }
 
@@ -301,6 +328,6 @@ void Mesh::Add (const std::vector <Vertex>& add_vertices)
 {
 	// Add new vertices to the end of the mesh
 	for (int Point=0; Point<add_vertices.size (); ++Point)
-	vertices.push_back (add_vertices [Point]);
+	Add (add_vertices [Point]);
 	return;
 }

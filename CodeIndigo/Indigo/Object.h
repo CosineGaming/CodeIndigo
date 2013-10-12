@@ -5,6 +5,7 @@
 
 #include "Mesh.h"
 #include "Vertex.h"
+#include "Direction.h"
 
 
 class Object
@@ -13,9 +14,9 @@ public:
 	// Create an object given optional position, a mesh,
 	// and whether the object should render in wireframe
 	Object (const float& x=0.0, const float& y=0.0, const float& z=0.0,
-		const Mesh& mesh=Mesh(), float *color=nullptr, float shine=40.0,
+		const Mesh& mesh=Mesh (), float *color=nullptr, float shine=40.0,
 		void (*update_function) (const int& frame, Object& self)=nullptr,
-		const bool& line=false);
+		const bool& line=false, const Direction& towards=Direction (1,0,0));
 	// Copy an object
 	Object (const Object& object);
 	// Destroys the object
@@ -25,8 +26,14 @@ public:
 	void Render () const;
 	// Places the object at the X, Y, and Z coordinates
 	void Place (const float& x, const float& y=0.0, const float& z=0.0);
-	// Moves the object by X, Y, and Z relatively
+	// Moves the forward, side, and up based on the facing direction
 	void Move (const float& x, const float& y=0.0, const float& z=0.0);
+	// Checks whether this object collides with another object
+	bool Collide (const Object& object, const float add_x=0, const float add_y=0, const float add_z=0);
+	// Checks whether this object will ever be intersected by a direction
+	bool CollideDirection (const Direction& position, const Direction& direction);
+	// Checks whether this vertex is withing this object
+	bool CollideVertex (const Vertex& vertex, const float add_x=0, const float add_y=0, const float add_z=0);
 
 	// Checked for whether to draw filled or lines
 	bool Line;
@@ -42,6 +49,8 @@ public:
 	float Z;
 	// Relative position of points
 	Mesh Data;
+	// The Direction the object is Facing
+	Direction facing;
 	// The color of the object
 	float * object_color;
 	// The shininess of the object, from 0 to 128
