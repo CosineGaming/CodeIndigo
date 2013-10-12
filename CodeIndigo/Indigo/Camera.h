@@ -11,7 +11,7 @@ class Camera
 public:
 	// Create a new camera by a position and a direction
 	Camera (float x=0.0, float y=0.0, float z=0.0,
-		Direction direction=Direction (),
+		Direction direction=Direction (1.0),
 		Direction above=Direction (1.0, 0.0, 90.0));
 	// Create a camera based off another
 	Camera (const Camera& camera);

@@ -128,7 +128,7 @@ void Object::Render (void) const
 		Vertex Cursor = points [Point];
 		glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);
 	}
-	std::cout << "Flipped " << flipped * 100 / points.size () << "%" << std::endl; // DELETE
+	//std::cout << "Flipped " << flipped * 100 / points.size () << "%" << std::endl; // DELETE
 	glEnd ();
 	glPopMatrix ();
 	return;

@@ -106,8 +106,16 @@ void Direction::Add_Coordinates (float x, float y, float z)
 void Direction::Set_Direction (float in_distance, float in_angle_x, float in_angle_y)
 {
 	distance = in_distance;
-	angle_x = in_angle_x / DEGREES_PER_RADIAN;
-	angle_y = in_angle_y / DEGREES_PER_RADIAN;
+	angle_x = fmod (in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_x < 0)
+	{
+		angle_x += 360.0 / DEGREES_PER_RADIAN;
+	}
+	angle_y = fmod (in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_y < 0)
+	{
+		angle_y += 360.0 / DEGREES_PER_RADIAN;
+	}
 	return;
 }
 

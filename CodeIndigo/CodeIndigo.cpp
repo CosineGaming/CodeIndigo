@@ -18,52 +18,79 @@ void pressed (unsigned char key, int x, int y)
 
 void update (int frame)
 {
+
+	Camera * camera = &Indigo::Current_World.camera;
+
 	if (Indigo::keys ['w'])
 	{
-		Indigo::Current_World.camera.Move (0.05);
+		camera->Move (0.05);
 	}
 	if (Indigo::keys ['s'])
 	{
-		Indigo::Current_World.camera.Move (-0.05);
+		camera->Move (-0.05);
 	}
 	if (Indigo::keys ['a'])
 	{
-		Indigo::Current_World.camera.Move (0.0, -0.05);
+		camera->Move (0.0, -0.05);
 	}
 	if (Indigo::keys ['d'])
 	{
-		Indigo::Current_World.camera.Move (0.0, 0.05);
+		camera->Move (0.0, 0.05);
 	}
 	if (Indigo::keys ['q'])
 	{
-		Indigo::Current_World.camera.Move (0.0, 0.0, -0.05);
+		camera->Move (0.0, 0.0, -0.05);
 	}
 	if (Indigo::keys ['e'])
 	{
-		Indigo::Current_World.camera.Move (0.0, 0.0, 0.05);
+		camera->Move (0.0, 0.0, 0.05);
 	}
+
 	if (Indigo::keys ['3'])
 	{
-		Camera camera = Indigo::Current_World.camera;
-		std::cout << camera.X << ", " << camera.Y << ", " << camera.Z << " looking at "
-			<< camera.eye.Get_X () << ", " << camera.eye.Get_Y () << ", " << camera.eye.Get_Z () << std::endl;
+		std::cout << camera->X << ", " << camera->Y << ", " << camera->Z << " looking at "
+			<< camera->eye.Get_X () << ", " << camera->eye.Get_Y () << ", " << camera->eye.Get_Z () << std::endl;
 	}
+
 	if (GL_NO_ERROR != glGetError ())
 	{
-		std::cout << "Error: " << glGetError () << std::endl;
+		std::cout << "\aError: " << glGetError () << std::endl;
 	}
+
 }
 
 void mouse_moved (int x, int y)
 {
+
+	Camera * camera = &Indigo::Current_World.camera;
+
 	static const float sensitivity = 0.5;
-	Indigo::Current_World.camera.eye.Add_Direction (0.0, x * sensitivity,
-		y * -1 * sensitivity);
+
+	float y_angle = camera->eye.Get_Y_Angle () + y * sensitivity;
+
+	if (!(y_angle >= 89.9 && y_angle <= 270.1))
+	{
+		camera->eye.Add_Direction (0.0, x * sensitivity,
+			y * sensitivity);
+	}
+	else
+	{
+		if (y_angle < 180)
+		{
+			camera->eye.Set_Direction (1.0, camera->eye.Get_X_Angle () + x * sensitivity, 89.9);
+		}
+		else
+		{
+			camera->eye.Set_Direction (1.0, camera->eye.Get_X_Angle () + x * sensitivity, 270.1);
+		}
+	}
+	std::cout << camera->eye.Get_X_Angle () << "," << camera->eye.Get_Y_Angle () << "," << camera->eye.Get_Distance () << std::endl;
+
 }
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize (argc, argv, " ~ Code Indigo");
+	Indigo::Initialize (argc, argv, "Code Indigo");
 	Mesh box = Mesh::Sphere (0.5, 4);
 	Object add = Object (0.0, 0.0, -1.0, box,
 		Indigo::White_Color, 40.0f, nullptr, true);
