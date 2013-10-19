@@ -56,9 +56,9 @@ Vertex& Vertex::operator+= (const Vertex& vertex)
 Vertex Vertex::operator- (const Vertex& vertex) const
 {
 	Vertex copy = *this;
-	copy.X -= vertex.X;
-	copy.Y -= vertex.Y;
-	copy.Z -= vertex.Z;
+	copy.X = abs (vertex.X - X);
+	copy.Y = abs (vertex.Y - Y);
+	copy.Z = abs (vertex.Z - Z);
 	return (copy);
 }
 

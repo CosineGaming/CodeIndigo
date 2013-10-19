@@ -81,10 +81,10 @@ float Direction::Get_Y_Angle (void) const
 // Set the coordinates of the direction
 void Direction::Set_Coordinates (float x, float y, float z)
 {
-	float mid_direction = sqrt (z*z + x*x);
-	angle_x = atan2 (z, x);
-	angle_y = atan2 (y, mid_direction);
-	distance = sqrt (mid_direction*mid_direction + y*y);
+	Set_Direction (
+		sqrt (x*x + y*y + z*z),
+		atan2 (x, z) * DEGREES_PER_RADIAN,
+		atan2 (y, sqrt (x*x + z*z)) * DEGREES_PER_RADIAN);
 	return;
 }
 

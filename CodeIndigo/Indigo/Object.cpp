@@ -79,43 +79,34 @@ void Object::Render (void) const
 		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size ()) == 0 ||
 			(Data.Group_Size == 0 && Point <= points.size () - 3))
 		{
-			Vertex two = points [Point + 1] - points [Point];
-			Vertex three = points [Point + 2] - points [Point];
+			Vertex one = points [Point + 1] - points [Point];
+			Vertex two = points [Point + 2] - points [Point];
 			points [Point].To_Direction ();
 			Direction normal = Direction::Coordinates (
-				two.Y * three.Z - two.Z * three.Y,
-				-1 * (two.Z * three.X - two.X * three.Z),
-				two.X * three.Y - two.Y * three.X);
+				one.Y * two.Z - one.Z * two.Y,
+				one.Z * two.X - one.X * two.Z,
+				one.X * two.Y - one.Y * two.X);
 			normal.Normalize ();
-			Direction pointing = Direction::Coordinates (
+			/*Direction pointing = Direction::Coordinates (
 				Indigo::Current_World.camera.X,
 				Indigo::Current_World.camera.Y,
 				Indigo::Current_World.camera.Z)
-				.Distance (points [Point].To_Direction ());
+				.Distance (points [Point].To_Direction ());*/
+			/*if (normal.Dot (pointing) > 0)
+			{
+				normal.Set_Direction (1.0, 180 + normal.Get_X_Angle (),
+					normal.Get_Y_Angle () * -1);
+			}*/
 			glEnd ();
 			glBegin (GL_LINES);
-			normal.Add_Direction (-0.95);
+			normal.Add_Direction (-0.5);
 			Vertex Cursor = points [Point];
 			glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);
 			glVertex3f (Cursor.X + normal.Get_X (),
 				Cursor.Y + normal.Get_Y (), Cursor.Z + normal.Get_Z ());
-			normal.Add_Direction (0.95);
+			normal.Add_Direction (0.5);
 			glEnd ();
 			glBegin (Render_Types [Data.Group_Size]);
-			//std::cout << (int) (normal.Dot (pointing)) << std::endl;
-			//if (normal.Dot (pointing) > 0)
-			//{
-				//std::cout << "---\n" << normal.Get_X_Angle () << ", " << normal.Get_Y_Angle ()
-				//	<< std::endl;
-				//normal.Set_Direction (1.0, 180 + normal.Get_X_Angle (),
-				//	normal.Get_Y_Angle () * -1);
-				//float color [] = {1.0, 0.0, 0.0, 1.0};
-				//glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-				//++flipped; // DELETE
-				//if (Indigo::keys ['3']) skip = 3;
-				//std::cout << normal.Get_X_Angle () << ", " << normal.Get_Y_Angle () // DELETE
-				//	<< std::endl;
-			//}
 			/*Direction pointing = eye.Distance (points [Point].To_Direction ());
 			if (!((pointing.Get_X_Angle () > ((int) (normal.Get_X_Angle () - 90) % 360)
 				|| pointing.Get_X_Angle () < ((int) (normal.Get_X_Angle () + 90) % 360))
@@ -125,10 +116,6 @@ void Object::Render (void) const
 				normal.Add_Direction (0.0, 180.0, 180.0);
 			}*/
 			glNormal3f (normal.Get_X (), normal.Get_Y (), normal.Get_Z ());
-		}
-		if (skip > 0)	{
-			skip--;
-			continue;
 		}
 		Vertex Cursor = points [Point];
 		glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);
