@@ -87,16 +87,16 @@ void Object::Render (void) const
 				one.Z * two.X - one.X * two.Z,
 				one.X * two.Y - one.Y * two.X);
 			normal.Normalize ();
-			/*Direction pointing = Direction::Coordinates (
+			Direction pointing = Direction::Coordinates (
 				Indigo::Current_World.camera.X,
 				Indigo::Current_World.camera.Y,
 				Indigo::Current_World.camera.Z)
-				.Distance (points [Point].To_Direction ());*/
-			/*if (normal.Dot (pointing) > 0)
+				.Distance (points [Point].To_Direction ());
+			if (normal.Dot (pointing) > 0)
 			{
 				normal.Set_Direction (1.0, 180 + normal.Get_X_Angle (),
 					normal.Get_Y_Angle () * -1);
-			}*/
+			}
 			glEnd ();
 			glBegin (GL_LINES);
 			normal.Add_Direction (-0.5);

@@ -89,11 +89,13 @@ void update (int frame)
 void mouse_moved (int x, int y)
 {
 
+	std::cout << x << ", " << y << std::endl;
+
 	Camera * camera = &Indigo::Current_World.camera;
 
 	camera->eye.Normalize ();
 
-	static const float sensitivity = 0.5;
+	static const float sensitivity = 1;
 
 	float y_angle = camera->eye.Get_Y_Angle () + y * -1 * sensitivity;
 
@@ -122,6 +124,12 @@ void mouse_moved (int x, int y)
 
 int main(int argc, char ** argv)
 {
+	Direction test (20.0, 90.0, 0.0);
+	test.Add_Direction (20.0, 90.0, 0.0);
+	test.Normalize ();
+	std::cout << (int) test.Get_X () << std::endl;
+	std::cout << (int) test.Get_Y () << std::endl;
+	std::cout << (int) test.Get_Z () << std::endl;
 	Indigo::Initialize (argc, argv, "Code Indigo");
 	Mesh box = Mesh::Sphere (0.5, 1);
 	Object add = Object (0.0, 0.0, -1.0, box,
@@ -140,7 +148,6 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);
 	Indigo::Current_World.camera.Place (0.0, 0.0, 0.0);
-	Indigo::Current_World.camera.eye.Set_Direction (1.0, 90.0, -2.8);
 	Indigo::Run ();
 	return (0);
 }

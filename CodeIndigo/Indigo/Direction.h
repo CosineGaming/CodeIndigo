@@ -30,11 +30,11 @@ public:
 	float Get_X_Angle (void) const;
 	float Get_Y_Angle (void) const;
 	// Set the coordinates of the direction
-	void Set_Coordinates (float x, float y=0.0, float z=0.0);
+	void Set_Coordinates (float x, float y, float z);
 	// Add values to the coordinates of the direction
 	void Add_Coordinates (float x, float y=0.0, float z=0.0);
 	// Set the distance and angles
-	void Set_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
+	void Set_Direction (float in_distance, float in_angle_x, float in_angle_y);
 	// Add values to the distance and angles
 	void Add_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
 	// Find the distance between this direction and another
