@@ -18,7 +18,7 @@ public:
 	// Destroy a direction
 	~Direction (void);
 	// Make the distance 1
-	void Normalize (void);
+	void Normalize (float unit=1.0);
 	// Dot product. Useful for lighting
 	float Dot (Direction direction) const;
 	// Get the relative coordinates of the direction

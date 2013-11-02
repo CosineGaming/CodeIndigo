@@ -27,9 +27,9 @@ Direction::~Direction (void)
 
 
 // Make the distance 1
-void Direction::Normalize (void)
+void Direction::Normalize (float unit)
 {
-	Set_Direction (1.0, Get_X_Angle (), Get_Y_Angle ());
+	Set_Direction (unit, Get_X_Angle (), Get_Y_Angle ());
 }
 
 

@@ -4,6 +4,7 @@
 #include "Indigo.h"
 #include <stdlib.h>
 #include "glut.h"
+#include <iostream>
 
 
 namespace Indigo
@@ -64,6 +65,7 @@ namespace Indigo
 	// Acts for when the window reshapes
 	void Reshape (int width, int height)
 	{
+		std::cout << "HI!" << std::endl;
 		bool viewport = true;
 		if (0 == width)
 		{

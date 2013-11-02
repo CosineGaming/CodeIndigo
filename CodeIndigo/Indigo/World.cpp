@@ -47,10 +47,10 @@ void World::Render (void) const
 {
 	// Renders every object in the world
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode (GL_MODELVIEW);
+	Indigo::Reshape ();
 	camera.Look ();
 	lighting.Position_Lights ();
-	glutSolidTeapot (0.3); // DELETE
+	//////glutSolidTeapot (0.3); // DELETE
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
 		const_cast <Object&> (objects [Object_ID]).Render ();

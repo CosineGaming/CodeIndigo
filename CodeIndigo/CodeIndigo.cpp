@@ -131,13 +131,43 @@ int main(int argc, char ** argv)
 	std::cout << (int) test.Get_Y () << std::endl;
 	std::cout << (int) test.Get_Z () << std::endl;
 	Indigo::Initialize (argc, argv, "Code Indigo");
+	Mesh circle = Mesh::Sphere (0.5, 1);
+	for (int Point=0; Point<circle.Size (); ++Point)
+	{
+		//std::cout << "{" << circle [Point].X << ", " << circle [Point].Y << ", " << circle [Point].Z << "},\n";
+	}
+	Mesh shape = 
+		Vertex (0, 0, 0.5)
+		+ Vertex (0.5, 0,0)
+		+ Vertex (-0, 0.5,0)
+		+ Vertex (0.5, 0,0)
+		+ Vertex (0, 0, -0.5)
+		+ Vertex (-0, 0.5,0)
+		+ Vertex (0, 0, -0.5)
+		+ Vertex (-0.5, 0, 0)
+		+ Vertex (-0, 0.5,0)
+		+ Vertex (-0.5, 0, 0)
+		+ Vertex (0, 0, 0.5)
+		+ Vertex (-0, 0.5,0)
+		+ Vertex (0, 0, 0.5)
+		+ Vertex (0.5, 0,0)
+		+ Vertex (0, -0.5, 0)
+		+ Vertex (0.5, 0,0)
+		+ Vertex (0, 0, -0.5)
+		+ Vertex (0, -0.5, 0)
+		+ Vertex (0, 0, -0.5)
+		+ Vertex (-0.5, 0, 0)
+		+ Vertex (0, -0.5, 0)
+		+ Vertex (-0.5, 0, 0)
+		+ Vertex (0, 0, 0.5)
+		+ Vertex (0, -0.5, 0);
 	Mesh box = Mesh::Sphere (0.5, 1);
-	Object add = Object (0.0, 0.0, -1.0, box,
+	Object add = Object (0.0, 0.0, -1.0, shape,
 		Indigo::White_Color, 40.0f, sphere, true);
 	object = Indigo::Current_World.Add_Object (add);
 	Mesh wall = Mesh::Cube (0.5);
 	Object thewall = Object (1.0, 0.5, -1.0, wall, 
-		Indigo::White_Color, 60.0f, nullptr, false);
+		Indigo::White_Color, 60.0, nullptr, false);
 	Object marker = Object (0.0, 0.0, 0.0, Mesh::Sphere (0.05, 1), Indigo::White_Color);
 	eyeMark = Indigo::Current_World.Add_Object (marker);
 	Object cage = Object (0.0, 0.0, 0.0, Mesh::Cube (2.0));
