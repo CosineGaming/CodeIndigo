@@ -11,10 +11,15 @@ void update (int frame)
 
 	Camera * camera = &Indigo::Current_World.camera;
 
-	static const float speed = 0.05;
+	static float speed;
+	speed = 0.05;
 
 	static float gravity = 0;
 
+	if (Indigo::keys ['\\'])
+	{
+		speed = 1.5;
+	}
 	if (Indigo::keys ['w'])
 	{
 		camera->Move (speed);
