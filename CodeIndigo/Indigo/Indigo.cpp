@@ -34,6 +34,7 @@ namespace Indigo
 
 		// Set callbacks
 		Frame_Length_Minimum = 1000 / max_framerate;
+		Field_Of_View = field_of_view;
 		glutSetKeyRepeat (GLUT_KEY_REPEAT_OFF);
 		glutDisplayFunc (Render);
 		glutTimerFunc (10, Update, 0);
@@ -65,7 +66,6 @@ namespace Indigo
 	// Acts for when the window reshapes
 	void Reshape (int width, int height)
 	{
-		std::cout << "HI!" << std::endl;
 		bool viewport = true;
 		if (0 == width)
 		{
@@ -86,7 +86,6 @@ namespace Indigo
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
 			0.1, 500.0);
-		//glOrtho (-2.0, 2.0, -2.0, 2.0, 0.1, 500.0); // DELETE
 		glMatrixMode (GL_MODELVIEW);
 	}
 

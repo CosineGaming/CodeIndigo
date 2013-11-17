@@ -53,7 +53,7 @@ void World::Render (void) const
 	//////glutSolidTeapot (0.3); // DELETE
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
-		const_cast <Object&> (objects [Object_ID]).Render ();
+		objects [Object_ID].Render ();
 	}
 	glFlush ();
 	glutSwapBuffers ();
