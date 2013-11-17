@@ -50,7 +50,6 @@ void World::Render (void) const
 	Indigo::Reshape ();
 	camera.Look ();
 	lighting.Position_Lights ();
-	//////glutSolidTeapot (0.3); // DELETE
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
 		objects [Object_ID].Render ();

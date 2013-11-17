@@ -4,73 +4,55 @@
 #include "CodeIndigo.h"
 #include <iostream>
 
-int object;
-
-int eyeMark;
-
-int fun;
-
-
-void pressed (unsigned char key, int x, int y)
-{
-	if (key == '2')
-	{
-		Indigo::Current_World.Get_Object (object).Line = !Indigo::Current_World.Get_Object (object).Line;
-	}
-	return;
-}
-
-void sphere (const int& frame, Object& self)
-{
-	
-	float X = 0;
-	float Z = 0;
-
-	if (Indigo::keys ['l'])
-		X += 0.05;
-	if (Indigo::keys ['j'])
-		X -= 0.05;
-	if (Indigo::keys ['i'])
-		Z -= 0.05;
-	if (Indigo::keys ['k'])
-		Z += 0.05;
-
-	if (!(self.Collide (Indigo::Current_World.Get_Object (fun), X, 0, Z)))
-	{
-		self.X += X;
-		self.Z += Z;
-	}
-
-}
+int bounds;
 
 void update (int frame)
 {
 
 	Camera * camera = &Indigo::Current_World.camera;
 
+	static const float speed = 0.05;
+
+	static float gravity = 0;
+
 	if (Indigo::keys ['w'])
 	{
-		camera->Move (0.05);
+		camera->Move (speed);
 	}
 	if (Indigo::keys ['s'])
 	{
-		camera->Move (-0.05);
+		camera->Move (-speed);
 	}
 	if (Indigo::keys ['a'])
 	{
-		camera->Move (0.0, 0.05);
+		camera->Move (0.0, speed);
 	}
 	if (Indigo::keys ['d'])
 	{
-		camera->Move (0.0, -0.05);
+		camera->Move (0.0, -speed);
 	}
 	if (Indigo::keys ['q'])
 	{
-		camera->Move (0.0, 0.0, -0.05);
+		camera->Move (0.0, 0.0, -speed);
 	}
 	if (Indigo::keys ['e'])
 	{
-		camera->Move (0.0, 0.0, 0.05);
+		camera->Move (0.0, 0.0, speed);
+	}
+	
+	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).CollideVertex (Vertex (camera->X, camera->Y - 0.6, camera->Z)))
+	{
+		gravity = 0.45;
+	}
+	gravity -= 0.05;
+	if (Indigo::Current_World.Get_Object (bounds).CollideVertex (Vertex (camera->X, camera->Y - 0.6, camera->Z)) || gravity > 0)
+	{
+		camera->Move (0.0, 0.0, gravity);
+	}
+	else
+	{
+		gravity = 0;
+		camera->Y = -1.4;
 	}
 
 	if (Indigo::keys ['3'])
@@ -98,7 +80,7 @@ void mouse_moved (int x, int y)
 
 	camera->eye.Normalize ();
 
-	static const float sensitivity = 1;
+	static const float sensitivity = 0.5;
 
 	float y_angle = camera->eye.Get_Y_Angle () + y * -1 * sensitivity;
 
@@ -131,11 +113,9 @@ int main(int argc, char ** argv)
 	std::cout << (int) test.Get_Z () << std::endl;
 	Indigo::Initialize (argc, argv, "Code Indigo");
 	Indigo::Current_World.Add_Object (Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 2)));
-	Indigo::Current_World.Add_Object (Object (1.0, 0.5, -1.0, Mesh::Cube (0.5), 
-		Indigo::White_Color, 60.0, nullptr, false));
-	Indigo::Current_World.Add_Object (Object (0.0, 0.0, 0.0, Mesh::Cube (2.0)));
+	Indigo::Current_World.Add_Object (Object (1.0, 0.5, -1.0, Mesh::Cube (0.5), Indigo::White_Color));
+	bounds = Indigo::Current_World.Add_Object (Object (0.0, 0.0, 0.0, Mesh::Cube (4.0)));
 	Indigo::Update_Function = update;
-	Indigo::Key_Pressed_Function = pressed;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);
 	Indigo::Current_World.camera.Place (0.0, 0.0, 0.0);
