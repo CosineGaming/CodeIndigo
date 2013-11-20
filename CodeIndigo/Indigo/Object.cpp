@@ -161,7 +161,7 @@ bool Object::Collide (const Object& object, const float add_x, const float add_y
 
 
 // Checks whether this object will ever be intersected by a direction
-bool Object::CollideDirection (const Direction& position, const Direction& direction)
+bool Object::Collide_Direction (const Direction& position, const Direction& direction)
 {
 
 	Vertex * hitbox = Data.Hitbox;
@@ -216,7 +216,7 @@ bool Object::CollideDirection (const Direction& position, const Direction& direc
 
 
 // Checks whether this vertex is withing this object
-bool Object::CollideVertex (const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+bool Object::Collide_Vertex (const Vertex& vertex, const float add_x, const float add_y, const float add_z)
 {
 	return (
 		   vertex.X < Data.Hitbox [1].X + X
@@ -225,6 +225,14 @@ bool Object::CollideVertex (const Vertex& vertex, const float add_x, const float
 		&& vertex.X > Data.Hitbox [0].X + X
 		&& vertex.Y > Data.Hitbox [0].Y + Y
 		&& vertex.Z > Data.Hitbox [0].Z + Z);
+}
+
+
+// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
+void Object::Set_Hitbox (const float& right, const float& top, const float& front, const float& left, const float& bottom, const float& back)
+{
+	Data.Hitbox[1] = Vertex(right, top, front);
+	Data.Hitbox[0] = Vertex(left, bottom, front);
 }
 
 

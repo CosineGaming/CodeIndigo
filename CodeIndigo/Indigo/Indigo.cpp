@@ -23,14 +23,11 @@ namespace Indigo
 		{
 			glutFullScreen ();
 		}
-		if (background)
+		if (!background)
 		{
-			glClearColor (background [0], background [1], background [2], 1.0);
+			background = Sky_Color;
 		}
-		else
-		{
-			glClearColor (Sky_Color [0], Sky_Color [1], Sky_Color [2], 1.0);
-		}
+		glClearColor (background [0], background [1], background [2], 1.0);
 
 		// Set callbacks
 		Frame_Length_Minimum = 1000 / max_framerate;
@@ -44,6 +41,12 @@ namespace Indigo
 		glutKeyboardFunc (Key_Pressed);
 		glutKeyboardUpFunc (Key_Released);
 
+		// Setup fog
+		glEnable (GL_FOG);
+		glFogfv (GL_FOG_COLOR, White_Color);
+		glHint (GL_FOG_HINT, GL_DONT_CARE);
+		glFogf (GL_FOG_DENSITY, 0.02);
+
 		// Enable rendering options
 		glShadeModel (GL_SMOOTH);
 		glDisable (GL_CULL_FACE);
@@ -55,7 +58,7 @@ namespace Indigo
 
 		return;
 	}
-
+	  
 	// Starts the main loop with update, render, and input
 	void Run (void)
 	{
@@ -85,7 +88,9 @@ namespace Indigo
 		glLoadIdentity ();
 		gluPerspective (Field_Of_View,
 			(float) width / (float) height,
-			0.1, 500.0);
+			0.05, 500.0);
+		glFogf (GL_FOG_START, 400.0);
+		glFogf (GL_FOG_END, 500.0);
 		glMatrixMode (GL_MODELVIEW);
 	}
 
@@ -219,5 +224,7 @@ namespace Indigo
 	float Black_Color [3] = {0.0, 0.0, 0.0};
 
 	float   Sky_Color [3] = {0.5, 0.8, 1.0};
+
+	float  Blue_Color [3] = {0.0, 0.0, 0.5};
 
 }

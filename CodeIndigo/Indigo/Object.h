@@ -24,16 +24,20 @@ public:
 
 	// Renders the object
 	void Render () const;
+
 	// Places the object at the X, Y, and Z coordinates
 	void Place (const float& x, const float& y=0.0, const float& z=0.0);
 	// Moves the forward, side, and up based on the facing direction
 	void Move (const float& x, const float& y=0.0, const float& z=0.0);
+
 	// Checks whether this object collides with another object
 	bool Collide (const Object& object, const float add_x=0, const float add_y=0, const float add_z=0);
 	// Checks whether this object will ever be intersected by a direction
-	bool CollideDirection (const Direction& position, const Direction& direction);
+	bool Collide_Direction (const Direction& position, const Direction& direction);
 	// Checks whether this vertex is withing this object
-	bool CollideVertex (const Vertex& vertex, const float add_x=0, const float add_y=0, const float add_z=0);
+	bool Collide_Vertex (const Vertex& vertex, const float add_x=0, const float add_y=0, const float add_z=0);
+	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
+	void Set_Hitbox (const float& right=0.0, const float& top=0.0, const float& front=0.0, const float& left=0.0, const float& bottom=0.0, const float& back=0.0);
 
 	// Checked for whether to draw filled or lines
 	bool Line;
@@ -45,7 +49,7 @@ public:
 	void (*Update) (const int& frame, Object& self);
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
-	float Y;
+	float Y; 
 	float Z;
 	// Relative position of points
 	Mesh Data;

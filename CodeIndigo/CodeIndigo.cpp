@@ -12,13 +12,18 @@ void update (int frame)
 	Camera * camera = &Indigo::Current_World.camera;
 
 	static float speed;
-	speed = 0.05;
+	int part_frame = frame % 30;
+	if (part_frame > 15)
+	{
+		part_frame = 30 - part_frame;
+	}
+	speed = 0.001 * part_frame + 0.016;
 
 	static float gravity = 0;
 
 	if (Indigo::keys ['\\'])
 	{
-		speed = 1.5;
+		speed += 1.5;
 	}
 	if (Indigo::keys ['w'])
 	{
@@ -36,28 +41,20 @@ void update (int frame)
 	{
 		camera->Move (0.0, -speed);
 	}
-	if (Indigo::keys ['q'])
-	{
-		camera->Move (0.0, 0.0, -speed);
-	}
-	if (Indigo::keys ['e'])
-	{
-		camera->Move (0.0, 0.0, speed);
-	}
 	
-	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).CollideVertex (Vertex (camera->X, camera->Y - 0.6, camera->Z)))
+	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)))
 	{
 		gravity = 0.45;
 	}
 	gravity -= 0.05;
-	if (Indigo::Current_World.Get_Object (bounds).CollideVertex (Vertex (camera->X, camera->Y - 0.6, camera->Z)) || gravity > 0)
+	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)) || gravity > 0)
 	{
 		camera->Move (0.0, 0.0, gravity);
 	}
 	else
 	{
 		gravity = 0;
-		camera->Y = -1.4;
+		camera->Y = -1.5;
 	}
 
 	if (Indigo::keys ['3'])
@@ -85,7 +82,7 @@ void mouse_moved (int x, int y)
 
 	camera->eye.Normalize ();
 
-	static const float sensitivity = 0.5;
+	static const float sensitivity = 0.2;
 
 	float y_angle = camera->eye.Get_Y_Angle () + y * -1 * sensitivity;
 
@@ -117,9 +114,9 @@ int main(int argc, char ** argv)
 	std::cout << (int) test.Get_Y () << std::endl;
 	std::cout << (int) test.Get_Z () << std::endl;
 	Indigo::Initialize (argc, argv, "Code Indigo");
-	Indigo::Current_World.Add_Object (Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 2)));
-	Indigo::Current_World.Add_Object (Object (1.0, 0.5, -1.0, Mesh::Cube (0.5), Indigo::White_Color));
-	bounds = Indigo::Current_World.Add_Object (Object (0.0, 0.0, 0.0, Mesh::Cube (4.0)));
+	Indigo::Current_World.Add_Object (Object(0.0, 0.05, 0.0, Mesh::Sphere(0.3, 3), Indigo::Blue_Color));
+	Indigo::Current_World.Add_Object (Object (1.0, -1.25, -1.0, Mesh::Cube (0.5), Indigo::White_Color));
+	bounds = Indigo::Current_World.Add_Object (Object (0.0, 0.0, 0.0, Mesh::Cube (4.5)));
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);

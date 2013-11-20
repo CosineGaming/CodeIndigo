@@ -52,13 +52,13 @@ public:
 	void Add_Relative (const std::vector <Vertex>& vertices);
 	// Gets a vertex by it's index
 	Vertex& Get_Vertex (const int& index) const;
-	// Get all the vertices, or a subset of them
+	// Get all the vertices, or a subset of them 
 	std::vector <Vertex> Get_Vertices (int beginning=0, int end=-1) const;
 	// Get the number of Vertices in the mesh
 	int Size (void) const;
 	// How many sides to each polygon
 	int Group_Size;
-	// Hitbox used for collision, normally auto-generated. Bottom Left Back to Top Right Front
+	// Hitbox used for collision, normally auto-generated. {Left Bottom Back}, {Right Top Front}
 	Vertex Hitbox [2];
 	// Add points to the mesh in function notation
 	void Add (const Vertex& vertex);
