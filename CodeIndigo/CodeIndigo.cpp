@@ -44,9 +44,9 @@ void update (int frame)
 	
 	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)))
 	{
-		gravity = 0.45;
+		gravity = 0.256;
 	}
-	gravity -= 0.05;
+	gravity -= 0.1635;
 	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)) || gravity > 0)
 	{
 		camera->Move (0.0, 0.0, gravity);
