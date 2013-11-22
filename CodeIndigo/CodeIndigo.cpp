@@ -5,11 +5,12 @@
 #include <iostream>
 
 int bounds;
+int table;
 
 void update (int frame)
 {
 
-	Camera * camera = &Indigo::Current_World.camera;
+	Camera camera = Indigo::Current_World.camera;
 
 	static float speed;
 	int part_frame = frame % 30;
@@ -27,40 +28,50 @@ void update (int frame)
 	}
 	if (Indigo::keys ['w'])
 	{
-		camera->Move (speed);
+		camera.Move (speed);
 	}
 	if (Indigo::keys ['s'])
 	{
-		camera->Move (-speed);
+		camera.Move (-speed);
 	}
 	if (Indigo::keys ['a'])
 	{
-		camera->Move (0.0, speed);
+		camera.Move (0.0, speed);
 	}
 	if (Indigo::keys ['d'])
 	{
-		camera->Move (0.0, -speed);
+		camera.Move (0.0, -speed);
 	}
-	
-	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)))
+
+	gravity -= 0.16;
+	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)))
 	{
-		gravity = 0.45;
+		gravity = 0.017;
 	}
-	gravity -= 0.05;
+	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
+	{
+		gravity = 0.256;
+	}
+	gravity -= 0.1635;
 	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)) || gravity > 0)
 	{
-		camera->Move (0.0, 0.0, gravity);
+		camera.Move (0.0, 0.0, gravity);
 	}
 	else
 	{
 		gravity = 0;
-		camera->Y = -1.5;
+		camera.Y = 1.5;
+	}
+
+	if (!Indigo::Current_World.Get_Object (table).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)))
+	{
+		Indigo::Current_World.camera = camera;
 	}
 
 	if (Indigo::keys ['3'])
 	{
-		std::cout << camera->X << ", " << camera->Y << ", " << camera->Z << " looking at "
-			<< camera->eye.Get_X () << ", " << camera->eye.Get_Y () << ", " << camera->eye.Get_Z () << std::endl;
+		std::cout << camera.X << ", " << camera.Y << ", " << camera.Z << " looking at "
+			<< camera.eye.Get_X () << ", " << camera.eye.Get_Y () << ", " << camera.eye.Get_Z () << std::endl;
 	}
 
 	if (Indigo::keys ['`'])
@@ -114,9 +125,9 @@ int main(int argc, char ** argv)
 	std::cout << (int) test.Get_Y () << std::endl;
 	std::cout << (int) test.Get_Z () << std::endl;
 	Indigo::Initialize (argc, argv, "Code Indigo");
-	Indigo::Current_World.Add_Object (Object(0.0, 0.05, 0.0, Mesh::Sphere(0.3, 3), Indigo::Blue_Color));
-	Indigo::Current_World.Add_Object (Object (1.0, -1.25, -1.0, Mesh::Cube (0.5), Indigo::White_Color));
-	bounds = Indigo::Current_World.Add_Object (Object (0.0, 0.0, 0.0, Mesh::Cube (4.5)));
+	Indigo::Current_World.Add_Object (Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 3), Indigo::Blue_Color));
+	table = Indigo::Current_World.Add_Object (Object (2.0, 0.5, -1.0, Mesh::Cube (1), Indigo::Red_Color));
+	bounds = Indigo::Current_World.Add_Object (Object (0.0, 1.25, 0.0, Mesh::Box (10.0, 2.5, 5.0)));
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);

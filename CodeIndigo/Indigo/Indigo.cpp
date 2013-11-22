@@ -227,4 +227,6 @@ namespace Indigo
 
 	float  Blue_Color [3] = {0.0, 0.0, 0.5};
 
+	float	Red_Color [3] = {0.4, 0.0, 0.0};
+
 }

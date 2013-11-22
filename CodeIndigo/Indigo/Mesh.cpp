@@ -65,8 +65,8 @@ Mesh Mesh::Box (const float& width, const float& height, const float& length)
 	float Half_Lengths [3] = 
 	{
 		width / 2.0f,
-		length / 2.0f,
-		height / 2.0f
+		height / 2.0f,
+		length / 2.0f
 	};
 	int Pair [2] = {0, 1};
 	mesh.Group_Size = 4;
