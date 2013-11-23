@@ -29,14 +29,14 @@ World::~World (void)
 }
 
 
-void World::Update (const int& frame)
+void World::Update (const int& time)
 {
 	// Updates every object in the world, prepares to render again
 	for (int Object_ID=0; Object_ID<objects.size (); ++Object_ID)
 	{
 		if (objects [Object_ID].Update)
 		{
-			objects [Object_ID].Update (frame, objects [Object_ID]);
+			objects [Object_ID].Update (time, objects [Object_ID]);
 		}
 	}
 	return;

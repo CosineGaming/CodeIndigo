@@ -11,8 +11,9 @@ namespace Indigo
 {
 	// Initializes window and rendering matrices.
 	void Initialize (int argc, char ** argv, const char * window_name,
-		const int& window_width, const int& window_height, const bool& fullscreen,
-		int field_of_view, float * background, int max_framerate)
+		const int& max_framerate, const bool& fullscreen, float * background,
+		const int& window_width, const int& window_height,
+		const int& field_of_view)
 	{
 		// Initiate glut
 		glutInit (&argc, argv);
@@ -157,15 +158,18 @@ namespace Indigo
 	}
 
 	// Updates world
-	void Update (int frame)
+	void Update (int trash)
 	{
+		glutTimerFunc (Frame_Length_Minimum, Update, 0);
+		static int last_time;
+		int delta_time = glutGet (GLUT_ELAPSED_TIME) - last_time;
+		last_time = glutGet (GLUT_ELAPSED_TIME);
 		if (Update_Function)
 		{
-			Update_Function (frame);
+			Update_Function (delta_time);
 		}
-		Current_World.Update (frame);
+		Current_World.Update (delta_time);
 		glutPostRedisplay ();
-		glutTimerFunc (Frame_Length_Minimum, Update, frame + 1);
 		return;
 	}
 
@@ -178,6 +182,12 @@ namespace Indigo
 		}
 		Current_World.Render ();
 		return;
+	}
+
+	// Get elapsed time in the game, optional modulo for partial times
+	int Elapsed (const int& modulo)
+	{
+		return (modulo == 0 ? glutGet (GLUT_ELAPSED_TIME) : glutGet (GLUT_ELAPSED_TIME % modulo));
 	}
 
 
@@ -208,7 +218,7 @@ namespace Indigo
 	void (*Relative_Mouse_Moved_Function) (int x, int y);
 
 	// ... every time the world updates
-	void (*Update_Function) (int frame);
+	void (*Update_Function) (int time);
 
 	// ... just before the rendering of objects in the world
 	void (*Render_Function) (void);

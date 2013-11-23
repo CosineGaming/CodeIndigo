@@ -46,7 +46,7 @@ public:
 	// An ID used for accessing and deleting the object
 	int ID;
 	// Called every time the World updates, set this as you please
-	void (*Update) (const int& frame, Object& self);
+	void (*Update) (const int& time, Object& self);
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y; 

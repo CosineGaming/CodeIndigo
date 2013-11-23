@@ -7,25 +7,24 @@
 int bounds;
 int table;
 
-void update (int frame)
+void update (int time)
 {
 
-	Camera camera = Indigo::Current_World.camera;
+	Camera &camera = Indigo::Current_World.camera;
 
-	static float speed;
-	int part_frame = frame % 30;
-	if (part_frame > 15)
-	{
-		part_frame = 30 - part_frame;
-	}
-	speed = 0.001 * part_frame + 0.016;
+	float speed = .0015 * time;
 
 	static float gravity = 0;
 
+	if (glutGetModifiers () == GLUT_ACTIVE_SHIFT)
+	{
+		speed = 0.00222 * time;
+	}
 	if (Indigo::keys ['\\'])
 	{
-		speed += 1.5;
+		speed += .01 * time;
 	}
+
 	if (Indigo::keys ['w'])
 	{
 		camera.Move (speed);
@@ -43,36 +42,27 @@ void update (int frame)
 		camera.Move (0.0, -speed);
 	}
 
-	gravity -= 0.16;
-	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)))
+	gravity -= .00981 * time;
+	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)))
 	{
-		gravity = 0.017;
+		gravity = .0000626 * time;
 	}
-	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
-	{
-		gravity = 0.256;
-	}
-	gravity -= 0.1635;
-	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera->X, camera->Y - 1.0, camera->Z)) || gravity > 0)
+	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
 	{
 		camera.Move (0.0, 0.0, gravity);
 	}
 	else
 	{
 		gravity = 0;
-		camera.Y = 1.5;
-	}
-
-	if (!Indigo::Current_World.Get_Object (table).Collide_Vertex (Vertex (camera.X, camera.Y - 1.5, camera.Z)))
-	{
-		Indigo::Current_World.camera = camera;
+		camera.Y = 2;
 	}
 
 	if (Indigo::keys ['3'])
 	{
-		std::cout << camera.X << ", " << camera.Y << ", " << camera.Z << " looking at "
-			<< camera.eye.Get_X () << ", " << camera.eye.Get_Y () << ", " << camera.eye.Get_Z () << std::endl;
+		std::cout << "Position: " << camera.X << ", " << camera.Y << ", " << camera.Z << std::endl
+			<< 1000 / time << " FPS" << std::endl << std::endl;
 	}
+
 
 	if (Indigo::keys ['`'])
 	{
