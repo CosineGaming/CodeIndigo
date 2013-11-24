@@ -79,43 +79,35 @@ void Object::Render (void) const
 		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size ()) == 0 ||
 			(Data.Group_Size == 0 && Point <= points.size () - 3))
 		{
-			Vertex one = points [Point + 1] - points [Point];
-			Vertex two = points [Point + 2] - points [Point];
+			Vertex one = Vertex (points [Point + 1].X - points [Point].X,
+				points [Point + 1].Y - points [Point].Y,
+				points [Point + 1].Z - points [Point].Z);
+			Vertex two = Vertex (points [Point + 2].X - points [Point].X,
+				points [Point + 2].Y - points [Point].Y,
+				points [Point + 2].Z - points [Point].Z);
 			points [Point].To_Direction ();
-			Direction normal = Direction::Coordinates (
+			Vertex normal = Vertex (
 				one.Y * two.Z - one.Z * two.Y,
 				one.Z * two.X - one.X * two.Z,
 				one.X * two.Y - one.Y * two.X);
-			normal.Normalize ();
-			Direction pointing = Direction::Coordinates (
-				Indigo::Current_World.camera.X,
-				Indigo::Current_World.camera.Y,
-				Indigo::Current_World.camera.Z)
-				.Distance (points [Point].To_Direction ());
-			if (normal.Dot (pointing) > 0)
-			{
-				normal.Set_Direction (1.0, 180 + normal.Get_X_Angle (),
-					normal.Get_Y_Angle () * -1);
-			}
+			//normal.Normalize ();
+			//Direction pointing = Direction::Coordinates (
+				//Indigo::Current_World.camera.X,
+				//Indigo::Current_World.camera.Y,
+				//Indigo::Current_World.camera.Z)
+				//.Distance (points [Point].To_Direction ());
 			glEnd ();
 			glBegin (GL_LINES);
-			normal.Add_Direction (-0.5);
+			normal.X *= 30;
+			normal.Y *= 30;
+			normal.Z *= 30;
 			Vertex Cursor = points [Point];
 			glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);
-			glVertex3f (Cursor.X + normal.Get_X (),
-				Cursor.Y + normal.Get_Y (), Cursor.Z + normal.Get_Z ());
-			normal.Add_Direction (0.5);
+			glVertex3f (Cursor.X + normal.X,
+				Cursor.Y + normal.Y, Cursor.Z + normal.Z);
 			glEnd ();
 			glBegin (Render_Types [Data.Group_Size]);
-			/*Direction pointing = eye.Distance (points [Point].To_Direction ());
-			if (!((pointing.Get_X_Angle () > ((int) (normal.Get_X_Angle () - 90) % 360)
-				|| pointing.Get_X_Angle () < ((int) (normal.Get_X_Angle () + 90) % 360))
-				&& (pointing.Get_Y_Angle () > ((int) (normal.Get_Y_Angle () - 90) % 360)
-				|| pointing.Get_Y_Angle () < ((int) (normal.Get_Y_Angle () + 90) % 360))))
-			{
-				normal.Add_Direction (0.0, 180.0, 180.0);
-			}*/
-			glNormal3f (normal.Get_X (), normal.Get_Y (), normal.Get_Z ());
+			glNormal3f (normal.X, normal.Y, normal.Z);
 		}
 		Vertex Cursor = points [Point];
 		glVertex3f (Cursor.X, Cursor.Y, Cursor.Z);

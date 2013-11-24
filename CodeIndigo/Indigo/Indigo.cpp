@@ -98,22 +98,34 @@ namespace Indigo
 	// Acts for keys which act once, and stores for multi-acting keys
 	void Key_Pressed (unsigned char key, int x, int y)
 	{
+		// Convert uppercases to lowercase
+		if (key >= 65 && key <= 90)
+		{
+			key += 32;
+		}
 		if (Key_Pressed_Function)
 		{
 			Key_Pressed_Function (key, x, y);
 		}
 		keys [key] = true;
+		Shift = glutGetModifiers () == GLUT_ACTIVE_SHIFT;
 		return;
 	}
 
 	// Acts for keys which act on release, and removes stored keys
 	void Key_Released (unsigned char key, int x, int y)
 	{
+		// Convert uppercases to lowercase
+		if (key >= 65 && key <= 90)
+		{
+			key += 32;
+		}
 		if (Key_Released_Function)
 		{
 			Key_Released_Function (key, x, y);
 		}
 		keys [key] = false;
+		Shift = glutGetModifiers () == GLUT_ACTIVE_SHIFT;
 		return;
 	}
 
@@ -225,6 +237,9 @@ namespace Indigo
 	
 	// Members with the index of a key which is currently down are true
 	bool keys [256];
+
+	// Stores whether shift is pressed
+	bool Shift = false;
 
 
 	// Colors

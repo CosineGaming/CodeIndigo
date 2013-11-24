@@ -47,15 +47,17 @@ namespace Indigo
 	extern void (*Mouse_Button_Function) (int button, int state, int x, int y);
 	// ... when the mouse is moved
 	extern void (*Mouse_Moved_Function) (int x, int y);
-	// ... when the mouse is moved, given relative to the center.
+	// ... when the mouse is moved, given relative to the center
 		// Also hides mouse when defined.
 	extern void (*Relative_Mouse_Moved_Function) (int x, int y);
 	// ... every time the world updates
 	extern void (*Update_Function) (int time);
 	// ... just before the rendering of objects in the world
 	extern void (*Render_Function) (void);
-	// Members with the index of a key which is currently down are true
+	// Members with the index of a key which is currently down are true, always lowercase
 	extern bool keys [256];
+	// Stores whether shift is pressed
+	extern bool Shift;
 
 	// Colors
 	extern float White_Color [3];

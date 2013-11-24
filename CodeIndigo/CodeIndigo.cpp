@@ -16,9 +16,9 @@ void update (int time)
 
 	static float gravity = 0;
 
-	if (glutGetModifiers () == GLUT_ACTIVE_SHIFT)
+	if (Indigo::Shift)
 	{
-		speed = 0.00222 * time;
+		speed = .003 * time;
 	}
 	if (Indigo::keys ['\\'])
 	{
@@ -42,10 +42,10 @@ void update (int time)
 		camera.Move (0.0, -speed);
 	}
 
-	gravity -= .00981 * time;
+	gravity -= .00980665 * time;
 	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)))
 	{
-		gravity = .0000626 * time;
+		gravity = .0000626418 * time;
 	}
 	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
 	{
