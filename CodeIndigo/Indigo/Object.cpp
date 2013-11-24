@@ -79,12 +79,8 @@ void Object::Render (void) const
 		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size ()) == 0 ||
 			(Data.Group_Size == 0 && Point <= points.size () - 3))
 		{
-			Vertex one = Vertex (points [Point + 1].X - points [Point].X,
-				points [Point + 1].Y - points [Point].Y,
-				points [Point + 1].Z - points [Point].Z);
-			Vertex two = Vertex (points [Point + 2].X - points [Point].X,
-				points [Point + 2].Y - points [Point].Y,
-				points [Point + 2].Z - points [Point].Z);
+			Vertex one = points [Point + 1] - points [Point];
+			Vertex two = points [Point + 2] - points [Point];
 			points [Point].To_Direction ();
 			Vertex normal = Vertex (
 				one.Y * two.Z - one.Z * two.Y,
