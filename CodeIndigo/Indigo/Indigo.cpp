@@ -50,7 +50,6 @@ namespace Indigo
 
 		// Enable rendering options
 		glShadeModel (GL_SMOOTH);
-		glDisable (GL_CULL_FACE);
 		glEnable (GL_DEPTH_TEST);
 		glEnable (GL_LIGHTING);
 		glEnable (GL_NORMALIZE);

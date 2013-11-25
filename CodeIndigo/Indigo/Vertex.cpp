@@ -52,17 +52,6 @@ Vertex& Vertex::operator+= (const Vertex& vertex)
 }
 
 
-// Enables - to subtract values, useful for calculating light normals
-Vertex Vertex::operator- (const Vertex& vertex) const
-{
-	Vertex copy = *this;
-	copy.X = vertex.X - X;
-	copy.Y = vertex.Y - Y;
-	copy.Z = vertex.Z - Z;
-	return (copy);
-}
-
-
 // Enables + to put values together into a mesh
 Mesh Vertex::operator+ (const Vertex& vertex) const
 {

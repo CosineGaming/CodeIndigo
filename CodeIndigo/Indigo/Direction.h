@@ -12,15 +12,15 @@ class Direction
 {
 public:
 	// Construct a new direction based off of distance and 2 angles
-	Direction (float in_distance=0.0, float in_angle_x=0.0, float in_angle_y=0.0);
+	Direction (const float& in_distance=0.0, const float& in_angle_x=0.0, const float& in_angle_y=0.0);
 	// Construct a new direction based off of x, y, and z
-	static Direction Coordinates (float x, float y, float z);
+	static Direction Coordinates (const float& x, const float& y, const float& z);
 	// Destroy a direction
 	~Direction (void);
 	// Make the distance 1
-	void Normalize (float unit=1.0);
+	void Normalize (const float& unit=1.0);
 	// Dot product. Useful for lighting
-	float Dot (Direction direction) const;
+	float Dot (const Direction& direction) const;
 	// Get the relative coordinates of the direction
 	float Get_X (void) const;
 	float Get_Y (void) const;
@@ -30,15 +30,15 @@ public:
 	float Get_X_Angle (void) const;
 	float Get_Y_Angle (void) const;
 	// Set the coordinates of the direction
-	void Set_Coordinates (float x, float y, float z);
+	void Set_Coordinates (const float& x, const float& y, const float& z);
 	// Add values to the coordinates of the direction
-	void Add_Coordinates (float x, float y=0.0, float z=0.0);
+	void Add_Coordinates (const float& x, const float& y=0.0, const float& z=0.0);
 	// Set the distance and angles
-	void Set_Direction (float in_distance, float in_angle_x, float in_angle_y);
+	void Set_Direction (const float& in_distance, const float& in_angle_x, const float& in_angle_y);
 	// Add values to the distance and angles
-	void Add_Direction (float in_distance, float in_angle_x=0.0, float in_angle_y=0.0);
+	void Add_Direction (const float& in_distance, const float& in_angle_x=0.0, const float& in_angle_y=0.0);
 	// Find the distance between this direction and another
-	Direction Distance (Direction to) const;
+	Direction Distance (const Direction& to) const;
 	// Makes a vertex with the X, Y, and Z values
 	Vertex To_Vertex (void) const;
 private:

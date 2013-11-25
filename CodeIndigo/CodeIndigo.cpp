@@ -20,7 +20,7 @@ void update (int time)
 	{
 		speed = .003 * time;
 	}
-	if (Indigo::keys ['\\'])
+	if (Indigo::keys ['q'])
 	{
 		speed += .01 * time;
 	}
@@ -108,16 +108,17 @@ void mouse_moved (int x, int y)
 
 int main(int argc, char ** argv)
 {
-	Direction test (20.0, 90.0, 0.0);
-	test.Add_Direction (20.0, 90.0, 0.0);
-	test.Normalize ();
-	std::cout << (int) test.Get_X () << std::endl;
-	std::cout << (int) test.Get_Y () << std::endl;
-	std::cout << (int) test.Get_Z () << std::endl;
+	Direction test = Direction::Coordinates (20.0, 90.0, 0.0);
+	std::cout << test.Get_X () << ", " << test.Get_Y () << ", " << test.Get_Z () << std::endl;
+	std::cout << test.Dot (Direction::Coordinates (2.0, 1.5, 10.0));
 	Indigo::Initialize (argc, argv, "Code Indigo");
-	Indigo::Current_World.Add_Object (Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 3), Indigo::Blue_Color));
+	Indigo::Current_World.Add_Object (Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 4), Indigo::Blue_Color));
 	table = Indigo::Current_World.Add_Object (Object (2.0, 0.5, -1.0, Mesh::Cube (1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object (Object (0.0, 1.25, 0.0, Mesh::Box (10.0, 2.5, 5.0)));
+	for (int cube=0; cube<1000; ++cube)
+	{
+		Indigo::Current_World.Add_Object (Object (rand () % 50 - 25, rand () % 20 - 10, rand() % 50 - 25, Mesh::Cube (1)));
+	}
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);
