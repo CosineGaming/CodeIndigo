@@ -54,7 +54,6 @@ void World::Render (void) const
 	{
 		objects [Object_ID].Render ();
 	}
-	glFlush ();
 	glutSwapBuffers ();
 	return;
 }
