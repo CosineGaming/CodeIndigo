@@ -3,6 +3,7 @@
 
 #include "CodeIndigo.h"
 #include <iostream>
+#include "time.h"
 
 int bounds;
 int table;
@@ -42,19 +43,19 @@ void update(int time)
 		camera.Move(0.0, -speed);
 	}
 
-	gravity -= .00980665 * time;
-	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object(bounds).Collide(Vertex(camera.X, camera.Y - 2, camera.Z)))
+	gravity -= .00001 * time;//.00980665 * time;
+	if (Indigo::keys [' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 2, camera.Z)))
 	{
 		gravity = .0000626418 * time;
 	}
-	if (Indigo::Current_World.Get_Object(bounds).Collide(Vertex(camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
+	if (!Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
 	{
 		camera.Move(0.0, 0.0, gravity);
 	}
 	else
 	{
 		gravity = 0;
-		camera.Y = 2;
+		camera.Y = int (camera.Y) - (camera.Y > 0);
 	}
 
 	if (Indigo::keys ['3'])
@@ -115,6 +116,7 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.Add_Object(Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 4), Indigo::Blue_Color));
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
+	srand(time(0));
 	for (int cube=0; cube<1000; ++cube)
 	{
 		Indigo::Current_World.Add_Object(Object(rand() % 50 - 25, rand() % 20 - 10, rand() % 50 - 25, Mesh::Cube(1)));
