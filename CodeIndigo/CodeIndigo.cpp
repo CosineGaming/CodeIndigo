@@ -7,7 +7,7 @@
 int bounds;
 int table;
 
-void update (int time)
+void update(int time)
 {
 
 	Camera &camera = Indigo::Current_World.camera;
@@ -27,29 +27,29 @@ void update (int time)
 
 	if (Indigo::keys ['w'])
 	{
-		camera.Move (speed);
+		camera.Move(speed);
 	}
 	if (Indigo::keys ['s'])
 	{
-		camera.Move (-speed);
+		camera.Move(-speed);
 	}
 	if (Indigo::keys ['a'])
 	{
-		camera.Move (0.0, speed);
+		camera.Move(0.0, speed);
 	}
 	if (Indigo::keys ['d'])
 	{
-		camera.Move (0.0, -speed);
+		camera.Move(0.0, -speed);
 	}
 
 	gravity -= .00980665 * time;
-	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)))
+	if (Indigo::keys [' '] && !Indigo::Current_World.Get_Object(bounds).Collide(Vertex(camera.X, camera.Y - 2, camera.Z)))
 	{
 		gravity = .0000626418 * time;
 	}
-	if (Indigo::Current_World.Get_Object (bounds).Collide_Vertex (Vertex (camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
+	if (Indigo::Current_World.Get_Object(bounds).Collide(Vertex(camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
 	{
-		camera.Move (0.0, 0.0, gravity);
+		camera.Move(0.0, 0.0, gravity);
 	}
 	else
 	{
@@ -69,38 +69,38 @@ void update (int time)
 		exit(0);
 	}
 
-	if (GL_NO_ERROR != glGetError ())
+	if (GL_NO_ERROR != glGetError())
 	{
-		std::cout << "\aError: " << glGetError () << std::endl;
+		std::cout << "\aError: " << glGetError() << std::endl;
 	}
 
 }
 
-void mouse_moved (int x, int y)
+void mouse_moved(int x, int y)
 {
 
 	Camera * camera = &Indigo::Current_World.camera;
 
-	camera->eye.Normalize ();
+	camera->eye.Normalize();
 
 	static const float sensitivity = 0.2;
 
-	float y_angle = camera->eye.Get_Y_Angle () + y * -1 * sensitivity;
+	float y_angle = camera->eye.Get_Y_Angle() + y * -1 * sensitivity;
 
 	if (!(y_angle >= 89.9 && y_angle <= 270.1))
 	{
-		camera->eye.Add_Direction (0.0, x * -1 * sensitivity,
+		camera->eye.Add_Direction(0.0, x * -1 * sensitivity,
 			y * -1 * sensitivity);
 	}
 	else
 	{
 		if (y_angle < 180)
 		{
-			camera->eye.Set_Direction (1.0, camera->eye.Get_X_Angle () + x * -1 * sensitivity, 89.9);
+			camera->eye.Set_Direction(1.0, camera->eye.Get_X_Angle() + x * -1 * sensitivity, 89.9);
 		}
 		else
 		{
-			camera->eye.Set_Direction (1.0, camera->eye.Get_X_Angle () + x * -1 * sensitivity, 270.1);
+			camera->eye.Set_Direction(1.0, camera->eye.Get_X_Angle() + x * -1 * sensitivity, 270.1);
 		}
 	}
 
@@ -108,21 +108,21 @@ void mouse_moved (int x, int y)
 
 int main(int argc, char ** argv)
 {
-	Direction test = Direction::Coordinates (20.0, 90.0, 0.0);
-	std::cout << test.Get_X () << ", " << test.Get_Y () << ", " << test.Get_Z () << std::endl;
-	std::cout << test.Dot (Direction::Coordinates (2.0, 1.5, 10.0));
-	Indigo::Initialize (argc, argv, "Code Indigo");
-	Indigo::Current_World.Add_Object (Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 4), Indigo::Blue_Color));
-	table = Indigo::Current_World.Add_Object (Object (2.0, 0.5, -1.0, Mesh::Cube (1), Indigo::Red_Color));
-	bounds = Indigo::Current_World.Add_Object (Object (0.0, 1.25, 0.0, Mesh::Box (10.0, 2.5, 5.0)));
+	Direction test = Direction::Coordinates(20.0, 90.0, 0.0);
+	std::cout << test.Get_X() << ", " << test.Get_Y() << ", " << test.Get_Z() << std::endl;
+	std::cout << test.Dot(Direction::Coordinates(2.0, 1.5, 10.0));
+	Indigo::Initialize(argc, argv, "Code Indigo");
+	Indigo::Current_World.Add_Object(Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 4), Indigo::Blue_Color));
+	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
+	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
 	for (int cube=0; cube<1000; ++cube)
 	{
-		Indigo::Current_World.Add_Object (Object (rand () % 50 - 25, rand () % 20 - 10, rand() % 50 - 25, Mesh::Cube (1)));
+		Indigo::Current_World.Add_Object(Object(rand() % 50 - 25, rand() % 20 - 10, rand() % 50 - 25, Mesh::Cube(1)));
 	}
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
-	Indigo::Current_World.lighting.Add_Light (0.0, 1.0, 10.0);
-	Indigo::Current_World.camera.Place (0.0, 0.0, 0.0);
-	Indigo::Run ();
-	return (0);
+	Indigo::Current_World.lighting.Add_Light(0.0, 1.0, 10.0);
+	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
+	Indigo::Run();
+	return(0);
 }

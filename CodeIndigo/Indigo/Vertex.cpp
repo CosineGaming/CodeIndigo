@@ -6,7 +6,7 @@
 
 
 // Create a new, blank vertex
-Vertex::Vertex (void)
+Vertex::Vertex(void)
 {
 	X = 0.0;
 	Y = 0.0;
@@ -16,7 +16,7 @@ Vertex::Vertex (void)
 
 
 // Copies a vertex
-Vertex::Vertex (const Vertex& vertex)
+Vertex::Vertex(const Vertex& vertex)
 {
 	X = vertex.X;
 	Y = vertex.Y;
@@ -26,7 +26,7 @@ Vertex::Vertex (const Vertex& vertex)
 
 
 // Create a vertex with these values
-Vertex::Vertex (const float& x, const float& y, const float& z)
+Vertex::Vertex(const float& x, const float& y, const float& z)
 {
 	X = x;
 	Y = y;
@@ -36,45 +36,45 @@ Vertex::Vertex (const float& x, const float& y, const float& z)
 
 
 // Destroy a vertex
-Vertex::~Vertex (void)
+Vertex::~Vertex(void)
 {
 	return;
 }
 
 
 // Enables += to add the X, Y, and Z values to a vertex
-Vertex& Vertex::operator+= (const Vertex& vertex)
+Vertex& Vertex::operator+=(const Vertex& vertex)
 {
 	X += vertex.X;
 	Y += vertex.Y;
 	Z += vertex.Z;
-	return (*this);
+	return(*this);
 }
 
 
 // Enables + to put values together into a mesh
-Mesh Vertex::operator+ (const Vertex& vertex) const
+Mesh Vertex::operator+(const Vertex& vertex) const
 {
 	Mesh mesh;
 	mesh += *this;
 	mesh += vertex;
-	return (mesh);
+	return(mesh);
 }
 
 
 // Finds the midpoint between 2 vertices, useful for triangular recursion
-Vertex Vertex::Midpoint (const Vertex& vertex) const
+Vertex Vertex::Midpoint(const Vertex& vertex) const
 {
 	Vertex copy = *this;
-	copy.X = (X + vertex.X) / 2;
-	copy.Y = (Y + vertex.Y) / 2;
-	copy.Z = (Z + vertex.Z) / 2;
+	copy.X =(X + vertex.X) / 2;
+	copy.Y =(Y + vertex.Y) / 2;
+	copy.Z =(Z + vertex.Z) / 2;
 	return copy;
 }
 
 
 // Returns a direction with the coordinates of the vertex
-Direction Vertex::To_Direction (void) const
+Direction Vertex::To_Direction(void) const
 {
-	return (Direction::Coordinates (X, Y, Z));
+	return(Direction::Coordinates(X, Y, Z));
 }

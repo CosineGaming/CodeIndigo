@@ -9,21 +9,21 @@ class Vertex
 {
 public:
 	// Create a new, blank vertex
-	Vertex (void);
+	Vertex(void);
 	// Copies a vertex
-	Vertex (const Vertex& vertex);
+	Vertex(const Vertex& vertex);
 	// Create a vertex with these values
-	Vertex (const float& x, const float& y, const float& z);
+	Vertex(const float& x, const float& y, const float& z);
 	// Destroy a vertex
-	~Vertex (void);
+	~Vertex(void);
 	// Enables += to add the X, Y, and Z values to a vertex
-	Vertex& operator+= (const Vertex& vertex);
+	Vertex& operator+=(const Vertex& vertex);
 	// Enables + to put values together into a mesh
-	Mesh operator+ (const Vertex& vertex) const;
+	Mesh operator+(const Vertex& vertex) const;
 	// Finds the midpoint between 2 vertices, useful for triangular recursion
-	Vertex Midpoint (const Vertex& vertex) const;
+	Vertex Midpoint(const Vertex& vertex) const;
 	// Returns a direction with the coordinates of the vertex
-	Direction To_Direction (void) const;
+	Direction To_Direction(void) const;
 	// Position of the vertex
 	float X;
 	float Y;
