@@ -48,7 +48,7 @@ Vertex& Vertex::operator+=(const Vertex& vertex)
 	X += vertex.X;
 	Y += vertex.Y;
 	Z += vertex.Z;
-	return(*this);
+	return *this;
 }
 
 
@@ -58,7 +58,7 @@ Mesh Vertex::operator+(const Vertex& vertex) const
 	Mesh mesh;
 	mesh += *this;
 	mesh += vertex;
-	return(mesh);
+	return mesh;
 }
 
 
@@ -76,5 +76,5 @@ Vertex Vertex::Midpoint(const Vertex& vertex) const
 // Returns a direction with the coordinates of the vertex
 Direction Vertex::To_Direction(void) const
 {
-	return(Direction::Coordinates(X, Y, Z));
+	return Direction::Coordinates(X, Y, Z);
 }

@@ -69,19 +69,19 @@ int World::Add_Object(const Object& object)
 		{
 			objects [Object_ID] = object;
 			objects [Object_ID].ID = Object_ID;
-			return(Object_ID);
+			return Object_ID;
 		}
 	}
 	objects.push_back(object);
 	int Object_ID = objects.size() - 1;
 	objects [Object_ID].ID = Object_ID;
-	return(Object_ID);
+	return Object_ID;
 }
 
 
 Object& World::Get_Object(const int& ID) const
 {
-	return(const_cast <Object&>(objects [ID]));
+	return const_cast <Object&>(objects [ID]);
 }
 
 

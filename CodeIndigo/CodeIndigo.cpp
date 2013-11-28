@@ -21,41 +21,46 @@ void update(int time)
 	{
 		speed = .003 * time;
 	}
-	if (Indigo::keys ['q'])
+	if (Indigo::keys['q'])
 	{
 		speed += .01 * time;
 	}
 
-	if (Indigo::keys ['w'])
+	if (Indigo::keys['w'])
 	{
 		camera.Move(speed);
 	}
-	if (Indigo::keys ['s'])
+	if (Indigo::keys['s'])
 	{
 		camera.Move(-speed);
 	}
-	if (Indigo::keys ['a'])
+	if (Indigo::keys['a'])
 	{
 		camera.Move(0.0, speed);
 	}
-	if (Indigo::keys ['d'])
+	if (Indigo::keys['d'])
 	{
 		camera.Move(0.0, -speed);
 	}
-
-	gravity -= .00001 * time;//.00980665 * time;
-	if (Indigo::keys [' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 2, camera.Z)))
+	if (Indigo::keys['r'])
 	{
-		gravity = .0000626418 * time;
+		camera.Place(0.0, 0.0, 0.0);
+		gravity = 0;
 	}
-	if (!Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 2, camera.Z)) || gravity > 0)
+
+	if (Indigo::keys [' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)))
 	{
+		gravity = 0.01421 * time;
+	}
+	if (!Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
+	{
+		gravity -= .00980665 * time;
 		camera.Move(0.0, 0.0, gravity);
 	}
 	else
 	{
 		gravity = 0;
-		camera.Y = int (camera.Y) - (camera.Y > 0);
+		camera.Y = int (camera.Y - 1.5) - (camera.Y > 0) + 1.5;
 	}
 
 	if (Indigo::keys ['3'])
@@ -116,15 +121,20 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.Add_Object(Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.4, 4), Indigo::Blue_Color));
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
+	Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)));
 	srand(time(0));
-	for (int cube=0; cube<1000; ++cube)
+	for (int cube=0; cube<2000; ++cube)
 	{
-		Indigo::Current_World.Add_Object(Object(rand() % 50 - 25, rand() % 20 - 10, rand() % 50 - 25, Mesh::Cube(1)));
+		float * color = new float[3];
+		color[0] = (rand() % 100) / (float) (rand() % 100);
+		color[1] = (rand() % 100) / (float) (rand() % 100);
+		color[2] = (rand() % 100) / (float) (rand() % 100);
+		Indigo::Current_World.Add_Object(Object(rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, Mesh::Cube(1), color));
 	}
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
 	Indigo::Current_World.lighting.Add_Light(0.0, 1.0, 10.0);
 	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
 	Indigo::Run();
-	return(0);
+	return 0;
 }

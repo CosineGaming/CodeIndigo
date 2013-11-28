@@ -55,7 +55,7 @@ Mesh Mesh::Sphere(const float& radius, const int& recursions, const bool& draw_s
 		Vertex right = cursor.To_Vertex();
 		mesh += Bulge_Sphere(radius, recursions, left, right, top);
 	}
-	return(mesh);
+	return mesh;
 }
 
 
@@ -90,7 +90,7 @@ Mesh Mesh::Box(const float& width, const float& height, const float& length)
 		}
 		Pair [2 != Pair [1]] += 1; // 0, 1; 0, 2; 1, 2
 	}
-	return(mesh);
+	return mesh;
 }
 
 
@@ -99,25 +99,25 @@ Mesh Mesh::Line(const float& width, const float& height, const float& length)
 	Mesh mesh;
 	mesh += Vertex(0.0, 0.0, 0.0);
 	mesh += Vertex(width, height, length);
-	return(mesh);
+	return mesh;
 }
 
 
 Mesh Mesh::Cube(const float& side)
 {
-	return(Box(side, side, side));
+	return Box(side, side, side);
 }
 
 
 Mesh Mesh::Regular_Shape(const int& sides, const float& side_length)
 {
-	return(Mesh());
+	return Mesh();
 }
 
 
 Mesh Mesh::Rectangle(const float& width, const float& height)
 {
-	return(Mesh());
+	return Mesh();
 }
 
 
@@ -147,14 +147,14 @@ Mesh Mesh::Bulge_Sphere(const float& radius, const int& recursions,
 			mesh += Vertex(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
 		}
 	}
-	return(mesh);
+	return mesh;
 }
 
 
 Vertex& Mesh::operator[](const int& index) const
 {
 	// Allows [] to get a vertex like an array
-	return(Get_Vertex(index));
+	return Get_Vertex(index);
 }
 
 
@@ -162,7 +162,7 @@ Mesh& Mesh::operator+=(const Vertex& vertex)
 {
 	// Allows += to add a vertex to the end
 	Add(vertex);
-	return(*this);
+	return *this;
 }
 
 
@@ -170,7 +170,7 @@ Mesh& Mesh::operator+=(const Mesh& mesh)
 {
 	// Allows += to add a mesh to the end
 	Add(mesh.Get_Vertices());
-	return(*this);
+	return *this;
 }
 
 
@@ -178,7 +178,7 @@ Mesh& Mesh::operator+=(const std::vector <Vertex>& add_vertices)
 {
 	// Allows += to add a vector of vericese to the end
 	Add(add_vertices);
-	return(*this);
+	return *this;
 }
 
 
@@ -187,7 +187,7 @@ Mesh Mesh::operator+(const Vertex& vertex) const
 	// Allows + to add a vertex to the end
 	Mesh copy = *this;
 	copy.Add(vertex);
-	return(copy);
+	return copy;
 }
 
 
@@ -196,7 +196,7 @@ Mesh Mesh::operator+(const Mesh& mesh) const
 	// Allows + to add a mesh to the end
 	Mesh copy = *this;
 	copy.Add(mesh.Get_Vertices());
-	return(copy);
+	return copy;
 }
 
 
@@ -205,7 +205,7 @@ Mesh Mesh::operator+(const std::vector <Vertex>& add_vertices) const
 	// Allows + to add vertices to the end
 	Mesh copy = *this;
 	copy.Add(add_vertices);
-	return(copy);
+	return copy;
 }
 
 
@@ -253,7 +253,7 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 Vertex& Mesh::Get_Vertex(const int& index) const
 {
 	// Gets a vertex by it's index
-	return(const_cast <Vertex&>(vertices [index]));
+	return const_cast <Vertex&>(vertices [index]);
 }
 
 
@@ -272,7 +272,7 @@ std::vector <Vertex> Mesh::Get_Vertices(int beginning, int end) const
 		end = beginning;
 	}
 	end += 1;
-	return(std::vector <Vertex>(vertices.begin() + beginning, vertices.begin() + end));
+	return std::vector <Vertex>(vertices.begin() + beginning, vertices.begin() + end);
 }
 
 

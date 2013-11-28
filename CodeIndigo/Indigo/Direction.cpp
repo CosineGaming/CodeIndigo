@@ -15,7 +15,7 @@ Direction Direction::Coordinates(const float& x, const float& y, const float& z)
 {
 	Direction construct;
 	construct.Set_Coordinates(x, y, z);
-	return(construct);
+	return construct;
 }
 
 
@@ -36,40 +36,40 @@ void Direction::Normalize(const float& unit)
 // Dot product. Useful for lighting
 float Direction::Dot(const Direction& direction) const
 {
-	return(Get_X() * direction.Get_X()
-		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z());
+	return Get_X() * direction.Get_X()
+		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z();
 }
 
 
 float Direction::Get_X(void) const
 {
-	return(sin(angle_x) * cos(angle_y) * distance);
+	return sin(angle_x) * cos(angle_y) * distance;
 }
 
 float Direction::Get_Y(void) const
 {
-	return(sin(angle_y) * distance);
+	return sin(angle_y) * distance;
 }
 
 float Direction::Get_Z(void) const
 {
-	return(cos(angle_x) * cos(angle_y) * distance);
+	return cos(angle_x) * cos(angle_y) * distance;
 }
 
 
 float Direction::Get_Distance(void) const
 {
-	return(distance);
+	return distance;
 }
 
 float Direction::Get_X_Angle(void) const
 {
-	return(angle_x * DEGREES_PER_RADIAN);
+	return angle_x * DEGREES_PER_RADIAN;
 }
 
 float Direction::Get_Y_Angle(void) const
 {
-	return(angle_y * DEGREES_PER_RADIAN);
+	return angle_y * DEGREES_PER_RADIAN;
 }
 
 

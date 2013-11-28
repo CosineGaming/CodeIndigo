@@ -171,10 +171,14 @@ namespace Indigo
 	// Updates world
 	void Update(int trash)
 	{
-		glutTimerFunc(0, Update, 0);
-		static int last_time;
+		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
+		if (delta_time > Frame_Length_Minimum)
+		{
+			delta_time = Frame_Length_Minimum;
+		}
+		glutTimerFunc(Frame_Length_Minimum - delta_time, Update, 0);
 		if (Update_Function)
 		{
 			Update_Function(delta_time);
@@ -198,7 +202,7 @@ namespace Indigo
 	// Get elapsed time in the game, optional modulo for partial times
 	int Elapsed(const int& modulo)
 	{
-		return(modulo == 0 ? glutGet(GLUT_ELAPSED_TIME) : glutGet(GLUT_ELAPSED_TIME % modulo));
+		return modulo == 0 ? glutGet(GLUT_ELAPSED_TIME) : glutGet(GLUT_ELAPSED_TIME % modulo);
 	}
 
 

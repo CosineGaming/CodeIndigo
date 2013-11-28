@@ -146,12 +146,12 @@ void Object::Move(const float& x, const float& y, const float& z)
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
 {
 	return(
-		   object.Data.Hitbox [0].X + object.X < Data.Hitbox [1].X + X
-		&& object.Data.Hitbox [0].Y + object.Y < Data.Hitbox [1].Y + Y
-		&& object.Data.Hitbox [0].Z + object.Z < Data.Hitbox [1].Z + Z
-		&& object.Data.Hitbox [1].X + object.X > Data.Hitbox [0].X + X
-		&& object.Data.Hitbox [1].Y + object.Y > Data.Hitbox [0].Y + Y
-		&& object.Data.Hitbox [1].Z + object.Z > Data.Hitbox [0].Z + Z);
+		   object.Data.Hitbox [0].X + object.X <= Data.Hitbox [1].X + X
+		&& object.Data.Hitbox [0].Y + object.Y <= Data.Hitbox [1].Y + Y
+		&& object.Data.Hitbox [0].Z + object.Z <= Data.Hitbox [1].Z + Z
+		&& object.Data.Hitbox [1].X + object.X >= Data.Hitbox [0].X + X
+		&& object.Data.Hitbox [1].Y + object.Y >= Data.Hitbox [0].Y + Y
+		&& object.Data.Hitbox [1].Z + object.Z >= Data.Hitbox [0].Z + Z);
 }
 
 
@@ -202,10 +202,10 @@ bool Object::Collide(const Direction& position, const Direction& direction)
 	Direction least = position.Distance(hitbox [0].To_Direction());
 	Direction most = position.Distance(hitbox [1].To_Direction());
 
-	return(direction.Get_X_Angle() > least.Get_X_Angle()
-		&& direction.Get_X_Angle() < most.Get_X_Angle()
-		&& direction.Get_Y_Angle() > least.Get_Y_Angle()
-		&& direction.Get_Y_Angle() < most.Get_Y_Angle());
+	return direction.Get_X_Angle() >= least.Get_X_Angle()
+		&& direction.Get_X_Angle() <= most.Get_X_Angle()
+		&& direction.Get_Y_Angle() >= least.Get_Y_Angle()
+		&& direction.Get_Y_Angle() <= most.Get_Y_Angle();
 
 }
 
@@ -214,12 +214,12 @@ bool Object::Collide(const Direction& position, const Direction& direction)
 bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
 {
 	return(
-		   vertex.X < Data.Hitbox [1].X + X
-		&& vertex.Y < Data.Hitbox [1].Y + Y
-		&& vertex.Z < Data.Hitbox [1].Z + Z
-		&& vertex.X > Data.Hitbox [0].X + X
-		&& vertex.Y > Data.Hitbox [0].Y + Y
-		&& vertex.Z > Data.Hitbox [0].Z + Z);
+		   vertex.X <= Data.Hitbox [1].X + X
+		&& vertex.Y <= Data.Hitbox [1].Y + Y
+		&& vertex.Z <= Data.Hitbox [1].Z + Z
+		&& vertex.X >= Data.Hitbox [0].X + X
+		&& vertex.Y >= Data.Hitbox [0].Y + Y
+		&& vertex.Z >= Data.Hitbox [0].Z + Z);
 }
 
 
