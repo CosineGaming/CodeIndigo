@@ -53,7 +53,7 @@ void update(int time)
 
 	if (Indigo::keys [' '] && !Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)))
 	{
-		gravity = 0.03 * time;
+		gravity = 2.8;
 	}
 	if (Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)) || gravity > 0)
 	{
@@ -114,6 +114,9 @@ void mouse_moved(int x, int y)
 
 int main(int argc, char ** argv)
 {
+	Direction test(2.0, 90.0, 0.0);
+	test.Set_Direction(1.0, 90.0 + test.Get_X_Angle(), 0.0);
+	std::cout << test.Get_X() << "," << test.Get_Y() << "," << test.Get_Z() << "," << std::endl;
 	Indigo::Initialize(argc, argv, "Code Indigo");
 	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2), Indigo::Blue_Color);
 	Indigo::Current_World.Add_Object(testies);
