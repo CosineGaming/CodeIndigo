@@ -171,14 +171,10 @@ namespace Indigo
 	// Updates world
 	void Update(int trash)
 	{
+		glutTimerFunc(Frame_Length_Minimum, Update, 0);
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
-		if (delta_time > Frame_Length_Minimum)
-		{
-			delta_time = Frame_Length_Minimum;
-		}
-		glutTimerFunc(Frame_Length_Minimum - delta_time, Update, 0);
 		if (Update_Function)
 		{
 			Update_Function(delta_time);
