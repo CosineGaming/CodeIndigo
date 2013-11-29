@@ -14,7 +14,9 @@ public:
 	// Construct a new direction of 0, 0, 0
 	Direction(void);
 	// Construct a new direction based off of distance and 2 angles
-	Direction(const float in_distance, const float in_angle_x=0.0, const float in_angle_y=0.0);
+	Direction(const float in_distance, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
+	// Copy a direction
+	Direction(const Direction& direction); 
 	// Construct a new direction based off of x, y, and z
 	static Direction Coordinates(const float x, const float y, const float z);
 	// Destroy a direction
@@ -58,4 +60,6 @@ private:
 	float Y;
 	// The angle moving up and down, or rotating on the x axis
 	float Z;
+	// If distance is set to zero, don't actually change values. Instead set this flag that says to return all zeros
+	bool zero;
 };

@@ -5,7 +5,8 @@
 // Construct a new direction of 0, 0, 0
 Direction::Direction(void)
 {
-	Set_Coordinates(0, 0, 0);
+	Set_Coordinates(1, 0, 0);
+	zero = true;
 }
 
 
@@ -14,6 +15,13 @@ Direction::Direction(const float in_distance, const float in_angle_x, const floa
 {
 	Set_Direction(in_distance, in_angle_x, in_angle_y);
 	return;
+}
+
+
+// Copy a direction
+Direction::Direction(const Direction& direction)
+{
+	Set_Coordinates(direction.Get_X(), direction.Get_Y(), direction.Get_Z());
 }
 
 
@@ -50,17 +58,17 @@ float Direction::Dot(const Direction& direction) const
 
 float Direction::Get_X(void) const
 {
-	return X;
+	return zero ? 0 : X;
 }
 
 float Direction::Get_Y(void) const
 {
-	return Y;
+	return zero ? 0 : Y;
 }
 
 float Direction::Get_Z(void) const
 {
-	return Z;
+	return zero ? 0 : Z;
 }
 
 
@@ -85,17 +93,19 @@ void Direction::Set_Z(const float z)
 
 float Direction::Get_Distance(void) const
 {
-	return sqrt(X*X + Y*Y + Z*Z);
+	return zero ? 0 : sqrt(X*X + Y*Y + Z*Z);
 }
 
 float Direction::Get_X_Angle(void) const
 {
-	return atan2(X, Z) * DEGREES_PER_RADIAN;
+	float x_angle = atan2(X, Z) * DEGREES_PER_RADIAN;
+	return x_angle < 0 ? x_angle + 360 : x_angle;
 }
 
 float Direction::Get_Y_Angle(void) const
 {
-	return atan2(Y, sqrt(X*X + Z*Z)) * DEGREES_PER_RADIAN;
+	float y_angle = atan2(Y, sqrt(X*X + Z*Z)) * DEGREES_PER_RADIAN;
+	return y_angle < 0 ? y_angle + 360 : y_angle;
 }
 
 
@@ -135,10 +145,17 @@ void Direction::Add_Coordinates(const float x, const float y, const float z)
 // Set the distance and angles
 void Direction::Set_Direction(const float distance, const float angle_x, const float angle_y)
 {
+	float in_distance = distance;
+	if (distance == 0)
+	{
+		in_distance = 1;
+		zero = true;
+	}
+	zero = false;
 	float x_angle = angle_x / DEGREES_PER_RADIAN;
 	float y_angle = angle_y / DEGREES_PER_RADIAN;
-	Y = sin(y_angle) * distance;
-	float partial = cos(y_angle) * distance;
+	Y = sin(y_angle) * in_distance;
+	float partial = cos(y_angle) * in_distance;
 	X = sin(x_angle) * partial;
 	Z = cos(x_angle) * partial;
 	return;
