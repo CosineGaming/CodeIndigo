@@ -75,37 +75,24 @@ void Object::Render(void) const
 	{
 		// When each polygon is finished, calculate a light normal
 		Direction normal = Data.Get_Normal(Point).To_Direction();
-		Direction center = points [Point].To_Direction();
-		//Direction pointing = Direction::Coordinates(
-		//	Indigo::Current_World.camera.X,
-		//	Indigo::Current_World.camera.Y,
-		//	Indigo::Current_World.camera.Z)
-		//	.Distance(center);
-		//glEnd();
-		//glBegin(GL_LINES);
-		//glVertex3f(Indigo::Current_World.camera.X,
-		//	Indigo::Current_World.camera.Y,
-		//	Indigo::Current_World.camera.Z);
-		////std::cout << Indigo::Current_World.camera.X <<
-		//	//Indigo::Current_World.camera.Y <<
-		//	//Indigo::Current_World.camera.Z << std::endl;
-		//glVertex3f(center.Get_X(),
-		//	center.Get_Y(),
-		//	center.Get_Z());
-		//glEnd();
-		//glBegin(Render_Types [Data.Group_Size]);
-		///*if (normal.Dot(pointing) > 0)
-		//{
-		//	normal.Set_Direction(normal.Get_Distance(), normal.Get_X_Angle() + 180, normal.Get_Y_Angle() * -1);
-		//	++flipped;
-		//}*/
+		Direction center = points [Point].To_Direction(); // DELETE
+		Direction pointing = Direction::Coordinates(
+			Indigo::Current_World.camera.X,
+			Indigo::Current_World.camera.Y,
+			Indigo::Current_World.camera.Z)
+			.Distance(center);
+		if (normal.Dot(pointing) > 0)
+		{
+			normal.Set_Direction(normal.Get_Distance(), normal.Get_X_Angle() + 180, normal.Get_Y_Angle() * -1);
+			++flipped;
+		}
 		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size()) == 0 ||
 			(Data.Group_Size == 0 && Point <= points.size() - 3))
 		{
 			glEnd();
 			glBegin(GL_LINES);
 			glVertex3f(center.Get_X() + X, center.Get_Y() + Y, center.Get_Z() + Z);
-			glVertex3f(center.Get_X() + normal.Get_X() + X, center.Get_Y() + normal.Get_Y() + Y, center.Get_Z() + normal.Get_Z() + Z);
+			glVertex3f(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z);
 			glEnd();
 			glBegin(Render_Types[Data.Group_Size]);
 		}

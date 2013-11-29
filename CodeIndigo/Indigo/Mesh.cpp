@@ -297,8 +297,8 @@ void Mesh::Add(const Vertex& vertex)
 	// Add a new vertex to the end of the mesh
 	vertices.push_back(vertex);
 	// Calculate the light normal if this ends a face
-	int point = vertices.size();
-	if (point % (Group_Size != 0 ? Group_Size : point) == Group_Size - 1 || (Group_Size == 0 && point >= 3))
+	int point = vertices.size() - 1;
+	if (point % (Group_Size != 0 ? Group_Size : 1) == Group_Size - 1 || (Group_Size == 0 && point >= 3))
 	{
 		std::cout << point << std::endl;
 		Direction one = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());

@@ -58,7 +58,7 @@ void update(int time)
 	if (Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)) || gravity > 0)
 	{
 		gravity -= .00980665 * time;
-		camera.Move(0.0, 0.0, gravity);
+		camera.Move(0.0, 0.0, gravity * time / 1000);
 	}
 	else
 	{
@@ -115,9 +115,8 @@ void mouse_moved(int x, int y)
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize(argc, argv, "Code Indigo");
-	Indigo::Current_World.Add_Object(Object(-1.0, 1.7, 0.0, 
-		Mesh(3) + Vertex(0, 0, 0) + Vertex(0, 1, 0) + Vertex(0, 0, 1) + Vertex(1, 0, 0) + Vertex(0, 1, 0) + Vertex(0, -1, 0)
-		, Indigo::Blue_Color));
+	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2), Indigo::Blue_Color);
+	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
 	//Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)));
