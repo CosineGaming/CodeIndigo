@@ -64,7 +64,6 @@ void Camera::Move(float forward, float side, float up)
 void Camera::Look_At(Direction direction)
 {
 	eye = direction.Distance(Direction::Coordinates(X, Y, Z));
-	eye.Normalize();
 	return;
 }
 
@@ -73,7 +72,6 @@ void Camera::Look_At(Direction direction)
 void Camera::Look_At(float x, float y, float z)
 {
 	eye.Set_Coordinates(x - X, y - Y, z - Z);
-	eye.Normalize();
 	return;
 }
 
