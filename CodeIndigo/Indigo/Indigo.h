@@ -4,6 +4,7 @@
 #pragma once
 
 #include "World.h"
+#include "Animation.h"
 
 
 namespace Indigo

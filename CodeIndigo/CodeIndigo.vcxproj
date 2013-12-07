@@ -152,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeIndigo.h" />
+    <ClInclude Include="Indigo\Animation.h" />
     <ClInclude Include="Indigo\Camera.h" />
     <ClInclude Include="Indigo\Direction.h" />
     <ClInclude Include="Indigo\Indigo.h" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeIndigo.cpp" />
+    <ClCompile Include="Indigo\Animation.cpp" />
     <ClCompile Include="Indigo\Camera.cpp" />
     <ClCompile Include="Indigo\Direction.cpp" />
     <ClCompile Include="Indigo\Indigo.cpp" />

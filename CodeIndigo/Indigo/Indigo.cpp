@@ -175,6 +175,7 @@ namespace Indigo
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
+		Animation::Update();
 		if (Update_Function)
 		{
 			Update_Function(delta_time);

@@ -122,6 +122,7 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
+	Animation(&Indigo::Current_World.Get_Object(table), 10.0, 0.0, 0.0, 600);
 	//Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)));
 	//srand(time(0));
 	//for (int cube=0; cube<2000; ++cube)
