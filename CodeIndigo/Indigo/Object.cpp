@@ -70,33 +70,19 @@ void Object::Render(void) const
 	}
 	std::vector <Vertex> points = Data.Get_Vertices();
 	glBegin(Render_Types[Data.Group_Size]);
-	int flipped = 0; // DELETE
+	bool flip = Collide(Vertex(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z));
 	for (int Point=0; Point<points.size(); Point++)
 	{
 		// When each polygon is finished, calculate a light normal
-		Direction normal = Data.Get_Normal(Point).To_Direction();
-		Direction center = points [Point].To_Direction(); // DELETE
-		Direction pointing = Direction::Coordinates(
-			Indigo::Current_World.camera.X,
-			Indigo::Current_World.camera.Y,
-			Indigo::Current_World.camera.Z)
-			.Distance(center);
-		if (normal.Dot(pointing) > 0)
+		Vertex normal = Data.Get_Normal(Point);
+		if (flip)
 		{
-			normal.Set_Direction(normal.Get_Distance(), normal.Get_X_Angle() + 180, normal.Get_Y_Angle() * -1);
-			++flipped;
+			glNormal3f(normal.X, normal.Y, normal.Z);
 		}
-		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size()) == 0 ||
-			(Data.Group_Size == 0 && Point <= points.size() - 3))
+		else
 		{
-			glEnd();
-			glBegin(GL_LINES);
-			glVertex3f(center.Get_X() + X, center.Get_Y() + Y, center.Get_Z() + Z);
-			glVertex3f(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z);
-			glEnd();
-			glBegin(Render_Types[Data.Group_Size]);
+			glNormal3f(normal.X * -1, normal.Y * -1, normal.Z * -1);
 		}
-		glNormal3f(normal.Get_X(), normal.Get_Y(), normal.Get_Z());
 		Vertex Cursor = points [Point];
 		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
 	}
@@ -127,7 +113,7 @@ void Object::Move(const float& x, const float& y, const float& z)
 
 
 // Checks whether this object collides with another object
-bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
+bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
 	return(
 		   object.Data.Hitbox [0].X + object.X <= Data.Hitbox [1].X + X
@@ -140,10 +126,10 @@ bool Object::Collide(const Object& object, const float add_x, const float add_y,
 
 
 // Checks whether this object will ever be intersected by a direction
-bool Object::Collide(const Direction& position, const Direction& direction)
+bool Object::Collide(const Direction& position, const Direction& direction) const
 {
 
-	Vertex * hitbox = Data.Hitbox;
+	Vertex * hitbox = const_cast<Vertex *>(Data.Hitbox);
 
 	if (position.Get_Z() < Data.Hitbox [0].Z)
 	{
@@ -195,7 +181,7 @@ bool Object::Collide(const Direction& position, const Direction& direction)
 
 
 // Checks whether this vertex is withing this object
-bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z) const
 {
 	return(
 		   vertex.X <= Data.Hitbox [1].X + X

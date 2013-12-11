@@ -19,6 +19,7 @@ public:
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.
 	// /*Example*/ Mesh myCubeMesh = Mesh::Cube(1.0, 50.0, 24.2, 13.5);
+	static Mesh Load(const char * filename);
 	static Mesh Sphere(const float& radius, const int& recusions=3, const bool& draw_sphere=true);
 	static Mesh Box(const float& width, const float& height, const float& length);
 	static Mesh Line(const float& width, const float& height=0.0, const float& length=0.0);

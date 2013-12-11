@@ -1,7 +1,9 @@
 // Defines a mesh of points for render
 
 #include "Mesh.h"
-#include "Vertex.h"
+#include "Direction.h"
+#include <fstream>
+#include <iostream>
 
 
 Mesh::Mesh(const int& group_size)
@@ -36,6 +38,17 @@ Mesh::~Mesh(void)
 {
 	// Destroy the mesh
 	return;
+}
+
+
+Mesh Mesh::Load(const char * filename)
+{
+	std::ifstream file(filename, std::ios::in);
+	char * line = new char[10];
+	while (file.getline(line, 10))
+	{
+		if (line[0] == 'v' && line[1] == ' ')
+	}
 }
 
 
@@ -306,7 +319,16 @@ void Mesh::Add(const Vertex& vertex)
 			one.Get_Z() * two.Get_X() - one.Get_X() * two.Get_Z(),
 			one.Get_X() * two.Get_Y() - one.Get_Y() * two.Get_X());
 		normal.Normalize();
-		normals.push_back(Vertex(normal.Get_X(), normal.Get_Y(), normal.Get_Z()));
+		Direction center = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
+		if (normal.Dot(center) > 0)
+		{
+			Vertex value = normal.To_Vertex();
+			normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));
+		}
+		else
+		{
+			normals.push_back(normal.To_Vertex());
+		}
 	}
 	// Update the hitbox with the new vertex
 	if (vertex.X < Hitbox [0].X)

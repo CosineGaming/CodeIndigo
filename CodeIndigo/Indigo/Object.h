@@ -31,11 +31,11 @@ public:
 	void Move(const float& x, const float& y=0.0, const float& z=0.0);
 
 	// Checks whether this object collides with another object
-	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0);
+	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0) const;
 	// Checks whether this object will ever be intersected by a direction
-	bool Collide(const Direction& position, const Direction& direction);
+	bool Collide(const Direction& position, const Direction& direction) const;
 	// Checks whether this vertex is withing this object
-	bool Collide(const Vertex& vertex, const float add_x=0, const float add_y=0, const float add_z=0);
+	bool Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
 	void Set_Hitbox(const float& right=0.0, const float& top=0.0, const float& front=0.0, const float& left=0.0, const float& bottom=0.0, const float& back=0.0);
 

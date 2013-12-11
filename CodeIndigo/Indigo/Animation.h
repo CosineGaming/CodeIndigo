@@ -18,8 +18,6 @@ public:
 	Animation(Object * original, float X, float Y, float Z, int frames);
 	// Destroy an animation and remove it from the update list
 	~Animation(void);
-	// Remove an object from the update list
-	void Remove(void);
 	// Update this one animation; called by static Update
 	void Update_One(void);
 	// Remove all animations and start anew for a new world or other purpose
@@ -33,8 +31,6 @@ private:
 	float each;
 	// Remaining frames until change has reached the final variable
 	int remaining_frames;
-	// The number that this is listed in animations
-	int id;
 	// Stores all animations to be updated
 	static std::vector<Animation> animations;
 };

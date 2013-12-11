@@ -1,6 +1,7 @@
 // Animates variables steadily
 
 #include "Animation.h"
+#include <iostream>
 
 
 // Create a new, blank animation to be assigned to
@@ -10,7 +11,6 @@ Animation::Animation(float * original, float finished, int frames)
 	each = (finished - *original) / frames;
 	remaining_frames = frames;
 	animations.push_back(*this);
-	animations[animations.size() - 1].id = animations.size();
 }
 
 
@@ -41,21 +41,15 @@ Animation::~Animation(void)
 }
 
 
-// Remove an object from the update list
-void Animation::Remove(void)
-{
-	animations.erase(animations.begin() + id);
-}
-
-
 // Update all animations; once per frame called by Indigo::Update
 void Animation::Update_One(void)
 {
-	*change += each;
-	remaining_frames--;
-	if (remaining_frames == 0)
+	if (remaining_frames != 0)
 	{
-		Remove();
+		*change += each;
+		remaining_frames--;
+		std::cout << *change << std::endl;
+		std::cout << remaining_frames << std::endl;
 	}
 }
 
@@ -63,7 +57,7 @@ void Animation::Update_One(void)
 // Remove all animations and start anew for a new world or other purpose
 void Animation::Clear(void)
 {
-	animations = std::vector<Animation>();
+	animations.clear();
 }
 
 
@@ -77,4 +71,5 @@ void Animation::Update(void)
 }
 
 
+// Stores all animations to be updated
 std::vector<Animation> Animation::animations;

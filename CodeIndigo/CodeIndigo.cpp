@@ -1,11 +1,8 @@
 // Entry point!
 // Code indigo is a 3d mystery game. Readme for more information.
-#define DEBUG_BUILD
 
 #include "CodeIndigo.h"
-#ifdef DEBUG_BUILD
 #include <iostream>
-#endif
 #include "time.h"
 
 int bounds;
@@ -51,19 +48,22 @@ void update(int time)
 		gravity = 0;
 	}
 
-	if (Indigo::keys [' '] && !Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)))
+	if (Indigo::keys[' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)))
 	{
 		gravity = 2.8;
 	}
-	if (Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)) || gravity > 0)
+	if (!Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.50001, camera.Z)) || gravity > 0)
 	{
 		gravity -= .00980665 * time;
-		camera.Move(0.0, 0.0, gravity * time / 1000);
+		if (!Indigo::keys['e'] && !Indigo::keys['f'])
+			camera.Move(0.0, 0.0, gravity * time / 1000);
+		if (Indigo::keys['f'])
+			camera.Move(0.0, 0.0, gravity * time / -1000);
 	}
 	else
 	{
 		gravity = 0;
-		camera.Y = 1.5;//int (camera.Y - 1.5) - (camera.Y > 0) + 1.5;
+		camera.Y = int (camera.Y - 1.5) - (camera.Y > 0) + 1.5;
 	}
 
 	if (Indigo::keys ['3'])
@@ -122,16 +122,18 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
-	Animation(&Indigo::Current_World.Get_Object(table), 10.0, 0.0, 0.0, 600);
-	//Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)));
-	//srand(time(0));
-	//for (int cube=0; cube<2000; ++cube)
+	Animation(&Indigo::Current_World.Get_Object(table), 100.0, 0.5, -1.0, 600);
+	Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
+	srand(time(0));
+	//for (int cube = 0; cube < 6000; ++cube)
 	//{
 	//	float * color = new float[3];
 	//	color[0] = (rand() % 100) / (float) (rand() % 100);
 	//	color[1] = (rand() % 100) / (float) (rand() % 100);
 	//	color[2] = (rand() % 100) / (float) (rand() % 100);
-	//	Indigo::Current_World.Add_Object(Object(rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, Mesh::Cube(1), color));
+	//	Object object = Object(rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, Mesh::Cube(1), color);
+	//	//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
+	//	Indigo::Current_World.Add_Object(object);
 	//}
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
