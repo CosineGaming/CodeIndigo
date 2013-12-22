@@ -48,11 +48,12 @@ void update(int time)
 		gravity = 0;
 	}
 
-	if (Indigo::keys[' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)))
+	if (Indigo::keys[' '] && !Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)))
 	{
 		gravity = 2.8;
 	}
-	if (!Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
+
+	if (Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
 	{
 		std::cout << "Not colliding!" << std::endl;
 		gravity -= .00980665 * time;
@@ -65,7 +66,7 @@ void update(int time)
 	{
 		std::cout << "Colliding!" << std::endl;
 		gravity = 0;
-		camera.Y = int (camera.Y - 1.5) + 1.5;
+		camera.Y = 1.5;//int (camera.Y - 1.5) + 1.5;
 	}
 
 	if (Indigo::keys ['3'])
@@ -117,8 +118,8 @@ void mouse_moved(int x, int y)
 int main(int argc, char ** argv)
 {
 	float color[3] = {0.0, 0.0, 0.0};
-	Indigo::Initialize(argc, argv, "Code Indigo", 48, true, color);
-	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2), Indigo::Blue_Color);
+	Indigo::Initialize(argc, argv, "Code Indigo", 48, true);//, color);
+	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2, 4), Indigo::Blue_Color);
 	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));

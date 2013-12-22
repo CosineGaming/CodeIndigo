@@ -26,7 +26,7 @@ Vertex::Vertex(const Vertex& vertex)
 
 
 // Create a vertex with these values
-Vertex::Vertex(const float& x, const float& y, const float& z)
+Vertex::Vertex(const float x, const float y, const float z)
 {
 	X = x;
 	Y = y;
@@ -62,13 +62,20 @@ Mesh Vertex::operator+(const Vertex& vertex) const
 }
 
 
+// Checks whether this Vertex is exactly the same as another
+bool Vertex::operator==(const Vertex& check)
+{
+	return check.X == this->X && check.Y == this->Y && check.Z == this->Z;
+}
+
+
 // Finds the midpoint between 2 vertices, useful for triangular recursion
 Vertex Vertex::Midpoint(const Vertex& vertex) const
 {
 	Vertex copy = *this;
-	copy.X =(X + vertex.X) / 2;
-	copy.Y =(Y + vertex.Y) / 2;
-	copy.Z =(Z + vertex.Z) / 2;
+	copy.X = (X + vertex.X) / 2;
+	copy.Y = (Y + vertex.Y) / 2;
+	copy.Z = (Z + vertex.Z) / 2;
 	return copy;
 }
 

@@ -40,6 +40,15 @@ float Direction::Dot(const Direction& direction) const
 		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z();
 }
 
+// Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
+Direction Direction::Cross(const Direction& direction)
+{
+	return Direction::Coordinates(
+		Get_Y() * direction.Get_Z() - Get_Z() * direction.Get_Y(),
+		Get_Z() * direction.Get_X() - Get_X() * direction.Get_Z(),
+		Get_X() * direction.Get_Y() - Get_Y() * direction.Get_X());
+}
+
 
 float Direction::Get_X(void) const
 {

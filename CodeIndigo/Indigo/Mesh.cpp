@@ -319,7 +319,7 @@ Vertex& Mesh::Get_Vertex(const int index) const
 }
 
 
-std::vector <Vertex> Mesh::Get_Vertices(int beginning, int end) const
+std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 {
 	if (beginning < 0)
 	{
@@ -334,16 +334,44 @@ std::vector <Vertex> Mesh::Get_Vertices(int beginning, int end) const
 		end = beginning;
 	}
 	end += 1;
-	return std::vector <Vertex>(vertices.begin() + beginning, vertices.begin() + end);
+	return std::vector<Vertex>(vertices.begin() + beginning, vertices.begin() + end);
 }
 
 
-// Get the normal for a specific vertex
-Vertex Mesh::Get_Normal(const int index) const
+// Get the normal for a specific vertex by face
+Vertex Mesh::Flat_Normal(const int index) const
 {
-	
-	return normals[Group_Size != 0 ? index / Group_Size : index - 3];
+	return flat_normals[Group_Size != 0 ? index / Group_Size : index - 3];
+}
 
+
+// Get the smoother per-vertex normal for a vertex; calculate if needed
+Vertex Mesh::Smooth_Normal(const int index)
+{
+	if (smooth_normals.size() <= index)
+	{
+		std::vector<Vertex> normals;
+		for (int point=0; point<Size(); ++point)
+		{
+			if (vertices[point] == vertices[index])
+			{
+				normals.push_back(Flat_Normal(point));
+			}
+		}
+		for (int add=1; add<normals.size(); ++add)
+		{
+			normals[0] += normals[add];
+		}
+		normals[0].X /= normals.size();
+		normals[0].Y /= normals.size();
+		normals[0].Z /= normals.size();
+		while (smooth_normals.size() < index)
+		{
+			smooth_normals.push_back(Vertex());
+		}
+		smooth_normals.push_back(normals[0]);
+	}
+	return smooth_normals[index];
 }
 
 
@@ -361,48 +389,45 @@ void Mesh::Add(const Vertex& vertex)
 	int point = vertices.size() - 1;
 	if (point % (Group_Size > 2 ? Group_Size : 1) == Group_Size - 1 || (Group_Size < 3 && point >= 3))
 	{
-		Direction one = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
-		Direction two = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
-		Direction normal = Direction::Coordinates(
-			one.Get_Y() * two.Get_Z() - one.Get_Z() * two.Get_Y(),
-			one.Get_Z() * two.Get_X() - one.Get_X() * two.Get_Z(),
-			one.Get_X() * two.Get_Y() - one.Get_Y() * two.Get_X());
+		Direction normal = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
+		Direction with = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
+		normal.Cross(with);
 		normal.Normalize();
 		Direction center = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
 		if (normal.Dot(center) > 0)
 		{
 			Vertex value = normal.To_Vertex();
-			normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));
+			flat_normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));
 		}
 		else
 		{
-			normals.push_back(normal.To_Vertex());
+			flat_normals.push_back(normal.To_Vertex());
 		}
 	}
 	// Update the hitbox with the new vertex
-	if (vertex.X < Hitbox [0].X)
+	if (vertex.X < Hitbox[0].X)
 	{
-		Hitbox [0].X = vertex.X;
+		Hitbox[0].X = vertex.X;
 	}
-	if (vertex.Y < Hitbox [0].Y)
+	if (vertex.Y < Hitbox[0].Y)
 	{
-		Hitbox [0].Y = vertex.Y;
+		Hitbox[0].Y = vertex.Y;
 	}
-	if (vertex.Z < Hitbox [0].Z)
+	if (vertex.Z < Hitbox[0].Z)
 	{
-		Hitbox [0].Z = vertex.Z;
+		Hitbox[0].Z = vertex.Z;
 	}
-	if (vertex.X > Hitbox [1].X)
+	if (vertex.X > Hitbox[1].X)
 	{
-		Hitbox [1].X = vertex.X;
+		Hitbox[1].X = vertex.X;
 	}
-	if (vertex.Y > Hitbox [1].Y)
+	if (vertex.Y > Hitbox[1].Y)
 	{
-		Hitbox [1].Y = vertex.Y;
+		Hitbox[1].Y = vertex.Y;
 	}
-	if (vertex.Z > Hitbox [1].Z)
+	if (vertex.Z > Hitbox[1].Z)
 	{
-		Hitbox [1].Z = vertex.Z;
+		Hitbox[1].Z = vertex.Z;
 	}
 	return;
 }
@@ -412,7 +437,7 @@ void Mesh::Add(const Mesh& mesh)
 {
 	// Add new vertices to the end of the mesh
 	for (int Point=0; Point<mesh.Size(); ++Point)
-	Add(mesh [Point]);
+	Add(mesh[Point]);
 	return;
 }
 
@@ -421,6 +446,6 @@ void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
 	// Add new vertices to the end of the mesh
 	for (int Point=0; Point<add_vertices.size(); ++Point)
-	Add(add_vertices [Point]);
+	Add(add_vertices[Point]);
 	return;
 }

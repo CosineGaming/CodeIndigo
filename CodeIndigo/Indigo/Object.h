@@ -23,7 +23,7 @@ public:
 	~Object(void);
 
 	// Renders the object
-	void Render() const;
+	void Render();
 
 	// Places the object at the X, Y, and Z coordinates
 	void Place(const float& x, const float& y=0.0, const float& z=0.0);

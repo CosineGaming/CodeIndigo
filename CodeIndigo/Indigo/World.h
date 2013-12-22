@@ -21,7 +21,7 @@ public:
 	// Updates every object in the world, prepares to render again
 	void Update(const int& time);
 	// Renders every object in the world
-	void Render(void) const;
+	void Render(void);
 	// Adds an object to the world to be rendered and updated,
 	// returns an object ID
 	int Add_Object(const Object& object);

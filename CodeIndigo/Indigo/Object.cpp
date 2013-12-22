@@ -52,7 +52,7 @@ Object::~Object(void)
 
 
 // Renders the object
-void Object::Render(void) const
+void Object::Render(void)
 {
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
@@ -68,29 +68,17 @@ void Object::Render(void) const
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-
-	glRotatef()
+	glRotatef(0, 0, 0, 0);
 	glTranslatef(X, Y, Z);
-
-	std::vector <Vertex> points = Data.Get_Vertices();
 	glBegin(Render_Types[Data.Group_Size]);
-	
-	for (int Point=0; Point<points.size(); Point++)
+	for (int Point=0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
-		Vertex normal = Data.Get_Normal(Point);
-		//if (flip)
-		//{
-			glNormal3f(normal.X, normal.Y, normal.Z);
-		//}
-		//else
-		//{
-		//	glNormal3f(normal.X * -1, normal.Y * -1, normal.Z * -1);
-		//}
-		Vertex Cursor = points [Point];
+		Vertex normal = Data.Smooth_Normal(Point);
+		glNormal3f(normal.X, normal.Y, normal.Z);
+		Vertex Cursor = Data[Point];
 		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
 	}
-	//std::cout << "Flipped " << flipped * 100 / points.size() << "%" << std::endl; // DELETE
 	glEnd();
 	return;
 }
@@ -206,4 +194,4 @@ void Object::Set_Hitbox(const float& right, const float& top, const float& front
 
 
 // The OpenGL draw mode for each render type.
-const int Object::Render_Types [5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};
+const int Object::Render_Types[5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};

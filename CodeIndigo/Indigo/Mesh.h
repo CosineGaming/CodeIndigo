@@ -56,7 +56,9 @@ public:
 	// Get all the vertices, or a subset of them 
 	std::vector <Vertex> Get_Vertices(int beginning=0, int end=-1) const;
 	// Get the normal for a specific vertex
-	Vertex Get_Normal(const int index) const;
+	Vertex Flat_Normal(const int index) const;
+	// Get the smoother per-vertex normal for a vertex; calculate if needed
+	Vertex Smooth_Normal(const int index);
 	// Get the number of Vertices in the mesh
 	int Size(void) const;
 	// How many sides to each polygon
@@ -69,7 +71,8 @@ public:
 	void Add(const std::vector <Vertex>& vertices);
 protected:
 	// The actual vertices
-	std::vector <Vertex> vertices;
-	std::vector <Vertex> normals;
+	std::vector<Vertex> vertices;
+	std::vector<Vertex> flat_normals;
+	std::vector<Vertex> smooth_normals;
 private:
 };

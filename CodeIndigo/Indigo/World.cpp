@@ -43,7 +43,7 @@ void World::Update(const int& time)
 }
 
 
-void World::Render(void) const
+void World::Render(void)
 {
 	// Renders every object in the world
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
