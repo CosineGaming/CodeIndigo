@@ -54,12 +54,12 @@ Object::~Object(void)
 // Renders the object
 void Object::Render(void) const
 {
-	static int skip; // DELETE
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 		object_color ? object_color : full_array);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
+
 	if (Line)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -68,9 +68,14 @@ void Object::Render(void) const
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	glRotatef()
+	glTranslatef(X, Y, Z);
+
 	std::vector <Vertex> points = Data.Get_Vertices();
 	glBegin(Render_Types[Data.Group_Size]);
 	bool flip = Collide(Vertex(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z));
+
 	for (int Point=0; Point<points.size(); Point++)
 	{
 		// When each polygon is finished, calculate a light normal
@@ -84,9 +89,9 @@ void Object::Render(void) const
 			glNormal3f(normal.X * -1, normal.Y * -1, normal.Z * -1);
 		}
 		Vertex Cursor = points [Point];
-		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
+		glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
 	}
-	//std::cout << "Flipped " << flipped * 100 / points.size() << "%" << std::endl; // DELETE
+	
 	glEnd();
 	return;
 }
@@ -202,4 +207,4 @@ void Object::Set_Hitbox(const float& right, const float& top, const float& front
 
 
 // The OpenGL draw mode for each render type.
-const int Object::Render_Types [5] = {GL_TRIANGLE_STRIP, 0, 0, GL_TRIANGLES, GL_QUADS};
+const int Object::Render_Types [5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};
