@@ -59,7 +59,6 @@ void Object::Render(void)
 		object_color ? object_color : full_array);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
-
 	if (Line)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -68,8 +67,9 @@ void Object::Render(void)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	glRotatef(0, 0, 0, 0);
+	Direction axis = Direction().Cross(facing);
 	glTranslatef(X, Y, Z);
+	glRotatef(50, axis.Get_X(), axis.Get_Y(), axis.Get_Z());
 	glBegin(Render_Types[Data.Group_Size]);
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{

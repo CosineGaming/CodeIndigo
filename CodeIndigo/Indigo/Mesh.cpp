@@ -391,10 +391,10 @@ void Mesh::Add(const Vertex& vertex)
 	{
 		Direction normal = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
 		Direction with = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
-		normal.Cross(with);
+		normal = normal.Cross(with);
 		normal.Normalize();
-		Direction center = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
-		if (normal.Dot(center) > 0)
+		with = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
+		if (normal.Dot(with) > 0)
 		{
 			Vertex value = normal.To_Vertex();
 			flat_normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));

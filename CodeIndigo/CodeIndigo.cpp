@@ -21,7 +21,7 @@ void update(int time)
 	{
 		speed = .003 * time;
 	}
-	if (Indigo::keys['q'])
+	if (Indigo::keys['e'])
 	{
 		speed += .01 * time;
 	}
@@ -55,16 +55,14 @@ void update(int time)
 
 	if (Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)) || gravity > 0)
 	{
-		std::cout << "Not colliding!" << std::endl;
 		gravity -= .00980665 * time;
-		if (!Indigo::keys['e'] && !Indigo::keys['f'])
+		if (!Indigo::keys['q'] && !Indigo::keys['f'])
 			camera.Move(0.0, 0.0, gravity * time / 1000);
 		if (Indigo::keys['f'])
 			camera.Move(0.0, 0.0, gravity * time / -1000);
 	}
 	else
 	{
-		std::cout << "Colliding!" << std::endl;
 		gravity = 0;
 		camera.Y = 1.5;//int (camera.Y - 1.5) + 1.5;
 	}
@@ -122,10 +120,10 @@ int main(int argc, char ** argv)
 	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2, 4), Indigo::Blue_Color);
 	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
-	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 5.0)));
+	bounds = Indigo::Current_World.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 20.0)));
 	Indigo::Current_World.Add_Object(Object(0.0, 0.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -15.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
-	Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
+	//Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
 	//Animation(&Indigo::Current_World.Get_Object(table), 100.0, 0.5, -1.0, 600);
 	//Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
 	//srand(time(0));
