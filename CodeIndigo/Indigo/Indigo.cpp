@@ -46,7 +46,7 @@ namespace Indigo
 		glEnable(GL_FOG);
 		glFogfv(GL_FOG_COLOR, White_Color);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		glFogf(GL_FOG_DENSITY, 0.02);
+		glFogf(GL_FOG_DENSITY, 0.002);
 
 		// Enable rendering options
 		glShadeModel(GL_SMOOTH);

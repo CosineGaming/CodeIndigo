@@ -74,24 +74,23 @@ void Object::Render(void) const
 
 	std::vector <Vertex> points = Data.Get_Vertices();
 	glBegin(Render_Types[Data.Group_Size]);
-	bool flip = Collide(Vertex(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z));
-
+	
 	for (int Point=0; Point<points.size(); Point++)
 	{
 		// When each polygon is finished, calculate a light normal
 		Vertex normal = Data.Get_Normal(Point);
-		if (flip)
-		{
+		//if (flip)
+		//{
 			glNormal3f(normal.X, normal.Y, normal.Z);
-		}
-		else
-		{
-			glNormal3f(normal.X * -1, normal.Y * -1, normal.Z * -1);
-		}
+		//}
+		//else
+		//{
+		//	glNormal3f(normal.X * -1, normal.Y * -1, normal.Z * -1);
+		//}
 		Vertex Cursor = points [Point];
-		glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
+		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
 	}
-	
+	//std::cout << "Flipped " << flipped * 100 / points.size() << "%" << std::endl; // DELETE
 	glEnd();
 	return;
 }

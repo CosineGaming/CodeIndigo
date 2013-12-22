@@ -48,8 +48,8 @@ void Animation::Update_One(void)
 	{
 		*change += each;
 		remaining_frames--;
-		std::cout << *change << std::endl;
-		std::cout << remaining_frames << std::endl;
+		//std::cout << *change << std::endl;
+		//std::cout << remaining_frames << std::endl;
 	}
 }
 

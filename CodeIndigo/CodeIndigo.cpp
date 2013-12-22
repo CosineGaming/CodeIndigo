@@ -116,10 +116,8 @@ void mouse_moved(int x, int y)
 
 int main(int argc, char ** argv)
 {
-	Direction test(2.0, 90.0, 0.0);
-	test.Set_Direction(1.0, 90.0 + test.Get_X_Angle(), 0.0);
-	std::cout << test.Get_X() << "," << test.Get_Y() << "," << test.Get_Z() << "," << std::endl;
-	Indigo::Initialize(argc, argv, "Code Indigo");
+	float color[3] = {0.0, 0.0, 0.0};
+	Indigo::Initialize(argc, argv, "Code Indigo", 48, true, color);
 	Object testies = Object(-1.0, 1.7, 0.0, Mesh::Sphere(0.2), Indigo::Blue_Color);
 	Indigo::Current_World.Add_Object(testies);
 	table = Indigo::Current_World.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
@@ -142,7 +140,10 @@ int main(int argc, char ** argv)
 	//}
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
-	Indigo::Current_World.lighting.Add_Light(0.0, 1.0, 10.0);
+	Indigo::Current_World.lighting.Set_Ambient(0.15);
+	Direction light = Direction(1.0, 45.0, 45.0);
+	Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
+	Indigo::Current_World.lighting.Add_Light(0, 0, 0);
 	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
 	Indigo::Run();
 	return 0;

@@ -12,9 +12,11 @@ public:
 	Lighting(const Lighting& arrangement);
 	// Destroy a lighting arrangement, reset to default
 	~Lighting(void);
+	// Set ambient lighting for the scene for easier lighting
+	void Set_Ambient(float intensity);
 	// Add a light source
 	void Add_Light(float X, float Y, float Z, bool infinity=false,
-		float ambient=0.2, float specular=1.0, float * color_offset=nullptr);
+		float diffuse=0.95, float specular=1.0, float * color_offset=nullptr);
 	// Update the positions of all lights
 	void Position_Lights(void) const;
 	// Get the number of lights in the scene
