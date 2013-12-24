@@ -10,10 +10,10 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float& x, const float& y, const float& z,
+Object::Object(const float x, const float y, const float z,
 	const Mesh& mesh, float *color, float shine,
-	void(*update_function)(const int& frame, Object& self),
-	const bool& line, const Direction& towards)
+	void(*update_function)(const int frame, Object& self),
+	const bool line, const Direction& towards)
 {
 	Place(x, y, z);
 	Data = mesh;
@@ -67,9 +67,9 @@ void Object::Render(void)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	Direction axis = Direction().Cross(facing);
+	glPushMatrix();
 	glTranslatef(X, Y, Z);
-	glRotatef(50, axis.Get_X(), axis.Get_Y(), axis.Get_Z());
+	glRotatef(facing.Get_X_Angle() + facing.Get_Y_Angle(), facing.Get_Y_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), facing.Get_X_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), 0);
 	glBegin(Render_Types[Data.Group_Size]);
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{
@@ -77,15 +77,16 @@ void Object::Render(void)
 		Vertex normal = Data.Smooth_Normal(Point);
 		glNormal3f(normal.X, normal.Y, normal.Z);
 		Vertex Cursor = Data[Point];
-		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
+		glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
 	}
 	glEnd();
+	glPopMatrix();
 	return;
 }
 
 
 // Places the object at the X, Y, and Z coordinates
-void Object::Place(const float& x, const float& y, const float& z)
+void Object::Place(const float x, const float y, const float z)
 {
 	X = x;
 	Y = y;
@@ -94,12 +95,22 @@ void Object::Place(const float& x, const float& y, const float& z)
 }
 
 
-// Moves the object by X, Y, and Z relatively
-void Object::Move(const float& x, const float& y, const float& z)
+// Moves the forward, side, and up based on the facing direction
+void Object::Move(const float forward, const float side, const float up)
 {
-	X += x;
-	Y += y;
-	Z += z;
+	Direction direction = facing;
+	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
+	direction.Set_Direction(side, direction.Get_X_Angle() + 90, 0.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
+	direction.Set_Direction(up, 0.0, 90.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
 	return;
 }
 
@@ -186,7 +197,7 @@ bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y,
 
 
 // Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
-void Object::Set_Hitbox(const float& right, const float& top, const float& front, const float& left, const float& bottom, const float& back)
+void Object::Set_Hitbox(const float right, const float top, const float front, const float left, const float bottom, const float back)
 {
 	Data.Hitbox[1] = Vertex(right, top, front);
 	Data.Hitbox[0] = Vertex(left, bottom, front);

@@ -244,14 +244,16 @@ namespace Indigo
 
 	// Colors
 	
-	float White_Color [3] = {1.0, 1.0, 1.0};
+	float White_Color[3] = {1.0, 1.0, 1.0};
 
-	float Black_Color [3] = {0.0, 0.0, 0.0};
+	float Black_Color[3] = {0.0, 0.0, 0.0};
 
-	float   Sky_Color [3] = {0.5, 0.8, 1.0};
+	float   Sky_Color[3] = {0.5, 0.8, 1.0};
 
-	float  Blue_Color [3] = {0.0, 0.0, 0.5};
+	float	Red_Color[3] = {0.4, 0.0, 0.0};
 
-	float	Red_Color [3] = {0.4, 0.0, 0.0};
+	float Green_Color[3] = {0.0, 0.8, 0.0};
+
+	float  Blue_Color[3] = {0.0, 0.0, 0.5};
 
 }

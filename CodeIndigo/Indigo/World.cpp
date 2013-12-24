@@ -101,49 +101,44 @@ void World::Remove_Object(const Object& object)
 }
 
 
-// Checks whether any object collides with another object
-bool World::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
+// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
+int World::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
 {
-	bool answer = false;
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
 		if (objects[Object].Collide(object, add_x, add_y, add_z))
 		{
-			answer = true;
+			return Object;
 			break;
 		}
 	}
-	return answer;
+	return -1;
 }
 
 
 // Checks whether any object will ever be intersected by a direction
-bool World::Collide(const Direction& position, const Direction& direction)
+int World::Collide(const Direction& position, const Direction& direction)
 {
-	bool answer = false;
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
 		if (objects[Object].Collide(position, direction))
 		{
-			answer = true;
-			break;
+			return Object;
 		}
 	}
-	return answer;
+	return -1;
 }
 
 
 // Checks whether a vertex is within any object
-bool World::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+int World::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
 {
-	bool answer = false;
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
 		if (objects[Object].Collide(vertex, add_x, add_y, add_z))
 		{
-			answer = true;
-			break;
+			return Object;
 		}
 	}
-	return answer;
+	return -1;
 }

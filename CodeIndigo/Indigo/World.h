@@ -32,12 +32,12 @@ public:
 	// Removes an object from the world based on object; gets ID automatically
 	void Remove_Object(const Object& object);
 
-	// Checks whether any object collides with another object
-	bool Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
+	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
+	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 	// Checks whether any object will ever be intersected by a direction
-	bool Collide(const Direction& position, const Direction& direction);
+	int Collide(const Direction& position, const Direction& direction);
 	// Checks whether a vertex is within any object
-	bool Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
+	int Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 
 	// Used to modify the lighting of the world
 	Lighting lighting;
