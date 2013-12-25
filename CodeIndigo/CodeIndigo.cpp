@@ -23,7 +23,7 @@ void update(int time)
 	}
 	if (Indigo::keys['e'])
 	{
-		speed += .01 * time;
+		//speed += .01 * time;
 	}
 
 	if (Indigo::keys['w'])
@@ -44,8 +44,9 @@ void update(int time)
 	}
 	if (Indigo::keys['r'])
 	{
-		camera.Place(0.0, 0.0, 0.0);
-		gravity = 0;
+		Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
+		Indigo::Current_World.camera.Y = Indigo::Current_World.Get_Object(4).Y + 5;
+		Indigo::Current_World.camera.Z = Indigo::Current_World.Get_Object(4).Z;
 	}
 
 	if (Indigo::keys[' '] && Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z)) != -1)
@@ -80,8 +81,10 @@ void update(int time)
 	{
 		exit(0);
 	}
-	Indigo::Current_World.Get_Object(4).facing.Add_Direction(0, .360 * time * (rand() % 2 ? 1 : -1));
-	Indigo::Current_World.Get_Object(4).Move(0.002 * time);
+	static int direction = 1;
+	Indigo::Current_World.Get_Object(4).facing.Add_Direction(0, .12 * time * direction);
+	if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)	direction *= -1;
+	Indigo::Current_World.Get_Object(4).Move(.0002 * (rand() % 20 + 1) * time);
 
 }
 
@@ -128,8 +131,6 @@ int main(int argc, char ** argv)
 	Direction light = Direction(1.0, 45.0, 45.0);
 	Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
 	Indigo::Current_World.lighting.Add_Light(0, 1.0, 0);
-	std::cout << "Placing camera.\n";
-	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
 	std::cout << "Loading high-resolution sphere.\n";
 	Object testies = Object(-1.0, 1.8, 0.0, Mesh::Sphere(0.4, 5), Indigo::Blue_Color);
 	std::cout << "Adding sphere to world.\n";
@@ -141,9 +142,14 @@ int main(int argc, char ** argv)
 	std::cout << "Room added. Loading light source marker.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 	std::cout << "Loading model of Monkey.\n";
-	Indigo::Current_World.Add_Object(Object(0.0, 0.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.objasdf")));
+	Indigo::Current_World.Add_Object(Object(0.0, -8.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 	std::cout << "Loading model of flying train.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
+	std::cout << "Placing camera.\n";
+	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
+	Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
+	Indigo::Current_World.camera.Y = Indigo::Current_World.Get_Object(4).Y + 5;
+	Indigo::Current_World.camera.Z = Indigo::Current_World.Get_Object(4).Z;
 	//Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
 	//Animation(&Indigo::Current_World.Get_Object(table), 100.0, 0.5, -1.0, 600);
 	//Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
