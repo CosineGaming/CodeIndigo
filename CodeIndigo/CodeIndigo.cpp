@@ -141,7 +141,7 @@ int main(int argc, char ** argv)
 	std::cout << "Room added. Loading light source marker.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 	std::cout << "Loading model of Monkey.\n";
-	Indigo::Current_World.Add_Object(Object(0.0, 0.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
+	Indigo::Current_World.Add_Object(Object(0.0, 0.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.objasdf")));
 	std::cout << "Loading model of flying train.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
 	//Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
