@@ -10,10 +10,10 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float& x, const float& y, const float& z,
+Object::Object(const float x, const float y, const float z,
 	const Mesh& mesh, float *color, float shine,
-	void(*update_function)(const int& frame, Object& self),
-	const bool& line, const Direction& towards)
+	void(*update_function)(const int frame, Object& self),
+	const bool line, const Direction& towards)
 {
 	Place(x, y, z);
 	Data = mesh;
@@ -52,10 +52,9 @@ Object::~Object(void)
 
 
 // Renders the object
-void Object::Render(void) const
+void Object::Render(void)
 {
-	static int skip; // DELETE
-	float full_array [] = {1.0, 1.0, 1.0, 1.0};
+	float full_array[] = { 1.0, 1.0, 1.0, 1.0 };
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 		object_color ? object_color : full_array);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
@@ -68,46 +67,26 @@ void Object::Render(void) const
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	std::vector <Vertex> points = Data.Get_Vertices();
+	glPushMatrix();
+	glTranslatef(X, Y, Z);
+	glRotatef(facing.Get_X_Angle() + facing.Get_Y_Angle(), facing.Get_Y_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), facing.Get_X_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), 0);
 	glBegin(Render_Types[Data.Group_Size]);
-	int flipped = 0; // DELETE
-	for (int Point=0; Point<points.size(); Point++)
+	for (int Point = 0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
-		Direction normal = Data.Get_Normal(Point).To_Direction();
-		Direction center = points [Point].To_Direction(); // DELETE
-		Direction pointing = Direction::Coordinates(
-			Indigo::Current_World.camera.X,
-			Indigo::Current_World.camera.Y,
-			Indigo::Current_World.camera.Z)
-			.Distance(center);
-		if (normal.Dot(pointing) > 0)
-		{
-			normal.Set_Direction(normal.Get_Distance(), normal.Get_X_Angle() + 180, normal.Get_Y_Angle() * -1);
-			++flipped;
-		}
-		if (Point % (Data.Group_Size != 0 ? Data.Group_Size : points.size()) == 0 ||
-			(Data.Group_Size == 0 && Point <= points.size() - 3))
-		{
-			glEnd();
-			glBegin(GL_LINES);
-			glVertex3f(center.Get_X() + X, center.Get_Y() + Y, center.Get_Z() + Z);
-			glVertex3f(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y, Indigo::Current_World.camera.Z);
-			glEnd();
-			glBegin(Render_Types[Data.Group_Size]);
-		}
-		glNormal3f(normal.Get_X(), normal.Get_Y(), normal.Get_Z());
-		Vertex Cursor = points [Point];
-		glVertex3f(Cursor.X + X, Cursor.Y + Y, Cursor.Z + Z);
+		Vertex normal = Data.Smooth_Normal(Point);
+		glNormal3f(normal.X, normal.Y, normal.Z);
+		Vertex Cursor = Data[Point];
+		glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
 	}
-	//std::cout << "Flipped " << flipped * 100 / points.size() << "%" << std::endl; // DELETE
 	glEnd();
+	glPopMatrix();
 	return;
 }
 
 
 // Places the object at the X, Y, and Z coordinates
-void Object::Place(const float& x, const float& y, const float& z)
+void Object::Place(const float x, const float y, const float z)
 {
 	X = x;
 	Y = y;
@@ -116,75 +95,85 @@ void Object::Place(const float& x, const float& y, const float& z)
 }
 
 
-// Moves the object by X, Y, and Z relatively
-void Object::Move(const float& x, const float& y, const float& z)
+// Moves the forward, side, and up based on the facing direction
+void Object::Move(const float forward, const float side, const float up)
 {
-	X += x;
-	Y += y;
-	Z += z;
+	Direction direction = facing;
+	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
+	direction.Set_Direction(side, direction.Get_X_Angle() + 90, 0.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
+	direction.Set_Direction(up, 0.0, 90.0);
+	X += direction.Get_X();
+	Y += direction.Get_Y();
+	Z += direction.Get_Z();
 	return;
 }
 
 
 // Checks whether this object collides with another object
-bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
+bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
 	return(
-		   object.Data.Hitbox [0].X + object.X <= Data.Hitbox [1].X + X
-		&& object.Data.Hitbox [0].Y + object.Y <= Data.Hitbox [1].Y + Y
-		&& object.Data.Hitbox [0].Z + object.Z <= Data.Hitbox [1].Z + Z
-		&& object.Data.Hitbox [1].X + object.X >= Data.Hitbox [0].X + X
-		&& object.Data.Hitbox [1].Y + object.Y >= Data.Hitbox [0].Y + Y
-		&& object.Data.Hitbox [1].Z + object.Z >= Data.Hitbox [0].Z + Z);
+		object.Data.Hitbox[0].X + object.X <= Data.Hitbox[1].X + X
+		&& object.Data.Hitbox[0].Y + object.Y <= Data.Hitbox[1].Y + Y
+		&& object.Data.Hitbox[0].Z + object.Z <= Data.Hitbox[1].Z + Z
+		&& object.Data.Hitbox[1].X + object.X >= Data.Hitbox[0].X + X
+		&& object.Data.Hitbox[1].Y + object.Y >= Data.Hitbox[0].Y + Y
+		&& object.Data.Hitbox[1].Z + object.Z >= Data.Hitbox[0].Z + Z);
 }
 
 
 // Checks whether this object will ever be intersected by a direction
-bool Object::Collide(const Direction& position, const Direction& direction)
+bool Object::Collide(const Direction& position, const Direction& direction) const
 {
 
-	Vertex * hitbox = Data.Hitbox;
+	Vertex * hitbox = const_cast<Vertex *>(Data.Hitbox);
 
-	if (position.Get_Z() < Data.Hitbox [0].Z)
+	if (position.Get_Z() < Data.Hitbox[0].Z)
 	{
 
-		hitbox [0].X = Data.Hitbox [1].X;
+		hitbox[0].X = Data.Hitbox[1].X;
 
-		hitbox [1].X = Data.Hitbox [0].X;
-		if (position.Get_X() > Data.Hitbox [0].X)
-			hitbox [1].Z = Data.Hitbox [0].Z;
+		hitbox[1].X = Data.Hitbox[0].X;
+		if (position.Get_X() > Data.Hitbox[0].X)
+			hitbox[1].Z = Data.Hitbox[0].Z;
 
 	}
 
-	if (position.Get_X() > Data.Hitbox [1].X)
+	if (position.Get_X() > Data.Hitbox[1].X)
 	{
 
-		hitbox [0].X = Data.Hitbox [1].X;
-		hitbox [0].Z = Data.Hitbox [1].Z;
+		hitbox[0].X = Data.Hitbox[1].X;
+		hitbox[0].Z = Data.Hitbox[1].Z;
 
-		hitbox [1].X = Data.Hitbox [0].X;
-		hitbox [1].Z = Data.Hitbox [0].Z;
-		if (position.Get_Z() > Data.Hitbox [0].Z)
-			hitbox [1].X = Data.Hitbox [1].X;
+		hitbox[1].X = Data.Hitbox[0].X;
+		hitbox[1].Z = Data.Hitbox[0].Z;
+		if (position.Get_Z() > Data.Hitbox[0].Z)
+			hitbox[1].X = Data.Hitbox[1].X;
 
 	}
 
-	if (position.Get_Z() > Data.Hitbox [1].Z
-		&& position.Get_X() > Data.Hitbox [0].X)
+	if (position.Get_Z() > Data.Hitbox[1].Z
+		&& position.Get_X() > Data.Hitbox[0].X)
 	{
 
-		hitbox [0].X = Data.Hitbox [0].X;
-		hitbox [0].Z = Data.Hitbox [1].Z;
+		hitbox[0].X = Data.Hitbox[0].X;
+		hitbox[0].Z = Data.Hitbox[1].Z;
 
-		hitbox [1].X = Data.Hitbox [1].X;
-		hitbox [1].Z = Data.Hitbox [0].Z;
-		if (position.Get_X() < Data.Hitbox [1].X)
-			hitbox [1].Z = Data.Hitbox [1].Z;
-		
+		hitbox[1].X = Data.Hitbox[1].X;
+		hitbox[1].Z = Data.Hitbox[0].Z;
+		if (position.Get_X() < Data.Hitbox[1].X)
+			hitbox[1].Z = Data.Hitbox[1].Z;
+
 	}
 
-	Direction least = position.Distance(hitbox [0].To_Direction());
-	Direction most = position.Distance(hitbox [1].To_Direction());
+	Direction least = position.Distance(hitbox[0].To_Direction());
+	Direction most = position.Distance(hitbox[1].To_Direction());
 
 	return direction.Get_X_Angle() >= least.Get_X_Angle()
 		&& direction.Get_X_Angle() <= most.Get_X_Angle()
@@ -195,20 +184,20 @@ bool Object::Collide(const Direction& position, const Direction& direction)
 
 
 // Checks whether this vertex is withing this object
-bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z) const
 {
 	return(
-		   vertex.X <= Data.Hitbox [1].X + X
-		&& vertex.Y <= Data.Hitbox [1].Y + Y
-		&& vertex.Z <= Data.Hitbox [1].Z + Z
-		&& vertex.X >= Data.Hitbox [0].X + X
-		&& vertex.Y >= Data.Hitbox [0].Y + Y
-		&& vertex.Z >= Data.Hitbox [0].Z + Z);
+		vertex.X <= Data.Hitbox[1].X + X
+		&& vertex.Y <= Data.Hitbox[1].Y + Y
+		&& vertex.Z <= Data.Hitbox[1].Z + Z
+		&& vertex.X >= Data.Hitbox[0].X + X
+		&& vertex.Y >= Data.Hitbox[0].Y + Y
+		&& vertex.Z >= Data.Hitbox[0].Z + Z);
 }
 
 
 // Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
-void Object::Set_Hitbox(const float& right, const float& top, const float& front, const float& left, const float& bottom, const float& back)
+void Object::Set_Hitbox(const float right, const float top, const float front, const float left, const float bottom, const float back)
 {
 	Data.Hitbox[1] = Vertex(right, top, front);
 	Data.Hitbox[0] = Vertex(left, bottom, front);
@@ -216,4 +205,4 @@ void Object::Set_Hitbox(const float& right, const float& top, const float& front
 
 
 // The OpenGL draw mode for each render type.
-const int Object::Render_Types [5] = {GL_TRIANGLE_STRIP, 0, 0, GL_TRIANGLES, GL_QUADS};
+const int Object::Render_Types[5] = { GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS };

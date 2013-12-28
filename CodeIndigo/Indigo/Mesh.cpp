@@ -1,20 +1,24 @@
 // Defines a mesh of points for render
 
 #include "Mesh.h"
-#include "Vertex.h"
+#include "Direction.h"
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 
-Mesh::Mesh(const int& group_size)
+Mesh::Mesh(const int group_size)
 {
 	// Create a new, empty mesh
-	Hitbox [0] = Vertex(0, 0, 0);
-	Hitbox [1] = Vertex(0, 0, 0);
+	Hitbox[0] = Vertex(0, 0, 0);
+	Hitbox[1] = Vertex(0, 0, 0);
 	Group_Size = group_size;
 	return;
 }
 
 
-Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int& group_size)
+Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
 {
 	// Create a new mesh with some vertices
 	Add(add_vertices);
@@ -39,12 +43,58 @@ Mesh::~Mesh(void)
 }
 
 
-Mesh Mesh::Sphere(const float& radius, const int& recursions, const bool& draw_sphere)
+Mesh Mesh::Load(const char * filename)
+{
+	Mesh mesh(3);
+	std::ifstream file(filename, std::ios::in);
+	if (!file)
+	{
+		std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh.\n";
+	}
+	else
+	{
+		std::vector<Vertex> options;
+		std::string line;
+		while (std::getline(file, line))
+		{
+			if (line[0] == 'v' && line[1] == ' ')
+			{
+				std::istringstream stream(line.substr(2));
+				Vertex option;
+				stream >> option.X;
+				stream >> option.Y;
+				stream >> option.Z;
+				options.push_back(option);
+			}
+			else if (line[0] == 'f' && line[1] == ' ')
+			{
+				std::string values(line.substr(2));
+				int face[3];
+				face[0] = atoi(values.c_str());
+				values = values.substr(values.find(' ') + 1);
+				face[1] = atoi(values.c_str());
+				values = values.substr(values.find(' ') + 1);
+				face[2] = atoi(values.c_str());
+				face[0] -= 1;
+				face[1] -= 1;
+				face[2] -= 1;
+				mesh += options[face[0]];
+				mesh += options[face[1]];
+				mesh += options[face[2]];
+			}
+		}
+		file.close();
+	}
+	return mesh;
+}
+
+
+Mesh Mesh::Sphere(const float radius, const int recursions, const bool draw_sphere)
 {
 	Mesh mesh(3);
 	Vertex top = Vertex(0.0, radius, 0.0);
 	Direction cursor(radius, 0.0, 0.0);
-	for (int triangle=0; triangle<8; ++triangle)
+	for (int triangle = 0; triangle<8; ++triangle)
 	{
 		if (triangle == 4)
 		{
@@ -59,42 +109,42 @@ Mesh Mesh::Sphere(const float& radius, const int& recursions, const bool& draw_s
 }
 
 
-Mesh Mesh::Box(const float& width, const float& height, const float& length)
+Mesh Mesh::Box(const float width, const float height, const float length)
 {
 	Mesh mesh = Mesh();
-	float Half_Lengths [3] = 
+	float Half_Lengths[3] =
 	{
 		width / 2.0f,
 		height / 2.0f,
 		length / 2.0f
 	};
-	int Pair [2] = {0, 1};
+	int Pair[2] = { 0, 1 };
 	mesh.Group_Size = 4;
-	for (int Side=0; Side<3; Side++)
+	for (int Side = 0; Side<3; Side++)
 	{
-		for (int Twice=0; Twice<2; Twice++)
+		for (int Twice = 0; Twice<2; Twice++)
 		{
-			for (int Point=0; Point<4; Point++)
+			for (int Point = 0; Point<4; Point++)
 			{
-				Half_Lengths [Pair [Point % 2]] *= -1;
-				mesh += Vertex(Half_Lengths [0],
-					Half_Lengths [1], Half_Lengths [2]);
+				Half_Lengths[Pair[Point % 2]] *= -1;
+				mesh += Vertex(Half_Lengths[0],
+					Half_Lengths[1], Half_Lengths[2]);
 			}
 			if (0 == Twice)
 			{
-				Half_Lengths [0] *= -1;
-				Half_Lengths [1] *= -1;
-				Half_Lengths [2] *= -1;
-				Half_Lengths [Pair [0]] *= -1;
+				Half_Lengths[0] *= -1;
+				Half_Lengths[1] *= -1;
+				Half_Lengths[2] *= -1;
+				Half_Lengths[Pair[0]] *= -1;
 			}
 		}
-		Pair [2 != Pair [1]] += 1; // 0, 1; 0, 2; 1, 2
+		Pair[2 != Pair[1]] += 1; // 0, 1; 0, 2; 1, 2
 	}
 	return mesh;
 }
 
 
-Mesh Mesh::Line(const float& width, const float& height, const float& length)
+Mesh Mesh::Line(const float width, const float height, const float length)
 {
 	Mesh mesh;
 	mesh += Vertex(0.0, 0.0, 0.0);
@@ -103,26 +153,38 @@ Mesh Mesh::Line(const float& width, const float& height, const float& length)
 }
 
 
-Mesh Mesh::Cube(const float& side)
+Mesh Mesh::Cube(const float side)
 {
 	return Box(side, side, side);
 }
 
 
-Mesh Mesh::Regular_Shape(const int& sides, const float& side_length)
+Mesh Mesh::Regular_Shape(const int sides, const float side_length)
 {
-	return Mesh();
+	Mesh mesh(1);
+	mesh += Vertex(0.0, 0.0, 0.0);
+	Direction cursor(side_length);
+	for (; cursor.Get_X_Angle() <= 360.0; cursor.Add_Direction(0.0, 360.0 / sides))
+	{
+		mesh += cursor.To_Vertex();
+	}
+	return mesh;
 }
 
 
-Mesh Mesh::Rectangle(const float& width, const float& height)
+Mesh Mesh::Rectangle(const float width, const float height)
 {
-	return Mesh();
+	Mesh mesh(4);
+	mesh += Vertex(width / -2, height / -2, 0.0);
+	mesh += Vertex(width / 2, height / -2, 0.0);
+	mesh += Vertex(width / 2, height / 2, 0.0);
+	mesh += Vertex(width / -2, height / 2, 0.0);
+	return mesh;
 }
 
 
 // Used in recursion for the Sphere function
-Mesh Mesh::Bulge_Sphere(const float& radius, const int& recursions,
+Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 	const Vertex& left, const Vertex& right, const Vertex& top)
 {
 	Mesh mesh(0);
@@ -138,10 +200,10 @@ Mesh Mesh::Bulge_Sphere(const float& radius, const int& recursions,
 	}
 	else
 	{
-		Vertex vertices [3] = {left, right, top};
-		for (int vertex=0; vertex<3; ++vertex)
+		Vertex vertices[3] = { left, right, top };
+		for (int vertex = 0; vertex<3; ++vertex)
 		{
-			Direction distance = vertices [vertex].To_Direction();
+			Direction distance = vertices[vertex].To_Direction();
 			distance.Set_Direction(radius, distance.Get_X_Angle(),
 				distance.Get_Y_Angle());
 			mesh += Vertex(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
@@ -151,7 +213,7 @@ Mesh Mesh::Bulge_Sphere(const float& radius, const int& recursions,
 }
 
 
-Vertex& Mesh::operator[](const int& index) const
+Vertex& Mesh::operator[](const int index) const
 {
 	// Allows [] to get a vertex like an array
 	return Get_Vertex(index);
@@ -240,9 +302,9 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 	{
 		Vertex last = add_vertices.back();
 	}
-	for (int Point=0; Point<add_vertices.size(); ++Point)
+	for (int Point = 0; Point<add_vertices.size(); ++Point)
 	{
-		Vertex add = add_vertices [Point];
+		Vertex add = add_vertices[Point];
 		add += last;
 		Add(add);
 	}
@@ -250,14 +312,14 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 }
 
 
-Vertex& Mesh::Get_Vertex(const int& index) const
+Vertex& Mesh::Get_Vertex(const int index) const
 {
 	// Gets a vertex by it's index
-	return const_cast <Vertex&>(vertices [index]);
+	return const_cast <Vertex&>(vertices[index]);
 }
 
 
-std::vector <Vertex> Mesh::Get_Vertices(int beginning, int end) const
+std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 {
 	if (beginning < 0)
 	{
@@ -272,16 +334,44 @@ std::vector <Vertex> Mesh::Get_Vertices(int beginning, int end) const
 		end = beginning;
 	}
 	end += 1;
-	return std::vector <Vertex>(vertices.begin() + beginning, vertices.begin() + end);
+	return std::vector<Vertex>(vertices.begin() + beginning, vertices.begin() + end);
 }
 
 
-// Get the normal for a specific vertex
-Vertex Mesh::Get_Normal(const int& index) const
+// Get the normal for a specific vertex by face
+Vertex Mesh::Flat_Normal(const int index) const
 {
-	
-	return normals[Group_Size != 0 ? index / Group_Size : index - 3];
+	return flat_normals[Group_Size != 0 ? index / Group_Size : index - 3];
+}
 
+
+// Get the smoother per-vertex normal for a vertex; calculate if needed
+Vertex Mesh::Smooth_Normal(const int index)
+{
+	if (smooth_normals.size() <= index)
+	{
+		std::vector<Vertex> normals;
+		for (int point = 0; point<Size(); ++point)
+		{
+			if (vertices[point] == vertices[index])
+			{
+				normals.push_back(Flat_Normal(point));
+			}
+		}
+		for (int add = 1; add<normals.size(); ++add)
+		{
+			normals[0] += normals[add];
+		}
+		normals[0].X /= normals.size();
+		normals[0].Y /= normals.size();
+		normals[0].Z /= normals.size();
+		while (smooth_normals.size() < index)
+		{
+			smooth_normals.push_back(Vertex());
+		}
+		smooth_normals.push_back(normals[0]);
+	}
+	return smooth_normals[index];
 }
 
 
@@ -297,41 +387,47 @@ void Mesh::Add(const Vertex& vertex)
 	vertices.push_back(vertex);
 	// Calculate the light normal if this ends a face
 	int point = vertices.size() - 1;
-	if (point % (Group_Size != 0 ? Group_Size : 1) == Group_Size - 1 || (Group_Size == 0 && point >= 3))
+	if (point % (Group_Size > 2 ? Group_Size : 1) == Group_Size - 1 || (Group_Size < 3 && point >= 3))
 	{
-		Direction one = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
-		Direction two = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
-		Direction normal = Direction::Coordinates(
-			one.Get_Y() * two.Get_Z() - one.Get_Z() * two.Get_Y(),
-			one.Get_Z() * two.Get_X() - one.Get_X() * two.Get_Z(),
-			one.Get_X() * two.Get_Y() - one.Get_Y() * two.Get_X());
+		Direction normal = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
+		Direction with = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
+		normal = normal.Cross(with);
 		normal.Normalize();
-		normals.push_back(Vertex(normal.Get_X(), normal.Get_Y(), normal.Get_Z()));
+		with = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
+		if (normal.Dot(with) > 0)
+		{
+			Vertex value = normal.To_Vertex();
+			flat_normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));
+		}
+		else
+		{
+			flat_normals.push_back(normal.To_Vertex());
+		}
 	}
 	// Update the hitbox with the new vertex
-	if (vertex.X < Hitbox [0].X)
+	if (vertex.X < Hitbox[0].X)
 	{
-		Hitbox [0].X = vertex.X;
+		Hitbox[0].X = vertex.X;
 	}
-	if (vertex.Y < Hitbox [0].Y)
+	if (vertex.Y < Hitbox[0].Y)
 	{
-		Hitbox [0].Y = vertex.Y;
+		Hitbox[0].Y = vertex.Y;
 	}
-	if (vertex.Z < Hitbox [0].Z)
+	if (vertex.Z < Hitbox[0].Z)
 	{
-		Hitbox [0].Z = vertex.Z;
+		Hitbox[0].Z = vertex.Z;
 	}
-	if (vertex.X > Hitbox [1].X)
+	if (vertex.X > Hitbox[1].X)
 	{
-		Hitbox [1].X = vertex.X;
+		Hitbox[1].X = vertex.X;
 	}
-	if (vertex.Y > Hitbox [1].Y)
+	if (vertex.Y > Hitbox[1].Y)
 	{
-		Hitbox [1].Y = vertex.Y;
+		Hitbox[1].Y = vertex.Y;
 	}
-	if (vertex.Z > Hitbox [1].Z)
+	if (vertex.Z > Hitbox[1].Z)
 	{
-		Hitbox [1].Z = vertex.Z;
+		Hitbox[1].Z = vertex.Z;
 	}
 	return;
 }
@@ -340,8 +436,8 @@ void Mesh::Add(const Vertex& vertex)
 void Mesh::Add(const Mesh& mesh)
 {
 	// Add new vertices to the end of the mesh
-	for (int Point=0; Point<mesh.Size(); ++Point)
-	Add(mesh [Point]);
+	for (int Point = 0; Point<mesh.Size(); ++Point)
+		Add(mesh[Point]);
 	return;
 }
 
@@ -349,7 +445,7 @@ void Mesh::Add(const Mesh& mesh)
 void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
 	// Add new vertices to the end of the mesh
-	for (int Point=0; Point<add_vertices.size(); ++Point)
-	Add(add_vertices [Point]);
+	for (int Point = 0; Point<add_vertices.size(); ++Point)
+		Add(add_vertices[Point]);
 	return;
 }

@@ -28,7 +28,7 @@ namespace Indigo
 		{
 			background = Sky_Color;
 		}
-		glClearColor(background [0], background [1], background [2], 1.0);
+		glClearColor(background[0], background[1], background[2], 1.0);
 
 		// Set callbacks
 		Frame_Length_Minimum = 1000 / max_framerate;
@@ -46,7 +46,7 @@ namespace Indigo
 		glEnable(GL_FOG);
 		glFogfv(GL_FOG_COLOR, White_Color);
 		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		glFogf(GL_FOG_DENSITY, 0.02);
+		glFogf(GL_FOG_DENSITY, 0.002);
 
 		// Enable rendering options
 		glShadeModel(GL_SMOOTH);
@@ -58,7 +58,7 @@ namespace Indigo
 
 		return;
 	}
-	  
+
 	// Starts the main loop with update, render, and input
 	void Run(void)
 	{
@@ -87,7 +87,7 @@ namespace Indigo
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(Field_Of_View,
-			(float) width /(float) height,
+			(float) width / (float) height,
 			0.05, 500.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
@@ -106,7 +106,7 @@ namespace Indigo
 		{
 			Key_Pressed_Function(key, x, y);
 		}
-		keys [key] = true;
+		keys[key] = true;
 		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
 		return;
 	}
@@ -123,7 +123,7 @@ namespace Indigo
 		{
 			Key_Released_Function(key, x, y);
 		}
-		keys [key] = false;
+		keys[key] = false;
 		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
 		return;
 	}
@@ -148,7 +148,7 @@ namespace Indigo
 			static int last_x = 0;
 			static int last_y = 0;
 			if (!((width / 2 == x && height / 2 == y)
-				||(0 == x - last_x && 0 == y - last_y)))
+				|| (0 == x - last_x && 0 == y - last_y)))
 			{
 				Relative_Mouse_Moved_Function(x - last_x, y - last_y);
 			}
@@ -175,6 +175,7 @@ namespace Indigo
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
+		//Animation::Update();
 		if (Update_Function)
 		{
 			Update_Function(delta_time);
@@ -225,7 +226,7 @@ namespace Indigo
 	void(*Mouse_Moved_Function)(int x, int y);
 
 	// ... when the mouse is moved, given relative to the center.
-		// Also hides mouse when defined.
+	// Also hides mouse when defined.
 	void(*Relative_Mouse_Moved_Function)(int x, int y);
 
 	// ... every time the world updates
@@ -233,24 +234,26 @@ namespace Indigo
 
 	// ... just before the rendering of objects in the world
 	void(*Render_Function)(void);
-	
+
 	// Members with the index of a key which is currently down are true
-	bool keys [256];
+	bool keys[256];
 
 	// Stores whether shift is pressed
 	bool Shift = false;
 
 
 	// Colors
-	
-	float White_Color [3] = {1.0, 1.0, 1.0};
 
-	float Black_Color [3] = {0.0, 0.0, 0.0};
+	float White_Color[3] = { 1.0, 1.0, 1.0 };
 
-	float   Sky_Color [3] = {0.5, 0.8, 1.0};
+	float Black_Color[3] = { 0.0, 0.0, 0.0 };
 
-	float  Blue_Color [3] = {0.0, 0.0, 0.5};
+	float   Sky_Color[3] = { 0.5, 0.8, 1.0 };
 
-	float	Red_Color [3] = {0.4, 0.0, 0.0};
+	float        Red_Color[3] = { 0.4, 0.0, 0.0 };
+
+	float Green_Color[3] = { 0.0, 0.8, 0.0 };
+
+	float  Blue_Color[3] = { 0.0, 0.0, 0.5 };
 
 }

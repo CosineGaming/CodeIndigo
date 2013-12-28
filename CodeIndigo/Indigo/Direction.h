@@ -25,6 +25,8 @@ public:
 	void Normalize(const float unit=1.0);
 	// Dot product. Useful for lighting
 	float Dot(const Direction& direction) const;
+	// Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
+	Direction Cross(const Direction& direction);
 	// Get the relative coordinates of the direction
 	float Get_X(void) const;
 	float Get_Y(void) const;

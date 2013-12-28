@@ -56,6 +56,16 @@ float Direction::Dot(const Direction& direction) const
 }
 
 
+// Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
+Direction Direction::Cross(const Direction& direction)
+{
+	return Direction::Coordinates(
+		Get_Y() * direction.Get_Z() - Get_Z() * direction.Get_Y(),
+		Get_Z() * direction.Get_X() - Get_X() * direction.Get_Z(),
+		Get_X() * direction.Get_Y() - Get_Y() * direction.Get_X());
+}
+
+
 float Direction::Get_X(void) const
 {
 	return zero ? 0 : X;
@@ -127,9 +137,16 @@ void Direction::Set_Y_Angle(float y_angle)
 // Set the coordinates of the direction
 void Direction::Set_Coordinates(const float x, const float y, const float z)
 {
-	X = x;
-	Y = y;
-	Z = z;
+	if (x == 0 && y == 0 && z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		X = x;
+		Y = y;
+		Z = z;
+	}
 	return;
 }
 
@@ -151,7 +168,10 @@ void Direction::Set_Direction(const float distance, const float angle_x, const f
 		in_distance = 1;
 		zero = true;
 	}
-	zero = false;
+	else
+	{
+		zero = false;
+	}
 	float x_angle = angle_x / DEGREES_PER_RADIAN;
 	float y_angle = angle_y / DEGREES_PER_RADIAN;
 	Y = sin(y_angle) * in_distance;
