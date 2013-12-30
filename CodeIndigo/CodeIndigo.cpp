@@ -23,7 +23,7 @@ void update(int time)
 	}
 	if (Indigo::keys['e'])
 	{
-		//speed += .01 * time;
+		speed += .01 * time;
 	}
 
 	if (Indigo::keys['w'])
@@ -68,7 +68,7 @@ void update(int time)
 		camera.Y = Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z))).Y + Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(Vertex(camera.X, camera.Y - 1.5, camera.Z))).Data.Hitbox[1].Y + 1.5;
 	}
 
-	if (Indigo::keys ['3'])
+	if (Indigo::keys['3'])
 	{
 		std::cout << "Position: " << camera.X << ", " << camera.Y << ", " << camera.Z << std::endl
 			<< 1000 / time << " FPS" << std::endl << std::endl;
@@ -77,7 +77,7 @@ void update(int time)
 	{
 		std::cout << "\aError: " << glGetError() << std::endl;
 	}
-	if (Indigo::keys ['`'])
+	if (Indigo::keys['`'])
 	{
 		exit(0);
 	}
@@ -85,7 +85,6 @@ void update(int time)
 	Indigo::Current_World.Get_Object(4).facing.Add_Direction(0, .12 * time * direction);
 	if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)	direction *= -1;
 	Indigo::Current_World.Get_Object(4).Move(.0002 * (rand() % 20 + 1) * time);
-	std::cout << Indigo::Current_World.Get_Object(4).Y << std::endl;
 
 }
 
@@ -151,7 +150,6 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
 	Indigo::Current_World.camera.Y = Indigo::Current_World.Get_Object(4).Y + 1.5;
 	Indigo::Current_World.camera.Z = Indigo::Current_World.Get_Object(4).Z;
-	std::cout << Indigo::Current_World.Get_Object(4).Data.Hitbox[1].Y;
 	//Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
 	//Animation(&Indigo::Current_World.Get_Object(table), 100.0, 0.5, -1.0, 600);
 	//Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);

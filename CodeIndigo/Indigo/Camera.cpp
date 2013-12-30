@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include <stdlib.h>
+#include <iostream>
 #include "glut.h"
 
 
@@ -45,10 +46,12 @@ void Camera::Move(float forward, float side, float up)
 {
 	// Move relative to the way it's pointing and where it is
 	Direction direction = eye;
+	std::cout << direction.Get_X_Angle() << " - ";
 	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();
 	Z += direction.Get_Z();
+	std::cout << direction.Get_X_Angle() << std::endl;
 	direction.Set_Direction(side, direction.Get_X_Angle() + 90.0, 0.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();

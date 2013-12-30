@@ -24,7 +24,7 @@ Lighting::Lighting(const Lighting& arrangement)
 
 Lighting::~Lighting(void)
 {
-	for (int Light_Index=0; Light_Index<Number_Of_Lights; ++Light_Index)
+	for (int Light_Index = 0; Light_Index<Number_Of_Lights; ++Light_Index)
 	{
 		glDisable(Light_Values[Light_Index]);
 	}
@@ -41,7 +41,7 @@ void Lighting::Set_Ambient(float intensity)
 
 
 void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
-		float diffuse, float specular, float * color_offset)
+	float diffuse, float specular, float * color_offset)
 {
 	int Light = Light_Values[Number_Of_Lights];
 	float position_array[] = {X, Y, Z, 1.0 - (float) infinity};
@@ -49,7 +49,7 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 	float specular_array[] = {specular, specular, specular, 1.0};
 	if (color_offset)
 	{
-		for (int Color=0; Color<3; ++Color)
+		for (int Color = 0; Color<3; ++Color)
 		{
 			specular_array[Color] += color_offset[Color];
 		}
@@ -67,7 +67,7 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 void Lighting::Position_Lights(void) const
 {
 	// Update the positions of all lights
-	for (int Light=0; Light<Number_Of_Lights; ++Light)
+	for (int Light = 0; Light<Number_Of_Lights; ++Light)
 	{
 		glLightfv(Light_Values[Light], GL_POSITION, Light_Positions[Light]);
 	}

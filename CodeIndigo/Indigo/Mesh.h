@@ -54,7 +54,7 @@ public:
 	// Gets a vertex by it's index
 	Vertex& Get_Vertex(const int index) const;
 	// Get all the vertices, or a subset of them 
-	std::vector <Vertex> Get_Vertices(int beginning=0, int end=-1) const;
+	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;
 	// Get the normal for a specific vertex
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
@@ -64,7 +64,7 @@ public:
 	// How many sides to each polygon
 	int Group_Size;
 	// Hitbox used for collision, normally auto-generated. {Left Bottom Back}, {Right Top Front}
-	Vertex Hitbox [2];
+	Vertex Hitbox[2];
 	// Add points to the mesh in function notation
 	void Add(const Vertex& vertex);
 	void Add(const Mesh& mesh);
