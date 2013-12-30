@@ -23,7 +23,7 @@ void update(int time)
 	}
 	if (Indigo::keys['e'])
 	{
-		//speed += .01 * time;
+		speed += .01 * time;
 	}
 
 	if (Indigo::keys['w'])
@@ -83,9 +83,8 @@ void update(int time)
 	}
 	static int direction = 1;
 	Indigo::Current_World.Get_Object(4).facing.Add_Direction(0, .12 * time * direction);
-	if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)        direction *= -1;
+	if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)	direction *= -1;
 	Indigo::Current_World.Get_Object(4).Move(.0002 * (rand() % 20 + 1) * time);
-	std::cout << Indigo::Current_World.Get_Object(4).Y << std::endl;
 
 }
 
@@ -122,7 +121,7 @@ void mouse_moved(int x, int y)
 int main(int argc, char ** argv)
 {
 	std::cout << "Initializing rendering environment.\n";
-	float color[3] = { 0.0, 0.0, 0.0 };
+	float color[3] = {0.0, 0.0, 0.0};
 	Indigo::Initialize(argc, argv, "Code Indigo", 48, true);//, color);
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = update;
@@ -151,20 +150,19 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
 	Indigo::Current_World.camera.Y = Indigo::Current_World.Get_Object(4).Y + 1.5;
 	Indigo::Current_World.camera.Z = Indigo::Current_World.Get_Object(4).Z;
-	std::cout << Indigo::Current_World.Get_Object(4).Data.Hitbox[1].Y;
 	//Indigo::Current_World.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
 	//Animation(&Indigo::Current_World.Get_Object(table), 100.0, 0.5, -1.0, 600);
 	//Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
 	//srand(time(0));
 	//for (int cube = 0; cube < 6000; ++cube)
 	//{
-	//        float * color = new float[3];
-	//        color[0] = (rand() % 100) / (float) (rand() % 100);
-	//        color[1] = (rand() % 100) / (float) (rand() % 100);
-	//        color[2] = (rand() % 100) / (float) (rand() % 100);
-	//        Object object = Object(rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, Mesh::Cube(1), color);
-	//        //Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
-	//        Indigo::Current_World.Add_Object(object);
+	//	float * color = new float[3];
+	//	color[0] = (rand() % 100) / (float) (rand() % 100);
+	//	color[1] = (rand() % 100) / (float) (rand() % 100);
+	//	color[2] = (rand() % 100) / (float) (rand() % 100);
+	//	Object object = Object(rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, Mesh::Cube(1), color);
+	//	//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
+	//	Indigo::Current_World.Add_Object(object);
 	//}
 	std::cout << "Completely loaded. Ready to run. Preparing first frame.\n";
 	Indigo::Run();

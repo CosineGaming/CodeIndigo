@@ -49,6 +49,9 @@
     <ClInclude Include="CodeIndigo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Indigo\Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Indigo\Camera.cpp">
@@ -76,6 +79,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CodeIndigo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Indigo\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

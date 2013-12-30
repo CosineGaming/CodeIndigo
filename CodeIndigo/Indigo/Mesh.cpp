@@ -351,14 +351,14 @@ Vertex Mesh::Smooth_Normal(const int index)
 	if (smooth_normals.size() <= index)
 	{
 		std::vector<Vertex> normals;
-		for (int point = 0; point<Size(); ++point)
+		for (int point=0; point<Size(); ++point)
 		{
 			if (vertices[point] == vertices[index])
 			{
 				normals.push_back(Flat_Normal(point));
 			}
 		}
-		for (int add = 1; add<normals.size(); ++add)
+		for (int add=1; add<normals.size(); ++add)
 		{
 			normals[0] += normals[add];
 		}
@@ -436,8 +436,8 @@ void Mesh::Add(const Vertex& vertex)
 void Mesh::Add(const Mesh& mesh)
 {
 	// Add new vertices to the end of the mesh
-	for (int Point = 0; Point<mesh.Size(); ++Point)
-		Add(mesh[Point]);
+	for (int Point=0; Point<mesh.Size(); ++Point)
+	Add(mesh[Point]);
 	return;
 }
 
@@ -445,7 +445,9 @@ void Mesh::Add(const Mesh& mesh)
 void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
 	// Add new vertices to the end of the mesh
-	for (int Point = 0; Point<add_vertices.size(); ++Point)
+	for (int Point = 0; Point < add_vertices.size(); ++Point)
+	{
 		Add(add_vertices[Point]);
+	}
 	return;
 }

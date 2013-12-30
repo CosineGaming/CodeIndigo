@@ -54,7 +54,7 @@ Object::~Object(void)
 // Renders the object
 void Object::Render(void)
 {
-	float full_array[] = { 1.0, 1.0, 1.0, 1.0 };
+	float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 		object_color ? object_color : full_array);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
@@ -71,7 +71,7 @@ void Object::Render(void)
 	glTranslatef(X, Y, Z);
 	glRotatef(facing.Get_X_Angle() + facing.Get_Y_Angle(), facing.Get_Y_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), facing.Get_X_Angle() / (facing.Get_X_Angle() + facing.Get_Y_Angle()), 0);
 	glBegin(Render_Types[Data.Group_Size]);
-	for (int Point = 0; Point<Data.Size(); ++Point)
+	for (int Point=0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
 		Vertex normal = Data.Smooth_Normal(Point);
@@ -205,4 +205,4 @@ void Object::Set_Hitbox(const float right, const float top, const float front, c
 
 
 // The OpenGL draw mode for each render type.
-const int Object::Render_Types[5] = { GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS };
+const int Object::Render_Types[5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};

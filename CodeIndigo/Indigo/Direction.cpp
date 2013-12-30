@@ -5,7 +5,7 @@
 // Construct a new direction of 0, 0, 0
 Direction::Direction(void)
 {
-	Set_Coordinates(1, 0, 0);
+	Set_Coordinates(0, 0, 1);
 	zero = true;
 }
 
@@ -21,6 +21,7 @@ Direction::Direction(const float in_distance, const float in_angle_x, const floa
 // Copy a direction
 Direction::Direction(const Direction& direction)
 {
+	Set_Coordinates(0, 0, 0);
 	Set_Coordinates(direction.Get_X(), direction.Get_Y(), direction.Get_Z());
 }
 
@@ -29,6 +30,7 @@ Direction::Direction(const Direction& direction)
 Direction Direction::Coordinates(const float x, const float y, const float z)
 {
 	Direction construct;
+	construct.Set_Coordinates(0, 0, 0);
 	construct.Set_Coordinates(x, y, z);
 	return construct;
 }
@@ -51,8 +53,8 @@ void Direction::Normalize(const float unit)
 // Dot product. Useful for lighting
 float Direction::Dot(const Direction& direction) const
 {
-	return X * direction.Get_X()
-		+ Y * direction.Get_Y() + Z * direction.Get_Z();
+	return Get_X() * direction.Get_X()
+		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z();
 }
 
 
@@ -84,26 +86,65 @@ float Direction::Get_Z(void) const
 
 void Direction::Set_X(const float x)
 {
-	X = x;
+	if (x != 0)
+	{
+		zero = false;
+		X = x;
+	}
+	else if (Y == 0 && Z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		X = x;
+	}
 	return;
 }
 
 void Direction::Set_Y(const float y)
 {
-	Y = y;
+	if (y != 0)
+	{
+		zero = false;
+		Y = y;
+	}
+	else if (X == 0 && Z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		Y = y;
+	}
 	return;
 }
 
 void Direction::Set_Z(const float z)
 {
-	Z = z;
+	if (z != 0)
+	{
+		zero = false;
+		Z = z;
+	}
+	else if (X == 0 && Y == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		Z = z;
+	}
 	return;
 }
 
 
 float Direction::Get_Distance(void) const
 {
-	return zero ? 0 : sqrt(X*X + Y*Y + Z*Z);
+	return sqrt(Get_X()*Get_X() + Get_Y()*Get_Y() + Get_Z()*Get_Z());
 }
 
 float Direction::Get_X_Angle(void) const
@@ -146,6 +187,7 @@ void Direction::Set_Coordinates(const float x, const float y, const float z)
 		X = x;
 		Y = y;
 		Z = z;
+		zero = false;
 	}
 	return;
 }
@@ -154,7 +196,7 @@ void Direction::Set_Coordinates(const float x, const float y, const float z)
 // Add values to the coordinates of the direction
 void Direction::Add_Coordinates(const float x, const float y, const float z)
 {
-	Set_Coordinates(X + x, Y + y, Z + z);
+	Set_Coordinates(Get_X() + x, Get_Y() + y, Get_Z() + z);
 	return;
 }
 
@@ -196,7 +238,7 @@ void Direction::Add_Direction(const float distance, const float angle_x, const f
 Direction Direction::Distance(const Direction& to) const
 {
 	Direction copy = to;
-	copy.Add_Coordinates(-1 * X, -1 * Y, -1 * Z);
+	copy.Add_Coordinates(-1 * Get_X(), -1 * Get_Y(), -1 * Get_Z());
 	return copy;
 }
 
@@ -204,5 +246,5 @@ Direction Direction::Distance(const Direction& to) const
 // Makes a vertex with the X, Y, and Z values
 Vertex Direction::To_Vertex(void) const
 {
-	return Vertex(X, Y, Z);
+	return Vertex(Get_X(), Get_Y(), Get_Z());
 }

@@ -34,7 +34,7 @@ Lighting::~Lighting(void)
 
 void Lighting::Set_Ambient(float intensity)
 {
-	float ambient[3] = { intensity, intensity, intensity };
+	float ambient[3] = {intensity, intensity, intensity};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 	return;
 }
@@ -44,9 +44,9 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 	float diffuse, float specular, float * color_offset)
 {
 	int Light = Light_Values[Number_Of_Lights];
-	float position_array[] = { X, Y, Z, 1.0 - (float) infinity };
-	float diffuse_array[] = { diffuse, diffuse, diffuse, 1.0 };
-	float specular_array[] = { specular, specular, specular, 1.0 };
+	float position_array[] = {X, Y, Z, 1.0 - (float) infinity};
+	float diffuse_array [] = {diffuse, diffuse, diffuse, 1.0};
+	float specular_array[] = {specular, specular, specular, 1.0};
 	if (color_offset)
 	{
 		for (int Color = 0; Color<3; ++Color)
@@ -80,5 +80,5 @@ int Lighting::Get_Number_Of_Lights(void) const
 }
 
 
-const int Lighting::Light_Values[8] = { GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3,
-	GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7 };
+const int Lighting::Light_Values[8] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3,
+	GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7};
