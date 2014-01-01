@@ -315,11 +315,7 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 Vertex& Mesh::Get_Vertex(const int index) const
 {
 	// Gets a vertex by it's index
-<<<<<<< HEAD
 	return const_cast <Vertex&>(vertices[elements[index]]);
-=======
-	return const_cast <Vertex&>(vertices[index]);
->>>>>>> 3c710a7217e3c1084d4d4bd763e41d36d11f035d
 }
 
 
