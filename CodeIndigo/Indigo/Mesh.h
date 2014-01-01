@@ -54,13 +54,17 @@ public:
 	// Gets a vertex by it's index
 	Vertex& Get_Vertex(const int index) const;
 	// Get all the vertices, or a subset of them 
-	std::vector <Vertex> Get_Vertices(int beginning=0, int end=-1) const;
+	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;
+	// Calculate all per-vertex normals for the mesh
+	void Mesh::Smooth_Normals(void);
 	// Get the normal for a specific vertex
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
 	Vertex Smooth_Normal(const int index);
 	// Get the number of Vertices in the mesh
 	int Size(void) const;
+	// Number of actual different vertices defined
+	int Vertex_Data_Amount(void) const;
 	// How many sides to each polygon
 	int Group_Size;
 	// Hitbox used for collision, normally auto-generated. {Left Bottom Back}, {Right Top Front}
@@ -70,9 +74,13 @@ public:
 	void Add(const Mesh& mesh);
 	void Add(const std::vector <Vertex>& vertices);
 protected:
-	// The actual vertices
+	// The vertices to choose from
 	std::vector<Vertex> vertices;
+	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
+	std::vector<int> elements;
+	// The per-face normals; less pretty and not used by default
 	std::vector<Vertex> flat_normals;
+	// The per-vertex normals. Only calculated once added to world
 	std::vector<Vertex> smooth_normals;
 private:
 };

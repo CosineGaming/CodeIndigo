@@ -143,9 +143,9 @@ int main(int argc, char ** argv)
 	std::cout << "Room added. Loading light source marker.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 	std::cout << "Loading model of Monkey.\n";
-	Indigo::Current_World.Add_Object(Object(10.0, -10.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
+	Indigo::Current_World.Add_Object(Object(10.0, -10.0, 10.0, Mesh::Load("Monkey.obj")));
 	std::cout << "Loading model of flying train.\n";
-	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
+	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("Train.obj")));
 	std::cout << "Placing camera.\n";
 	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
 	Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
@@ -166,7 +166,7 @@ int main(int argc, char ** argv)
 	//	//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
 	//	Indigo::Current_World.Add_Object(object);
 	//}
-	std::cout << "Completely loaded. Ready to run. Preparing first frame.\n";
+	std::cout << "Last step. Loading per-vertex normals. This will take a while.\n";
 	Indigo::Run();
 	return 0;
 }
