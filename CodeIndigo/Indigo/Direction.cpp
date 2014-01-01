@@ -2,18 +2,35 @@
 #include "Vertex.h"
 
 
+// Construct a new direction of 0, 0, 0
+Direction::Direction(void)
+{
+	Set_Coordinates(0, 0, 1);
+	zero = true;
+}
+
+
 // Construct a new direction based off of distance and 2 angles
-Direction::Direction(const float& in_distance, const float& in_angle_x, const float& in_angle_y)
+Direction::Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
 	Set_Direction(in_distance, in_angle_x, in_angle_y);
 	return;
 }
 
 
+// Copy a direction
+Direction::Direction(const Direction& direction)
+{
+	Set_Coordinates(0, 0, 0);
+	Set_Coordinates(direction.Get_X(), direction.Get_Y(), direction.Get_Z());
+}
+
+
 // Construct a new direction based off of x, y, and z
-Direction Direction::Coordinates(const float& x, const float& y, const float& z)
+Direction Direction::Coordinates(const float x, const float y, const float z)
 {
 	Direction construct;
+	construct.Set_Coordinates(0, 0, 0);
 	construct.Set_Coordinates(x, y, z);
 	return construct;
 }
@@ -27,9 +44,9 @@ Direction::~Direction(void)
 
 
 // Make the distance 1
-void Direction::Normalize(const float& unit)
+void Direction::Normalize(const float unit)
 {
-	Set_Direction(unit, Get_X_Angle(), Get_Y_Angle());
+	Set_Distance(unit);
 }
 
 
@@ -41,7 +58,7 @@ float Direction::Dot(const Direction& direction) const
 }
 
 // Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
-Direction Direction::Cross(const Direction& direction)
+Direction Direction::Cross(const Direction& direction) const
 {
 	return Direction::Coordinates(
 		Get_Y() * direction.Get_Z() - Get_Z() * direction.Get_Y(),
@@ -49,52 +66,140 @@ Direction Direction::Cross(const Direction& direction)
 		Get_X() * direction.Get_Y() - Get_Y() * direction.Get_X());
 }
 
+// Angle between two vectors, useful for rotation
+float Direction::Angle_Distance(const Direction& direction) const
+{
+	return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
+}
+
 
 float Direction::Get_X(void) const
 {
-	return sin(angle_x) * cos(angle_y) * distance;
+	return zero ? 0 : X;
 }
 
 float Direction::Get_Y(void) const
 {
-	return sin(angle_y) * distance;
+	return zero ? 0 : Y;
 }
 
 float Direction::Get_Z(void) const
 {
-	return cos(angle_x) * cos(angle_y) * distance;
+	return zero ? 0 : Z;
+}
+
+
+void Direction::Set_X(const float x)
+{
+	if (x != 0)
+	{
+		zero = false;
+		X = x;
+	}
+	else if (Y == 0 && Z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		X = x;
+	}
+	return;
+}
+
+void Direction::Set_Y(const float y)
+{
+	if (y != 0)
+	{
+		zero = false;
+		Y = y;
+	}
+	else if (X == 0 && Z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		Y = y;
+	}
+	return;
+}
+
+void Direction::Set_Z(const float z)
+{
+	if (z != 0)
+	{
+		zero = false;
+		Z = z;
+	}
+	else if (X == 0 && Y == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		zero = false;
+		Z = z;
+	}
+	return;
 }
 
 
 float Direction::Get_Distance(void) const
 {
-	return distance;
+	return sqrt(Get_X()*Get_X() + Get_Y()*Get_Y() + Get_Z()*Get_Z());
 }
 
 float Direction::Get_X_Angle(void) const
 {
-	return angle_x * DEGREES_PER_RADIAN;
+	float x_angle = atan2(X, Z) * DEGREES_PER_RADIAN;
+	return x_angle < 0 ? x_angle + 360 : x_angle;
 }
 
 float Direction::Get_Y_Angle(void) const
 {
-	return angle_y * DEGREES_PER_RADIAN;
+	float y_angle = atan2(Y, sqrt(X*X + Z*Z)) * DEGREES_PER_RADIAN;
+	return y_angle < 0 ? y_angle + 360 : y_angle;
+}
+
+
+// Set the distance and angles of the direction individually
+void Direction::Set_Distance(float distance)
+{
+	Set_Direction(distance, Get_X_Angle(), Get_Y_Angle());
+}
+void Direction::Set_X_Angle(float x_angle)
+{
+	Set_Direction(Get_Distance(), x_angle, Get_Y_Angle());
+}
+void Direction::Set_Y_Angle(float y_angle)
+{
+	Set_Direction(Get_Distance(), Get_X_Angle(), y_angle);
 }
 
 
 // Set the coordinates of the direction
-void Direction::Set_Coordinates(const float& x, const float& y, const float& z)
+void Direction::Set_Coordinates(const float x, const float y, const float z)
 {
-	Set_Direction(
-		sqrt(x*x + y*y + z*z),
-		atan2(x, z) * DEGREES_PER_RADIAN,
-		atan2(y, sqrt(x*x + z*z)) * DEGREES_PER_RADIAN);
+	if (x == 0 && y == 0 && z == 0)
+	{
+		zero = true;
+	}
+	else
+	{
+		X = x;
+		Y = y;
+		Z = z;
+		zero = false;
+	}
 	return;
 }
 
 
 // Add values to the coordinates of the direction
-void Direction::Add_Coordinates(const float& x, const float& y, const float& z)
+void Direction::Add_Coordinates(const float x, const float y, const float z)
 {
 	Set_Coordinates(Get_X() + x, Get_Y() + y, Get_Z() + z);
 	return;
@@ -102,29 +207,34 @@ void Direction::Add_Coordinates(const float& x, const float& y, const float& z)
 
 
 // Set the distance and angles
-void Direction::Set_Direction(const float& in_distance, const float& in_angle_x, const float& in_angle_y)
+void Direction::Set_Direction(const float distance, const float angle_x, const float angle_y)
 {
-	distance = in_distance;
-	angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-	if (angle_x < 0)
+	float in_distance = distance;
+	if (distance == 0)
 	{
-		angle_x += 360.0 / DEGREES_PER_RADIAN;
+		in_distance = 1;
+		zero = true;
 	}
-	angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-	if (angle_y < 0)
+	else
 	{
-		angle_y += 360.0 / DEGREES_PER_RADIAN;
+		zero = false;
 	}
+	float x_angle = angle_x / DEGREES_PER_RADIAN;
+	float y_angle = angle_y / DEGREES_PER_RADIAN;
+	Y = sin(y_angle) * in_distance;
+	float partial = cos(y_angle) * in_distance;
+	X = sin(x_angle) * partial;
+	Z = cos(x_angle) * partial;
 	return;
 }
 
 
 // Add values to the distance and angles
-void Direction::Add_Direction(const float& in_distance, const float& in_angle_x, const float& in_angle_y)
+void Direction::Add_Direction(const float distance, const float angle_x, const float angle_y)
 {
-	Set_Direction(distance + in_distance,
-		Get_X_Angle() + in_angle_x,
-		Get_Y_Angle() + in_angle_y);
+	Set_Direction(Get_Distance() + distance,
+		Get_X_Angle() + angle_x,
+		Get_Y_Angle() + angle_y);
 	return;
 }
 

@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include <stdlib.h>
+#include <iostream>
 #include "glut.h"
 
 

@@ -49,7 +49,7 @@ public:
 	void(*Update)(const int time, Object& self);
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
-	float Y; 
+	float Y;
 	float Z;
 	// Relative position of points
 	Mesh Data;
@@ -61,6 +61,6 @@ public:
 	float object_shine;
 protected:
 	// The OpenGL draw mode for each render type.
-	static const int Render_Types [5];
+	static const int Render_Types[5];
 private:
 };
