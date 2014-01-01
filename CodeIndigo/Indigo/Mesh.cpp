@@ -315,7 +315,7 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 Vertex& Mesh::Get_Vertex(const int index) const
 {
 	// Gets a vertex by it's index
-	return const_cast <Vertex&>(vertices[index]);
+	return const_cast <Vertex&>(vertices[elements[index]]);
 }
 
 
@@ -338,6 +338,31 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 }
 
 
+// Calculate all per-vertex normals for the mesh
+void Mesh::Smooth_Normals(void)
+{
+	std::vector<Vertex> normals;
+	std::vector<int> amounts;
+	for (int point = 0; point < Vertex_Data_Amount(); ++point)
+	{
+		normals.push_back(Vertex());
+		amounts.push_back(0);
+	}
+	for (int point = 0; point < Size(); ++point)
+	{
+		normals[elements[point]] += Flat_Normal(point);
+		amounts[elements[point]]++;
+	}
+	for (int point = 0; point < normals.size(); ++point)
+	{
+		normals[point].X /= amounts[point];
+		normals[point].Y /= amounts[point];
+		normals[point].Z /= amounts[point];
+		smooth_normals.push_back(normals[point]);
+	}
+}
+
+
 // Get the normal for a specific vertex by face
 Vertex Mesh::Flat_Normal(const int index) const
 {
@@ -348,34 +373,19 @@ Vertex Mesh::Flat_Normal(const int index) const
 // Get the smoother per-vertex normal for a vertex; calculate if needed
 Vertex Mesh::Smooth_Normal(const int index)
 {
-	if (smooth_normals.size() <= index)
-	{
-		std::vector<Vertex> normals;
-		for (int point=0; point<Size(); ++point)
-		{
-			if (vertices[point] == vertices[index])
-			{
-				normals.push_back(Flat_Normal(point));
-			}
-		}
-		for (int add=1; add<normals.size(); ++add)
-		{
-			normals[0] += normals[add];
-		}
-		normals[0].X /= normals.size();
-		normals[0].Y /= normals.size();
-		normals[0].Z /= normals.size();
-		while (smooth_normals.size() < index)
-		{
-			smooth_normals.push_back(Vertex());
-		}
-		smooth_normals.push_back(normals[0]);
-	}
-	return smooth_normals[index];
+	return smooth_normals[elements[index]];
 }
 
 
+// Get the number of elements in the mesh
 int Mesh::Size(void) const
+{
+	return elements.size();
+}
+
+
+// Number of actual different vertices defined
+int Mesh::Vertex_Data_Amount(void) const
 {
 	return vertices.size();
 }
@@ -383,17 +393,31 @@ int Mesh::Size(void) const
 
 void Mesh::Add(const Vertex& vertex)
 {
-	// Add a new vertex to the end of the mesh
-	vertices.push_back(vertex);
+	// Checks if this vertex has been mentioned before
+	bool duplicate = false;
+	for (int Check = 0; Check<Size(); ++Check)
+	{
+		if (vertex == vertices[Check])
+		{
+			elements.push_back(Check);
+			duplicate = true;
+		}
+	}
+	// Add a new vertex to the end of the mesh if not a duplicate
+	if (!duplicate)
+	{
+		vertices.push_back(vertex);
+		elements.push_back(Size() - 1);
+	}
 	// Calculate the light normal if this ends a face
-	int point = vertices.size() - 1;
+	int point = Size() - 1;
 	if (point % (Group_Size > 2 ? Group_Size : 1) == Group_Size - 1 || (Group_Size < 3 && point >= 3))
 	{
-		Direction normal = vertices[point - 1].To_Direction().Distance(vertices[point - 2].To_Direction());
-		Direction with = vertices[point].To_Direction().Distance(vertices[point - 2].To_Direction());
+		Direction normal = Get_Vertex(point - 1).To_Direction().Distance(Get_Vertex(point - 2).To_Direction());
+		Direction with = Get_Vertex(point).To_Direction().Distance(Get_Vertex(point - 2).To_Direction());
 		normal = normal.Cross(with);
 		normal.Normalize();
-		with = Direction::Coordinates(vertices[point - 2].X * -1, vertices[point - 2].Y * -1, vertices[point - 2].Z * -1);
+		with = Direction::Coordinates(Get_Vertex(point - 2).X * -1, Get_Vertex(point - 2).Y * -1, Get_Vertex(point - 2).Z * -1);
 		if (normal.Dot(with) > 0)
 		{
 			Vertex value = normal.To_Vertex();

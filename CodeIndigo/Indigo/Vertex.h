@@ -21,7 +21,7 @@ public:
 	// Enables + to put values together into a mesh
 	Mesh operator+(const Vertex& vertex) const;
 	// Checks whether this Vertex is (0, 0, 0)
-	bool operator==(const Vertex& check);
+	bool operator==(const Vertex& check) const;
 	// Finds the midpoint between 2 vertices, useful for triangular recursion
 	Vertex Midpoint(const Vertex& vertex) const;
 	// Returns a direction with the coordinates of the vertex
