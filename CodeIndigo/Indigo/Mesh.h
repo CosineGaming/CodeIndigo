@@ -16,6 +16,8 @@ public:
 	Mesh(const Mesh& mesh);
 	// Destroy the mesh
 	~Mesh(void);
+	// Once added to the object, the mesh is locked into place
+	void Initialize(void);
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.
 	// /*Example*/ Mesh myCubeMesh = Mesh::Cube(1.0, 50.0, 24.2, 13.5);
@@ -51,7 +53,7 @@ public:
 	void Add_Relative(const Mesh& mesh);
 	// Add a new set of vertices to the end relative to the last point
 	void Add_Relative(const std::vector <Vertex>& vertices);
-	// Gets a vertex by it's index
+	// Gets a vertex by its index
 	Vertex& Get_Vertex(const int index) const;
 	// Get all the vertices, or a subset of them 
 	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;

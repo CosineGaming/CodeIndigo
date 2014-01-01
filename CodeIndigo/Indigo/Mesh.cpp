@@ -8,41 +8,58 @@
 #include <sstream>
 
 
+// Create a new, empty mesh
 Mesh::Mesh(const int group_size)
 {
-	// Create a new, empty mesh
 	Hitbox[0] = Vertex(0, 0, 0);
 	Hitbox[1] = Vertex(0, 0, 0);
 	Group_Size = group_size;
+	vertices = std::vector<Vertex>();
+	elements = std::vector<int>();
 	return;
 }
 
 
+// Create a new mesh with some vertices
 Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
 {
-	// Create a new mesh with some vertices
+	vertices = std::vector<Vertex>();
+	elements = std::vector<int>();
 	Add(add_vertices);
 	Group_Size = group_size;
 	return;
 }
 
 
+// Copy a mesh
 Mesh::Mesh(const Mesh& mesh)
 {
-	// Copy a mesh
+	vertices = std::vector<Vertex>();
+	elements = std::vector<int>();
 	Add(mesh.Get_Vertices());
 	Group_Size = mesh.Group_Size;
 	return;
 }
 
 
+// Destroy the mesh
 Mesh::~Mesh(void)
 {
-	// Destroy the mesh
 	return;
 }
 
 
+// Once added to the object, the mesh is locked into place
+void Mesh::Initialize(void)
+{
+	Smooth_Normals();
+	return;
+}
+
+
+// The following functions are Mesh Constructors:
+// A function to construct a mesh of the type with it's name.
+// /*Example:*/ Mesh myCubeMesh = Mesh::Cube(1.0, 50.0, 24.2, 13.5);
 Mesh Mesh::Load(const char * filename)
 {
 	Mesh mesh(3);
@@ -213,49 +230,49 @@ Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 }
 
 
+// Allows [] to get a vertex like an array
 Vertex& Mesh::operator[](const int index) const
 {
-	// Allows [] to get a vertex like an array
 	return Get_Vertex(index);
 }
 
 
+// Allows += to add a vertex to the end
 Mesh& Mesh::operator+=(const Vertex& vertex)
 {
-	// Allows += to add a vertex to the end
 	Add(vertex);
 	return *this;
 }
 
 
+// Allows += to add a mesh to the end
 Mesh& Mesh::operator+=(const Mesh& mesh)
 {
-	// Allows += to add a mesh to the end
 	Add(mesh.Get_Vertices());
 	return *this;
 }
 
 
+// Allows += to add a vector of vertices to the end
 Mesh& Mesh::operator+=(const std::vector <Vertex>& add_vertices)
 {
-	// Allows += to add a vector of vericese to the end
 	Add(add_vertices);
 	return *this;
 }
 
 
+// Allows + to add a vertex to the end
 Mesh Mesh::operator+(const Vertex& vertex) const
 {
-	// Allows + to add a vertex to the end
 	Mesh copy = *this;
 	copy.Add(vertex);
 	return copy;
 }
 
 
+// Allows + to add a mesh to the end
 Mesh Mesh::operator+(const Mesh& mesh) const
 {
-	// Allows + to add a mesh to the end
 	Mesh copy = *this;
 	copy.Add(mesh.Get_Vertices());
 	return copy;
@@ -271,11 +288,11 @@ Mesh Mesh::operator+(const std::vector <Vertex>& add_vertices) const
 }
 
 
+// Add a new vertex to the end of the mesh,
+// the last vertex made to be 0,0,0.
+// So if the last was 0,1,5, then 2,-1,3 would add 2,0,8
 void Mesh::Add_Relative(const Vertex& vertex)
 {
-	// Add a new vertex to the end of the mesh,
-	// the last vertex made to be 0,0,0.
-	// So if the last was 0,1,5, then 2,-1,3 would add 2,0,8
 	Vertex add = vertex;
 	Vertex last;
 	if (vertices.size() != 0)
@@ -288,6 +305,7 @@ void Mesh::Add_Relative(const Vertex& vertex)
 }
 
 
+// Add a new mesh to the end relative to the last point
 void Mesh::Add_Relative(const Mesh& mesh)
 {
 	Add_Relative(mesh.Get_Vertices());
@@ -295,6 +313,7 @@ void Mesh::Add_Relative(const Mesh& mesh)
 }
 
 
+// Add a new set of vertices to the end relative to the last point
 void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 {
 	Vertex last;
@@ -312,13 +331,14 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 }
 
 
+// Gets a vertex by its index
 Vertex& Mesh::Get_Vertex(const int index) const
 {
-	// Gets a vertex by it's index
-	return const_cast <Vertex&>(vertices[elements[index]]);
+	return const_cast<Vertex&>(vertices[elements[index]]);
 }
 
 
+// Get all the vertices, or a subset of them 
 std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 {
 	if (beginning < 0)
@@ -395,7 +415,7 @@ void Mesh::Add(const Vertex& vertex)
 {
 	// Checks if this vertex has been mentioned before
 	bool duplicate = false;
-	for (int Check = 0; Check<Size(); ++Check)
+	for (int Check = 0; Check<Vertex_Data_Amount(); ++Check)
 	{
 		if (vertex == vertices[Check])
 		{
@@ -407,7 +427,32 @@ void Mesh::Add(const Vertex& vertex)
 	if (!duplicate)
 	{
 		vertices.push_back(vertex);
-		elements.push_back(Size() - 1);
+		elements.push_back(Vertex_Data_Amount() - 1);
+		// Update the hitbox with the new vertex
+		if (vertex.X < Hitbox[0].X)
+		{
+			Hitbox[0].X = vertex.X;
+		}
+		if (vertex.Y < Hitbox[0].Y)
+		{
+			Hitbox[0].Y = vertex.Y;
+		}
+		if (vertex.Z < Hitbox[0].Z)
+		{
+			Hitbox[0].Z = vertex.Z;
+		}
+		if (vertex.X > Hitbox[1].X)
+		{
+			Hitbox[1].X = vertex.X;
+		}
+		if (vertex.Y > Hitbox[1].Y)
+		{
+			Hitbox[1].Y = vertex.Y;
+		}
+		if (vertex.Z > Hitbox[1].Z)
+		{
+			Hitbox[1].Z = vertex.Z;
+		}
 	}
 	// Calculate the light normal if this ends a face
 	int point = Size() - 1;
@@ -428,38 +473,13 @@ void Mesh::Add(const Vertex& vertex)
 			flat_normals.push_back(normal.To_Vertex());
 		}
 	}
-	// Update the hitbox with the new vertex
-	if (vertex.X < Hitbox[0].X)
-	{
-		Hitbox[0].X = vertex.X;
-	}
-	if (vertex.Y < Hitbox[0].Y)
-	{
-		Hitbox[0].Y = vertex.Y;
-	}
-	if (vertex.Z < Hitbox[0].Z)
-	{
-		Hitbox[0].Z = vertex.Z;
-	}
-	if (vertex.X > Hitbox[1].X)
-	{
-		Hitbox[1].X = vertex.X;
-	}
-	if (vertex.Y > Hitbox[1].Y)
-	{
-		Hitbox[1].Y = vertex.Y;
-	}
-	if (vertex.Z > Hitbox[1].Z)
-	{
-		Hitbox[1].Z = vertex.Z;
-	}
 	return;
 }
 
 
+// Add new vertices to the end of the mesh
 void Mesh::Add(const Mesh& mesh)
 {
-	// Add new vertices to the end of the mesh
 	for (int Point = 0; Point < mesh.Size(); ++Point)
 	{
 		Add(mesh[Point]);
@@ -468,9 +488,9 @@ void Mesh::Add(const Mesh& mesh)
 }
 
 
+// Add new vertices to the end of the mesh
 void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
-	// Add new vertices to the end of the mesh
 	for (int Point = 0; Point < add_vertices.size(); ++Point)
 	{
 		Add(add_vertices[Point]);

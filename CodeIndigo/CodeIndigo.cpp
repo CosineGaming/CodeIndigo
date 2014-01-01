@@ -134,7 +134,7 @@ int main(int argc, char ** argv)
 	Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
 	Indigo::Current_World.lighting.Add_Light(0, 1.0, 0);
 	std::cout << "Loading high-resolution sphere.\n";
-	Object testies = Object(-1.0, 1.8, 0.0, Mesh::Sphere(0.4, 5), Indigo::Blue_Color);
+	Object testies = Object(10.0, 2.0, 5.0, Mesh::Sphere(0.8, 5), Indigo::Blue_Color);
 	std::cout << "Adding sphere to world.\n";
 	Indigo::Current_World.Add_Object(testies);
 	std::cout << "Loading simple cube as table.\n";
@@ -144,9 +144,9 @@ int main(int argc, char ** argv)
 	std::cout << "Room added. Loading light source marker.\n";
 	Indigo::Current_World.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 	std::cout << "Loading model of Monkey.\n";
-	Indigo::Current_World.Add_Object(Object(10.0, -10.0, 10.0, Mesh::Load("Monkey.obj")));
+	Indigo::Current_World.Add_Object(Object(10.0, -10.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 	std::cout << "Loading model of flying train.\n";
-	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("Train.obj")));
+	Indigo::Current_World.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
 	std::cout << "Placing camera.\n";
 	Indigo::Current_World.camera.Place(0.0, 0.0, 0.0);
 	Indigo::Current_World.camera.X = Indigo::Current_World.Get_Object(4).X;
@@ -158,10 +158,6 @@ int main(int argc, char ** argv)
 	Animation(&Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
 	srand(time(0));
 	Mesh cube_mesh = Mesh::Cube(1);
-	for (int i = 0; i < cube_mesh.Size(); ++i)
-	{
-		cube_mesh.Smooth_Normal(i);
-	}
 	for (int cube = 0; cube < 6000; ++cube)
 	{
 		float * color = new float[3];
