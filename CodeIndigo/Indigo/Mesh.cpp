@@ -361,24 +361,27 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 // Calculate all per-vertex normals for the mesh
 void Mesh::Smooth_Normals(void)
 {
-	std::vector<Vertex> normals;
-	std::vector<int> amounts;
+	Vertex * normals = new Vertex[Vertex_Data_Amount()];
+	int * amounts = new int[Vertex_Data_Amount()];
 	for (int point = 0; point < Vertex_Data_Amount(); ++point)
 	{
-		normals.push_back(Vertex());
-		amounts.push_back(0);
+		normals[point] = Vertex(0, 0, 0);
+		amounts[point] = 0;
 	}
 	for (int point = 0; point < Size(); ++point)
 	{
 		normals[elements[point]] += Flat_Normal(point);
 		amounts[elements[point]]++;
 	}
-	for (int point = 0; point < normals.size(); ++point)
+	for (int point = 0; point < Vertex_Data_Amount(); ++point)
 	{
-		normals[point].X /= amounts[point];
-		normals[point].Y /= amounts[point];
-		normals[point].Z /= amounts[point];
-		smooth_normals.push_back(normals[point]);
+		if (amounts[point] != 0)
+		{
+			normals[point].X /= amounts[point];
+			normals[point].Y /= amounts[point];
+			normals[point].Z /= amounts[point];
+			smooth_normals.push_back(normals[point]);
+		}
 	}
 }
 

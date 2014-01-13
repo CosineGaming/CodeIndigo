@@ -46,7 +46,17 @@ Direction::~Direction(void)
 // Make the distance 1
 void Direction::Normalize(const float unit)
 {
-	Set_Distance(unit);
+	if (unit == 1.0)
+	{
+		float distance = Get_Distance();
+		X /= distance;
+		Y /= distance;
+		Z /= distance;
+	}
+	else
+	{
+		Set_Distance(unit);
+	}
 }
 
 
