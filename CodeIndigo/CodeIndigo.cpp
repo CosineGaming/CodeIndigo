@@ -86,6 +86,18 @@ void update(int time)
 			//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
 			world.Add_Object(object);
 		}
+		Mesh graph = Mesh(0);
+		for (float x = -1; x < 1; x+=0.01)
+		{
+			for (float z = -1; z < 1; z+=0.01)
+			{
+				for (float add = 0; add < 0.02; add+=0.01)
+				{
+					graph += Vertex(x + add, (x + add) * z, z);
+				}
+			}
+		}
+		world.Add_Object(Object(10.0, 2.0, 10.0, graph, Indigo::Red_Color));
 		std::cout << "Switching worlds.\n";
 		Indigo::Current_World = world;
 		std::cout << "Loaded.\n";

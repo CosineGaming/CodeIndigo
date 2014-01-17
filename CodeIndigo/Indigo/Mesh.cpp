@@ -361,6 +361,7 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 // Calculate all per-vertex normals for the mesh
 void Mesh::Smooth_Normals(void)
 {
+	smooth_normals = std::vector<Vertex>();
 	Vertex * normals = new Vertex[Vertex_Data_Amount()];
 	int * amounts = new int[Vertex_Data_Amount()];
 	for (int point = 0; point < Vertex_Data_Amount(); ++point)
@@ -382,6 +383,11 @@ void Mesh::Smooth_Normals(void)
 			normals[point].Z /= amounts[point];
 			smooth_normals.push_back(normals[point]);
 		}
+		else
+		{
+			// Incorrectly ==ed, pick a fairly random but hopefully related normal
+			smooth_normals.push_back(Flat_Normal(point * Group_Size));
+		}
 	}
 }
 
@@ -389,7 +395,15 @@ void Mesh::Smooth_Normals(void)
 // Get the normal for a specific vertex by face
 Vertex Mesh::Flat_Normal(const int index) const
 {
-	return flat_normals[Group_Size != 0 ? index / Group_Size : index - 3];
+	if (index < 3 && Group_Size == 0)
+	{
+		if (Size() >= 3)
+			return flat_normals[2];
+		else
+			return Vertex(0, 0, 0);
+	}
+	else
+		return flat_normals[Group_Size != 0 ? index / Group_Size : index - 3];
 }
 
 

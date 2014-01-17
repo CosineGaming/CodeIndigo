@@ -1,0 +1,259 @@
+// Basic OpenGL functions, also takes care of most of the background work.
+// These function will mostly be called in Main.
+
+#include "Indigo.h"
+#include <stdlib.h>
+#include "glut.h"
+#include <iostream>
+
+
+namespace Indigo
+{
+	// Initializes window and rendering matrices.
+	void Initialize(int argc, char ** argv, const char * window_name,
+		const int& max_framerate, const bool& fullscreen, float * background,
+		const int& window_width, const int& window_height,
+		const int& field_of_view)
+	{
+		// Initiate glut
+		glutInit(&argc, argv);
+		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+		glutInitWindowSize(window_width, window_height);
+		glutCreateWindow(window_name);
+		if (fullscreen)
+		{
+			glutFullScreen();
+		}
+		if (!background)
+		{
+			background = Sky_Color;
+		}
+		glClearColor(background[0], background[1], background[2], 1.0);
+
+		// Set callbacks
+		Frame_Length_Minimum = 1000 / max_framerate;
+		Field_Of_View = field_of_view;
+		glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
+		glutDisplayFunc(Render);
+		glutTimerFunc(10, Update, 0);
+		glutReshapeFunc(Reshape);
+		glutPassiveMotionFunc(Mouse_Moved);
+		glutMouseFunc(Mouse_Button);
+		glutKeyboardFunc(Key_Pressed);
+		glutKeyboardUpFunc(Key_Released);
+
+		// Setup fog
+		glEnable(GL_FOG);
+		glFogfv(GL_FOG_COLOR, White_Color);
+		glHint(GL_FOG_HINT, GL_DONT_CARE);
+		glFogf(GL_FOG_DENSITY, 0.002);
+
+		// Enable rendering options
+		glShadeModel(GL_SMOOTH);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_NORMALIZE);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		return;
+	}
+
+	// Starts the main loop with update, render, and input
+	void Run(void)
+	{
+		glutMainLoop();
+		return;
+	}
+
+	// Acts for when the window reshapes
+	void Reshape(int width, int height)
+	{
+		bool viewport = true;
+		if (0 == width)
+		{
+			width = glutGet(GLUT_WINDOW_WIDTH);
+			viewport = false;
+		}
+		if (0 == height)
+		{
+			height = glutGet(GLUT_WINDOW_HEIGHT);
+			viewport = false;
+		}
+		if (viewport)
+		{
+			glViewport(0, 0, width, height);
+		}
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(Field_Of_View,
+			(float) width / (float) height,
+			0.05, 500.0);
+		glFogf(GL_FOG_START, 400.0);
+		glFogf(GL_FOG_END, 500.0);
+		glMatrixMode(GL_MODELVIEW);
+	}
+
+	// Acts for keys which act once, and stores for multi-acting keys
+	void Key_Pressed(unsigned char key, int x, int y)
+	{
+		// Convert uppercases to lowercase
+		if (key >= 65 && key <= 90)
+		{
+			key += 32;
+		}
+		if (Key_Pressed_Function)
+		{
+			Key_Pressed_Function(key, x, y);
+		}
+		keys[key] = true;
+		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
+		return;
+	}
+
+	// Acts for keys which act on release, and removes stored keys
+	void Key_Released(unsigned char key, int x, int y)
+	{
+		// Convert uppercases to lowercase
+		if (key >= 65 && key <= 90)
+		{
+			key += 32;
+		}
+		if (Key_Released_Function)
+		{
+			Key_Released_Function(key, x, y);
+		}
+		keys[key] = false;
+		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
+		return;
+	}
+
+	// Acts for when the mouse is pressed or released
+	void Mouse_Button(int button, int state, int x, int y)
+	{
+		if (Mouse_Button_Function)
+		{
+			Mouse_Button_Function(button, state, x, y);
+		}
+		return;
+	}
+
+	// Acts for when the mouse is moved
+	void Mouse_Moved(int x, int y)
+	{
+		if (Relative_Mouse_Moved_Function)
+		{
+			int width = glutGet(GLUT_WINDOW_WIDTH);
+			int height = glutGet(GLUT_WINDOW_HEIGHT);
+			static int last_x = 0;
+			static int last_y = 0;
+			if (!((width / 2 == x && height / 2 == y)
+				|| (0 == x - last_x && 0 == y - last_y)))
+			{
+				Relative_Mouse_Moved_Function(x - last_x, y - last_y);
+			}
+			static const int margin = 100;
+			if (x < margin || x > width - margin || y < margin || y > height - margin)
+			{
+				glutWarpPointer(width / 2, height / 2);
+			}
+			last_x = x;
+			last_y = y;
+			glutSetCursor(GLUT_CURSOR_NONE);
+		}
+		if (Mouse_Moved_Function)
+		{
+			Mouse_Moved_Function(x, y);
+		}
+		return;
+	}
+
+	// Updates world
+	void Update(int trash)
+	{
+		glutTimerFunc(Frame_Length_Minimum, Update, 0);
+		static int last_time = 0;
+		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
+		last_time = glutGet(GLUT_ELAPSED_TIME);
+		Animation::Update();
+		if (Update_Function)
+		{
+			Update_Function(delta_time);
+		}
+		Current_World.Update(delta_time);
+		glutPostRedisplay();
+		return;
+	}
+
+	// Renders world
+	void Render(void)
+	{
+		if (Render_Function)
+		{
+			Render_Function();
+		}
+		Current_World.Render();
+		return;
+	}
+
+	// Get elapsed time in the game, optional modulo for partial times
+	int Elapsed(const int& modulo)
+	{
+		return modulo == 0 ? glutGet(GLUT_ELAPSED_TIME) : glutGet(GLUT_ELAPSED_TIME % modulo);
+	}
+
+
+
+	// Stores the current world to render
+	World Current_World;
+
+	// Stores the milliseconds to add between each frame
+	int Frame_Length_Minimum;
+
+	// Stors the field of view
+	int Field_Of_View;
+
+	// Stores the function to call when a key is pressed
+	void(*Key_Pressed_Function)(unsigned char key, int x, int y);
+
+	// ... when a key is released
+	void(*Key_Released_Function)(unsigned char key, int x, int y);
+
+	// ... when the mouse is pressed or released
+	void(*Mouse_Button_Function)(int button, int state, int x, int y);
+
+	// ... when the mouse is moved
+	void(*Mouse_Moved_Function)(int x, int y);
+
+	// ... when the mouse is moved, given relative to the center.
+	// Also hides mouse when defined.
+	void(*Relative_Mouse_Moved_Function)(int x, int y);
+
+	// ... every time the world updates
+	void(*Update_Function)(int time);
+
+	// ... just before the rendering of objects in the world
+	void(*Render_Function)(void);
+
+	// Members with the index of a key which is currently down are true
+	bool keys[256];
+
+	// Stores whether shift is pressed
+	bool Shift = false;
+
+
+	// Colors
+
+	float White_Color[3] = { 1.0, 1.0, 1.0 };
+
+	float Black_Color[3] = { 0.0, 0.0, 0.0 };
+
+	float   Sky_Color[3] = { 0.5, 0.8, 1.0 };
+
+	float        Red_Color[3] = { 0.4, 0.0, 0.0 };
+
+	float Green_Color[3] = { 0.0, 0.8, 0.0 };
+
+	float  Blue_Color[3] = { 0.0, 0.0, 0.5 };
+
+}

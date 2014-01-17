@@ -46,7 +46,7 @@ Direction::~Direction(void)
 // Make the distance 1
 void Direction::Normalize(const float unit)
 {
-	if (unit == 1.0)
+	if (false)//unit == 1.0)
 	{
 		float distance = Get_Distance();
 		X /= distance;
@@ -79,7 +79,10 @@ Direction Direction::Cross(const Direction& direction) const
 // Angle between two vectors, useful for rotation
 float Direction::Angle_Distance(const Direction& direction) const
 {
-	return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
+	if (!(X == direction.X && Y == direction.Y && direction.Z == direction.Z))
+	{
+		return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
+	}
 }
 
 
