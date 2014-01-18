@@ -203,7 +203,7 @@ bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y,
 void Object::Set_Hitbox(const float right, const float top, const float front, const float left, const float bottom, const float back)
 {
 	Data.Hitbox[1] = Vertex(right, top, front);
-	Data.Hitbox[0] = Vertex(left, bottom, front);
+	Data.Hitbox[0] = Vertex(left, bottom, back);
 }
 
 

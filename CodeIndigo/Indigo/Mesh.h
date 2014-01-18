@@ -75,14 +75,14 @@ public:
 	void Add(const Vertex& vertex);
 	void Add(const Mesh& mesh);
 	void Add(const std::vector <Vertex>& vertices);
-protected:
-	// The vertices to choose from
-	std::vector<Vertex> vertices;
-	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
-	std::vector<int> elements;
 	// The per-face normals; less pretty and not used by default
 	std::vector<Vertex> flat_normals;
 	// The per-vertex normals. Only calculated once added to world
 	std::vector<Vertex> smooth_normals;
+	// The vertices to choose from
+	std::vector<Vertex> vertices;
+	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
+	std::vector<int> elements;
+protected:
 private:
 };

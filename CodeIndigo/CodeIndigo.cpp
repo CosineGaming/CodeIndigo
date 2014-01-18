@@ -46,13 +46,8 @@ void update(int time)
 	{
 		std::cout << "Beginning to load.\n";
 		World world;
-		std::cout << "Initializing lighting state.\n";
-		world.lighting.Set_Ambient(0.15);
-		Direction light = Direction(1.0, 45.0, 45.0);
-		world.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
-		world.lighting.Add_Light(0, 1.0, 0);
 		std::cout << "Loading high-resolution sphere.\n";
-		Object testies = Object(10.0, 2.0, 5.0, Mesh::Sphere(0.8, 5), Indigo::Blue_Color);
+		Object testies = Object(10.0, 2.0, 5.0, Mesh::Sphere(0.8, 2), Indigo::Blue_Color);
 		std::cout << "Adding sphere to world.\n";
 		world.Add_Object(testies);
 		std::cout << "Loading simple cube as table.\n";
@@ -62,7 +57,7 @@ void update(int time)
 		std::cout << "Room added. Loading light source marker.\n";
 		world.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 		std::cout << "Loading model of Monkey.\n";
-		world.Add_Object(Object(10.0, -10.0, 10.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
+		world.Add_Object(Object(0.0, -10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
 		world.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
 		std::cout << "Placing camera.\n";
@@ -71,13 +66,15 @@ void update(int time)
 		world.camera.Y = world.Get_Object(4).Y + 1.5;
 		world.camera.Z = world.Get_Object(4).Z;
 		std::cout << "Adding ground.\n";
-		world.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
+		Object ground = Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0));
+		ground.Set_Hitbox(5000, 0, 5000, -5000, 0, -5000);
+		world.Add_Object(ground);
 		//Animation(&world.Get_Object(table), 100.0, 0.5, -1.0, 600);
 		//Animation(&world.Get_Object(world.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
 		std::cout << "Generating large Cube structure.\n";
 		srand(123);
 		Object cube_object(0.0, 0.0, 0.0, Mesh::Cube(0.8));
-		for (int cube = 0; cube < 100000; ++cube)
+		for (int cube = 0; cube < 1000; ++cube)
 		{
 			float * color = new float[3];
 			color[0] = (rand() % 100) / (float) (rand() % 100);
@@ -88,10 +85,10 @@ void update(int time)
 			//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
 			world.Add_Object(cube_object);
 			if (cube % 200 == 0)
-				std::cout << cube * 100 / 99999 << "% loaded...\n";
+				std::cout << cube * 100 / 999 << "% loaded...\n";
 		}
 		std::cout << "Generating small graph...\n";
-		Mesh graph = Mesh(0);
+		Mesh graph = Mesh(4);
 		for (float x = -1; x < 1; x+=0.02)
 		{
 			for (float z = -1; z < 1; z+=0.02)
@@ -99,16 +96,23 @@ void update(int time)
 				for (float add = 0; add < 0.04; add+=0.02)
 				{
 					graph += Vertex(x + add, (x + add) * z, z);
+					graph += Vertex(x + add, (x + add) * z, z);
 				}
 			}
 		}
 		world.Add_Object(Object(10.0, 2.0, 10.0, graph, Indigo::Red_Color));
 		std::cout << "Switching worlds.\n";
 		Indigo::Current_World = world;
+		std::cout << "Initializing lighting state.\n";
+		world.lighting.Set_Ambient(0.15);
+		Direction light = Direction(1.0, 45.0, 45.0);
+		world.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
+		world.lighting.Add_Light(0, 1.0, 0);
 		std::cout << "Loaded.\n";
+		Indigo::keys['r'] = true;
 	}
 
-	else
+	if (frames > 20)
 
 	{
 
@@ -145,7 +149,8 @@ void update(int time)
 		}
 		if (Indigo::keys['r'])
 		{
-			player.Place(0, 0.75, 0);
+			player.Place(10, 0, 10);
+			Indigo::keys['r'] = false;
 		}
 
 		if (Indigo::keys[' '] && Indigo::Current_World.Collide(player) != -1)
@@ -182,7 +187,10 @@ void update(int time)
 			exit(0);
 		}
 
-		Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
+		if (player.Y - Indigo::Current_World.camera.Y < 0.5)
+		{
+			Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
+		}
 		Indigo::Current_World.camera.eye = player.facing;
 
 		static int direction = 1;
@@ -200,7 +208,7 @@ int main(int argc, char ** argv)
 	float color[3] = {0.0, 0.0, 0.0};
 	Indigo::Initialize(argc, argv, "Code Indigo", 48, true);//, color);
 	std::cout << "Setting up loading world.\n";
-	Indigo::Current_World.Add_Object(Object(0, 0, 1, Mesh::Load("Loading.obj")));
+	Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;

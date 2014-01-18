@@ -34,10 +34,13 @@ Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
 // Copy a mesh
 Mesh::Mesh(const Mesh& mesh)
 {
-	vertices = std::vector<Vertex>();
-	elements = std::vector<int>();
-	Add(mesh.Get_Vertices());
+	vertices = mesh.vertices;
+	elements = mesh.elements;
+	flat_normals = mesh.flat_normals;
+	smooth_normals = mesh.smooth_normals;
 	Group_Size = mesh.Group_Size;
+	Hitbox[0] = mesh.Hitbox[0];
+	Hitbox[1] = mesh.Hitbox[1];
 	return;
 }
 
