@@ -34,7 +34,6 @@ Object::Object(const Object& object)
 {
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
-	Data.Initialize();
 	object_color = object.object_color;
 	object_shine = object.object_shine;
 	Update = object.Update;

@@ -74,24 +74,29 @@ void update(int time)
 		world.Add_Object(Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0)));
 		//Animation(&world.Get_Object(table), 100.0, 0.5, -1.0, 600);
 		//Animation(&world.Get_Object(world.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
+		std::cout << "Generating large Cube structure.\n";
 		srand(123);
-		Mesh cube_mesh = Mesh::Cube(1);
-		for (int cube = 0; cube < 6000; ++cube)
+		Object cube_object(0.0, 0.0, 0.0, Mesh::Cube(0.8));
+		for (int cube = 0; cube < 100000; ++cube)
 		{
 			float * color = new float[3];
 			color[0] = (rand() % 100) / (float) (rand() % 100);
 			color[1] = (rand() % 100) / (float) (rand() % 100);
 			color[2] = (rand() % 100) / (float) (rand() % 100);
-			Object object = Object(rand() % 50 - 25.5, rand() % 20 + 10.5, rand() % 50 - 25.5, cube_mesh, color);
+			cube_object.Place(rand() % 100, rand() % 50 + 50, rand() % 100);
+			cube_object.object_color = color;
 			//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
-			world.Add_Object(object);
+			world.Add_Object(cube_object);
+			if (cube % 200 == 0)
+				std::cout << cube * 100 / 99999 << "% loaded...\n";
 		}
+		std::cout << "Generating small graph...\n";
 		Mesh graph = Mesh(0);
-		for (float x = -1; x < 1; x+=0.01)
+		for (float x = -1; x < 1; x+=0.02)
 		{
-			for (float z = -1; z < 1; z+=0.01)
+			for (float z = -1; z < 1; z+=0.02)
 			{
-				for (float add = 0; add < 0.02; add+=0.01)
+				for (float add = 0; add < 0.04; add+=0.02)
 				{
 					graph += Vertex(x + add, (x + add) * z, z);
 				}
