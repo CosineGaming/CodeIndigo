@@ -3,6 +3,7 @@
 #include <vector>
 #include "Direction.h"
 #include "Vertex.h"
+#include "glut.h"
 
 
 class Mesh
@@ -63,6 +64,8 @@ public:
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
 	Vertex Smooth_Normal(const int index);
+	// Texture the entire mesh with one file, texture coordinates will be used only once called
+	void Texture(char * filename);
 	// Get the number of Vertices in the mesh
 	int Size(void) const;
 	// Number of actual different vertices defined
@@ -83,6 +86,8 @@ public:
 	std::vector<Vertex> vertices;
 	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
 	std::vector<int> elements;
+	// The texture handle number
+	unsigned int texture;
 protected:
 private:
 };

@@ -48,23 +48,21 @@ void update(int time)
 		World world;
 		std::cout << "Loading high-resolution sphere.\n";
 		Object testies = Object(10.0, 2.0, 5.0, Mesh::Sphere(0.8, 2), Indigo::Blue_Color);
-		std::cout << "Adding sphere to world.\n";
 		world.Add_Object(testies);
 		std::cout << "Loading simple cube as table.\n";
 		table = world.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
-		std::cout << "Table added to world. Loading containment room.\n";
+		std::cout << "Loading containment room.\n";
 		bounds = world.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 20.0)));
-		std::cout << "Room added. Loading light source marker.\n";
+		std::cout << "Loading light source marker.\n";
 		world.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 		std::cout << "Loading model of Monkey.\n";
 		world.Add_Object(Object(0.0, -10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
 		world.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
-		std::cout << "Placing camera.\n";
-		world.camera.Place(0.0, 0.0, 0.0);
-		world.camera.X = world.Get_Object(4).X;
-		world.camera.Y = world.Get_Object(4).Y + 1.5;
-		world.camera.Z = world.Get_Object(4).Z;
+		std::cout << "Setting player up.\n";
+		player.Place(0.0, 10.0, 0.0);
+		Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
+		player.Set_Hitbox(0.25, 0.75, 0.1, -0.25, -0.75, -0.1);
 		std::cout << "Adding ground.\n";
 		Object ground = Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0));
 		ground.Set_Hitbox(5000, 0, 5000, -5000, 0, -5000);
@@ -87,6 +85,7 @@ void update(int time)
 			if (cube % 200 == 0)
 				std::cout << cube * 100 / 999 << "% loaded...\n";
 		}
+		Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
 		std::cout << "Generating small graph...\n";
 		Mesh graph = Mesh(4);
 		for (float x = -1; x < 1; x+=0.02)
@@ -109,7 +108,6 @@ void update(int time)
 		world.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
 		world.lighting.Add_Light(0, 1.0, 0);
 		std::cout << "Loaded.\n";
-		Indigo::keys['r'] = true;
 	}
 
 	if (frames > 20)
@@ -119,8 +117,6 @@ void update(int time)
 		float speed = .0015 * time;
 
 		static float gravity = 0;
-
-		player.Set_Hitbox(0.25, 0.75, 0.1, -0.25, -0.75, -0.1);
 
 		if (Indigo::Shift)
 		{
@@ -149,8 +145,8 @@ void update(int time)
 		}
 		if (Indigo::keys['r'])
 		{
-			player.Place(10, 0, 10);
-			Indigo::keys['r'] = false;
+			player.Place(0, 10, 0);
+			Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
 		}
 
 		if (Indigo::keys[' '] && Indigo::Current_World.Collide(player) != -1)
@@ -187,9 +183,13 @@ void update(int time)
 			exit(0);
 		}
 
-		if (player.Y - Indigo::Current_World.camera.Y < 0.5)
+		if (player.Y + 0.75 - Indigo::Current_World.camera.Y < 0.5 || Indigo::keys['f'])
 		{
 			Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
+		}
+		else
+		{
+			player.Place(Indigo::Current_World.camera.X, Indigo::Current_World.camera.Y - 0.75, Indigo::Current_World.camera.Z);
 		}
 		Indigo::Current_World.camera.eye = player.facing;
 

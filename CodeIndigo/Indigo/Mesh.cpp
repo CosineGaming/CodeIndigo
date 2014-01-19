@@ -417,6 +417,13 @@ Vertex Mesh::Smooth_Normal(const int index)
 }
 
 
+// Texture the entire mesh with one file, texture coordinates will be used only once called
+void Mesh::Texture(char * filename)
+{
+	glGenTextures(1, &texture);
+}
+
+
 // Get the number of elements in the mesh
 int Mesh::Size(void) const
 {
