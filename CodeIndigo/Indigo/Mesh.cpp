@@ -348,18 +348,24 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 {
 	if (beginning < 0)
 	{
-		beginning += vertices.size();
+		beginning += elements.size();
 	}
 	if (end < 0)
 	{
-		end += vertices.size();
+		end += elements.size();
 	}
 	if (end < beginning)
 	{
 		end = beginning;
 	}
 	end += 1;
-	return std::vector<Vertex>(vertices.begin() + beginning, vertices.begin() + end);
+	std::vector<int> options = std::vector<int>(elements.begin() + beginning, elements.begin() + end);
+	std::vector<Vertex> all;
+	for (int i = 0; i < options.size(); ++i)
+	{
+		all.push_back(vertices[options[i]]);
+	}
+	return all;
 }
 
 

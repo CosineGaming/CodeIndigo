@@ -184,6 +184,19 @@ void update(int time)
 			Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
 		}
 
+		if (Indigo::keys['y'])
+		{
+			Indigo::Field_Of_View += 1;
+			Indigo::Reshape();
+			std::cout << "Field of view: " << Indigo::Field_Of_View << std::endl;
+		}
+		if (Indigo::keys['t'])
+		{
+			Indigo::Field_Of_View -= 1;
+			Indigo::Reshape();
+			std::cout << "Field of view: " << Indigo::Field_Of_View << std::endl;
+		}
+
 		if (Indigo::keys[' '] && Indigo::Current_World.Collide(player) != -1)
 		{
 			gravity = 2.8;
@@ -241,26 +254,8 @@ int main(int argc, char ** argv)
 {
 	std::cout << "Initializing rendering environment.\n";
 	float color[3] = {0.0, 0.0, 0.0};
-	Indigo::Initialize(argc, argv, "Code Indigo", 48, true);//, color);
-	Mesh test = Mesh::Rectangle(2.0, 2.0) + Mesh::Rectangle(3.0, 4.0);
-	for (int i = 0; i < test.Size(); ++i)
-	{
-		Vertex x = test.Texture_Coordinate(i);
-		std::cout << x.X << ", " << x.Y << std::endl;
-	}
+	Indigo::Initialize(argc, argv, "Code Indigo", 60, true);//, color);
 	std::cout << "Setting up loading world.\n";
-	test = Mesh(3);
-	test += Vertex(0, 0, 0);
-	test += Vertex(0, 1, 0);
-	test += Vertex(1, 1, 0);
-	test += Vertex(0, 0, 0);
-	test += Vertex(0, 1, 0);
-	test += Vertex(1, 1, 0);
-	for (int i = 0; i < test.Size(); ++i)
-	{
-		Vertex x = test.Texture_Coordinate(i);
-		std::cout << x.X << ", " << x.Y << std::endl;
-	}
 	Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = update;

@@ -88,7 +88,7 @@ namespace Indigo
 		glLoadIdentity();
 		gluPerspective(Field_Of_View,
 			(float) width / (float) height,
-			0.05, 500.0);
+			0.1, 500.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
 		glMatrixMode(GL_MODELVIEW);
