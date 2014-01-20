@@ -73,13 +73,27 @@ void Object::Render(void)
 	Direction around = Direction(1.0, 0.0, 0.0).Cross(facing);
 	around.Normalize();
 	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(around), around.Get_X(), around.Get_Y(), around.Get_Z());
+	if (Data.texture != -1)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, Data.texture);
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);
+	}
 	glBegin(Render_Types[Data.Group_Size]);
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
 		Vertex normal = Data.Smooth_Normal(Point);
-		glNormal3f(normal.X, normal.Y, normal.Z);
 		Vertex Cursor = Data[Point];
+		if (Data.texture != -1)
+		{
+			Vertex coord = Data.Texture_Coordinate(Point);
+			glTexCoord2f(coord.X, coord.Y);
+		}
+		glNormal3f(normal.X, normal.Y, normal.Z);
 		glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
 	}
 	glEnd();

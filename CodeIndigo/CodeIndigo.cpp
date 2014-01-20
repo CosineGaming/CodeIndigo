@@ -58,7 +58,17 @@ void update(int time)
 		std::cout << "Loading model of Monkey.\n";
 		world.Add_Object(Object(0.0, -10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
-		world.Add_Object(Object(0.0, 0.0, -25.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj")));
+		Mesh train = Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj");
+		train.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		world.Add_Object(Object(0.0, 0.0, -25.0, train));
+		std::cout << "Adding texture test.\n";
+		Mesh tex = Mesh(4);
+		tex += Vertex(0.0, 0.0, 0.0);
+		tex += Vertex(0.0, 0.0, 1.0);
+		tex += Vertex(1.0, 0.0, 1.0);
+		tex += Vertex(1.0, 0.0, 0.0);
+		tex.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		world.Add_Object(Object(-10.0, 2.0, -10.0, tex));
 		std::cout << "Setting player up.\n";
 		player.Place(0.0, 10.0, 0.0);
 		Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
@@ -71,7 +81,9 @@ void update(int time)
 		//Animation(&world.Get_Object(world.Add_Object(Object(0.0, -2.5, 0.0, Mesh::Cube(1.0)))), 0.0, -100.5, 0.0, 960);
 		std::cout << "Generating large Cube structure.\n";
 		srand(123);
-		Object cube_object(0.0, 0.0, 0.0, Mesh::Cube(0.8));
+		Mesh cube = Mesh::Cube(0.8);
+		cube.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		Object cube_object(0.0, 0.0, 0.0, cube);
 		for (int cube = 0; cube < 1000; ++cube)
 		{
 			float * color = new float[3];

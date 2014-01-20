@@ -26,7 +26,7 @@ Vertex::Vertex(const Vertex& vertex)
 
 
 // Create a vertex with these values
-Vertex::Vertex(const float x, const float y, const float z)
+Vertex::Vertex(const float x, const float y, const float z, const float tex_x, const float tex_y)
 {
 	X = x;
 	Y = y;

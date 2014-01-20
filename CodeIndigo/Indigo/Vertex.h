@@ -13,7 +13,7 @@ public:
 	// Copies a vertex
 	Vertex(const Vertex& vertex);
 	// Create a vertex with these values
-	Vertex(const float x, const float y, const float z);
+	Vertex(const float x, const float y, const float z, const float tex_x=0, const float tex_y=0);
 	// Destroy a vertex
 	~Vertex(void);
 	// Enables += to add the X, Y, and Z values to a vertex

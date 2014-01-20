@@ -16,6 +16,7 @@ Mesh::Mesh(const int group_size)
 	Group_Size = group_size;
 	vertices = std::vector<Vertex>();
 	elements = std::vector<int>();
+	texture = -1;
 	return;
 }
 
@@ -27,6 +28,7 @@ Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
 	elements = std::vector<int>();
 	Add(add_vertices);
 	Group_Size = group_size;
+	texture = -1;
 	return;
 }
 
@@ -41,6 +43,7 @@ Mesh::Mesh(const Mesh& mesh)
 	Group_Size = mesh.Group_Size;
 	Hitbox[0] = mesh.Hitbox[0];
 	Hitbox[1] = mesh.Hitbox[1];
+	texture = mesh.texture;
 	return;
 }
 
@@ -420,7 +423,56 @@ Vertex Mesh::Smooth_Normal(const int index)
 // Texture the entire mesh with one file, texture coordinates will be used only once called
 void Mesh::Texture(char * filename)
 {
-	glGenTextures(1, &texture);
+
+	char header[54];
+	int start;
+	int width;
+	int height;
+	int size;
+	char * data;
+	//FILE * file;
+	//fopen_s(&file, filename, "rb");
+	std::ifstream file(filename);
+	if (!file)
+	{
+		std::cout << "Cannot find file " << filename << " aborting texture loading." << std::endl;
+		return;
+	}
+	file.read(header, 54);
+	if (header[0] != 'B' || header[1] != 'M')
+	{
+		std::cout << "Incorrectly configured or corrupted datafile " << filename << ". Aborting." << std::endl;
+	}
+	start = *(int*) &(header[0x0A]);
+	size = *(int*) &(header[0x22]);
+	width = *(int*) &(header[0x12]);
+	height = *(int*) &(header[0x16]);
+	if (size == 0)
+	{
+		size = width*height * 3;
+	}
+	if (start == 0)
+	{
+		start = 54;
+	}
+	data = new char[size];
+	file.read(data, size);
+	file.close();
+
+	unsigned int handle;
+	glGenTextures(1, &handle);
+	glBindTexture(GL_TEXTURE_2D, handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	texture = handle;
+}
+
+
+// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
+Vertex Mesh::Texture_Coordinate(const int index)
+{
+	return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
 }
 
 

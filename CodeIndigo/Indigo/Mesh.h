@@ -66,6 +66,8 @@ public:
 	Vertex Smooth_Normal(const int index);
 	// Texture the entire mesh with one file, texture coordinates will be used only once called
 	void Texture(char * filename);
+	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
+	Vertex Texture_Coordinate(const int index);
 	// Get the number of Vertices in the mesh
 	int Size(void) const;
 	// Number of actual different vertices defined
@@ -87,7 +89,7 @@ public:
 	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
 	std::vector<int> elements;
 	// The texture handle number
-	unsigned int texture;
+	int texture;
 protected:
 private:
 };
