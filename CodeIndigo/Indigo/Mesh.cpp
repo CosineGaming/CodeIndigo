@@ -563,7 +563,7 @@ void Mesh::Add(const Vertex& vertex)
 		Direction with = Get_Vertex(point).To_Direction().Distance(Get_Vertex(point - 2).To_Direction());
 		normal = normal.Cross(with);
 		normal.Normalize();
-		with = Direction::Coordinates(Get_Vertex(point - 2).X * -1, Get_Vertex(point - 2).Y * -1, Get_Vertex(point - 2).Z * -1);
+		with = Get_Vertex(point - 2).To_Direction();
 		if (normal.Dot(with) > 0)
 		{
 			Vertex value = normal.To_Vertex();

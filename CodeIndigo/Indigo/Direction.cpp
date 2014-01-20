@@ -79,10 +79,11 @@ Direction Direction::Cross(const Direction& direction) const
 // Angle between two vectors, useful for rotation
 float Direction::Angle_Distance(const Direction& direction) const
 {
-	if (!(X == direction.X && Y == direction.Y && direction.Z == direction.Z))
+	if (!(X == direction.X && Y == direction.Y && Z == direction.Z))
 	{
 		return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
 	}
+	return 0;
 }
 
 

@@ -8,7 +8,6 @@
 Lighting::Lighting(void)
 {
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 	Set_Ambient(0.15);
 	Number_Of_Lights = 0;
 	return;

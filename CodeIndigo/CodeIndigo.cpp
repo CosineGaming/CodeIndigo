@@ -47,20 +47,16 @@ void update(int time)
 		std::cout << "Beginning to load.\n";
 		World world;
 		std::cout << "Loading high-resolution sphere.\n";
-		Mesh sphere = Mesh::Sphere(2.4, 1);
+		Mesh sphere = Mesh::Sphere(0.8, 5);
 		sphere.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Rough_Cloth.bmp");
 		Object testies = Object(10.0, 2.0, 5.0, sphere, Indigo::Blue_Color);
 		world.Add_Object(testies);
-		std::cout << "Loading simple cube as table.\n";
-		table = world.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 		std::cout << "Loading containment room.\n";
 		Mesh room = Mesh::Box(10.0, 2.5, 20.0);
 		room.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Dark_Wood.bmp");
 		bounds = world.Add_Object(Object(0.0, 1.25, 0.0, room));
-		std::cout << "Loading light source marker.\n";
-		world.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 		std::cout << "Loading model of Monkey.\n";
-		world.Add_Object(Object(0.0, -10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
+		world.Add_Object(Object(0.0, 10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
 		Mesh train = Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj");
 		train.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Screen.bmp");
@@ -104,9 +100,17 @@ void update(int time)
 			cube_object.object_color = color;
 			//Animation(&object, rand() % 50 - 25.5, rand() % 20 - 10.5, rand() % 50 - 25.5, 100);
 			world.Add_Object(cube_object);
-			if (cube % 200 == 0)
-				std::cout << cube * 100 / 999 << "% loaded...\n";
+			if (cube % 10 == 0)
+			{
+				std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b";
+				if (cube * 100 / 999 > 9)
+				{
+					std::cout << "\b";
+				}
+				std::cout << cube * 100 / 999 << "% loaded...";
+			}
 		}
+		std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b100% loaded." << std::endl;
 		Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
 		std::cout << "Generating small graph...\n";
 		Mesh graph = Mesh(4);
@@ -242,9 +246,9 @@ void update(int time)
 		Indigo::Current_World.camera.eye = player.facing;
 
 		static int direction = 1;
-		Indigo::Current_World.Get_Object(4).facing.Add_Direction(0, .36 * time * direction);
-		//if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)	direction *= -1;
-		//Indigo::Current_World.Get_Object(4).Move(.0002 * (rand() % 20 + 1) * time);
+		Indigo::Current_World.Get_Object(2).facing.Add_Direction(0, .36 * time * direction);
+		if (rand() % (1000 / (time > 0 && time < 1000 ? time : 1)) == 0)	direction *= -1;
+		Indigo::Current_World.Get_Object(2).Move(.0002 * (rand() % 20 + 1) * time);
 
 	}
 

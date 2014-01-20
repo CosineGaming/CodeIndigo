@@ -141,6 +141,7 @@ namespace Indigo
 	// Acts for when the mouse is moved
 	void Mouse_Moved(int x, int y)
 	{
+		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
 		if (Relative_Mouse_Moved_Function)
 		{
 			int width = glutGet(GLUT_WINDOW_WIDTH);
