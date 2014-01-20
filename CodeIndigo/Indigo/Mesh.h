@@ -68,6 +68,8 @@ public:
 	void Texture(char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
 	Vertex Texture_Coordinate(const int index);
+	// Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
+	void Set_Texture_Coordinate(const int index, const Vertex& coordinate);
 	// Get the number of Vertices in the mesh
 	int Size(void) const;
 	// Number of actual different vertices defined
@@ -90,6 +92,8 @@ public:
 	std::vector<int> elements;
 	// The texture handle number
 	int texture;
+	// A set of texture coordinates, one for every element. Manually set with Set_Texture_Coordinate()
+	std::vector<Vertex> texture_coordinates;
 protected:
 private:
 };

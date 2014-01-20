@@ -26,7 +26,7 @@ Vertex::Vertex(const Vertex& vertex)
 
 
 // Create a vertex with these values
-Vertex::Vertex(const float x, const float y, const float z, const float tex_x, const float tex_y)
+Vertex::Vertex(const float x, const float y, const float z)
 {
 	X = x;
 	Y = y;
@@ -65,7 +65,7 @@ Mesh Vertex::operator+(const Vertex& vertex) const
 // Checks whether this Vertex is exactly the same as another
 bool Vertex::operator==(const Vertex& check) const
 {
-	//return false;
+	return false;
 	return check.X == this->X && check.Y == this->Y && check.Z == this->Z;
 }
 

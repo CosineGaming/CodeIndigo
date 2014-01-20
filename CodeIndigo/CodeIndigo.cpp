@@ -47,19 +47,23 @@ void update(int time)
 		std::cout << "Beginning to load.\n";
 		World world;
 		std::cout << "Loading high-resolution sphere.\n";
-		Object testies = Object(10.0, 2.0, 5.0, Mesh::Sphere(0.8, 2), Indigo::Blue_Color);
+		Mesh sphere = Mesh::Sphere(2.4, 1);
+		sphere.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Rough_Cloth.bmp");
+		Object testies = Object(10.0, 2.0, 5.0, sphere, Indigo::Blue_Color);
 		world.Add_Object(testies);
 		std::cout << "Loading simple cube as table.\n";
 		table = world.Add_Object(Object(2.0, 0.5, -1.0, Mesh::Cube(1), Indigo::Red_Color));
 		std::cout << "Loading containment room.\n";
-		bounds = world.Add_Object(Object(0.0, 1.25, 0.0, Mesh::Box(10.0, 2.5, 20.0)));
+		Mesh room = Mesh::Box(10.0, 2.5, 20.0);
+		room.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Dark_Wood.bmp");
+		bounds = world.Add_Object(Object(0.0, 1.25, 0.0, room));
 		std::cout << "Loading light source marker.\n";
 		world.Add_Object(Object(0.0, 1.0, 0.0, Mesh::Sphere(0.2, 3), Indigo::Green_Color));
 		std::cout << "Loading model of Monkey.\n";
 		world.Add_Object(Object(0.0, -10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
 		Mesh train = Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Train.obj");
-		train.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		train.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Screen.bmp");
 		world.Add_Object(Object(0.0, 0.0, -25.0, train));
 		std::cout << "Adding texture test.\n";
 		Mesh tex = Mesh(4);
@@ -67,14 +71,20 @@ void update(int time)
 		tex += Vertex(0.0, 0.0, 1.0);
 		tex += Vertex(1.0, 0.0, 1.0);
 		tex += Vertex(1.0, 0.0, 0.0);
-		tex.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		tex.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Wall.bmp");
 		world.Add_Object(Object(-10.0, 2.0, -10.0, tex));
 		std::cout << "Setting player up.\n";
 		player.Place(0.0, 10.0, 0.0);
 		Indigo::Current_World.camera.Place(player.X, player.Y + 0.75, player.Z);
 		player.Set_Hitbox(0.25, 0.75, 0.1, -0.25, -0.75, -0.1);
 		std::cout << "Adding ground.\n";
-		Object ground = Object(0.0, 0.0, 0.0, Mesh::Rectangle(10000.0, 10000.0), nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0));
+		Mesh floor = Mesh::Rectangle(10000.0, 10000.0);
+		floor.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Floor.bmp");
+		floor.Set_Texture_Coordinate(0, Vertex(0, 0));
+		floor.Set_Texture_Coordinate(1, Vertex(20000, 0));
+		floor.Set_Texture_Coordinate(2, Vertex(0, 20000));
+		floor.Set_Texture_Coordinate(3, Vertex(20000, 20000));
+		Object ground = Object(0.0, 0.0, 0.0, floor, nullptr, 40.0, nullptr, false, Direction(1.0, 0.0, 90.0));
 		ground.Set_Hitbox(5000, 0, 5000, -5000, 0, -5000);
 		world.Add_Object(ground);
 		//Animation(&world.Get_Object(table), 100.0, 0.5, -1.0, 600);
@@ -82,7 +92,7 @@ void update(int time)
 		std::cout << "Generating large Cube structure.\n";
 		srand(123);
 		Mesh cube = Mesh::Cube(0.8);
-		cube.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\test.bmp");
+		cube.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Couch.bmp");
 		Object cube_object(0.0, 0.0, 0.0, cube);
 		for (int cube = 0; cube < 1000; ++cube)
 		{
@@ -126,17 +136,30 @@ void update(int time)
 
 	{
 
+		static float sprinting = 100;
+
 		float speed = .0015 * time;
 
 		static float gravity = 0;
 
 		if (Indigo::Shift)
 		{
-			speed = .003 * time;
+			if (sprinting > 0)
+				speed += .000045 * sprinting * time;
+				sprinting -= .014 * time;
+		}
+		else
+		{
+			if (sprinting < 100)
+				sprinting += .028 * time;
 		}
 		if (Indigo::keys['e'])
 		{
 			speed += .01 * time;
+		}
+		if (Indigo::keys['x'])
+		{
+			speed += .05 * time;
 		}
 
 		if (Indigo::keys['w'])
@@ -219,7 +242,25 @@ int main(int argc, char ** argv)
 	std::cout << "Initializing rendering environment.\n";
 	float color[3] = {0.0, 0.0, 0.0};
 	Indigo::Initialize(argc, argv, "Code Indigo", 48, true);//, color);
+	Mesh test = Mesh::Rectangle(2.0, 2.0) + Mesh::Rectangle(3.0, 4.0);
+	for (int i = 0; i < test.Size(); ++i)
+	{
+		Vertex x = test.Texture_Coordinate(i);
+		std::cout << x.X << ", " << x.Y << std::endl;
+	}
 	std::cout << "Setting up loading world.\n";
+	test = Mesh(3);
+	test += Vertex(0, 0, 0);
+	test += Vertex(0, 1, 0);
+	test += Vertex(1, 1, 0);
+	test += Vertex(0, 0, 0);
+	test += Vertex(0, 1, 0);
+	test += Vertex(1, 1, 0);
+	for (int i = 0; i < test.Size(); ++i)
+	{
+		Vertex x = test.Texture_Coordinate(i);
+		std::cout << x.X << ", " << x.Y << std::endl;
+	}
 	Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = update;

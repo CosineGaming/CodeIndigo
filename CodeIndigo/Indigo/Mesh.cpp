@@ -223,12 +223,11 @@ Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 	}
 	else
 	{
-		Vertex vertices[3] = { left, right, top };
+		Vertex options[3] = { left, right, top };
 		for (int vertex = 0; vertex<3; ++vertex)
 		{
-			Direction distance = vertices[vertex].To_Direction();
-			distance.Set_Direction(radius, distance.Get_X_Angle(),
-				distance.Get_Y_Angle());
+			Direction distance = options[vertex].To_Direction();
+			distance.Set_Distance(radius);
 			mesh += Vertex(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
 		}
 	}
@@ -423,30 +422,22 @@ Vertex Mesh::Smooth_Normal(const int index)
 // Texture the entire mesh with one file, texture coordinates will be used only once called
 void Mesh::Texture(char * filename)
 {
-
-	char header[54];
-	int start;
-	int width;
-	int height;
-	int size;
-	char * data;
-	//FILE * file;
-	//fopen_s(&file, filename, "rb");
-	std::ifstream file(filename);
+	std::ifstream file(filename, std::ios::binary);
 	if (!file)
 	{
 		std::cout << "Cannot find file " << filename << " aborting texture loading." << std::endl;
 		return;
 	}
+	char header[54];
 	file.read(header, 54);
 	if (header[0] != 'B' || header[1] != 'M')
 	{
 		std::cout << "Incorrectly configured or corrupted datafile " << filename << ". Aborting." << std::endl;
 	}
-	start = *(int*) &(header[0x0A]);
-	size = *(int*) &(header[0x22]);
-	width = *(int*) &(header[0x12]);
-	height = *(int*) &(header[0x16]);
+	int start = *(int*) &(header[0x0A]);
+	int size = *(int*) &(header[0x22]);
+	int width = *(int*) &(header[0x12]);
+	int height = *(int*) &(header[0x16]);
 	if (size == 0)
 	{
 		size = width*height * 3;
@@ -455,7 +446,7 @@ void Mesh::Texture(char * filename)
 	{
 		start = 54;
 	}
-	data = new char[size];
+	char * data = new char[size];
 	file.read(data, size);
 	file.close();
 
@@ -472,7 +463,32 @@ void Mesh::Texture(char * filename)
 // Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
 Vertex Mesh::Texture_Coordinate(const int index)
 {
-	return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
+	if (texture_coordinates.size() < index + 1)
+	{
+		return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
+	}
+	else if (texture_coordinates[index] == Vertex(-1, -1, -1))
+	{
+		return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
+	}
+	else
+	{
+		return texture_coordinates[index];
+	}
+}
+
+
+// Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
+void Mesh::Set_Texture_Coordinate(const int index, const Vertex& coordinate)
+{
+	if (texture_coordinates.size() < index + 1)
+	{
+		for (int i = 0; i < texture_coordinates.size() - index - 1; ++i)
+		{
+			texture_coordinates.push_back(Vertex(-1, -1, -1));
+		}
+	}
+	texture_coordinates[index] = coordinate;
 }
 
 
