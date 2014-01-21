@@ -59,7 +59,6 @@ public:
 	float * object_color;
 	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
 	float object_shine;
-protected:
 	// The OpenGL draw mode for each render type.
 	static const int Render_Types[5];
 private:

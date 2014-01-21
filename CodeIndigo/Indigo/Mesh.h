@@ -94,6 +94,5 @@ public:
 	int texture;
 	// A set of texture coordinates, one for every element. Manually set with Set_Texture_Coordinate()
 	std::vector<Vertex> texture_coordinates;
-protected:
 private:
 };

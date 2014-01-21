@@ -1,12 +1,9 @@
-// Entry point!
+/* Entry point!
 // Code indigo is a 3d mystery game. Readme for more information.
 
 #include "CodeIndigo.h"
 #include <iostream>
 #include "time.h"
-
-int bounds;
-int table;
 
 Object player = Object(0, 0.75, 0);
 
@@ -42,7 +39,7 @@ void update(int time)
 	static int frames = -1;
 	frames++;
 
-	if (frames == 20)
+	if (frames == 100)
 	{
 		std::cout << "Beginning to load.\n";
 		World world;
@@ -54,7 +51,7 @@ void update(int time)
 		std::cout << "Loading containment room.\n";
 		Mesh room = Mesh::Box(10.0, 2.5, 20.0);
 		room.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Dark_Wood.bmp");
-		bounds = world.Add_Object(Object(0.0, 1.25, 0.0, room));
+		world.Add_Object(Object(0.0, 1.25, 0.0, room));
 		std::cout << "Loading model of Monkey.\n";
 		world.Add_Object(Object(0.0, 10.0, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Monkey.obj")));
 		std::cout << "Loading model of flying train.\n";
@@ -136,7 +133,7 @@ void update(int time)
 		std::cout << "Loaded.\n";
 	}
 
-	if (frames > 20)
+	if (frames > 100)
 
 	{
 
@@ -260,7 +257,9 @@ int main(int argc, char ** argv)
 	float color[3] = {0.0, 0.0, 0.0};
 	Indigo::Initialize(argc, argv, "Code Indigo", 60, true);//, color);
 	std::cout << "Setting up loading world.\n";
-	Indigo::Current_World.Add_Object(Object(0, 0, -1, Mesh::Load("Loading.obj")));
+	Mesh loading = Mesh::Rectangle(1.0, 1.0);
+	loading.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Release\\Loading.bmp");
+	Indigo::Current_World.Add_Object(Object(0, 0, 1, loading));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = update;
 	Indigo::Relative_Mouse_Moved_Function = mouse_moved;
@@ -268,3 +267,4 @@ int main(int argc, char ** argv)
 	Indigo::Run();
 	return 0;
 }
+*/

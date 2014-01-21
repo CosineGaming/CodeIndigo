@@ -30,6 +30,5 @@ public:
 	float X;
 	float Y;
 	float Z;
-protected:
 private:
 };

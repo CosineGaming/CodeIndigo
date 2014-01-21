@@ -44,6 +44,5 @@ public:
 	// Camera used to look
 	Camera camera;
 protected:
-private:
 	std::vector <Object> objects;
 };

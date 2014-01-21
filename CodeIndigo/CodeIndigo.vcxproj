@@ -155,28 +155,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeIndigo.h" />
-    <ClInclude Include="Indigo\Animation.h" />
-    <ClInclude Include="Indigo\Camera.h" />
-    <ClInclude Include="Indigo\Direction.h" />
-    <ClInclude Include="Indigo\Indigo.h" />
-    <ClInclude Include="Indigo\IndigoEngine.h" />
-    <ClInclude Include="Indigo\Lighting.h" />
-    <ClInclude Include="Indigo\Mesh.h" />
-    <ClInclude Include="Indigo\Object.h" />
-    <ClInclude Include="Indigo\Vertex.h" />
-    <ClInclude Include="Indigo\World.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeIndigo.cpp" />
-    <ClCompile Include="Indigo\Animation.cpp" />
-    <ClCompile Include="Indigo\Camera.cpp" />
-    <ClCompile Include="Indigo\Direction.cpp" />
-    <ClCompile Include="Indigo\Indigo.cpp" />
-    <ClCompile Include="Indigo\Lighting.cpp" />
-    <ClCompile Include="Indigo\Mesh.cpp" />
-    <ClCompile Include="Indigo\Object.cpp" />
-    <ClCompile Include="Indigo\Vertex.cpp" />
-    <ClCompile Include="Indigo\World.cpp" />
+    <ClCompile Include="Dash.cpp" />
+    <ClCompile Include="Wall.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indigo\Indigo.vcxproj">
+      <Project>{a691a0d5-adc7-44a3-b79e-58d151867d0c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
