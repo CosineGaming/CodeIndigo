@@ -169,6 +169,60 @@ namespace Indigo
 		return;
 	}
 
+	// Default FPS-style mouse code, used intrinsically. Call FPS_Mouse to set up.
+	void FPS_Mouse_Callback(int x, int y, Object * player, float sensitivity)
+	{
+		// Store the data from this call if it's required so that the callback works
+		static float stored_sensitivity;
+		static Object * stored_player;
+		if (player)
+			stored_player = player;
+		if (sensitivity)
+			stored_sensitivity = sensitivity;
+		if (!sensitivity && stored_sensitivity)
+			sensitivity = stored_sensitivity;
+		if (!player && stored_player)
+			player = stored_player;
+		if ((!sensitivity && !stored_sensitivity) || (!player && !stored_player))
+		{
+			std::cout << "Error. FPS_Mouse_Callback is a function used intrinsically by Indigo Engine." << std::endl
+				<< " Do not call unless you know what you are doing. Use FPS_Mouse(playerObject) to setup." << std::endl
+				<< "Resetting mouse callback to nullptr to prevent further error. Passing as warning." << std::endl;
+			Relative_Mouse_Moved_Function = nullptr;
+			return;
+		}
+		float y_angle = player->facing.Get_Y_Angle() + y * -1 * sensitivity;
+		if (!(y_angle > 89 && y_angle <= 271))
+		{
+			player->facing.Add_Direction(0.0, x * -1 * sensitivity, y * -1 * sensitivity);
+		}
+		else
+		{
+			if (y_angle < 180)
+			{
+				player->facing.Set_Direction(1.0, player->facing.Get_X_Angle() + x * -1 * sensitivity, 89);
+			}
+			else
+			{
+				player->facing.Set_Direction(1.0, player->facing.Get_X_Angle() + x * -1 * sensitivity, 271);
+			}
+		}
+	}
+
+	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
+	extern void FPS_Mouse_Function(int x, int y)
+	{
+		FPS_Mouse_Callback(x, y);
+	}
+
+	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
+	// Then, use Indigo::Current_World.camera.facing = player.facing;
+	extern void FPS_Mouse(Object * player, float sensitivity)
+	{
+		FPS_Mouse_Callback(0, 0, player, sensitivity);
+		Relative_Mouse_Moved_Function = FPS_Mouse_Function;
+	}
+
 	// Updates world
 	void Update(int trash)
 	{

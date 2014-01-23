@@ -55,6 +55,10 @@ Object::~Object(void)
 // Renders the object
 void Object::Render(void)
 {
+	if (Is_Blank)
+	{
+		return;
+	}
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
 		object_color ? object_color : full_array);
@@ -136,12 +140,12 @@ void Object::Move(const float forward, const float side, const float up)
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
 	return(
-		object.Data.Hitbox[0].X + object.X <= Data.Hitbox[1].X + X
-		&& object.Data.Hitbox[0].Y + object.Y <= Data.Hitbox[1].Y + Y
-		&& object.Data.Hitbox[0].Z + object.Z <= Data.Hitbox[1].Z + Z
-		&& object.Data.Hitbox[1].X + object.X >= Data.Hitbox[0].X + X
-		&& object.Data.Hitbox[1].Y + object.Y >= Data.Hitbox[0].Y + Y
-		&& object.Data.Hitbox[1].Z + object.Z >= Data.Hitbox[0].Z + Z);
+		object.Data.Hitbox[0].X + object.X + add_x <= Data.Hitbox[1].X + X
+		&& object.Data.Hitbox[0].Y + object.Y + add_y <= Data.Hitbox[1].Y + Y
+		&& object.Data.Hitbox[0].Z + object.Z + add_z <= Data.Hitbox[1].Z + Z
+		&& object.Data.Hitbox[1].X + object.X + add_x >= Data.Hitbox[0].X + X
+		&& object.Data.Hitbox[1].Y + object.Y + add_y >= Data.Hitbox[0].Y + Y
+		&& object.Data.Hitbox[1].Z + object.Z + add_z >= Data.Hitbox[0].Z + Z);
 }
 
 
@@ -204,12 +208,12 @@ bool Object::Collide(const Direction& position, const Direction& direction) cons
 bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z) const
 {
 	return(
-		vertex.X <= Data.Hitbox[1].X + X
-		&& vertex.Y <= Data.Hitbox[1].Y + Y
-		&& vertex.Z <= Data.Hitbox[1].Z + Z
-		&& vertex.X >= Data.Hitbox[0].X + X
-		&& vertex.Y >= Data.Hitbox[0].Y + Y
-		&& vertex.Z >= Data.Hitbox[0].Z + Z);
+		vertex.X + add_x <= Data.Hitbox[1].X + X
+		&& vertex.Y + add_y <= Data.Hitbox[1].Y + Y
+		&& vertex.Z + add_z <= Data.Hitbox[1].Z + Z
+		&& vertex.X + add_x >= Data.Hitbox[0].X + X
+		&& vertex.Y + add_y >= Data.Hitbox[0].Y + Y
+		&& vertex.Z + add_z >= Data.Hitbox[0].Z + Z);
 }
 
 

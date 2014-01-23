@@ -51,6 +51,14 @@ namespace Indigo
 	// ... when the mouse is moved, given relative to the center
 	// Also hides mouse when defined.
 	extern void(*Relative_Mouse_Moved_Function)(int x, int y);
+	// Default FPS-style mouse code, used intrinsically. Call FPS_Mouse to set up.
+	extern void FPS_Mouse_Callback(int x, int y, Object * player = nullptr, float sensitivity = 0);
+	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
+	extern void FPS_Mouse_Function(int x, int y);
+	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
+	// Then, use Indigo::Current_World.camera.facing = player.facing;
+	extern void FPS_Mouse(Object * player, float sensitivity = 0.2);
+	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
 	extern void(*Update_Function)(int time);
 	// ... just before the rendering of objects in the world

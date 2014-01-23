@@ -155,12 +155,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeIndigo.h" />
-    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CodeIndigo.cpp" />
     <ClCompile Include="Dash.cpp" />
-    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indigo\Indigo.vcxproj">
