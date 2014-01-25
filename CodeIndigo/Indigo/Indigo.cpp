@@ -52,7 +52,6 @@ namespace Indigo
 		glShadeModel(GL_SMOOTH);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
-		glEnable(GL_NORMALIZE);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -88,7 +87,7 @@ namespace Indigo
 		glLoadIdentity();
 		gluPerspective(Field_Of_View,
 			(float) width / (float) height,
-			0.1, 500.0);
+			0.01, 200.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
 		glMatrixMode(GL_MODELVIEW);

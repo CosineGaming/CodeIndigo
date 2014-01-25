@@ -4,18 +4,23 @@
 
 Object player;
 
-float Color_Values[15] = {
+const int Number_Of_Colors = 4;
+
+const int Cube_Size = 8;
+
+float Color_Values[] = {
 	0.8, 0.0, 0.0,
-	1.0, 0.6, 0.0,
 	0.0, 0.7, 0.7,
 	0.0, 1.0, 0.0,
-	0.0, 0.1, 0.6 };
+	0.3, 0.0, 0.3,
+	0.0, 0.0, 0.0
+};
 
-bool Render_Colors[5] = { false, false, false, false, false };
+bool Render_Colors[] = { false, false, false, false, false };
 
 void check_render(int time, Object& self)
 {
-	self.Y = Render_Colors[(self.object_color - Color_Values) / 3] ? 4 : -4;
+	self.Y = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(player, 0, -1) ? Cube_Size / 2 : Cube_Size / -2;
 }
 
 void update(int time)
@@ -30,11 +35,11 @@ void update(int time)
 		World world;
 		std::cout << "Initializing walls\n";
 		srand(std::time(0));
-		for (int x = 0; x < 20; ++x)
+		for (int x = 0; x < 50; ++x)
 		{
 			for (int z = 0; z < 50; ++z)
 			{
-				Object add(x * 8 - 40, 2, z * 8 - 100, Mesh::Cube(7.9), &Color_Values[rand() % 5 * 3]);
+				Object add(x * Cube_Size - 25 * Cube_Size, Cube_Size / -2, z * Cube_Size - 25 * Cube_Size, Mesh::Cube(Cube_Size), &Color_Values[rand() % Number_Of_Colors * 3]);
 				add.Update = check_render;
 				world.Add_Object(add);
 			}
@@ -42,7 +47,6 @@ void update(int time)
 		std::cout << "Setting player up.\n";
 		player.Place(0.0, 0.75, 0.0);
 		world.camera.Place(player.X, 1.5, player.Z);
-		player.Set_Hitbox(0.25, 0.75, 0.1, -0.25, -0.75, -0.1);
 		std::cout << "Changing worlds.\n";
 		Indigo::Current_World = world;
 		std::cout << "Initializing lighting state.\n";
@@ -63,14 +67,12 @@ void update(int time)
 
 		if (Indigo::keys['e'])
 		{
-			for (int i = 0; i < 5; ++i)
+			for (int i = 0; i < Number_Of_Colors; ++i)
 			{
 				Render_Colors[i] = false;
 			}
-		}
-		if (Indigo::keys['r'])
-		{
 			player.Place(0.0, 0.75, 0.0);
+			//camera.Place(0.0, 1.5, 0.0);
 		}
 		if (Indigo::keys['3'])
 		{
@@ -87,6 +89,7 @@ void update(int time)
 		}
 
 		Camera& camera = Indigo::Current_World.camera;
+		Object blub = Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(player));
 		if (Indigo::Current_World.Collide(player) == -1)
 		{
 			camera.Place(player.X, player.Y + 0.75, player.Z);
@@ -105,12 +108,21 @@ void update(int time)
 		}
 		static int last = -1;
 		int now = (Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(player, 0, -1)).object_color - Color_Values) / 3;
-		if (last != now && last != -1)
+		if (last != now && now >= 0 && now <= 3)
 		{
-			Render_Colors[last] = true;
-			if (Render_Colors[0] + Render_Colors[1] + Render_Colors[2] + Render_Colors[3] + Render_Colors[4] == 4)
+			Render_Colors[now] = true;
+			bool all = true;
+			for (int i = 0; i < Number_Of_Colors; ++i)
 			{
-				for (int i = 0; i < 5; ++i)
+				if (!Render_Colors[i])
+				{
+					all = false;
+					break;
+				}
+			}
+			if (all)
+			{
+				for (int i = 0; i < Number_Of_Colors; ++i)
 				{
 					Render_Colors[i] = false;
 				}
