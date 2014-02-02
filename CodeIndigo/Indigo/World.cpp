@@ -6,32 +6,32 @@
 #include "glut.h"
 
 
+// Create a new, empty world
 World::World(void)
 {
-	// Create a new, empty world
 	lighting = Lighting();
 	return;
 }
 
 
+// Copy a world
 World::World(const World& world)
 {
-	// Copy a world
 	objects = world.objects;
 	return;
 }
 
 
+// Deletes the world, opens memory
 World::~World(void)
 {
-	// Deletes the world, opens memory
 	return;
 }
 
 
+// Updates every object in the world, prepares to render again
 void World::Update(const int& time)
 {
-	// Updates every object in the world, prepares to render again
 	for (int Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
 	{
 		if (objects[Object_ID].Update)
@@ -43,9 +43,9 @@ void World::Update(const int& time)
 }
 
 
+// Renders every object in the world
 void World::Render(void)
 {
-	// Renders every object in the world
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Indigo::Reshape();
 	camera.Look();
@@ -59,19 +59,9 @@ void World::Render(void)
 }
 
 
+// Adds an object to the world to be rendered and updated, returns an object ID
 int World::Add_Object(const Object& object)
 {
-	// Adds an object to the world to be rendered and updated,
-	// returns an object ID
-	for (int Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
-	{
-		if (objects[Object_ID].Is_Blank)
-		{
-			objects[Object_ID] = object;
-			objects[Object_ID].ID = Object_ID;
-			return Object_ID;
-		}
-	}
 	objects.push_back(object);
 	int Object_ID = objects.size() - 1;
 	objects[Object_ID].ID = Object_ID;
@@ -79,23 +69,24 @@ int World::Add_Object(const Object& object)
 }
 
 
+// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 Object& World::Get_Object(const int& ID) const
 {
 	return const_cast <Object&>(objects[ID]);
 }
 
 
+// Removes an object from the world based on an object ID
 void World::Remove_Object(const int& ID)
 {
-	// Removes an object from the world based on an object ID
 	objects[ID] = Object();
 	return;
 }
 
 
+// Removes an object from the world based on object; gets ID automatically
 void World::Remove_Object(const Object& object)
 {
-	// Removes an object from the world based on object; gets ID automatically
 	objects[object.ID] = Object();
 	return;
 }
@@ -106,10 +97,13 @@ int World::Collide(const Object& object, const float add_x, const float add_y, c
 {
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
-		if (objects[Object].Collide(object, add_x, add_y, add_z))
+		if (Object != object.ID)
 		{
-			return Object;
-			break;
+			if (objects[Object].Collide(object, add_x, add_y, add_z))
+			{
+				return Object;
+				break;
+			}
 		}
 	}
 	return -1;

@@ -49,7 +49,10 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 			specular_array[Color] += color_offset[Color];
 		}
 	}
-	Light_Positions[Number_Of_Lights] = position_array;
+	Light_Positions[Number_Of_Lights] = new float[3];
+	Light_Positions[Number_Of_Lights][0] = position_array[0];
+	Light_Positions[Number_Of_Lights][1] = position_array[1];
+	Light_Positions[Number_Of_Lights][2] = position_array[2];
 	glEnable(Light);
 	for (int i=Number_Of_Lights+1; i<8; ++i)
 	{

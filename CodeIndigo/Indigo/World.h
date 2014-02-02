@@ -22,10 +22,9 @@ public:
 	void Update(const int& time);
 	// Renders every object in the world
 	void Render(void);
-	// Adds an object to the world to be rendered and updated,
-	// returns an object ID
+	// Adds an object to the world to be rendered and updated, returns an object ID
 	int Add_Object(const Object& object);
-	// Gets an object based on 
+	// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 	Object& Get_Object(const int& ID) const;
 	// Removes an object from the world based on an object ID
 	void Remove_Object(const int& ID);

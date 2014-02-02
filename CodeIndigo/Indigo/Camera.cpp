@@ -32,7 +32,7 @@ Camera::~Camera(void)
 }
 
 
-void Camera::Place(float x, float y, float z)
+void Camera::Place(const float x, const float y, const float z)
 {
 	// Place the camera at a point
 	X = x;
@@ -42,7 +42,7 @@ void Camera::Place(float x, float y, float z)
 }
 
 
-void Camera::Move(float forward, float side, float up)
+void Camera::Move(const float forward, const float side, const float up)
 {
 	// Move relative to the way it's pointing and where it is
 	Direction direction = eye;
@@ -62,7 +62,7 @@ void Camera::Move(float forward, float side, float up)
 
 
 // Look in a direction
-void Camera::Look_At(Direction direction)
+void Camera::Look_At(const Direction& direction)
 {
 	eye = direction.Distance(Direction::Coordinates(X, Y, Z));
 	return;
@@ -70,7 +70,7 @@ void Camera::Look_At(Direction direction)
 
 
 // Look at a point
-void Camera::Look_At(float x, float y, float z)
+void Camera::Look_At(const float x, const float y, const float z)
 {
 	eye.Set_Coordinates(x - X, y - Y, z - Z);
 	return;
@@ -78,7 +78,7 @@ void Camera::Look_At(float x, float y, float z)
 
 
 // Look in a direction
-void Camera::Look_Towards(Direction direction)
+void Camera::Look_Towards(const Direction& direction)
 {
 	eye = direction;
 	return;
@@ -86,7 +86,7 @@ void Camera::Look_Towards(Direction direction)
 
 
 // Look at a point
-void Camera::Look_Towards(float x, float y, float z)
+void Camera::Look_Towards(const float x, const float y, const float z)
 {
 	eye.Set_Coordinates(x, y, z);
 	return;
@@ -94,11 +94,13 @@ void Camera::Look_Towards(float x, float y, float z)
 
 
 // Look at an object
-void Camera::Watch(Object object, Direction relative_camera_position)
+void Camera::Watch(const Object& object, const Direction& relative_camera_position)
 {
-	Place(relative_camera_position.Get_X() + object.X,
-		relative_camera_position.Get_Y() + object.Y,
-		relative_camera_position.Get_Z() + object.Z);
+	Direction position = object.facing;
+	position.Add_Direction(0.0, relative_camera_position.Get_X_Angle(), relative_camera_position.Get_Y_Angle());
+	Place(position.Get_X() + object.X,
+		position.Get_Y() + object.Y,
+		position.Get_Z() + object.Z);
 	eye.Set_Coordinates(object.X - X, object.Y - Y, object.Z - Z);
 	return;
 }
