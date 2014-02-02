@@ -45,6 +45,9 @@
     <ClCompile Include="..\CodeIndigo\Indigo\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CodeIndigo\Indigo\Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CodeIndigo\Indigo\Animation.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CodeIndigo\Indigo\World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CodeIndigo\Indigo\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

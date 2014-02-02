@@ -6,6 +6,7 @@
 #include "Object.h"
 #include "Lighting.h"
 #include "Camera.h"
+#include "Text.h"
 
 
 class World
@@ -30,6 +31,8 @@ public:
 	void Remove_Object(const int& ID);
 	// Removes an object from the world based on object; gets ID automatically
 	void Remove_Object(const Object& object);
+  // Add text to the world to be rendered, returns no handle to the text
+  void Add_Text(const Text& text);
 
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
@@ -43,5 +46,6 @@ public:
 	// Camera used to look
 	Camera camera;
 protected:
-	std::vector <Object> objects;
+	std::vector<Object> objects;
+  std::vector<Text> texts;
 };

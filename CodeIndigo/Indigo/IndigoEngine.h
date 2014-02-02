@@ -8,5 +8,6 @@
 #include "Lighting.h"
 #include "Camera.h"
 #include "Direction.h"
+#include "Text.h"
 #include <stdlib.h>
 #include "glut.h"
