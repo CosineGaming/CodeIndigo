@@ -11,10 +11,6 @@ Lighting::Lighting(void)
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	Set_Ambient(0.15);
   Number_Of_Lights = 0;
-  for (int light = 0; light < 8; ++light)
-  {
-    Light_Positions[light] = new float[3];
-  }
 	return;
 }
 
@@ -22,13 +18,9 @@ Lighting::Lighting(void)
 Lighting::Lighting(const Lighting& arrangement)
 {
   Number_Of_Lights = arrangement.Get_Number_Of_Lights();
-  for (int light = 0; light < 8; ++light)
-  {
-    Light_Positions[light] = new float[3];
-  }
   for (int light = 0; light < Number_Of_Lights; ++light)
   {
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 4; ++i)
     {
       Light_Positions[light][i] = arrangement.Light_Positions[light][i];
     }
@@ -39,12 +31,6 @@ Lighting::Lighting(const Lighting& arrangement)
 
 Lighting::~Lighting(void)
 {
-  std::cout << "Decnstrucklsdjf lihgint\n";
-  for (int i = 0; i < 8; ++i)
-  {
-    //delete [] Light_Positions[i];
-  }
-  std::cout << "Decnstrucklsdjf lihgintcomplete\n";
 	return;
 }
 
@@ -73,7 +59,8 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 	}
 	Light_Positions[Number_Of_Lights][0] = position_array[0];
 	Light_Positions[Number_Of_Lights][1] = position_array[1];
-	Light_Positions[Number_Of_Lights][2] = position_array[2];
+  Light_Positions[Number_Of_Lights][2] = position_array[2];
+  Light_Positions[Number_Of_Lights][3] = position_array[3];
 	glEnable(Light);
 	for (int i=Number_Of_Lights+1; i<8; ++i)
 	{

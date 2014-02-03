@@ -13,6 +13,7 @@ Direction::Direction(void)
 // Construct a new direction based off of distance and 2 angles
 Direction::Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
+  Set_Coordinates(0, 0, 1);
 	Set_Direction(in_distance, in_angle_x, in_angle_y);
 	return;
 }
@@ -21,7 +22,7 @@ Direction::Direction(const float in_distance, const float in_angle_x, const floa
 // Copy a direction
 Direction::Direction(const Direction& direction)
 {
-	Set_Coordinates(0, 0, 0);
+  Set_Coordinates(0, 0, 1);
 	Set_Coordinates(direction.Get_X(), direction.Get_Y(), direction.Get_Z());
 }
 
@@ -29,8 +30,8 @@ Direction::Direction(const Direction& direction)
 // Construct a new direction based off of x, y, and z
 Direction Direction::Coordinates(const float x, const float y, const float z)
 {
-	Direction construct;
-	construct.Set_Coordinates(0, 0, 0);
+  Direction construct;
+  construct.Set_Coordinates(0, 0, 1);
 	construct.Set_Coordinates(x, y, z);
 	return construct;
 }
@@ -224,10 +225,10 @@ void Direction::Add_Coordinates(const float x, const float y, const float z)
 void Direction::Set_Direction(const float distance, const float angle_x, const float angle_y)
 {
 	float in_distance = distance;
-	if (distance == 0)
+	if (distance == 0.0)
 	{
-		in_distance = 1;
 		zero = true;
+    return;
 	}
 	else
 	{

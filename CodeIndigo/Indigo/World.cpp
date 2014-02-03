@@ -52,7 +52,8 @@ void World::Update(const int& time)
 // Renders every object in the world
 void World::Render(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
 	Indigo::Reshape();
 	camera.Look();
@@ -65,6 +66,7 @@ void World::Render(void)
   glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  glDisable(GL_LIGHTING);
   glDisable(GL_DEPTH_TEST);
   for (int text = 0; text < texts.size(); ++text)
   {

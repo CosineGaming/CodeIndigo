@@ -25,7 +25,7 @@ private:
 	// The OpenGL light values
 	static const int Light_Values[8];
 	// The position of the lights for arranging
-	float * Light_Positions[8];
+	float Light_Positions[8][4];
 	// The number of lights in the current scene
 	int Number_Of_Lights;
 };

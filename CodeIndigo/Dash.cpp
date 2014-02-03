@@ -173,7 +173,7 @@ void load(int time)
 		}
 	}
 	std::cout << "Setting player up.\n";
-	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Meshes\\Arrow.obj"), nullptr, 60, update));
+	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Arrow.obj"), nullptr, 60, update));
 	Object& point = world.Get_Object(added);
 	point.Set_Hitbox();
 	world.camera.Place(point.X, 1.5, point.Z);
@@ -209,7 +209,7 @@ int main(int argc, char ** argv)
 	Indigo::Initialize(argc, argv, "Code Indigo", 60, true, color);
 	std::cout << "Setting up loading world.\n";
 	Mesh loading = Mesh::Rectangle(1.0, 1.0);
-	loading.Texture("C:\\Users\\Judah\\Documents\\GitHub\\CodeIndigo\\Textures\\Loading.bmp");
+	loading.Texture("Loading.bmp");
 	Indigo::Current_World.Add_Object(Object(0, 0, 1, loading));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = load;
