@@ -400,8 +400,8 @@ void Mesh::Smooth_Normals(void)
 			smooth_normals.push_back(Flat_Normal(point * Group_Size));
 		}
 	}
-  delete [] normals;
-  delete [] amounts;
+	delete [] normals;
+	delete [] amounts;
 }
 
 
@@ -465,7 +465,7 @@ void Mesh::Texture(char * filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	texture = handle;
-  delete [] data;
+	delete [] data;
 }
 
 

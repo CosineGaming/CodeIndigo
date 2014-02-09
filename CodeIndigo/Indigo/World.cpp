@@ -9,10 +9,10 @@
 // Create a new, empty world
 World::World(void)
 {
-  objects = std::vector<Object>();
-  texts = std::vector<Text>();
+	objects = std::vector<Object>();
+	texts = std::vector<Text>();
 	lighting = Lighting();
-  camera = Camera();
+	camera = Camera();
 	return;
 }
 
@@ -21,9 +21,9 @@ World::World(void)
 World::World(const World& world)
 {
 	objects = world.objects;
-  texts = world.texts;
-  lighting = world.lighting;
-  camera = world.camera;
+	texts = world.texts;
+	lighting = world.lighting;
+	camera = world.camera;
 	return;
 }
 
@@ -52,9 +52,9 @@ void World::Update(const int& time)
 // Renders every object in the world
 void World::Render(void)
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
 	Indigo::Reshape();
 	camera.Look();
 	lighting.Position_Lights();
@@ -62,19 +62,19 @@ void World::Render(void)
 	{
 		objects[Object_ID].Render();
 	}
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glDisable(GL_LIGHTING);
-  glDisable(GL_DEPTH_TEST);
-  for (int text = 0; text < texts.size(); ++text)
-  {
-    if (texts[text].Render())
-    {
-      texts.erase(texts.begin() + text);
-    }
-  }
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	for (int text = 0; text < texts.size(); ++text)
+	{
+		if (texts[text].Render())
+		{
+			texts.erase(texts.begin() + text);
+		}
+	}
 	glutSwapBuffers();
 	return;
 }
@@ -116,7 +116,7 @@ void World::Remove_Object(const Object& object)
 // Add text to the world to be rendered, returns no handle to the text
 void World::Add_Text(const Text& text)
 {
-  texts.push_back(text);
+	texts.push_back(text);
 }
 
 
