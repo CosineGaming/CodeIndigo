@@ -10,6 +10,8 @@ const int Cube_Size = 15;
 
 const int Platform_Size = 30;
 
+float Health = 100;
+
 float Color_Values[15] = {
 	0.8, 0.0, 0.0,
 	0.0, 0.7, 0.7,
@@ -19,6 +21,21 @@ float Color_Values[15] = {
 };
 
 bool Render_Colors[5] = { false, false, false, false, false };
+
+void generate_colors(void)
+{
+	for (int i = 0; i < 15; ++i)
+	{
+		Color_Values[i] = (rand() % 256) / 255.0;
+		for (int c = 0; c < i; c+=3)
+		{
+			while (abs(Color_Values[c] - Color_Values[i]) < 0.2)
+			{
+				Color_Values[i] = (rand() % 256) / 255.0;
+			}
+		}
+	}
+}
 
 void check_render(int time, Object& self)
 {
@@ -36,14 +53,35 @@ void show(int time, Object& self)
 	self.Z = player->Z + distance.Get_Z();
 }
 
+void test_update(int time, Object& self)
+{
+	self.facing.Normalize(5);
+	self.facing.Add_Direction(0, 0.036 * time, 0.036 * time);
+	std::cout << self.facing.Get_X_Angle() << std::endl;
+}
+
+void check_health(int time, Object& self)
+{
+	Direction distance = player->facing;
+	//self.facing.Set_X_Angle(distance.Get_X_Angle());
+	//std::cout << (int)self.facing.Get_X_Angle() << std::endl;
+	distance.Normalize();
+	distance.Add_Direction(0.2, 0, -15);
+	self.X = player->X + distance.Get_X();
+	self.Y = player->Y + distance.Get_Y() + 0.75;
+	self.Z = player->Z + distance.Get_Z();
+	self.Data.vertices[1].X = Health * 2.0 / 100 - 1;
+	self.Data.vertices[2].X = Health * 2.0 / 100 - 1;
+}
+
 void tutorial(void)
 {
 	static int index = 0;
-	char * set [] = { "Welcome to dash. Press 'P' at any time to unpause the game.", "You are in the center of a platform. Your goal is to get off of it.",
+	char * set [] = { "Welcome to dash. Press 'q' at any time to unpause the game.", "You are in the center of a platform. Your goal is to get off of it.",
 		"But these blocks aren't stationary. Step on a red tile, and all red tiles will block your way.", "The only way to step on that color of tile again is to step on ALL colors of tile.",
 		"You will be constantly racing forward. No way to control that.", "A few cubes will appear in front of you. Those tiles remain to be stepped on.",
-		"You might get stuck with tiles all around you. Press 'E' to restart.", "Press 'P' to pause / unpause the game.",
-		"Move the mouse to look around. Press space to see from the top.", "I think you'll get the hang of it. Press 'P' to begin. Good luck!" };
+		"You might get stuck with tiles all around you. Press 'E' to restart.", "Press 'q' to pause / unpause the game.",
+		"Move the mouse to look around. Press space to see from the top.", "I think you'll get the hang of it. Press 'q' to begin. Good luck!" };
 	if (index < 10)
 	{
 		Indigo::Current_World.Add_Text(Text(-0.35, -0.5, set[index], nullptr, GLUT_BITMAP_9_BY_15, 420, tutorial));
@@ -60,13 +98,13 @@ void update(int time, Object& self)
 
 	Camera& camera = Indigo::Current_World.camera;
 
-	if (Indigo::keys['p'])
+	if (Indigo::keys['q'])
 	{
 		running = !running;
-		Indigo::keys['p'] = false;
+		Indigo::keys['q'] = false;
 	}
 
-	if (Indigo::keys['e'] || Indigo::keys['p'])
+	if (Indigo::keys['e'] || Indigo::keys['q'])
 	{
 		for (int i = 0; i < Number_Of_Colors; ++i)
 		{
@@ -75,6 +113,12 @@ void update(int time, Object& self)
 		self.Place(0.0, 0.75, 0.0);
 		camera.Place(0.0, 1.5, 0.0);
 		camera.eye = Direction(1.0);
+	}
+
+	if (Indigo::keys['c'])
+	{
+		generate_colors();
+		Indigo::keys['c'] = false;
 	}
 
 	if (Indigo::keys['3'])
@@ -91,12 +135,10 @@ void update(int time, Object& self)
 		exit(0);
 	}
 
-	if (!running)
+	if (running)
 	{
-		return;
+		self.Move(speed);
 	}
-
-	self.Move(speed);
 
 	static Vertex old = Vertex(0, 0, 0);
 	if (Indigo::Current_World.Collide(self) == -1)
@@ -105,6 +147,8 @@ void update(int time, Object& self)
 	}
 	else
 	{
+		if (Health > 0)
+			Health -= 0.3;
 		if (Indigo::Current_World.Collide(self, old.X - self.X) == -1)
 		{
 			old.Z = self.Z;
@@ -159,10 +203,20 @@ void update(int time, Object& self)
 void load(int time)
 {
 
+	static int wait = 150000;
+	if (wait)
+	{
+		--wait;
+		return;
+	}
 	std::cout << "Beginning to load.\n";
 	World world;
+	Object test = Object(0.0, 50.0, 0.0, Mesh::Cube(20));
+	test.Update = test_update;
+	world.Add_Object(test);
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
+	generate_colors();
 	for (int x = 0; x < Platform_Size; ++x)
 	{
 		for (int z = 0; z < Platform_Size; ++z)
@@ -177,7 +231,7 @@ void load(int time)
 	Object& point = world.Get_Object(added);
 	point.Set_Hitbox();
 	world.camera.Place(point.X, 1.5, point.Z);
-	std::cout << "Setting up HUD and tutorial.\n";
+	std::cout << "Setting up HUD.\n";
 	for (int i = 0; i < Number_Of_Colors; ++i)
 	{
 		Direction distance = Direction(1, 0, 0);
@@ -186,6 +240,9 @@ void load(int time)
 		add.Update = show;
 		world.Add_Object(add);
 	}
+	Object health = Object(0.0, 0.0, 0.0, Mesh::Rectangle(2.0, 0.2));
+	health.Update = check_health;
+	world.Add_Object(health);
 	std::cout << "Changing worlds.\n";
 	Indigo::Current_World = world;
 	std::cout << "Initializing lighting state.\n";
@@ -204,6 +261,12 @@ void load(int time)
 
 int main(int argc, char ** argv)
 {
+	Direction test = Direction(1.0, 0.0, 0.0);
+	for (int i = 0; i < 180; ++i)
+	{
+		test.Add_Direction(0.0, 4.0, 4.0);
+		std::cout << test.Get_X_Angle() << ", " << test.Get_Y_Angle() << std::endl;
+	}
 	std::cout << "Initializing rendering environment.\n";
 	float color[3] = { 0.0, 0.0, 0.0 };
 	Indigo::Initialize(argc, argv, "Code Indigo", 60, true, color);

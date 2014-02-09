@@ -71,9 +71,9 @@ namespace Indigo
 	// Colors
 	extern float White_Color[3];
 	extern float Black_Color[3];
-	extern float   Sky_Color[3];
-	extern float   Red_Color[3];
+	extern float	 Sky_Color[3];
+	extern float	 Red_Color[3];
 	extern float Green_Color[3];
-	extern float  Blue_Color[3];
+	extern float	Blue_Color[3];
 
 }
