@@ -72,11 +72,6 @@ void Object::Render(void)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	glPushMatrix();
-	glTranslatef(X, Y, Z);
-	Direction around = Direction(1.0, 0.0, 0.0).Cross(facing);
-	around.Normalize();
-	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(around), around.Get_X(), around.Get_Y(), around.Get_Z());
 	if (Data.texture != -1)
 	{
 		glEnable(GL_TEXTURE_2D);
@@ -86,6 +81,13 @@ void Object::Render(void)
 	{
 		glDisable(GL_TEXTURE_2D);
 	}
+	Direction around = Direction(1.0, 0.0, 0.0).Cross(facing);
+	around.Normalize();
+	facing.Normalize();
+	glPushMatrix();
+	glTranslatef(X, Y, Z);
+	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(facing), around.Get_X(), around.Get_Y(), around.Get_Z());
+	Direction forward = Direction(1.0, 0.0, 0.0);
 	glBegin(Render_Types[Data.Group_Size]);
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{

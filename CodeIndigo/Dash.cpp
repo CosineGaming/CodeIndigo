@@ -12,6 +12,8 @@ const int Platform_Size = 30;
 
 float Health = 100;
 
+void load(int time);
+
 float Color_Values[15] = {
 	0.8, 0.0, 0.0,
 	0.0, 0.7, 0.7,
@@ -47,7 +49,7 @@ void show(int time, Object& self)
 	self.Is_Blank = Render_Colors[(self.object_color - Color_Values) / 3];
 	Direction distance = player->facing;
 	distance.Normalize();
-	distance.Add_Direction(0.2, (self.object_color - Color_Values) / 3 * (20.0 / (Number_Of_Colors - 1)) - 10, -10);
+	distance.Add_Direction(-0.3, (self.object_color - Color_Values) / 3 * (20.0 / (Number_Of_Colors - 1)) - 10, -10);
 	self.X = player->X + distance.Get_X();
 	self.Y = player->Y + distance.Get_Y() + 0.75;
 	self.Z = player->Z + distance.Get_Z();
@@ -62,15 +64,14 @@ void test_update(int time, Object& self)
 void check_health(int time, Object& self)
 {
 	Direction distance = player->facing;
-	//self.facing.Set_X_Angle(distance.Get_X_Angle());
-	//std::cout << (int)self.facing.Get_X_Angle() << std::endl;
 	distance.Normalize();
-	distance.Add_Direction(0.2, 0, -15);
+	self.facing.Set_X_Angle(distance.Get_X_Angle());
+	distance.Add_Direction(-0.5, 0, -15);
 	self.X = player->X + distance.Get_X();
 	self.Y = player->Y + distance.Get_Y() + 0.75;
 	self.Z = player->Z + distance.Get_Z();
-	self.Data.vertices[1].X = Health * 2.0 / 100 - 1;
-	self.Data.vertices[2].X = Health * 2.0 / 100 - 1;
+	self.Data.vertices[1].X = Health * 0.75 / 100 - 0.375;
+	self.Data.vertices[2].X = Health * 0.75 / 100 - 0.375;
 }
 
 void tutorial(void)
@@ -112,10 +113,15 @@ void update(int time, Object& self)
 			Render_Colors[i] = false;
 		}
 		self.Place(0.0, 0.75, 0.0);
+		self.facing = Direction();
 		old = Vertex(0.0, 0.75, 0.0);
 		camera.Place(0.0, 1.5, 0.0);
-		camera.eye = Direction(1.0);
 		Health = 100;
+	}
+
+	if (Indigo::keys['r'])
+	{
+		Indigo::Update_Function = load;
 	}
 
 	if (Indigo::keys['c'])
@@ -152,9 +158,9 @@ void update(int time, Object& self)
 				Render_Colors[i] = false;
 			}
 			self.Place(0.0, 0.75, 0.0);
+			self.facing = Direction();
 			old = Vertex(0.0, 0.75, 0.0);
 			camera.Place(0.0, 1.5, 0.0);
-			camera.eye = Direction(1.0);
 			running = false;
 		}
 	}
@@ -257,7 +263,7 @@ void load(int time)
 		add.Update = show;
 		world.Add_Object(add);
 	}
-	Object health = Object(0.0, 0.0, 0.0, Mesh::Rectangle(2.0, 0.2));
+	Object health = Object(0.0, 0.0, 0.0, Mesh::Rectangle(0.75, 0.04));
 	health.Update = check_health;
 	world.Add_Object(health);
 	std::cout << "Changing worlds.\n";

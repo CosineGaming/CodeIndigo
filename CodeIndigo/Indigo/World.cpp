@@ -4,6 +4,7 @@
 #include "Indigo.h"
 #include <stdlib.h>
 #include "glut.h"
+#include <iostream>
 
 
 // Create a new, empty world

@@ -1,5 +1,6 @@
 #include "Direction.h"
 #include "Vertex.h"
+#include <iostream>
 
 
 // Construct a new direction based off of distance and 2 angles
@@ -36,13 +37,13 @@ void Direction::Normalize(const float unit)
 // Dot product. Useful for lighting
 float Direction::Dot(const Direction& direction) const
 {
-	return Get_X() * direction.Get_X()
-		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z();
+	float answer = (Get_X() * direction.Get_X()) + (Get_Y() * direction.Get_Y()) + (Get_Z() * direction.Get_Z());
+	return answer;
 }
 
 
 // Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
-Direction Direction::Cross(const Direction& direction)
+Direction Direction::Cross(const Direction& direction) const
 {
 	return Direction::Coordinates(
 		Get_Y() * direction.Get_Z() - Get_Z() * direction.Get_Y(),
@@ -54,9 +55,9 @@ Direction Direction::Cross(const Direction& direction)
 // Angle between two vectors, useful for rotation
 float Direction::Angle_Distance(const Direction& direction) const
 {
-	if (!(Get_X() == direction.Get_X() && Get_Y() == direction.Get_Y() && Get_Z() == direction.Get_Z()))
+	if (!(Get_X_Angle() == direction.Get_X_Angle() && Get_Y_Angle() == direction.Get_Y_Angle() && Get_Distance() == direction.Get_Distance()))
 	{
-		return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
+		return acos(Dot(direction) / (Get_Distance() * direction.Get_Distance())) * DEGREES_PER_RADIAN;
 	}
 	return 0;
 }
@@ -161,15 +162,21 @@ void Direction::Add_Coordinates(const float x, const float y, const float z)
 void Direction::Set_Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
 	distance = in_distance;
-	angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-	if (angle_x < 0)
+	if (distance != 0)
 	{
-		angle_x += 360.0 / DEGREES_PER_RADIAN;
+		angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+		if (angle_x < 0)
+		{
+			angle_x += 360.0 / DEGREES_PER_RADIAN;
+		}
+		angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+		if (angle_y < 0)
+		{
+			angle_y += 360.0 / DEGREES_PER_RADIAN;
+		}
 	}
-	angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-	if (angle_y < 0)
+	else
 	{
-		angle_y += 360.0 / DEGREES_PER_RADIAN;
 	}
 	return;
 }

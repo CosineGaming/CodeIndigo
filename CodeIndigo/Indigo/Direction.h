@@ -12,7 +12,7 @@ class Direction
 {
 public:
 	// Construct a new direction based off of distance and 2 angles
-	Direction(const float in_distance = 0.0, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
+	Direction(const float in_distance = 1.0, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
 	// Construct a new direction based off of x, y, and z
 	static Direction Coordinates(const float x, const float y, const float z);
 	// Destroy a direction
@@ -22,7 +22,7 @@ public:
 	// Dot product. Useful for lighting
 	float Dot(const Direction& direction) const;
 	// Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
-	Direction Cross(const Direction& direction);
+	Direction Cross(const Direction& direction) const;
 	// Angle between two vectors, useful for rotation
 	float Angle_Distance(const Direction& direction) const;
 	// Get the relative coordinates of the direction
