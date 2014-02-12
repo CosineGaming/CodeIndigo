@@ -6,7 +6,7 @@ Object * player = new Object(0.0, 0.75, 0.0);
 
 const int Number_Of_Colors = 4;
 
-const int Cube_Size = 15;
+const int Cube_Size = 10;
 
 const int Platform_Size = 30;
 
@@ -57,7 +57,6 @@ void test_update(int time, Object& self)
 {
 	self.facing.Normalize(5);
 	self.facing.Add_Direction(0, 0.036 * time, 0.036 * time);
-	std::cout << self.facing.Get_X_Angle() << std::endl;
 }
 
 void check_health(int time, Object& self)
@@ -80,7 +79,7 @@ void tutorial(void)
 	char * set [] = { "Welcome to dash. Press 'q' at any time to unpause the game.", "You are in the center of a platform. Your goal is to get off of it.",
 		"But these blocks aren't stationary. Step on a red tile, and all red tiles will block your way.", "The only way to step on that color of tile again is to step on ALL colors of tile.",
 		"You will be constantly racing forward. No way to control that.", "A few cubes will appear in front of you. Those tiles remain to be stepped on.",
-		"You might get stuck with tiles all around you. Press 'E' to restart.", "Press 'q' to pause / unpause the game.",
+		"You might get stuck with tiles all around you. Press 'e' to restart.", "Press 'q' to pause / unpause the game.",
 		"Move the mouse to look around. Press space to see from the top.", "I think you'll get the hang of it. Press 'q' to begin. Good luck!" };
 	if (index < 10)
 	{
@@ -94,7 +93,9 @@ void update(int time, Object& self)
 
 	static bool running = false;
 
-	static float speed = .001 * time;
+	static float speed = .02 * time;
+
+	static Vertex old = Vertex(0, 0, 0);
 
 	Camera& camera = Indigo::Current_World.camera;
 
@@ -104,15 +105,17 @@ void update(int time, Object& self)
 		Indigo::keys['q'] = false;
 	}
 
-	if (Indigo::keys['e'] || Indigo::keys['q'])
+	if (Indigo::keys['e'])
 	{
 		for (int i = 0; i < Number_Of_Colors; ++i)
 		{
 			Render_Colors[i] = false;
 		}
 		self.Place(0.0, 0.75, 0.0);
+		old = Vertex(0.0, 0.75, 0.0);
 		camera.Place(0.0, 1.5, 0.0);
 		camera.eye = Direction(1.0);
+		Health = 100;
 	}
 
 	if (Indigo::keys['c'])
@@ -137,18 +140,32 @@ void update(int time, Object& self)
 
 	if (running)
 	{
-		self.Move(speed);
+		if (Health > 0)
+		{
+			self.Move(speed);
+		}
+		else
+		{
+			Health = 100;
+			for (int i = 0; i < Number_Of_Colors; ++i)
+			{
+				Render_Colors[i] = false;
+			}
+			self.Place(0.0, 0.75, 0.0);
+			old = Vertex(0.0, 0.75, 0.0);
+			camera.Place(0.0, 1.5, 0.0);
+			camera.eye = Direction(1.0);
+			running = false;
+		}
 	}
 
-	static Vertex old = Vertex(0, 0, 0);
 	if (Indigo::Current_World.Collide(self) == -1)
 	{
 		camera.Place(self.X, self.Y + 0.75, self.Z);
 	}
 	else
 	{
-		if (Health > 0)
-			Health -= 0.3;
+		Health -= 1;
 		if (Indigo::Current_World.Collide(self, old.X - self.X) == -1)
 		{
 			old.Z = self.Z;
@@ -203,7 +220,7 @@ void update(int time, Object& self)
 void load(int time)
 {
 
-	static int wait = 150000;
+	static int wait = 15;
 	if (wait)
 	{
 		--wait;
@@ -227,7 +244,7 @@ void load(int time)
 		}
 	}
 	std::cout << "Setting player up.\n";
-	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Arrow.obj"), nullptr, 60, update));
+	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, update));
 	Object& point = world.Get_Object(added);
 	point.Set_Hitbox();
 	world.camera.Place(point.X, 1.5, point.Z);
@@ -272,7 +289,7 @@ int main(int argc, char ** argv)
 	Indigo::Initialize(argc, argv, "Code Indigo", 60, true, color);
 	std::cout << "Setting up loading world.\n";
 	Mesh loading = Mesh::Rectangle(1.0, 1.0);
-	loading.Texture("Loading.bmp");
+	loading.Texture("Textures\\Loading.bmp");
 	Indigo::Current_World.Add_Object(Object(0, 0, 1, loading));
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = load;

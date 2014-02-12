@@ -2,28 +2,11 @@
 #include "Vertex.h"
 
 
-// Construct a new direction of 0, 0, 0
-Direction::Direction(void)
-{
-	Set_Coordinates(0, 0, 1);
-	zero = true;
-}
-
-
 // Construct a new direction based off of distance and 2 angles
 Direction::Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
-	Set_Coordinates(0, 0, 1);
 	Set_Direction(in_distance, in_angle_x, in_angle_y);
 	return;
-}
-
-
-// Copy a direction
-Direction::Direction(const Direction& direction)
-{
-	Set_Coordinates(0, 0, 1);
-	Set_Coordinates(direction.Get_X(), direction.Get_Y(), direction.Get_Z());
 }
 
 
@@ -31,7 +14,6 @@ Direction::Direction(const Direction& direction)
 Direction Direction::Coordinates(const float x, const float y, const float z)
 {
 	Direction construct;
-	construct.Set_Coordinates(0, 0, 1);
 	construct.Set_Coordinates(x, y, z);
 	return construct;
 }
@@ -47,17 +29,7 @@ Direction::~Direction(void)
 // Make the distance 1
 void Direction::Normalize(const float unit)
 {
-	if (false)//unit == 1.0)
-	{
-		float distance = Get_Distance();
-		X /= distance;
-		Y /= distance;
-		Z /= distance;
-	}
-	else
-	{
-		Set_Distance(unit);
-	}
+	Set_Direction(unit, Get_X_Angle(), Get_Y_Angle());
 }
 
 
@@ -68,8 +40,9 @@ float Direction::Dot(const Direction& direction) const
 		+ Get_Y() * direction.Get_Y() + Get_Z() * direction.Get_Z();
 }
 
+
 // Cross product. Finds perpendicular direction to plane defined by 2. Also useful for lighting and angles
-Direction Direction::Cross(const Direction& direction) const
+Direction Direction::Cross(const Direction& direction)
 {
 	return Direction::Coordinates(
 		Get_Y() * direction.Get_Z() - Get_Z() * direction.Get_Y(),
@@ -77,10 +50,11 @@ Direction Direction::Cross(const Direction& direction) const
 		Get_X() * direction.Get_Y() - Get_Y() * direction.Get_X());
 }
 
+
 // Angle between two vectors, useful for rotation
 float Direction::Angle_Distance(const Direction& direction) const
 {
-	if (!(X == direction.X && Y == direction.Y && Z == direction.Z))
+	if (!(Get_X() == direction.Get_X() && Get_Y() == direction.Get_Y() && Get_Z() == direction.Get_Z()))
 	{
 		return acos(Dot(direction) / Get_Distance() / direction.Get_Distance()) * DEGREES_PER_RADIAN;
 	}
@@ -88,127 +62,89 @@ float Direction::Angle_Distance(const Direction& direction) const
 }
 
 
+// Get the relative coordinates of the direction
 float Direction::Get_X(void) const
 {
-	return zero ? 0 : X;
+	return sin(angle_x) * cos(angle_y) * distance;
 }
 
 float Direction::Get_Y(void) const
 {
-	return zero ? 0 : Y;
+	return sin(angle_y) * distance;
 }
 
 float Direction::Get_Z(void) const
 {
-	return zero ? 0 : Z;
+	return cos(angle_x) * cos(angle_y) * distance;
 }
 
 
-void Direction::Set_X(const float x)
-{
-	if (x != 0)
-	{
-		zero = false;
-		X = x;
-	}
-	else if (Y == 0 && Z == 0)
-	{
-		zero = true;
-	}
-	else
-	{
-		zero = false;
-		X = x;
-	}
-	return;
-}
-
-void Direction::Set_Y(const float y)
-{
-	if (y != 0)
-	{
-		zero = false;
-		Y = y;
-	}
-	else if (X == 0 && Z == 0)
-	{
-		zero = true;
-	}
-	else
-	{
-		zero = false;
-		Y = y;
-	}
-	return;
-}
-
-void Direction::Set_Z(const float z)
-{
-	if (z != 0)
-	{
-		zero = false;
-		Z = z;
-	}
-	else if (X == 0 && Y == 0)
-	{
-		zero = true;
-	}
-	else
-	{
-		zero = false;
-		Z = z;
-	}
-	return;
-}
-
-
+// Get the distance and angles of the direction
 float Direction::Get_Distance(void) const
 {
-	return sqrt(Get_X()*Get_X() + Get_Y()*Get_Y() + Get_Z()*Get_Z());
+	return distance;
 }
 
 float Direction::Get_X_Angle(void) const
 {
-	float x_angle = atan2(X, Z) * DEGREES_PER_RADIAN;
-	return x_angle < 0 ? x_angle + 360 : x_angle;
+	return angle_x * DEGREES_PER_RADIAN;
 }
 
 float Direction::Get_Y_Angle(void) const
 {
-	float y_angle = atan2(Y, sqrt(X*X + Z*Z)) * DEGREES_PER_RADIAN;
-	return y_angle < 0 ? y_angle + 360 : y_angle;
+	return angle_y * DEGREES_PER_RADIAN;
 }
 
 
-// Set the distance and angles of the direction individually
-void Direction::Set_Distance(float distance)
+// Set the relative coordinates of the direction
+void Direction::Set_X(const float x)
 {
-	Set_Direction(distance, Get_X_Angle(), Get_Y_Angle());
+	Set_Coordinates(x, Get_Y(), Get_Z());
 }
-void Direction::Set_X_Angle(float x_angle)
+
+void Direction::Set_Y(const float y)
 {
-	Set_Direction(Get_Distance(), x_angle, Get_Y_Angle());
+	Set_Coordinates(Get_X(), y, Get_Z());
 }
-void Direction::Set_Y_Angle(float y_angle)
+
+void Direction::Set_Z(const float z)
 {
-	Set_Direction(Get_Distance(), Get_X_Angle(), y_angle);
+	Set_Coordinates(Get_X(), Get_Y(), z);
+}
+
+
+// Set the distance and angles of the direction
+void Direction::Set_Distance(const float in_distance)
+{
+	distance = in_distance;
+}
+
+void Direction::Set_X_Angle(const float in_angle_x)
+{
+	angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_x < 0)
+	{
+		angle_x += 360.0 / DEGREES_PER_RADIAN;
+	}
+}
+
+void Direction::Set_Y_Angle(const float in_angle_y)
+{
+	angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_y < 0)
+	{
+		angle_y += 360.0 / DEGREES_PER_RADIAN;
+	}
 }
 
 
 // Set the coordinates of the direction
 void Direction::Set_Coordinates(const float x, const float y, const float z)
 {
-	if (x == 0 && y == 0 && z == 0)
-	{
-		zero = true;
-	}
-	else
-	{
-		X = x;
-		Y = y;
-		Z = z;
-		zero = false;
-	}
+	Set_Direction(
+		sqrt(x*x + y*y + z*z),
+		atan2(x, z) * DEGREES_PER_RADIAN,
+		atan2(y, sqrt(x*x + z*z)) * DEGREES_PER_RADIAN);
 	return;
 }
 
@@ -222,34 +158,29 @@ void Direction::Add_Coordinates(const float x, const float y, const float z)
 
 
 // Set the distance and angles
-void Direction::Set_Direction(const float distance, const float angle_x, const float angle_y)
+void Direction::Set_Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
-	float in_distance = distance;
-	if (distance == 0.0)
+	distance = in_distance;
+	angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_x < 0)
 	{
-		zero = true;
-		return;
+		angle_x += 360.0 / DEGREES_PER_RADIAN;
 	}
-	else
+	angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_y < 0)
 	{
-		zero = false;
+		angle_y += 360.0 / DEGREES_PER_RADIAN;
 	}
-	float x_angle = angle_x / DEGREES_PER_RADIAN;
-	float y_angle = angle_y / DEGREES_PER_RADIAN;
-	Y = sin(y_angle) * in_distance;
-	float partial = cos(y_angle) * in_distance;
-	X = sin(x_angle) * partial;
-	Z = cos(x_angle) * partial;
 	return;
 }
 
 
 // Add values to the distance and angles
-void Direction::Add_Direction(const float distance, const float angle_x, const float angle_y)
+void Direction::Add_Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
-	Set_Direction(Get_Distance() + distance,
-		Get_X_Angle() + angle_x,
-		Get_Y_Angle() + angle_y);
+	Set_Direction(distance + in_distance,
+		Get_X_Angle() + in_angle_x,
+		Get_Y_Angle() + in_angle_y);
 	return;
 }
 
