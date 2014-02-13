@@ -66,7 +66,7 @@ void show(int time, Object& self)
 
 void check_health(int time, Object& self)
 {
-	float health_pos = Health * 0.75 / 100;
+	float health_pos = Health * 0.375 / 100;
 	self.Data.vertices[0].X = -1 * health_pos;
 	self.Data.vertices[1].X = health_pos;
 	self.Data.vertices[2].X = health_pos;
@@ -346,8 +346,8 @@ void load(int time)
 	{
 		world.Add_Object(Object(0, 10, 0, Mesh::Cube(0.075), &Color_Values[i * 3], 60, show));
 	}
-	world.Add_2D_Object(Object(0.0, -0.65, 0.0, Mesh::Rectangle(1.5, 0.075), Indigo::Red_Color, 60, check_health));
-	world.Add_Text(Text(-0.07, -0.66, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
+	world.Add_2D_Object(Object(-0.8, 0.8, 0.0, Mesh::Rectangle(0.75, 0.075), Indigo::Red_Color, 60, check_health));
+	world.Add_Text(Text(-0.83, 0.81, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
 	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(1.0, 0.025), nullptr, 60, pause));
 	std::cout << "Changing worlds.\n";
 	Indigo::Current_World = world;
