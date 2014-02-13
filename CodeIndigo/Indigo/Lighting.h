@@ -17,8 +17,8 @@ public:
 	// Add a light source
 	void Add_Light(float X, float Y, float Z, bool infinity=false,
 		float diffuse=0.95, float specular=1.0, float * color_offset=nullptr);
-	// Update the positions of all lights
-	void Position_Lights(void) const;
+	// Update the positions of all lights, and ensure they're enabled
+	void Update_Lights(void) const;
 	// Get the number of lights in the scene
 	int Get_Number_Of_Lights(void) const;
 private:

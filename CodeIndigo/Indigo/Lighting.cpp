@@ -74,9 +74,9 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 }
 
 
-void Lighting::Position_Lights(void) const
+// Update the positions of all lights, and ensure they're enabled
+void Lighting::Update_Lights(void) const
 {
-	// Update the positions of all lights
 	for (int Light = 0; Light<Number_Of_Lights; ++Light)
 	{
 		glLightfv(Light_Values[Light], GL_POSITION, Light_Positions[Light]);

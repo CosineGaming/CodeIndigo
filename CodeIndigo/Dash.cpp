@@ -63,15 +63,11 @@ void test_update(int time, Object& self)
 
 void check_health(int time, Object& self)
 {
-	Direction distance = player->facing;
-	distance.Normalize();
-	self.facing.Set_X_Angle(distance.Get_X_Angle());
-	distance.Add_Direction(-0.5, 0, -15);
-	self.X = player->X + distance.Get_X();
-	self.Y = player->Y + distance.Get_Y() + 0.75;
-	self.Z = player->Z + distance.Get_Z();
-	self.Data.vertices[1].X = Health * 0.75 / 100 - 0.375;
-	self.Data.vertices[2].X = Health * 0.75 / 100 - 0.375;
+	float health_pos = Health * 0.5 / 100;
+	self.Data.vertices[0].X = -1 * health_pos;
+	self.Data.vertices[1].X = health_pos;
+	self.Data.vertices[2].X = health_pos;
+	self.Data.vertices[3].X = -1 * health_pos;
 }
 
 void tutorial(void)
@@ -171,7 +167,7 @@ void update(int time, Object& self)
 	}
 	else
 	{
-		Health -= 1;
+		Health -= 0.1 * time;
 		if (Indigo::Current_World.Collide(self, old.X - self.X) == -1)
 		{
 			old.Z = self.Z;
@@ -239,7 +235,6 @@ void load(int time)
 	world.Add_Object(test);
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
-	generate_colors();
 	for (int x = 0; x < Platform_Size; ++x)
 	{
 		for (int z = 0; z < Platform_Size; ++z)
@@ -257,15 +252,12 @@ void load(int time)
 	std::cout << "Setting up HUD.\n";
 	for (int i = 0; i < Number_Of_Colors; ++i)
 	{
-		Direction distance = Direction(1, 0, 0);
-		distance.Add_Direction(0.2, i / 3 * (20.0 / (Number_Of_Colors - 1)) - 10, -10);
-		Object add(0, -1, 0, Mesh::Cube(0.1), &Color_Values[i * 3]);
+		Object add(0, 10, 0, Mesh::Cube(0.1), &Color_Values[i * 3]);
 		add.Update = show;
 		world.Add_Object(add);
 	}
-	Object health = Object(0.0, 0.0, 0.0, Mesh::Rectangle(0.75, 0.04));
-	health.Update = check_health;
-	world.Add_Object(health);
+	Object health = Object(0.0, -0.65, 0.0, Mesh::Rectangle(1, 0.1), Indigo::White_Color, 60, check_health);
+	world.Add_2D_Object(health);
 	std::cout << "Changing worlds.\n";
 	Indigo::Current_World = world;
 	std::cout << "Initializing lighting state.\n";

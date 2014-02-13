@@ -23,6 +23,7 @@ public:
 	void Update(const int& time);
 	// Renders every object in the world
 	void Render(void);
+
 	// Adds an object to the world to be rendered and updated, returns an object ID
 	int Add_Object(const Object& object);
 	// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
@@ -31,6 +32,16 @@ public:
 	void Remove_Object(const int& ID);
 	// Removes an object from the world based on object; gets ID automatically
 	void Remove_Object(const Object& object);
+
+	// Adds an object to the world to be rendered and updated, returns an object ID
+	int Add_2D_Object(const Object& object);
+	// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
+	Object& Get_2D_Object(const int& ID) const;
+	// Removes an object from the world based on an object ID
+	void Remove_2D_Object(const int& ID);
+	// Removes an object from the world based on object; gets ID automatically
+	void Remove_2D_Object(const Object& object);
+
 	// Add text to the world to be rendered, returns no handle to the text
 	void Add_Text(const Text& text);
 
@@ -47,5 +58,6 @@ public:
 	Camera camera;
 protected:
 	std::vector<Object> objects;
+	std::vector<Object> objects_2d;
 	std::vector<Text> texts;
 };

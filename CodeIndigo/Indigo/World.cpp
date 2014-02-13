@@ -46,6 +46,13 @@ void World::Update(const int& time)
 			objects[Object_ID].Update(time, objects[Object_ID]);
 		}
 	}
+	for (int Object_ID = 0; Object_ID<objects_2d.size(); ++Object_ID)
+	{
+		if (objects_2d[Object_ID].Update)
+		{
+			objects_2d[Object_ID].Update(time, objects_2d[Object_ID]);
+		}
+	}
 	return;
 }
 
@@ -58,7 +65,7 @@ void World::Render(void)
 	glEnable(GL_DEPTH_TEST);
 	Indigo::Reshape();
 	camera.Look();
-	lighting.Position_Lights();
+	lighting.Update_Lights();
 	for (int Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
 	{
 		objects[Object_ID].Render();
@@ -69,6 +76,10 @@ void World::Render(void)
 	glLoadIdentity();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
+	for (int Object_ID = 0; Object_ID<objects_2d.size(); ++Object_ID)
+	{
+		objects_2d[Object_ID].Render();
+	}
 	for (int text = 0; text < texts.size(); ++text)
 	{
 		if (texts[text].Render())
@@ -110,6 +121,39 @@ void World::Remove_Object(const int& ID)
 void World::Remove_Object(const Object& object)
 {
 	objects[object.ID] = Object();
+	return;
+}
+
+
+// Adds an object to the world to be rendered and updated, returns an object ID
+int World::Add_2D_Object(const Object& object)
+{
+	objects_2d.push_back(object);
+	int Object_ID = objects_2d.size() - 1;
+	objects_2d[Object_ID].ID = Object_ID;
+	return Object_ID;
+}
+
+
+// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
+Object& World::Get_2D_Object(const int& ID) const
+{
+	return const_cast <Object&>(objects_2d[ID]);
+}
+
+
+// Removes an object from the world based on an object ID
+void World::Remove_2D_Object(const int& ID)
+{
+	objects_2d[ID] = Object();
+	return;
+}
+
+
+// Removes an object from the world based on object; gets ID automatically
+void World::Remove_2D_Object(const Object& object)
+{
+	objects_2d[object.ID] = Object();
 	return;
 }
 

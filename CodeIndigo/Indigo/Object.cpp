@@ -60,10 +60,19 @@ void Object::Render(void)
 		return;
 	}
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
-		object_color ? object_color : full_array);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
+	int lighting_enabled;
+	if (glIsEnabled(GL_LIGHTING))
+	{
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
+			object_color ? object_color : full_array);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
+	}
+	else
+	{
+		float * color = object_color ? object_color : full_array;
+		glColor3f(color[0], color[1], color[2]);
+	}
 	if (Line)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
