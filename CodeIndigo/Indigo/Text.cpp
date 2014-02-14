@@ -45,7 +45,7 @@ Text::~Text()
 
 
 // Render the text
-bool Text::Render(void)
+void Text::Render(void)
 {
 	if (last != 0)
 	{
@@ -59,7 +59,6 @@ bool Text::Render(void)
 		{
 			last--;
 		}
-		return false;
 	}
 	else
 	{

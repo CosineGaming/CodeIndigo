@@ -5,13 +5,10 @@
 Object * player = new Object(0.0, 0.75, 0.0);
 
 const int Number_Of_Colors = 4;
-
 const int Cube_Size = 10;
-
 const int Platform_Size = 21;
 
 float Health = 100;
-
 float Pause_Time = 100;
 
 void load(int time);
@@ -116,18 +113,33 @@ void tutorial(void)
 	}
 }
 
+void initialize(void)
+{
+	player = new Object();
+	Health = 100;
+	Pause_Time = 100;
+
+	std::cout << "Setting up loading world.\n";
+	Mesh loading = Mesh::Rectangle(2, 2);
+	loading.Texture("Textures\\Loading.bmp");
+	Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, loading));
+	std::cout << "Setting up callbacks.\n";
+	Indigo::Update_Function = load;
+
+}
+
 void update(int time, Object& self)
 {
 
 	static bool running = false;
-
-	static float speed = .015 * time;
-
 	static Vertex old = Vertex(0, 0, 0);
-
 	static int last = -1;
 
-	Camera& camera = Indigo::Current_World.camera;
+	static int total_fps = 0;
+	static int number_fps = 0;
+
+	float speed = .015 * time;
+	static Camera& camera = Indigo::Current_World.camera;
 
 	if (Indigo::keys['q'])
 	{
@@ -148,15 +160,13 @@ void update(int time, Object& self)
 		camera.Place(0.0, 1.5, 0.0);
 		Health = 100;
 		Pause_Time = 100;
+		running = false;
 	}
 
 	if (Indigo::keys['r'])
 	{
 		Indigo::Current_World = World();
-		Mesh loading = Mesh::Rectangle(1.0, 1.0);
-		loading.Texture("Textures\\Loading.bmp");
-		Indigo::Current_World.Add_2D_Object(Object(0, 0, 1, loading));
-		Indigo::Update_Function = load;
+		initialize();
 		return;
 	}
 
@@ -168,7 +178,7 @@ void update(int time, Object& self)
 
 	if (Indigo::keys[','])
 	{
-		self.Y = 1.5 * Cube_Size;
+		self.Y = 2.5 * Cube_Size;
 	}
 
 	static bool verbose = false;
@@ -179,12 +189,21 @@ void update(int time, Object& self)
 	}
 	if (verbose)
 	{
+		int frame = 1000 / time;
+		total_fps += frame;
+		number_fps++;
+		if (number_fps == 120)
+		{
+			number_fps = 1;
+			total_fps = frame;
+		}
+		int average = total_fps / number_fps;
 		static char * fps = new char[3];
-		_itoa_s(1000 / time, fps, 3, 10);
+		_itoa_s(average, fps, 3, 10);
 		std::cout << fps[0] << fps[1] << fps[2] << std::endl;
 		Indigo::Current_World.Add_Text(Text(-1.0, 0.8, fps, nullptr, GLUT_BITMAP_9_BY_15));
 		std::cout << "Position: " << self.X << ", " << self.Y << ", " << self.Z << std::endl
-			<< 1000 / time << " FPS" << std::endl << std::endl;
+			<< frame << " FPS" << std::endl << std::endl;
 	}
 	if (GL_NO_ERROR != glGetError())
 	{
@@ -315,6 +334,8 @@ void load(int time)
 		return;
 	}
 	std::cout << "Beginning to load.\n";
+	Indigo::Current_World.Add_Text(Text(-0.5, -0.8, "Beginning to load.", nullptr, GLUT_BITMAP_9_BY_15, -1));
+	glutPostRedisplay();
 	World world;
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
@@ -371,12 +392,7 @@ int main(int argc, char ** argv)
 	std::cout << "Initializing rendering environment.\n";
 	float color[3] = { 0.0, 0.0, 0.0 };
 	Indigo::Initialize(argc, argv, "Code Indigo", 60, true, color);
-	std::cout << "Setting up loading world.\n";
-	Mesh loading = Mesh::Rectangle(2.0, 2.0);
-	loading.Texture("Textures\\Loading.bmp");
-	Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, loading));
-	std::cout << "Setting up callbacks.\n";
-	Indigo::Update_Function = load;
+	initialize();
 	std::cout << "Showing GUI for loading.\n";
 	Indigo::Run();
 	return 0;

@@ -220,10 +220,10 @@ namespace Indigo
 	void Update(int trash)
 	{
 		glutTimerFunc(Frame_Length_Minimum, Update, 0);
+		Animation::Update();
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
-		Animation::Update();
 		if (Update_Function)
 		{
 			Update_Function(delta_time);

@@ -13,7 +13,7 @@ public:
 	// Destroy the text
 	~Text();
 	// Render the text, returns true if text should be deleted
-	bool Render(void);
+	void Render(void);
 	// The ID the world uses
 	int ID;
 protected:
