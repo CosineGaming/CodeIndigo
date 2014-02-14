@@ -33,17 +33,23 @@ public:
 	// Removes an object from the world based on object; gets ID automatically
 	void Remove_Object(const Object& object);
 
-	// Adds an object to the world to be rendered and updated, returns an object ID
+	// Adds a 2D object to the world to be rendered and updated, returns an object ID
 	int Add_2D_Object(const Object& object);
-	// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
+	// Gets a 2D object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 	Object& Get_2D_Object(const int& ID) const;
-	// Removes an object from the world based on an object ID
+	// Removes a 2D object from the world based on an object ID
 	void Remove_2D_Object(const int& ID);
-	// Removes an object from the world based on object; gets ID automatically
+	// Removes a 2D object from the world based on object; gets ID automatically
 	void Remove_2D_Object(const Object& object);
 
 	// Add text to the world to be rendered, returns no handle to the text
-	void Add_Text(const Text& text);
+	int Add_Text(const Text& text);
+	// Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
+	Text& Get_Text(const int& ID) const;
+	// Removes text from the world based on an object ID
+	void Remove_Text(const int& ID);
+	// Removes text from the world based on text; gets ID automatically
+	void Remove_Text(const Text& text);
 
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);

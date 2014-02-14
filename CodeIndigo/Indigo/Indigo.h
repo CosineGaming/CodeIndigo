@@ -67,6 +67,8 @@ namespace Indigo
 	extern bool keys[256];
 	// Stores whether shift is pressed
 	extern bool Shift;
+	// Stores the aspect ratio of the screen
+	extern float Aspect_Ratio;
 
 	// Colors
 	extern float White_Color[3];

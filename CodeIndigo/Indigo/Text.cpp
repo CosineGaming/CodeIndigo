@@ -1,5 +1,6 @@
 #include "Text.h"
 #include "Indigo.h"
+#include <iostream>
 
 
 // Create new Text based off of the text
@@ -16,6 +17,7 @@ Text::Text(const float x, const float y, char * display, float * color, void * f
 	typeset = font;
 	last = frames_to_last;
 	done = finished;
+	ID = 0;
 	return;
 }
 
@@ -30,6 +32,7 @@ Text::Text(const Text& copy)
 	typeset = copy.typeset;
 	last = copy.last;
 	done = copy.done;
+	ID = copy.ID;
 	return;
 }
 
@@ -46,8 +49,8 @@ bool Text::Render(void)
 {
 	if (last != 0)
 	{
-		glRasterPos2f(X, Y);
 		glColor3f(text_color[0], text_color[1], text_color[2]);
+		glRasterPos2f(X, Y);
 		for (int character = 0; text[character] != '\0'; ++character)
 		{
 			glutBitmapCharacter(typeset, text[character]);
@@ -60,10 +63,6 @@ bool Text::Render(void)
 	}
 	else
 	{
-		if (done)
-		{
-			done();
-		}
-		return true;
+		Indigo::Current_World.Remove_Text(ID);
 	}
 }

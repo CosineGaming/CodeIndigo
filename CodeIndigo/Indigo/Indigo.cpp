@@ -68,13 +68,9 @@ namespace Indigo
 	void Reshape(int width, int height)
 	{
 		bool viewport = true;
-		if (0 == width)
+		if (0 == width || 0 == height)
 		{
 			width = glutGet(GLUT_WINDOW_WIDTH);
-			viewport = false;
-		}
-		if (0 == height)
-		{
 			height = glutGet(GLUT_WINDOW_HEIGHT);
 			viewport = false;
 		}
@@ -82,11 +78,10 @@ namespace Indigo
 		{
 			glViewport(0, 0, width, height);
 		}
+		Aspect_Ratio = (float) width / (float) height;
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(Field_Of_View,
-			(float) width / (float) height,
-			0.01, 200.0);
+		gluPerspective(Field_Of_View, Aspect_Ratio, 0.01, 200.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
 		glMatrixMode(GL_MODELVIEW);
@@ -293,6 +288,9 @@ namespace Indigo
 
 	// Stores whether shift is pressed
 	bool Shift = false;
+
+	// Stores the aspect ratio of the screen
+	float Aspect_Ratio = 1;
 
 
 	// Colors

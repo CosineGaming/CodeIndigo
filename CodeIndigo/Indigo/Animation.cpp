@@ -19,9 +19,9 @@ Animation::Animation(Mesh * original, Mesh finished, int frames)
 {
 	for (int point = 0; point < original->Size(); ++point)
 	{
-		Animation(&(*original)[point].X, finished[point].X, frames);
-		Animation(&(*original)[point].Y, finished[point].Y, frames);
-		Animation(&(*original)[point].Z, finished[point].Z, frames);
+		Animation(&((*original)[point].X), finished[point].X, frames);
+		Animation(&((*original)[point].Y), finished[point].Y, frames);
+		Animation(&((*original)[point].Z), finished[point].Z, frames);
 	}
 }
 
@@ -29,9 +29,9 @@ Animation::Animation(Mesh * original, Mesh finished, int frames)
 // Construct an animation for tweening position of an object
 Animation::Animation(Object * original, float X, float Y, float Z, int frames)
 {
-	Animation(&original->X, X, frames);
-	Animation(&original->Y, Y, frames);
-	Animation(&original->Z, Z, frames);
+	Animation(&(original->X), X, frames);
+	Animation(&(original->Y), Y, frames);
+	Animation(&(original->Z), Z, frames);
 }
 
 
@@ -48,8 +48,6 @@ void Animation::Update_One(void)
 	{
 		*change += each;
 		remaining_frames--;
-		//std::cout << *change << std::endl;
-		//std::cout << remaining_frames << std::endl;
 	}
 }
 

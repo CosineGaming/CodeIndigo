@@ -74,6 +74,7 @@ void World::Render(void)
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glOrtho(-1 * Indigo::Aspect_Ratio, Indigo::Aspect_Ratio, -1, 1, -1, 1);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	for (int Object_ID = 0; Object_ID<objects_2d.size(); ++Object_ID)
@@ -82,10 +83,7 @@ void World::Render(void)
 	}
 	for (int text = 0; text < texts.size(); ++text)
 	{
-		if (texts[text].Render())
-		{
-			texts.erase(texts.begin() + text);
-		}
+		texts[text].Render();
 	}
 	glutSwapBuffers();
 	return;
@@ -159,9 +157,33 @@ void World::Remove_2D_Object(const Object& object)
 
 
 // Add text to the world to be rendered, returns no handle to the text
-void World::Add_Text(const Text& text)
+int World::Add_Text(const Text& text)
 {
 	texts.push_back(text);
+	int Object_ID = texts.size() - 1;
+	texts[Object_ID].ID = Object_ID;
+	return Object_ID;
+}
+
+
+// Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
+Text& World::Get_Text(const int& ID) const
+{
+	return const_cast <Text&>(texts[ID]);
+}
+
+
+// Removes text from the world based on an object ID
+void World::Remove_Text(const int& ID)
+{
+	texts[ID] = Text();
+}
+
+
+// Removes text from the world based on text; gets ID automatically
+void World::Remove_Text(const Text& text)
+{
+	texts[text.ID] = Text();
 }
 
 
