@@ -13,6 +13,8 @@ float Pause_Time = 100;
 
 int Help_Index = 0;
 
+World world;
+
 void load(int time);
 
 float Color_Values[15] = {
@@ -20,7 +22,7 @@ float Color_Values[15] = {
 	0.0, 0.7, 0.7,
 	0.0, 1.0, 0.0,
 	0.3, 0.0, 0.3,
-	0.1, 0.9, 0.8
+	0.0, 0.9, 0.8
 };
 
 bool Render_Colors[5] = { false, false, false, false, false };
@@ -148,7 +150,7 @@ void show_path(int time, Object& self)
 {
 	self.X = Path[Help_Index].X;
 	self.Z = Path[Help_Index].Z;
-	if (self.Collide(*player, 0, 1))
+	if (self.Collide(*player, 0, 1) && Help_Index < Path.size())
 	{
 		Help_Index++;
 	}
@@ -270,6 +272,8 @@ void update(int time, Object& self)
 
 	float speed = .015 * time;
 	static Camera& camera = Indigo::Current_World.camera;
+
+	self.Is_Blank = true;
 
 	if (Indigo::keys['q'])
 	{
@@ -413,8 +417,10 @@ void update(int time, Object& self)
 		camera.Place(self.X, self.Y + 0.75, self.Z);
 	}
 	camera.eye = self.facing;
+	std::cout << self.facing.Get_X_Angle() << "-" << camera.eye.Get_X_Angle();
 	if (Indigo::keys[' '])
 	{
+		self.Is_Blank = false;
 		camera.Y += 20;
 		self.facing.Normalize(10);
 		camera.X += self.facing.Get_X() * -1;
@@ -458,19 +464,45 @@ void update(int time, Object& self)
 void sweep_camera(int time, Object& self)
 {
 	static int direction = 1;
-	//self.facing = Direction(1, 0, 269.8);
-	self.Y += 0.015 * time * direction;
+	self.Is_Blank = true;
+	self.facing = Direction(1, 0, 269.8);
+	self.Y += 0.03 * time * direction;
 	if (self.Y > 100 && direction == 1)
 	{
 		direction = -1;
 	}
-	if (self.Y < 1 && direction == -1)
+	if (self.Y <= 1.5 + 0.03 * time && direction == -1)
 	{
 		self.Y = 0.75;
 		self.Update = update;
 	}
-	Indigo::Current_World.camera.Place(self.X, self.Y, self.Z);
+	Indigo::Current_World.camera.Place(self.X, self.Y + 0.75, self.Z);
 	Indigo::Current_World.camera.eye = self.facing;
+}
+
+void click(int button, int state, float x, float y)
+{
+	if (y < 0.1 && y > -0.4)
+	{
+		std::cout << "Setting player up.\n";
+		Object& point = world.Get_Object(world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, sweep_camera)));
+		point.Set_Hitbox();
+		delete player;
+		player = &point;
+		std::cout << "Playing. Switching to main world.\n";
+		Indigo::Current_World = world;
+		std::cout << "Performing last-minute changes.\n";
+		Indigo::FPS_Mouse(true, player);
+		Indigo::Mouse_Button_Function = nullptr;
+		std::cout << "Initializing lighting state.\n";
+		Indigo::Current_World.lighting.Set_Ambient(0.15);
+		Direction light = Direction(1.0, 45.0, 45.0);
+		Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
+	}
+	if (y < -0.4)
+	{
+		exit(0);
+	}
 }
 
 void load(int time)
@@ -485,11 +517,13 @@ void load(int time)
 	std::cout << "Beginning to load.\n";
 	Indigo::Current_World.Add_Text(Text(-0.5, -0.8, "Beginning to load.", nullptr, GLUT_BITMAP_9_BY_15, -1));
 	glutPostRedisplay();
-	World world;
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
-	do
+	generate_colors();
+	bool is_possible = false;
+	while (!is_possible)
 	{
+		Path = std::vector<Vertex>();
 		for (int x = 0; x < Platform_Size; ++x)
 		{
 			for (int z = 0; z < Platform_Size; ++z)
@@ -504,18 +538,13 @@ void load(int time)
 				}
 			}
 		}
+		is_possible = possible(0, 0, world);
 		reset_renders();
-	} while (!possible(0, 0, world));
-	reset_renders();
+	}
 	world.Add_Object(Object((Platform_Size / 2.0 + 0.5) * Cube_Size, Cube_Size * 1.5, 0, Mesh::Box(Cube_Size, Cube_Size, (Platform_Size + 2) * Cube_Size)));
 	world.Add_Object(Object((Platform_Size / -2.0 - 0.5) * Cube_Size, Cube_Size * 1.5, 0, Mesh::Box(Cube_Size, Cube_Size, (Platform_Size + 2) * Cube_Size)));
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / 2.0 + 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / -2.0 - 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
-	std::cout << "Setting player up.\n";
-	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, sweep_camera));
-	Object& point = world.Get_Object(added);
-	point.Set_Hitbox();
-	world.camera.Place(point.X, 1.5, point.Z);
 	std::cout << "Setting up HUD.\n";
 	for (int i = 0; i < Number_Of_Colors; ++i)
 	{
@@ -525,17 +554,17 @@ void load(int time)
 	world.Add_Text(Text(-0.07, -0.66, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
 	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(1.0, 0.025), nullptr, 60, pause));
 	world.Add_Object(Object(0, 3, 0, Mesh::Sphere(2, 3), Indigo::Blue_Color, 60, show_path));
-	std::cout << "Changing worlds.\n";
-	Indigo::Current_World = world;
-	std::cout << "Initializing lighting state.\n";
-	Indigo::Current_World.lighting.Set_Ambient(0.15);
-	Direction light = Direction(1.0, 45.0, 45.0);
-	Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
-	std::cout << "Performing world-specific tasks.\n";
-	delete player;
-	player = &Indigo::Current_World.Get_Object(added);
-	Indigo::FPS_Mouse(player);
-	//tutorial();
+	std::cout << "Initializing camera.\n";
+	world.camera.Place(0, 1.5, 0);
+	std::cout << "Setting up menu world.\n";
+	World menu;
+	Mesh gui = Mesh::Rectangle(2, 2);
+	gui.Texture("Textures\\Menu.bmp");
+	menu.Add_2D_Object(Object(0, 0, 0, gui));
+	Indigo::FPS_Mouse(false);
+	Indigo::Mouse_Button_Function = click;
+	std::cout << "Switching to menu world.\n";
+	Indigo::Current_World = menu;
 	std::cout << "Removing loading routine from queue.\n";
 	Indigo::Update_Function = nullptr;
 	std::cout << "Loaded. Next frame will run new world.\n";

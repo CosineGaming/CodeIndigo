@@ -40,12 +40,13 @@ namespace Indigo
 	extern int Frame_Length_Minimum;
 	// Stores the field of view
 	extern int Field_Of_View;
+
 	// Stores the function to call when a key is pressed
 	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);
 	// ... when a key is released
 	extern void(*Key_Released_Function)(unsigned char key, int x, int y);
-	// ... when the mouse is pressed or released
-	extern void(*Mouse_Button_Function)(int button, int state, int x, int y);
+	// ... when the mouse is pressed or released. Given in 2D_Object space
+	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is moved
 	extern void(*Mouse_Moved_Function)(int x, int y);
 	// ... when the mouse is moved, given relative to the center
@@ -57,16 +58,21 @@ namespace Indigo
 	extern void FPS_Mouse_Function(int x, int y);
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
 	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	extern void FPS_Mouse(Object * player, float sensitivity = 0.2);
+	extern void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
 	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
 	extern void(*Update_Function)(int time);
 	// ... just before the rendering of objects in the world
 	extern void(*Render_Function)(void);
+
 	// Members with the index of a key which is currently down are true, always lowercase
 	extern bool keys[256];
 	// Stores whether shift is pressed
 	extern bool Shift;
+	// Stores whether mouse buttons are down
+	extern bool Left_Mouse;
+	extern bool Right_Mouse;
+	extern bool Middle_Mouse;
 	// Stores the aspect ratio of the screen
 	extern float Aspect_Ratio;
 
