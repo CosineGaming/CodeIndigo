@@ -62,6 +62,10 @@ void Text::Render(void)
 	}
 	else
 	{
+		if (done)
+		{
+			done();
+		}
 		Indigo::Current_World.Remove_Text(ID);
 	}
 }

@@ -4,12 +4,14 @@
 
 Object * player = new Object(0.0, 0.75, 0.0);
 
-const int Number_Of_Colors = 4;
+const int Number_Of_Colors = 5;
 const int Cube_Size = 10;
 const int Platform_Size = 21;
 
 float Health = 100;
 float Pause_Time = 100;
+
+int Help_Index = 0;
 
 void load(int time);
 
@@ -18,10 +20,12 @@ float Color_Values[15] = {
 	0.0, 0.7, 0.7,
 	0.0, 1.0, 0.0,
 	0.3, 0.0, 0.3,
-	0.0, 0.0, 0.0
+	0.1, 0.9, 0.8
 };
 
 bool Render_Colors[5] = { false, false, false, false, false };
+
+std::vector<Vertex> Path = std::vector<Vertex>();
 
 void generate_colors(void)
 {
@@ -35,6 +39,14 @@ void generate_colors(void)
 				Color_Values[i] = (rand() % 256) / 255.0;
 			}
 		}
+	}
+}
+
+void reset_renders(void)
+{
+	for (int i = 0; i < Number_Of_Colors; ++i)
+	{
+		Render_Colors[i] = false;
 	}
 }
 
@@ -115,9 +127,13 @@ void tutorial(void)
 
 void initialize(void)
 {
+
+	Indigo::Current_World = World();
+
+	Path = std::vector<Vertex>();
 	player = new Object();
 	Health = 100;
-	Pause_Time = 100;
+	Pause_Time = 99;
 
 	std::cout << "Setting up loading world.\n";
 	Mesh loading = Mesh::Rectangle(2, 2);
@@ -126,6 +142,120 @@ void initialize(void)
 	std::cout << "Setting up callbacks.\n";
 	Indigo::Update_Function = load;
 
+}
+
+void show_path(int time, Object& self)
+{
+	self.X = Path[Help_Index].X;
+	self.Z = Path[Help_Index].Z;
+	if (self.Collide(*player, 0, 1))
+	{
+		Help_Index++;
+	}
+}
+
+bool possible(float x, float z, World& world)
+{
+	bool found = false;
+	for (int i = 0; i < Path.size(); ++i)
+	{
+		if (Path[i].X == x && Path[i].Z == z)
+		{
+			return false;
+		}
+	}
+	Path.push_back(Vertex(x, 0, z));
+	if ((abs(x) > Platform_Size * Cube_Size / 2.0 || abs(z) > Platform_Size * Cube_Size / 2.0))
+	{
+		return true;
+	}
+	Object& current = world.Get_Object(world.Collide(Vertex(x, Cube_Size / -2.0, z)));
+	if (current.object_color)
+	{
+		if (Render_Colors[(current.object_color - Color_Values) / 3])
+		{
+			Path.pop_back();
+			return false;
+		}
+		Render_Colors[(current.object_color - Color_Values) / 3] = true;
+		bool all = true;
+		for (int i = 0; i < Number_Of_Colors; ++i)
+		{
+			if (!Render_Colors[i])
+			{
+				all = false;
+			}
+		}
+		if (all)
+		{
+			reset_renders();
+		}
+	}
+	if (x - Platform_Size / 2.0 < 0)
+	{
+		if (possible(x - Cube_Size, z, world)) // Left
+		{
+			return true;
+		}
+		if (possible(x + Cube_Size, z, world)) // Right
+		{
+			return true;
+		}
+	}
+	else
+	{
+		if (possible(x + Cube_Size, z, world)) // Right
+		{
+			return true;
+		}
+		if (possible(x - Cube_Size, z, world)) // Left
+		{
+			return true;
+		}
+	}
+	if (z - Platform_Size / 2.0 < 0)
+	{
+		if (possible(x, z - Cube_Size, world)) // Back
+		{
+			return true;
+		}
+		if (possible(x, z + Cube_Size, world)) // Front
+		{
+			return true;
+		}
+	}
+	else
+	{
+		if (possible(x, z + Cube_Size, world)) // Front
+		{
+			return true;
+		}
+		if (possible(x, z - Cube_Size, world)) // Back
+		{
+			return true;
+		}
+	}
+	if (current.object_color)
+	{
+		bool all = true;
+		for (int i = 0; i < Number_Of_Colors; ++i)
+		{
+			if (Render_Colors[i])
+			{
+				all = false;
+			}
+		}
+		if (all)
+		{
+			for (int i = 0; i < Number_Of_Colors; ++i)
+			{
+				Render_Colors[i] = true;
+			}
+		}
+		Render_Colors[(current.object_color - Color_Values) / 3] = false;
+	}
+	Path.pop_back();
+	return false;
 }
 
 void update(int time, Object& self)
@@ -149,10 +279,7 @@ void update(int time, Object& self)
 
 	if (Indigo::keys['e'])
 	{
-		for (int i = 0; i < Number_Of_Colors; ++i)
-		{
-			Render_Colors[i] = false;
-		}
+		reset_renders();
 		self.Place(0.0, 0.75, 0.0);
 		self.facing = Direction();
 		old = Vertex(0.0, 0.75, 0.0);
@@ -160,12 +287,12 @@ void update(int time, Object& self)
 		camera.Place(0.0, 1.5, 0.0);
 		Health = 100;
 		Pause_Time = 100;
+		Help_Index = 0;
 		running = false;
 	}
 
 	if (Indigo::keys['r'])
 	{
-		Indigo::Current_World = World();
 		initialize();
 		return;
 	}
@@ -219,7 +346,7 @@ void update(int time, Object& self)
 	{
 		if (Pause_Time < 100)
 		{
-			Pause_Time += 0.01 * time;
+			Pause_Time += 0.0175 * time;
 		}
 		else
 		{
@@ -240,23 +367,22 @@ void update(int time, Object& self)
 		else
 		{
 			Health = 100;
-			for (int i = 0; i < Number_Of_Colors; ++i)
-			{
-				Render_Colors[i] = false;
-			}
+			reset_renders();
 			self.Place(0.0, 0.75, 0.0);
 			self.facing = Direction();
 			old = Vertex(0.0, 0.75, 0.0);
 			camera.Place(0.0, 1.5, 0.0);
 			running = false;
 			Pause_Time = 100;
+			Help_Index = 0;
+			Indigo::Current_World.Add_Text(Text(-0.1, 0.2, "You Lose!", nullptr, GLUT_BITMAP_9_BY_15, 120));
 		}
 	}
 	else
 	{
 		if (Pause_Time > 0)
 		{
-			Pause_Time -= .05 * time;
+			Pause_Time -= .04 * time;
 		}
 		else
 		{
@@ -295,10 +421,12 @@ void update(int time, Object& self)
 		camera.Z += self.facing.Get_Z() * -1;
 	}
 
-	int now = (Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(self, 0, -1)).object_color - Color_Values) / 3;
-	if (last != now && now >= 0 && now <= Number_Of_Colors - 1)
+	Object& collision = Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(self, 0, -1));
+	int color = (collision.object_color - Color_Values) / 3;
+	int now = collision.ID;
+	if (last != now && color >= 0 && color <= Number_Of_Colors - 1)
 	{
-		Render_Colors[now] = true;
+		Render_Colors[color] = true;
 		bool all = true;
 		for (int i = 0; i < Number_Of_Colors; ++i)
 		{
@@ -310,18 +438,39 @@ void update(int time, Object& self)
 		}
 		if (all)
 		{
-			for (int i = 0; i < Number_Of_Colors; ++i)
-			{
-				Render_Colors[i] = false;
-			}
+			reset_renders();
 		}
 	}
 	last = now;
+
+	if (abs(self.X) > Platform_Size * Cube_Size / 2.0 || abs(self.Z) > Platform_Size * Cube_Size / 2.0)
+	{
+		Indigo::Current_World.Add_Text(Text(-0.1, 0.2, "You Win!", nullptr, GLUT_BITMAP_9_BY_15, 180, initialize));
+		return;
+	}
 
 	old = Vertex(self.X, self.Y, self.Z);
 
 	player = &self;
 
+}
+
+void sweep_camera(int time, Object& self)
+{
+	static int direction = 1;
+	//self.facing = Direction(1, 0, 269.8);
+	self.Y += 0.015 * time * direction;
+	if (self.Y > 100 && direction == 1)
+	{
+		direction = -1;
+	}
+	if (self.Y < 1 && direction == -1)
+	{
+		self.Y = 0.75;
+		self.Update = update;
+	}
+	Indigo::Current_World.camera.Place(self.X, self.Y, self.Z);
+	Indigo::Current_World.camera.eye = self.facing;
 }
 
 void load(int time)
@@ -339,26 +488,31 @@ void load(int time)
 	World world;
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
-	for (int x = 0; x < Platform_Size; ++x)
+	do
 	{
-		for (int z = 0; z < Platform_Size; ++z)
+		for (int x = 0; x < Platform_Size; ++x)
 		{
-			if (!(x == Platform_Size / 2 && z == Platform_Size / 2))
+			for (int z = 0; z < Platform_Size; ++z)
 			{
-				world.Add_Object(Object((x - Platform_Size / 2.0 + 0.5) * Cube_Size, Cube_Size / -2.0, (z - Platform_Size / 2.0 + 0.5) * Cube_Size, Mesh::Cube(Cube_Size), &Color_Values[rand() % Number_Of_Colors * 3], 60, check_render));
-			}
-			else
-			{
-				world.Add_Object(Object(0.0, Cube_Size / -2.0, 0.0, Mesh::Cube(Cube_Size), nullptr, 60));
+				if (!(x == Platform_Size / 2 && z == Platform_Size / 2))
+				{
+					world.Add_Object(Object((x - Platform_Size / 2.0 + 0.5) * Cube_Size, Cube_Size / -2.0, (z - Platform_Size / 2.0 + 0.5) * Cube_Size, Mesh::Cube(Cube_Size), &Color_Values[rand() % Number_Of_Colors * 3], 60, check_render));
+				}
+				else
+				{
+					world.Add_Object(Object(0.0, Cube_Size / -2.0, 0.0, Mesh::Cube(Cube_Size), nullptr, 60));
+				}
 			}
 		}
-	}
+		reset_renders();
+	} while (!possible(0, 0, world));
+	reset_renders();
 	world.Add_Object(Object((Platform_Size / 2.0 + 0.5) * Cube_Size, Cube_Size * 1.5, 0, Mesh::Box(Cube_Size, Cube_Size, (Platform_Size + 2) * Cube_Size)));
 	world.Add_Object(Object((Platform_Size / -2.0 - 0.5) * Cube_Size, Cube_Size * 1.5, 0, Mesh::Box(Cube_Size, Cube_Size, (Platform_Size + 2) * Cube_Size)));
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / 2.0 + 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / -2.0 - 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
 	std::cout << "Setting player up.\n";
-	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, update));
+	int added = world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, sweep_camera));
 	Object& point = world.Get_Object(added);
 	point.Set_Hitbox();
 	world.camera.Place(point.X, 1.5, point.Z);
@@ -370,6 +524,7 @@ void load(int time)
 	world.Add_2D_Object(Object(0.0, -0.65, 0.0, Mesh::Rectangle(1.5, 0.075), Indigo::Red_Color, 60, check_health));
 	world.Add_Text(Text(-0.07, -0.66, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
 	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(1.0, 0.025), nullptr, 60, pause));
+	world.Add_Object(Object(0, 3, 0, Mesh::Sphere(2, 3), Indigo::Blue_Color, 60, show_path));
 	std::cout << "Changing worlds.\n";
 	Indigo::Current_World = world;
 	std::cout << "Initializing lighting state.\n";
@@ -390,8 +545,7 @@ void load(int time)
 int main(int argc, char ** argv)
 {
 	std::cout << "Initializing rendering environment.\n";
-	float color[3] = { 0.0, 0.0, 0.0 };
-	Indigo::Initialize(argc, argv, "Code Indigo", 60, true, color);
+	Indigo::Initialize(argc, argv, "Dash", 60, true, Indigo::Sky_Color);
 	initialize();
 	std::cout << "Showing GUI for loading.\n";
 	Indigo::Run();
