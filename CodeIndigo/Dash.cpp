@@ -4,14 +4,20 @@
 
 Object * player = new Object(0.0, 0.75, 0.0);
 
-const int Number_Of_Colors = 5;
+const int Number_Of_Colors = 4;
 const int Cube_Size = 10;
-const int Platform_Size = 21;
+const int Platform_Size = 15;
 
 float Health = 100;
 float Pause_Time = 100;
+bool Show_Hint = false;
+float Hint_Time = 100;
+
+int Total_MS = 0;
 
 int Help_Index = 0;
+
+char * Seconds = new char[4];
 
 World world;
 
@@ -36,8 +42,9 @@ void generate_colors(void)
 		Color_Values[i] = (rand() % 256) / 255.0;
 		for (int c = 0; c < i; c+=3)
 		{
-			while (abs(Color_Values[c] - Color_Values[i]) < 0.2)
+			while (abs(Color_Values[c] - Color_Values[i]) < 0.1)
 			{
+				c = 0;
 				Color_Values[i] = (rand() % 256) / 255.0;
 			}
 		}
@@ -54,7 +61,11 @@ void reset_renders(void)
 
 void check_render(int time, Object& self)
 {
-	self.Y = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
+	float change = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
+	if (abs(self.Y) == Cube_Size / 2.0 && self.Y != change)
+	{
+		Animation(&self.Y, change, 8);
+	}
 }
 
 void show(int time, Object& self)
@@ -70,7 +81,7 @@ void show(int time, Object& self)
 		distance.Normalize();
 		distance.Add_Direction(-0.3, (self.object_color - Color_Values) / 3 * (30.0 / (Number_Of_Colors - 1)) - 15, -10);
 		self.X = player->X + distance.Get_X();
-		self.Y = player->Y + distance.Get_Y() + 0.75;
+		self.Y = 1.5 + distance.Get_Y();
 		self.Z = player->Z + distance.Get_Z();
 	}
 }
@@ -112,6 +123,34 @@ void pause(int time, Object& self)
 	}
 }
 
+void hint_time(int time, Object& self)
+{
+	static int label = -1;
+	if (Hint_Time == 100)
+	{
+		self.Is_Blank = true;
+		if (label != -1)
+		{
+			Indigo::Current_World.Remove_Text(label);
+			label = -1;
+		}
+	}
+	else
+	{
+		if (label == -1)
+		{
+			static const Text text = Text(-0.1, -0.91, "Hint Time", Indigo::Black_Color, GLUT_BITMAP_9_BY_15);
+			label = Indigo::Current_World.Add_Text(text);
+		}
+		self.Is_Blank = false;
+		float hint_pos = Hint_Time * 0.5 / 100;
+		self.Data.vertices[0].X = -1 * hint_pos;
+		self.Data.vertices[1].X = hint_pos;
+		self.Data.vertices[2].X = hint_pos;
+		self.Data.vertices[3].X = -1 * hint_pos;
+	}
+}
+
 void tutorial(void)
 {
 	static int index = 0;
@@ -135,7 +174,9 @@ void initialize(void)
 	Path = std::vector<Vertex>();
 	player = new Object();
 	Health = 100;
-	Pause_Time = 99;
+	Pause_Time = 100;
+	Hint_Time = 100;
+	Show_Hint = false;
 
 	std::cout << "Setting up loading world.\n";
 	Mesh loading = Mesh::Rectangle(2, 2);
@@ -148,11 +189,30 @@ void initialize(void)
 
 void show_path(int time, Object& self)
 {
-	self.X = Path[Help_Index].X;
-	self.Z = Path[Help_Index].Z;
-	if (self.Collide(*player, 0, 1) && Help_Index < Path.size())
+	if (Show_Hint)
 	{
-		Help_Index++;
+		if (Hint_Time > 0)
+		{
+			Hint_Time -= 0.025 * time;
+			self.Is_Blank = false;
+		}
+		else
+		{
+			Hint_Time = 0;
+			Show_Hint = false;
+			self.Is_Blank = true;
+			return;
+		}
+		self.X = Path[Help_Index].X;
+		self.Z = Path[Help_Index].Z;
+		if (self.Collide(*player, 0, 1) && Help_Index < Path.size())
+		{
+			Help_Index++;
+		}
+	}
+	else
+	{
+		self.Is_Blank = true;
 	}
 }
 
@@ -270,17 +330,18 @@ void update(int time, Object& self)
 	static int total_fps = 0;
 	static int number_fps = 0;
 
-	float speed = .015 * time;
+	float speed = .0175 * time;
 	static Camera& camera = Indigo::Current_World.camera;
 
 	self.Is_Blank = true;
+
+	_itoa_s(Total_MS / 1000, Seconds, 4, 10);
 
 	if (Indigo::keys['q'])
 	{
 		running = !running;
 		Indigo::keys['q'] = false;
 	}
-
 	if (Indigo::keys['e'])
 	{
 		reset_renders();
@@ -292,15 +353,35 @@ void update(int time, Object& self)
 		Health = 100;
 		Pause_Time = 100;
 		Help_Index = 0;
+		Hint_Time = 100;
+		Show_Hint = false;
 		running = false;
+		Total_MS = 0;
 	}
-
 	if (Indigo::keys['r'])
 	{
 		initialize();
 		return;
 	}
-
+	if (Indigo::keys['f'])
+	{
+		Show_Hint = !Show_Hint;
+		if (Show_Hint)
+		{
+			Path = std::vector<Vertex>();
+			bool Backup[5] = { Render_Colors[0], Render_Colors[1], Render_Colors[2], Render_Colors[3], Render_Colors[4] };
+			if (!possible(self.X, self.Z, Indigo::Current_World))
+			{
+				Indigo::Current_World.Add_Text(Text(-0.2, 0.3, "You might be a little stuck!", nullptr, GLUT_BITMAP_9_BY_15, 60));
+				Show_Hint = false;
+			}
+			for (int i = 0; i < Number_Of_Colors; ++i)
+			{
+				Render_Colors[i] = Backup[i];
+			}
+		}
+		Indigo::keys['f'] = false;
+	}
 	if (Indigo::keys['c'])
 	{
 		generate_colors();
@@ -313,10 +394,10 @@ void update(int time, Object& self)
 	}
 
 	static bool verbose = false;
-	if (Indigo::keys['3'])
+	if (Indigo::keys['x'])
 	{
 		verbose = !verbose;
-		Indigo::keys['3'] = false;
+		Indigo::keys['x'] = false;
 	}
 	if (verbose)
 	{
@@ -348,6 +429,7 @@ void update(int time, Object& self)
 
 	if (running)
 	{
+		Total_MS += time;
 		if (Pause_Time < 100)
 		{
 			Pause_Time += 0.0175 * time;
@@ -377,9 +459,20 @@ void update(int time, Object& self)
 			old = Vertex(0.0, 0.75, 0.0);
 			camera.Place(0.0, 1.5, 0.0);
 			running = false;
+			Hint_Time = 100;
 			Pause_Time = 100;
+			Show_Hint = false;
+			Total_MS = 0;
 			Help_Index = 0;
 			Indigo::Current_World.Add_Text(Text(-0.1, 0.2, "You Lose!", nullptr, GLUT_BITMAP_9_BY_15, 120));
+		}
+		if (Hint_Time < 100)
+		{
+			Hint_Time += 0.004 * time;
+		}
+		else
+		{
+			Hint_Time = 100;
 		}
 	}
 	else
@@ -417,7 +510,6 @@ void update(int time, Object& self)
 		camera.Place(self.X, self.Y + 0.75, self.Z);
 	}
 	camera.eye = self.facing;
-	std::cout << self.facing.Get_X_Angle() << "-" << camera.eye.Get_X_Angle();
 	if (Indigo::keys[' '])
 	{
 		self.Is_Blank = false;
@@ -425,6 +517,18 @@ void update(int time, Object& self)
 		self.facing.Normalize(10);
 		camera.X += self.facing.Get_X() * -1;
 		camera.Z += self.facing.Get_Z() * -1;
+		camera.eye.Add_Direction(0, 0, -60);
+		if (camera.eye.Get_Y_Angle() > 89 && camera.eye.Get_Y_Angle() < 271)
+		{
+			if (camera.eye.Get_Y_Angle() < 180)
+			{
+				camera.eye.Set_Direction(1.0, camera.eye.Get_X_Angle(), 89);
+			}
+			else
+			{
+				camera.eye.Set_Direction(1.0, camera.eye.Get_X_Angle(), 271);
+			}
+		}
 	}
 
 	Object& collision = Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(self, 0, -1));
@@ -452,6 +556,8 @@ void update(int time, Object& self)
 	if (abs(self.X) > Platform_Size * Cube_Size / 2.0 || abs(self.Z) > Platform_Size * Cube_Size / 2.0)
 	{
 		Indigo::Current_World.Add_Text(Text(-0.1, 0.2, "You Win!", nullptr, GLUT_BITMAP_9_BY_15, 180, initialize));
+		running = false;
+		Pause_Time = 100;
 		return;
 	}
 
@@ -463,35 +569,37 @@ void update(int time, Object& self)
 
 void sweep_camera(int time, Object& self)
 {
-	static int direction = 1;
+	static float velocity = 353.55;
+	velocity -= .25 * time;
+	self.Y += velocity / 1000 * time;
 	self.Is_Blank = true;
-	self.facing = Direction(1, 0, 269.8);
-	self.Y += 0.03 * time * direction;
-	if (self.Y > 100 && direction == 1)
-	{
-		direction = -1;
-	}
-	if (self.Y <= 1.5 + 0.03 * time && direction == -1)
+	if (self.Y < 1.5)
 	{
 		self.Y = 0.75;
+		velocity = 353.55;
 		self.Update = update;
 	}
 	Indigo::Current_World.camera.Place(self.X, self.Y + 0.75, self.Z);
-	Indigo::Current_World.camera.eye = self.facing;
+	Indigo::Current_World.camera.Look_At(0, 1.5, 25);
+	self.facing = Indigo::Current_World.camera.eye;
 }
 
 void click(int button, int state, float x, float y)
 {
-	if (y < 0.1 && y > -0.4)
+	if (y < 0.49 && y > -0.43)
 	{
+		std::cout << "Playing. Switching to main world.\n";
+		Indigo::Current_World = world;
 		std::cout << "Setting player up.\n";
-		Object& point = world.Get_Object(world.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, sweep_camera)));
+		Object& point = Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, 60, sweep_camera)));
 		point.Set_Hitbox();
 		delete player;
 		player = &point;
-		std::cout << "Playing. Switching to main world.\n";
-		Indigo::Current_World = world;
 		std::cout << "Performing last-minute changes.\n";
+		for (int i = 0; i < Number_Of_Colors; ++i)
+		{
+			Indigo::Current_World.Add_Object(Object(0, 10, 0, Mesh::Cube(0.075), &Color_Values[i * 3], 60, show));
+		}
 		Indigo::FPS_Mouse(true, player);
 		Indigo::Mouse_Button_Function = nullptr;
 		std::cout << "Initializing lighting state.\n";
@@ -499,7 +607,7 @@ void click(int button, int state, float x, float y)
 		Direction light = Direction(1.0, 45.0, 45.0);
 		Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
 	}
-	if (y < -0.4)
+	if (y < -0.43)
 	{
 		exit(0);
 	}
@@ -546,21 +654,29 @@ void load(int time)
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / 2.0 + 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
 	world.Add_Object(Object(0, Cube_Size * 1.5, (Platform_Size / -2.0 - 0.5) * Cube_Size, Mesh::Box(Platform_Size * Cube_Size, Cube_Size, Cube_Size)));
 	std::cout << "Setting up HUD.\n";
-	for (int i = 0; i < Number_Of_Colors; ++i)
-	{
-		world.Add_Object(Object(0, 10, 0, Mesh::Cube(0.075), &Color_Values[i * 3], 60, show));
-	}
 	world.Add_2D_Object(Object(0.0, -0.65, 0.0, Mesh::Rectangle(1.5, 0.075), Indigo::Red_Color, 60, check_health));
 	world.Add_Text(Text(-0.07, -0.66, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
-	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(1.0, 0.025), nullptr, 60, pause));
+	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(2.0, 0.025), nullptr, 60, pause));
+	world.Add_2D_Object(Object(0.0, -0.9, 0.0, Mesh::Rectangle(1.0, 0.025), Indigo::Light_Blue_Color, 60, hint_time));
 	world.Add_Object(Object(0, 3, 0, Mesh::Sphere(2, 3), Indigo::Blue_Color, 60, show_path));
+	_itoa_s(0, Seconds, 4, 10);
+	world.Add_Text(Text(-1.0, 0.8, Seconds, nullptr, GLUT_BITMAP_9_BY_15));
+	world.Add_Text(Text(-0.9, 0.8, "Seconds", nullptr, GLUT_BITMAP_9_BY_15));
 	std::cout << "Initializing camera.\n";
 	world.camera.Place(0, 1.5, 0);
 	std::cout << "Setting up menu world.\n";
 	World menu;
 	Mesh gui = Mesh::Rectangle(2, 2);
+	float color[3];
 	gui.Texture("Textures\\Menu.bmp");
 	menu.Add_2D_Object(Object(0, 0, 0, gui));
+	if (Total_MS != 0)
+	{
+		_itoa_s(Total_MS / 1000, Seconds, 4, 10);
+		menu.Add_Text(Text(-0.2, 0.9, Seconds, Indigo::Black_Color, GLUT_BITMAP_9_BY_15));
+		menu.Add_Text(Text(-0.1, 0.9, "Seconds", Indigo::Black_Color, GLUT_BITMAP_9_BY_15));
+		Total_MS = 0;
+	}
 	Indigo::FPS_Mouse(false);
 	Indigo::Mouse_Button_Function = click;
 	std::cout << "Switching to menu world.\n";

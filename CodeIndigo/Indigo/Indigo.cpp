@@ -82,7 +82,7 @@ namespace Indigo
 		Aspect_Ratio = (float) width / (float) height;
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(Field_Of_View, Aspect_Ratio, 0.01, 200.0);
+		gluPerspective(Field_Of_View, Aspect_Ratio, 0.01, 500.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
 		glMatrixMode(GL_MODELVIEW);
@@ -199,7 +199,7 @@ namespace Indigo
 			return;
 		}
 		float y_angle = player->facing.Get_Y_Angle() + y * -1 * sensitivity;
-		if (!(y_angle > 89 && y_angle <= 271))
+		if (!(y_angle > 89 && y_angle < 271))
 		{
 			player->facing.Add_Direction(0.0, x * -1 * sensitivity, y * -1 * sensitivity);
 		}
@@ -330,12 +330,16 @@ namespace Indigo
 
 	float Black_Color[3] = { 0.0, 0.0, 0.0 };
 
-	float   Sky_Color[3] = { 0.5, 0.8, 1.0 };
+	float Sky_Color[3] = { 0.5, 0.8, 1.0 };
 
-	float   Red_Color[3] = { 0.4, 0.0, 0.0 };
+	float Red_Color[3] = { 0.4, 0.0, 0.0 };
 
 	float Green_Color[3] = { 0.0, 0.8, 0.0 };
 
-	float  Blue_Color[3] = { 0.0, 0.0, 0.5 };
+	float Blue_Color[3] = { 0.0, 0.0, 0.6 };
+
+	float Light_Blue_Color[3] = { 0.4, 0.7, 0.9 };
+
+	float Orange_Color[3] = { 1.0, 0.4, 0.0 };
 
 }
