@@ -211,6 +211,7 @@ void show_path(int time, Object& self)
 		if (self.Collide(*player, 0, 1) && Help_Index < Path.size())
 		{
 			Help_Index++;
+			std::cout << "Moving to location " << Path[Help_Index].X << ", " << Path[Help_Index].Z << std::endl;
 		}
 	}
 	else
@@ -219,8 +220,10 @@ void show_path(int time, Object& self)
 	}
 }
 
-bool possible(float x, float z, World& world)
+bool possible(float x, float z, World& world, bool first=true)
 {
+	if (first)
+		std::cout << x << ", " << z << std::endl;
 	bool found = false;
 	for (int i = 0; i < Path.size(); ++i)
 	{
@@ -235,9 +238,10 @@ bool possible(float x, float z, World& world)
 		return true;
 	}
 	Object& current = world.Get_Object(world.Collide(Vertex(x, Cube_Size / -2.0, z)));
-	if (current.object_color)
+	std::cout << current.object_color - Color_Values << std::endl;
+	if (current.object_color - Color_Values < Number_Of_Colors * 3 && current.object_color - Color_Values >= 0)
 	{
-		if (Render_Colors[(current.object_color - Color_Values) / 3])
+		if (Render_Colors[(current.object_color - Color_Values) / 3] && !first)
 		{
 			Path.pop_back();
 			return false;
@@ -256,51 +260,55 @@ bool possible(float x, float z, World& world)
 			reset_renders();
 		}
 	}
+	else
+	{
+		std::cout << "Error@" << x << "," << z << std::endl;
+	}
 	if (x - Platform_Size / 2.0 < 0)
 	{
-		if (possible(x - Cube_Size, z, world)) // Left
+		if (possible(x - Cube_Size, z, world, false)) // Left
 		{
 			return true;
 		}
-		if (possible(x + Cube_Size, z, world)) // Right
+		if (possible(x + Cube_Size, z, world, false)) // Right
 		{
 			return true;
 		}
 	}
 	else
 	{
-		if (possible(x + Cube_Size, z, world)) // Right
+		if (possible(x + Cube_Size, z, world, false)) // Right
 		{
 			return true;
 		}
-		if (possible(x - Cube_Size, z, world)) // Left
+		if (possible(x - Cube_Size, z, world, false)) // Left
 		{
 			return true;
 		}
 	}
 	if (z - Platform_Size / 2.0 < 0)
 	{
-		if (possible(x, z - Cube_Size, world)) // Back
+		if (possible(x, z - Cube_Size, world, false)) // Back
 		{
 			return true;
 		}
-		if (possible(x, z + Cube_Size, world)) // Front
+		if (possible(x, z + Cube_Size, world, false)) // Front
 		{
 			return true;
 		}
 	}
 	else
 	{
-		if (possible(x, z + Cube_Size, world)) // Front
+		if (possible(x, z + Cube_Size, world, false)) // Front
 		{
 			return true;
 		}
-		if (possible(x, z - Cube_Size, world)) // Back
+		if (possible(x, z - Cube_Size, world, false)) // Back
 		{
 			return true;
 		}
 	}
-	if (current.object_color)
+	if (current.object_color - Color_Values < Number_Of_Colors * 3 && current.object_color - Color_Values >= 0)
 	{
 		bool all = true;
 		for (int i = 0; i < Number_Of_Colors; ++i)
@@ -312,6 +320,7 @@ bool possible(float x, float z, World& world)
 		}
 		if (all)
 		{
+			std::cout << "Stepped on all tiles. LOL" << std::endl;
 			for (int i = 0; i < Number_Of_Colors; ++i)
 			{
 				Render_Colors[i] = true;
@@ -373,9 +382,10 @@ void update(int time, Object& self)
 		Show_Hint = !Show_Hint;
 		if (Show_Hint)
 		{
+			Help_Index = 0;
 			Path = std::vector<Vertex>();
 			bool Backup[5] = { Render_Colors[0], Render_Colors[1], Render_Colors[2], Render_Colors[3], Render_Colors[4] };
-			if (!possible(self.X, self.Z, Indigo::Current_World))
+			if (!possible((int)(self.X + Cube_Size / 2.0) / Cube_Size * Cube_Size, (int)(self.Z + Cube_Size / 2.0) / Cube_Size * Cube_Size, Indigo::Current_World))
 			{
 				Indigo::Current_World.Add_Text(Text(-0.2, 0.3, "You might be a little stuck!", nullptr, GLUT_BITMAP_9_BY_15, 60));
 				Show_Hint = false;
@@ -611,6 +621,7 @@ void click(int button, int state, float x, float y)
 		Indigo::Current_World.lighting.Set_Ambient(0.15);
 		Direction light = Direction(1.0, 45.0, 45.0);
 		Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
+		std::cout << Indigo::Current_World.Number_Of_Objects() << std::endl;
 	}
 	if (y < -0.43)
 	{
@@ -634,8 +645,8 @@ void load(int time)
 	bool is_possible = false;
 	while (!is_possible)
 	{
+		std::cout << "Trying." << std::endl;
 		Path = std::vector<Vertex>();
-		int start = world.Number_Of_Objects();
 		for (int x = 0; x < Platform_Size; ++x)
 		{
 			for (int z = 0; z < Platform_Size; ++z)
@@ -653,13 +664,7 @@ void load(int time)
 		is_possible = possible(0, 0, world);
 		if (!is_possible)
 		{
-			for (int x = 0; x < Platform_Size; ++x)
-			{
-				for (int z = 0; z < Platform_Size; ++z)
-				{
-					Indigo::Current_World.Remove_Object(start + z*Platform_Size + x);
-				}
-			}
+			world = World();
 		}
 		reset_renders();
 	}
