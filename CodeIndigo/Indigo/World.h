@@ -51,6 +51,13 @@ public:
 	// Removes text from the world based on text; gets ID automatically
 	void Remove_Text(const Text& text);
 
+	// Returns the number of objects in the world, simply objects.size()
+	int Number_Of_Objects(void);
+	// Returns the number of 2d objects in the world, simply objects_2d.size()
+	int Number_Of_2D_Objects(void);
+	// Returns the number of texts in the world, simply texts.size()
+	int Number_Of_Texts(void);
+
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 	// Checks whether any object will ever be intersected by a direction

@@ -40,7 +40,7 @@ void generate_colors(void)
 	for (int i = 0; i < 15; ++i)
 	{
 		Color_Values[i] = (rand() % 256) / 255.0;
-		for (int c = 0; c < i; c+=3)
+		for (int c = i%3; c < i; c+=3)
 		{
 			while (abs(Color_Values[c] - Color_Values[i]) < 0.1)
 			{
@@ -61,10 +61,11 @@ void reset_renders(void)
 
 void check_render(int time, Object& self)
 {
-	float change = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
-	if (abs(self.Y) == Cube_Size / 2.0 && self.Y != change)
+	self.Y = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
+	//if (abs(self.Y) == Cube_Size / 2.0 && self.Y != change)
 	{
-		Animation(&self.Y, change, 8);
+		//self.Y = change;
+		//Animation(&self.Y, change, 8);
 	}
 }
 
@@ -170,12 +171,14 @@ void initialize(void)
 {
 
 	Indigo::Current_World = World();
+	world = World();
 
 	Path = std::vector<Vertex>();
 	player = new Object();
 	Health = 100;
 	Pause_Time = 100;
 	Hint_Time = 100;
+	Help_Index = 0;
 	Show_Hint = false;
 
 	std::cout << "Setting up loading world.\n";
@@ -323,6 +326,8 @@ bool possible(float x, float z, World& world)
 void update(int time, Object& self)
 {
 
+	Hint_Time = 100;
+	Pause_Time = 100;
 	static bool running = false;
 	static Vertex old = Vertex(0, 0, 0);
 	static int last = -1;
@@ -623,8 +628,6 @@ void load(int time)
 		return;
 	}
 	std::cout << "Beginning to load.\n";
-	Indigo::Current_World.Add_Text(Text(-0.5, -0.8, "Beginning to load.", nullptr, GLUT_BITMAP_9_BY_15, -1));
-	glutPostRedisplay();
 	std::cout << "Initializing walls\n";
 	srand(std::time(0));
 	generate_colors();
@@ -632,6 +635,7 @@ void load(int time)
 	while (!is_possible)
 	{
 		Path = std::vector<Vertex>();
+		int start = world.Number_Of_Objects();
 		for (int x = 0; x < Platform_Size; ++x)
 		{
 			for (int z = 0; z < Platform_Size; ++z)
@@ -647,6 +651,16 @@ void load(int time)
 			}
 		}
 		is_possible = possible(0, 0, world);
+		if (!is_possible)
+		{
+			for (int x = 0; x < Platform_Size; ++x)
+			{
+				for (int z = 0; z < Platform_Size; ++z)
+				{
+					Indigo::Current_World.Remove_Object(start + z*Platform_Size + x);
+				}
+			}
+		}
 		reset_renders();
 	}
 	world.Add_Object(Object((Platform_Size / 2.0 + 0.5) * Cube_Size, Cube_Size * 1.5, 0, Mesh::Box(Cube_Size, Cube_Size, (Platform_Size + 2) * Cube_Size)));

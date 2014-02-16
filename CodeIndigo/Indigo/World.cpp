@@ -187,6 +187,26 @@ void World::Remove_Text(const Text& text)
 }
 
 
+// Returns the number of objects in the world, simply objects.size()
+int World::Number_Of_Objects(void)
+{
+	return objects.size();
+}
+
+
+// Returns the number of 2d objects in the world, simply objects_2d.size()
+int World::Number_Of_2D_Objects(void)
+{
+	return objects_2d.size();
+}
+
+
+// Returns the number of texts in the world, simply texts.size()
+int World::Number_Of_Texts(void)
+{
+	return texts.size();
+}
+
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 int World::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
 {
