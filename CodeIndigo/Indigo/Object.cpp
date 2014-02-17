@@ -10,19 +10,19 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z,
-	const Mesh& mesh, float *color, float shine,
-	void(*update_function)(const int frame, Object& self),
-	const bool line, const Direction& towards)
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color,
+	void(*update_function)(const int frame, Object& self), const bool smooth, const Direction& towards,
+	float shine, const bool line)
 {
 	Place(x, y, z);
 	Data = mesh;
 	Data.Initialize();
 	object_color = color;
-	object_shine = shine;
 	Update = update_function;
-	Line = line;
+	vertex_normals = smooth;
 	facing = towards;
+	object_shine = shine;
+	Line = line;
 	Is_Blank = mesh.Size() == 0;
 	ID = -1;
 	return;
@@ -35,10 +35,11 @@ Object::Object(const Object& object)
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
 	object_color = object.object_color;
-	object_shine = object.object_shine;
 	Update = object.Update;
-	Line = object.Line;
+	vertex_normals = object.vertex_normals;
 	facing = object.facing;
+	object_shine = object.object_shine;
+	Line = object.Line;
 	Is_Blank = object.Is_Blank;
 	ID = object.ID;
 	return;
@@ -101,7 +102,15 @@ void Object::Render(void)
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
-		Vertex normal = Data.Smooth_Normal(Point);
+		Vertex normal;
+		if (vertex_normals)
+		{
+			normal = Data.Smooth_Normal(Point);
+		}
+		else
+		{
+			normal = Data.Flat_Normal(Point);
+		}
 		Vertex Cursor = Data[Point];
 		if (Data.texture != -1)
 		{

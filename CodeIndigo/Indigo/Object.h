@@ -13,10 +13,9 @@ class Object
 public:
 	// Create an object given optional position, a mesh,
 	// and whether the object should render in wireframe
-	Object(const float x=0.0, const float y=0.0, const float z=0.0,
-		const Mesh& mesh=Mesh(), float *color=nullptr, float shine=60.0,
-		void(*update_function)(const int frame, Object& self)=nullptr,
-		const bool line=false, const Direction& towards=Direction(1,0,0));
+	Object(const float x=0.0, const float y=0.0, const float z=0.0, const Mesh& mesh=Mesh(), float *color=nullptr,
+		void(*update_function)(const int frame, Object& self)=nullptr, const bool smooth=true, const Direction& towards=Direction(1,0,0),
+		float shine=60.0, const bool line=false);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
@@ -55,6 +54,8 @@ public:
 	Mesh Data;
 	// The Direction the object is Facing
 	Direction facing;
+	// Whether or not to use smooth, vertex normals
+	bool vertex_normals;
 	// The color of the object
 	float * object_color;
 	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
