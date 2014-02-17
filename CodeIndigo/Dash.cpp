@@ -61,11 +61,10 @@ void reset_renders(void)
 
 void check_render(int time, Object& self)
 {
-	self.Y = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
-	//if (abs(self.Y) == Cube_Size / 2.0 && self.Y != change)
+	float change = Render_Colors[(self.object_color - Color_Values) / 3] && !self.Collide(*player, 0, -1) ? Cube_Size / 2.0 : Cube_Size / -2.0;
+	if (abs(self.Y) == Cube_Size / 2.0 && self.Y != change)
 	{
-		//self.Y = change;
-		//Animation(&self.Y, change, 8);
+		Animation(&self.Y, change, 8);
 	}
 }
 
@@ -237,8 +236,12 @@ bool possible(float x, float z, World& world, bool first=true)
 	{
 		return true;
 	}
-	Object& current = world.Get_Object(world.Collide(Vertex(x, Cube_Size / -2.0, z)));
-	std::cout << current.object_color - Color_Values << std::endl;
+	int cube = world.Collide(Vertex(x, Cube_Size / -2.0, z));
+	if (cube == -1)
+	{
+		cube = world.Collide(Vertex(x, Cube_Size / 2.0, z));
+	}
+	Object& current = world.Get_Object(cube);
 	if (current.object_color - Color_Values < Number_Of_Colors * 3 && current.object_color - Color_Values >= 0)
 	{
 		if (Render_Colors[(current.object_color - Color_Values) / 3] && !first)
@@ -335,8 +338,8 @@ bool possible(float x, float z, World& world, bool first=true)
 void update(int time, Object& self)
 {
 
-	Hint_Time = 100;
-	Pause_Time = 100;
+	Hint_Time = 80;
+	Pause_Time = 80;
 	static bool running = false;
 	static Vertex old = Vertex(0, 0, 0);
 	static int last = -1;
@@ -385,7 +388,8 @@ void update(int time, Object& self)
 			Help_Index = 0;
 			Path = std::vector<Vertex>();
 			bool Backup[5] = { Render_Colors[0], Render_Colors[1], Render_Colors[2], Render_Colors[3], Render_Colors[4] };
-			if (!possible((int)(self.X + Cube_Size / 2.0) / Cube_Size * Cube_Size, (int)(self.Z + Cube_Size / 2.0) / Cube_Size * Cube_Size, Indigo::Current_World))
+			if (!possible((int) (self.X + Cube_Size / 2.0 * (self.X < 0 ? -1 : 1)) / Cube_Size * Cube_Size,
+				(int) (self.Z + Cube_Size / 2.0 * (self.Z > 0 ? -1 : 1)) / Cube_Size * Cube_Size, Indigo::Current_World))
 			{
 				Indigo::Current_World.Add_Text(Text(-0.2, 0.3, "You might be a little stuck!", nullptr, GLUT_BITMAP_9_BY_15, 60));
 				Show_Hint = false;
