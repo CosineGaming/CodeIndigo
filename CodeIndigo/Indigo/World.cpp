@@ -212,7 +212,7 @@ int World::Collide(const Object& object, const float add_x, const float add_y, c
 {
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
-		if (Object != object.ID)
+		if (Object != object.ID && objects[Object].World_Collide)
 		{
 			if (objects[Object].Collide(object, add_x, add_y, add_z))
 			{
@@ -230,7 +230,7 @@ int World::Collide(const Direction& position, const Direction& direction)
 {
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
-		if (objects[Object].Collide(position, direction))
+		if (objects[Object].World_Collide && objects[Object].Collide(position, direction))
 		{
 			return Object;
 		}
@@ -244,7 +244,7 @@ int World::Collide(const Vertex& vertex, const float add_x, const float add_y, c
 {
 	for (int Object = 0; Object < objects.size(); ++Object)
 	{
-		if (objects[Object].Collide(vertex, add_x, add_y, add_z))
+		if (objects[Object].World_Collide && objects[Object].Collide(vertex, add_x, add_y, add_z))
 		{
 			return Object;
 		}

@@ -13,9 +13,9 @@ class Object
 public:
 	// Create an object given optional position, a mesh,
 	// and whether the object should render in wireframe
-	Object(const float x=0.0, const float y=0.0, const float z=0.0, const Mesh& mesh=Mesh(), float *color=nullptr,
-		void(*update_function)(const int frame, Object& self)=nullptr, const bool smooth=true, const Direction& towards=Direction(1,0,0),
-		float shine=60.0, const bool line=false);
+	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), float *color = nullptr,
+		void(*update_function)(const int frame, Object& self) = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
+		const bool world_collide = true, const float shine = 60.0, const bool line = false);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
@@ -62,5 +62,7 @@ public:
 	float object_shine;
 	// The OpenGL draw mode for each render type.
 	static const int Render_Types[5];
+	// Whether or not to collide when searching through World::Collide
+	bool World_Collide;
 private:
 };

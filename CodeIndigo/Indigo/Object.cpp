@@ -12,7 +12,7 @@
 // and whether the object should render in wireframe
 Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color,
 	void(*update_function)(const int frame, Object& self), const bool smooth, const Direction& towards,
-	float shine, const bool line)
+	const bool world_collide, const float shine, const bool line)
 {
 	Place(x, y, z);
 	Data = mesh;
@@ -23,6 +23,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, fl
 	facing = towards;
 	object_shine = shine;
 	Line = line;
+	World_Collide = world_collide;
 	Is_Blank = mesh.Size() == 0;
 	ID = -1;
 	return;
@@ -40,6 +41,7 @@ Object::Object(const Object& object)
 	facing = object.facing;
 	object_shine = object.object_shine;
 	Line = object.Line;
+	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
 	ID = object.ID;
 	return;

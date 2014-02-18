@@ -79,7 +79,7 @@ void show(int time, Object& self)
 		self.Is_Blank = false;
 		Direction distance = player->facing;
 		distance.Normalize();
-		distance.Add_Direction(-0.3, (self.object_color - Color_Values) / 3 * (30.0 / (Number_Of_Colors - 1)) - 15, -10);
+		distance.Add_Direction(-0.5, (self.object_color - Color_Values) / 3 * (30.0 / (Number_Of_Colors - 1)) - 15, -10);
 		self.X = player->X + distance.Get_X();
 		self.Y = 1.5 + distance.Get_Y();
 		self.Z = player->Z + distance.Get_Z();
@@ -151,18 +151,14 @@ void hint_time(int time, Object& self)
 	}
 }
 
-void tutorial(void)
+void tutorial(int time, Object& self)
 {
-	static int index = 0;
-	char * set [] = { "Welcome to dash. Press 'q' at any time to unpause the game.", "You are in the center of a platform. Your goal is to get off of it.",
-		"But these blocks aren't stationary. Step on a red tile, and all red tiles will block your way.", "The only way to step on that color of tile again is to step on ALL colors of tile.",
-		"You will be constantly racing forward. No way to control that.", "A few cubes will appear in front of you. Those tiles remain to be stepped on.",
-		"You might get stuck with tiles all around you. Press 'e' to restart.", "Press 'q' to pause / unpause the game.",
-		"Move the mouse to look around. Press space to see from the top.", "I think you'll get the hang of it. Press 'q' to begin. Good luck!" };
-	if (index < 10)
+	for (int i = 0; i < 256; ++i)
 	{
-		Indigo::Current_World.Add_Text(Text(-0.35, -0.5, set[index], nullptr, GLUT_BITMAP_9_BY_15, 420, tutorial));
-		++index;
+		if (Indigo::keys[i])
+		{
+			Indigo::Current_World = world;
+		}
 	}
 }
 
@@ -210,7 +206,6 @@ void show_path(int time, Object& self)
 		if (self.Collide(*player, 0, 1) && Help_Index < Path.size())
 		{
 			Help_Index++;
-			std::cout << "Moving to location " << Path[Help_Index].X << ", " << Path[Help_Index].Z << std::endl;
 		}
 	}
 	else
@@ -221,8 +216,6 @@ void show_path(int time, Object& self)
 
 bool possible(float x, float z, World& world, bool first=true)
 {
-	if (first)
-		std::cout << x << ", " << z << std::endl;
 	bool found = false;
 	for (int i = 0; i < Path.size(); ++i)
 	{
@@ -240,10 +233,6 @@ bool possible(float x, float z, World& world, bool first=true)
 	if (cube == -1)
 	{
 		cube = world.Collide(Vertex(x, Cube_Size / 2.0, z));
-	}
-	if (cube == -1)
-	{
-		std::cout << "How the hell did this happen? ERROR. ERROR.\a" << std::endl;
 	}
 	Object& current = world.Get_Object(cube);
 	if (current.object_color - Color_Values < Number_Of_Colors * 3 && current.object_color - Color_Values >= 0)
@@ -266,10 +255,6 @@ bool possible(float x, float z, World& world, bool first=true)
 		{
 			reset_renders();
 		}
-	}
-	else
-	{
-		std::cout << "Error@" << x << "," << z << std::endl;
 	}
 	if (x - Platform_Size / 2.0 < 0)
 	{
@@ -327,7 +312,6 @@ bool possible(float x, float z, World& world, bool first=true)
 		}
 		if (all)
 		{
-			std::cout << "Stepped on all tiles. LOL" << std::endl;
 			for (int i = 0; i < Number_Of_Colors; ++i)
 			{
 				Render_Colors[i] = true;
@@ -342,8 +326,6 @@ bool possible(float x, float z, World& world, bool first=true)
 void update(int time, Object& self)
 {
 
-	Hint_Time = 80;
-	Pause_Time = 80;
 	static bool running = false;
 	static Vertex old = Vertex(0, 0, 0);
 	static int last = -1;
@@ -383,6 +365,16 @@ void update(int time, Object& self)
 	{
 		initialize();
 		return;
+	}
+	if (Indigo::keys['t'])
+	{
+		world = Indigo::Current_World;
+		World tut;
+		Mesh content = Mesh::Rectangle(2, 2);
+		content.Texture("Textures\\Tutorial.bmp");
+		tut.Add_2D_Object(Object(0, 0, 0, content, nullptr, tutorial));
+		Indigo::keys['t'] = false;
+		Indigo::Current_World = tut;
 	}
 	if (Indigo::keys['f'])
 	{
@@ -435,7 +427,6 @@ void update(int time, Object& self)
 		int average = total_fps / number_fps;
 		static char * fps = new char[3];
 		_itoa_s(average, fps, 3, 10);
-		std::cout << fps[0] << fps[1] << fps[2] << std::endl;
 		Indigo::Current_World.Add_Text(Text(-1.0, 0.7, fps, nullptr, GLUT_BITMAP_9_BY_15));
 		Indigo::Current_World.Add_Text(Text(-0.9, 0.7, "FPS", nullptr, GLUT_BITMAP_9_BY_15));
 		std::cout << "Position: " << self.X << ", " << self.Y << ", " << self.Z << std::endl
@@ -512,6 +503,8 @@ void update(int time, Object& self)
 		}
 	}
 
+	self.Set_Hitbox(0.23, 0.75, 0.12, -0.23, -0.749, -0.12);
+	
 	if (Indigo::Current_World.Collide(self) == -1)
 	{
 		camera.Place(self.X, self.Y + 0.75, self.Z);
@@ -555,6 +548,7 @@ void update(int time, Object& self)
 		}
 	}
 
+	self.Set_Hitbox();
 	Object& collision = Indigo::Current_World.Get_Object(Indigo::Current_World.Collide(self, 0, -1));
 	int color = (collision.object_color - Color_Values) / 3;
 	int now = collision.ID;
@@ -582,8 +576,12 @@ void update(int time, Object& self)
 		static int wiggle = 0;
 		static int wait = 75;
 		static bool value = true;
+		static Direction offset = Direction::Coordinates(self.X, 0, self.Z);
+		offset.Set_Distance(Cube_Size*Platform_Size*sqrt(2) / 2.0 + Cube_Size);
 		Indigo::Current_World.Add_Text(Text(-0.1, 0.2, "You Win!", nullptr, GLUT_BITMAP_9_BY_15, 200, initialize));
-		Indigo::Current_World.camera.Place(self.X, 100, self.Z);
+		offset.Add_Direction(0, 0.05 * time);
+		self.Place(offset.Get_X(), 200, offset.Get_Z());
+		Indigo::Current_World.camera.Place(self.X, self.Y + 0.75, self.Z);
 		Indigo::Current_World.camera.Look_At(0, 0, 0);
 		wait -= time;
 		if (wait <= 0)
@@ -594,6 +592,7 @@ void update(int time, Object& self)
 		}
 		if (wiggle >= Number_Of_Colors)
 		{
+			generate_colors();
 			wiggle = 0;
 			value = !value;
 		}
@@ -612,6 +611,22 @@ void sweep_camera(int time, Object& self)
 {
 	static float velocity = 353.55;
 	velocity -= .25 * time;
+	if (Indigo::keys['r'])
+	{
+		velocity = 353.55;
+		initialize();
+		return;
+	}
+	if (Indigo::keys['t'])
+	{
+		world = Indigo::Current_World;
+		World tut;
+		Mesh content = Mesh::Rectangle(2, 2);
+		content.Texture("Textures\\Tutorial.bmp");
+		tut.Add_2D_Object(Object(0, 0, 0, content, nullptr, tutorial));
+		Indigo::keys['t'] = false;
+		Indigo::Current_World = tut;
+	}
 	self.Y += velocity / 1000 * time;
 	self.Is_Blank = true;
 	if (self.Y < 1.5)
@@ -633,13 +648,12 @@ void click(int button, int state, float x, float y)
 		Indigo::Current_World = world;
 		std::cout << "Setting player up.\n";
 		Object& point = Indigo::Current_World.Get_Object(Indigo::Current_World.Add_Object(Object(0.0, 0.75, 0.0, Mesh::Load("Meshes\\Arrow.obj"), nullptr, sweep_camera)));
-		point.Set_Hitbox();
 		delete player;
 		player = &point;
 		std::cout << "Performing last-minute changes.\n";
 		for (int i = 0; i < Number_Of_Colors; ++i)
 		{
-			Indigo::Current_World.Add_Object(Object(0, 10, 0, Mesh::Cube(0.075), &Color_Values[i * 3], show));
+			Indigo::Current_World.Add_Object(Object(0, 10, 0, Mesh::Cube(0.05), &Color_Values[i * 3], show, true, Direction(1,0,0), false));
 		}
 		Indigo::FPS_Mouse(true, player);
 		Indigo::Mouse_Button_Function = nullptr;
@@ -647,7 +661,6 @@ void click(int button, int state, float x, float y)
 		Indigo::Current_World.lighting.Set_Ambient(0.15);
 		Direction light = Direction(1.0, 45.0, -45.0);
 		Indigo::Current_World.lighting.Add_Light(light.Get_X(), light.Get_Y(), light.Get_Z(), true);
-		std::cout << Indigo::Current_World.Number_Of_Objects() << std::endl;
 	}
 	if (y < -0.43)
 	{
@@ -671,7 +684,7 @@ void load(int time)
 	bool is_possible = false;
 	while (!is_possible)
 	{
-		std::cout << "Trying." << std::endl;
+		std::cout << "Generating level.\n";
 		Path = std::vector<Vertex>();
 		for (int x = 0; x < Platform_Size; ++x)
 		{
@@ -703,10 +716,11 @@ void load(int time)
 	world.Add_Text(Text(-0.07, -0.66, "Health", Indigo::White_Color, GLUT_BITMAP_9_BY_15));
 	world.Add_2D_Object(Object(0.0, -0.8, 0.0, Mesh::Rectangle(2.0, 0.025), nullptr, pause));
 	world.Add_2D_Object(Object(0.0, -0.9, 0.0, Mesh::Rectangle(1.0, 0.025), Indigo::Light_Blue_Color, hint_time));
-	world.Add_Object(Object(0, 3, 0, Mesh::Sphere(2, 3), Indigo::Blue_Color, show_path));
+	world.Add_Object(Object(0, 3, 0, Mesh::Sphere(2, 3), Indigo::Blue_Color, show_path, true, Direction(1, 0, 0), false));
 	_itoa_s(0, Seconds, 4, 10);
 	world.Add_Text(Text(-1.0, 0.8, Seconds, nullptr, GLUT_BITMAP_9_BY_15));
 	world.Add_Text(Text(-0.9, 0.8, "Seconds", nullptr, GLUT_BITMAP_9_BY_15));
+	world.Add_Text(Text(-0.35, -0.5, "Press 't' to view the tutorial!", nullptr, GLUT_BITMAP_9_BY_15, 360));
 	std::cout << "Initializing camera.\n";
 	world.camera.Place(0, 1.5, 0);
 	std::cout << "Setting up menu world.\n";
