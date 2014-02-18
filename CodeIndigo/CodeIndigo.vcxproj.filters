@@ -27,9 +27,6 @@
     <ClCompile Include="CodeIndigo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Dash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Icon.rc">
