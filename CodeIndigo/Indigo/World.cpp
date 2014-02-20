@@ -1,10 +1,12 @@
 // Defines a class for holding objects
 
 #include "World.h"
+
+#include "Animation.h"
 #include "Indigo.h"
+
 #include <stdlib.h>
 #include "glut.h"
-#include <iostream>
 
 
 // Create a new, empty world
@@ -100,16 +102,14 @@ int World::Add_Object(const Object& object)
 	objects.push_back(object);
 	int Object_ID = objects.size() - 1;
 	objects[Object_ID].ID = Object_ID;
-	return Object_ID;
+	return (Object_ID);
 }
-
 
 // Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 Object& World::Get_Object(const int id) const
 {
-	return const_cast <Object&>(objects[id]);
+	return (const_cast <Object&>(objects[id]));
 }
-
 
 // Removes an object from the world based on an object ID
 void World::Remove_Object(const int id)
@@ -117,7 +117,6 @@ void World::Remove_Object(const int id)
 	objects[id] = Object();
 	return;
 }
-
 
 // Removes an object from the world based on object; gets ID automatically
 void World::Remove_Object(const Object& object)
@@ -133,16 +132,14 @@ int World::Add_2D_Object(const Object& object)
 	objects_2d.push_back(object);
 	int Object_ID = objects_2d.size() - 1;
 	objects_2d[Object_ID].ID = Object_ID;
-	return Object_ID;
+	return (Object_ID);
 }
-
 
 // Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 Object& World::Get_2D_Object(const int id) const
 {
-	return const_cast <Object&>(objects_2d[id]);
+	return (const_cast <Object&>(objects_2d[id]));
 }
-
 
 // Removes an object from the world based on an object ID
 void World::Remove_2D_Object(const int id)
@@ -150,7 +147,6 @@ void World::Remove_2D_Object(const int id)
 	objects_2d[id] = Object();
 	return;
 }
-
 
 // Removes an object from the world based on object; gets ID automatically
 void World::Remove_2D_Object(const Object& object)
@@ -166,23 +162,20 @@ int World::Add_Text(const Text& text)
 	texts.push_back(text);
 	int Object_ID = texts.size() - 1;
 	texts[Object_ID].ID = Object_ID;
-	return Object_ID;
+	return (Object_ID);
 }
-
 
 // Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
 Text& World::Get_Text(const int id) const
 {
-	return const_cast <Text&>(texts[id]);
+	return (const_cast <Text&>(texts[id]));
 }
-
 
 // Removes text from the world based on an object ID
 void World::Remove_Text(const int id)
 {
 	texts[id] = Text();
 }
-
 
 // Removes text from the world based on text; gets ID automatically
 void World::Remove_Text(const Text& text)
@@ -191,24 +184,48 @@ void World::Remove_Text(const Text& text)
 }
 
 
+// Add text to the world to be rendered, returns no handle to the text
+int World::Add_Animation(const Animation& animation)
+{
+	animations.push_back(animation);
+	int Object_ID = objects_2d.size() - 1;
+	animations[Object_ID].ID = Object_ID;
+	return (Object_ID);
+}
+
+// Removes text from the world based on an object ID
+void World::Remove_Animation(const int id)
+{
+	animations[id] = Animation();
+	return;
+}
+
+// Removes text from the world based on text; gets ID automatically
+void World::Remove_Animation(const Animation& animation)
+{
+	animations[animation.ID] = Animation();
+	return;
+}
+
+
 // Returns the number of objects in the world, simply objects.size()
 int World::Number_Of_Objects(void)
 {
-	return objects.size();
+	return (objects.size());
 }
 
 
 // Returns the number of 2d objects in the world, simply objects_2d.size()
 int World::Number_Of_2D_Objects(void)
 {
-	return objects_2d.size();
+	return (objects_2d.size());
 }
 
 
 // Returns the number of texts in the world, simply texts.size()
 int World::Number_Of_Texts(void)
 {
-	return texts.size();
+	return (texts.size());
 }
 
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
@@ -220,12 +237,12 @@ int World::Collide(const Object& object, const float add_x, const float add_y, c
 		{
 			if (objects[Object].Collide(object, add_x, add_y, add_z))
 			{
-				return Object;
+				return (Object);
 				break;
 			}
 		}
 	}
-	return -1;
+	return (-1);
 }
 
 
@@ -236,10 +253,10 @@ int World::Collide(const Direction& position, const Direction& direction)
 	{
 		if (objects[Object].World_Collide && objects[Object].Collide(position, direction))
 		{
-			return Object;
+			return (Object);
 		}
 	}
-	return -1;
+	return (-1);
 }
 
 
@@ -250,8 +267,8 @@ int World::Collide(const Vertex& vertex, const float add_x, const float add_y, c
 	{
 		if (objects[Object].World_Collide && objects[Object].Collide(vertex, add_x, add_y, add_z))
 		{
-			return Object;
+			return (Object);
 		}
 	}
-	return -1;
+	return (-1);
 }

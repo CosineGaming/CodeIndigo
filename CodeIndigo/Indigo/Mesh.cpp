@@ -108,7 +108,7 @@ Mesh Mesh::Load(const char * filename)
 		}
 		file.close();
 	}
-	return mesh;
+	return (mesh);
 }
 
 
@@ -128,7 +128,7 @@ Mesh Mesh::Sphere(const float radius, const int recursions, const bool draw_sphe
 		Vertex right = cursor.To_Vertex();
 		mesh += Bulge_Sphere(radius, recursions, left, right, top);
 	}
-	return mesh;
+	return (mesh);
 }
 
 
@@ -163,7 +163,7 @@ Mesh Mesh::Box(const float width, const float height, const float length)
 		}
 		pair[2 != pair[1]] += 1; // 0, 1; 0, 2; 1, 2
 	}
-	return mesh;
+	return (mesh);
 }
 
 
@@ -172,13 +172,13 @@ Mesh Mesh::Line(const float width, const float height, const float length)
 	Mesh mesh;
 	mesh += Vertex(0.0, 0.0, 0.0);
 	mesh += Vertex(width, height, length);
-	return mesh;
+	return (mesh);
 }
 
 
 Mesh Mesh::Cube(const float side)
 {
-	return Box(side, side, side);
+	return (Box(side, side, side));
 }
 
 
@@ -191,7 +191,7 @@ Mesh Mesh::Regular_Shape(const int sides, const float side_length)
 	{
 		mesh += cursor.To_Vertex();
 	}
-	return mesh;
+	return (mesh);
 }
 
 
@@ -202,7 +202,7 @@ Mesh Mesh::Rectangle(const float width, const float height)
 	mesh += Vertex(width / 2, height / -2, 0.0);
 	mesh += Vertex(width / 2, height / 2, 0.0);
 	mesh += Vertex(width / -2, height / 2, 0.0);
-	return mesh;
+	return (mesh);
 }
 
 
@@ -231,14 +231,14 @@ Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 			mesh += Vertex(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
 		}
 	}
-	return mesh;
+	return (mesh);
 }
 
 
 // Allows [] to get a vertex like an array
 Vertex& Mesh::operator[](const int index) const
 {
-	return Get_Vertex(index);
+	return (Get_Vertex(index));
 }
 
 
@@ -246,7 +246,7 @@ Vertex& Mesh::operator[](const int index) const
 Mesh& Mesh::operator+=(const Vertex& vertex)
 {
 	Add(vertex);
-	return *this;
+	return (*this);
 }
 
 
@@ -254,7 +254,7 @@ Mesh& Mesh::operator+=(const Vertex& vertex)
 Mesh& Mesh::operator+=(const Mesh& mesh)
 {
 	Add(mesh.Get_Vertices());
-	return *this;
+	return (*this);
 }
 
 
@@ -262,7 +262,7 @@ Mesh& Mesh::operator+=(const Mesh& mesh)
 Mesh& Mesh::operator+=(const std::vector <Vertex>& add_vertices)
 {
 	Add(add_vertices);
-	return *this;
+	return (*this);
 }
 
 
@@ -271,7 +271,7 @@ Mesh Mesh::operator+(const Vertex& vertex) const
 {
 	Mesh copy = *this;
 	copy.Add(vertex);
-	return copy;
+	return (copy);
 }
 
 
@@ -280,7 +280,7 @@ Mesh Mesh::operator+(const Mesh& mesh) const
 {
 	Mesh copy = *this;
 	copy.Add(mesh.Get_Vertices());
-	return copy;
+	return (copy);
 }
 
 
@@ -289,7 +289,7 @@ Mesh Mesh::operator+(const std::vector <Vertex>& add_vertices) const
 	// Allows + to add vertices to the end
 	Mesh copy = *this;
 	copy.Add(add_vertices);
-	return copy;
+	return (copy);
 }
 
 
@@ -339,7 +339,7 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 // Gets a vertex by its index
 Vertex& Mesh::Get_Vertex(const int index) const
 {
-	return const_cast<Vertex&>(vertices[elements[index]]);
+	return (const_cast<Vertex&>(vertices[elements[index]]));
 }
 
 
@@ -365,7 +365,7 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 	{
 		all.push_back(vertices[options[i]]);
 	}
-	return all;
+	return (all);
 }
 
 
@@ -402,7 +402,9 @@ void Mesh::Smooth_Normals(void)
 	}
 	delete [] normals;
 	delete [] amounts;
+	return;
 }
+
 
 
 // Get the normal for a specific vertex by face
@@ -411,19 +413,19 @@ Vertex Mesh::Flat_Normal(const int index) const
 	if (index < 3 && Group_Size == 0)
 	{
 		if (Size() >= 3)
-			return flat_normals[2];
+			return (flat_normals[2]);
 		else
-			return Vertex(0, 0, 0);
+			return (Vertex(0, 0, 0));
 	}
 	else
-		return flat_normals[Group_Size != 0 ? index / Group_Size : index - 3];
+		return (flat_normals[Group_Size != 0 ? index / Group_Size : index - 3]);
 }
 
 
 // Get the smoother per-vertex normal for a vertex; calculate if needed
 Vertex Mesh::Smooth_Normal(const int index) const
 {
-	return smooth_normals[elements[index]];
+	return (smooth_normals[elements[index]]);
 }
 
 
@@ -466,6 +468,7 @@ void Mesh::Texture(const char * filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	Texture_ID = handle;
 	delete [] data;
+	return;
 }
 
 
@@ -474,15 +477,15 @@ Vertex Mesh::Texture_Coordinate(const int index) const
 {
 	if (texture_coordinates.size() < (std::size_t)(index + 1))
 	{
-		return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
+		return (Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0));
 	}
 	else if (texture_coordinates[index] == Vertex(-1, -1, -1))
 	{
-		return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
+		return (Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0));
 	}
 	else
 	{
-		return texture_coordinates[index];
+		return (texture_coordinates[index]);
 	}
 }
 
@@ -498,20 +501,22 @@ void Mesh::Set_Texture_Coordinate(const int index, const Vertex& coordinate)
 		}
 	}
 	texture_coordinates[index] = coordinate;
+	return;
 }
+
 
 
 // Get the number of elements in the mesh
 int Mesh::Size(void) const
 {
-	return elements.size();
+	return (elements.size());
 }
 
 
 // Number of actual different vertices defined
 int Mesh::Vertex_Data_Amount(void) const
 {
-	return vertices.size();
+	return (vertices.size());
 }
 
 

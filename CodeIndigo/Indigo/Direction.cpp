@@ -16,7 +16,7 @@ Direction Direction::Coordinates(const float x, const float y, const float z)
 {
 	Direction construct;
 	construct.Set_Coordinates(x, y, z);
-	return construct;
+	return (construct);
 }
 
 
@@ -38,7 +38,7 @@ void Direction::Normalize(const float unit)
 float Direction::Dot(const Direction& direction) const
 {
 	float answer = (Get_X() * direction.Get_X()) + (Get_Y() * direction.Get_Y()) + (Get_Z() * direction.Get_Z());
-	return answer;
+	return (answer);
 }
 
 
@@ -59,31 +59,31 @@ float Direction::Angle_Distance(const Direction& direction) const
 	{
 		return (float)(acos(Dot(direction) / (Get_Distance() * direction.Get_Distance())) * DEGREES_PER_RADIAN);
 	}
-	return 0;
+	return (0);
 }
 
 
 // Get the relative coordinates of the direction
 float Direction::Get_X(void) const
 {
-	return sin(angle_x) * cos(angle_y) * distance;
+	return (sin(angle_x) * cos(angle_y) * distance);
 }
 
 float Direction::Get_Y(void) const
 {
-	return sin(angle_y) * distance;
+	return (sin(angle_y) * distance);
 }
 
 float Direction::Get_Z(void) const
 {
-	return cos(angle_x) * cos(angle_y) * distance;
+	return (cos(angle_x) * cos(angle_y) * distance);
 }
 
 
 // Get the distance and angles of the direction
 float Direction::Get_Distance(void) const
 {
-	return distance;
+	return (distance);
 }
 
 float Direction::Get_X_Angle(void) const
@@ -118,7 +118,9 @@ void Direction::Set_Z(const float z)
 void Direction::Set_Distance(const float in_distance)
 {
 	distance = in_distance;
+	return;
 }
+
 
 void Direction::Set_X_Angle(const float in_angle_x)
 {
@@ -197,12 +199,12 @@ Direction Direction::Distance(const Direction& to) const
 {
 	Direction copy = to;
 	copy.Add_Coordinates(-1 * Get_X(), -1 * Get_Y(), -1 * Get_Z());
-	return copy;
+	return (copy);
 }
 
 
 // Makes a vertex with the X, Y, and Z values
 Vertex Direction::To_Vertex(void) const
 {
-	return Vertex(Get_X(), Get_Y(), Get_Z());
+	return (Vertex(Get_X(), Get_Y(), Get_Z()));
 }

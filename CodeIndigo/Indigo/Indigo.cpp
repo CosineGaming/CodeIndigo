@@ -240,7 +240,6 @@ namespace Indigo
 	void Update(int trash)
 	{
 		glutTimerFunc(Frame_Length_Minimum, Update, 0);
-		Animation::Update();
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
@@ -264,10 +263,10 @@ namespace Indigo
 		return;
 	}
 
-	// Get elapsed time in the game, optional modulo for partial times
-	int Elapsed(const int modulo)
+	// Get elapsed time in the game, optional minus for partial times
+	int Elapsed(const int minus)
 	{
-		return modulo == 0 ? glutGet(GLUT_ELAPSED_TIME) : glutGet(GLUT_ELAPSED_TIME % modulo);
+		return glutGet(GLUT_ELAPSED_TIME) - minus;
 	}
 
 

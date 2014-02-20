@@ -30,7 +30,7 @@ namespace Indigo
 	void Render(void);
 
 	// Get elapsed time in the game, optional modulo for partial times
-	int Elapsed(const int modulo = 0);
+	int Elapsed(const int minus = 0);
 
 	// Stores the current world to render
 	extern World Current_World;

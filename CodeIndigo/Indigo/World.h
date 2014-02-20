@@ -2,15 +2,20 @@
 
 #pragma once
 
-#include <vector>
-#include "Object.h"
-#include "Lighting.h"
 #include "Camera.h"
+#include "Lighting.h"
+#include "Object.h"
 #include "Text.h"
+
+#include <vector>
+
+
+class Animation;
 
 
 class World
 {
+
 public:
 
 	// Create a new, empty world
@@ -52,14 +57,12 @@ public:
 	// Removes text from the world based on text; gets ID automatically
 	void Remove_Text(const Text& text);
 
-	// Add text to the world to be rendered, returns no handle to the text
-	int Add_Animation(const Animation& text);
-	// Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
-	Animation& Get_Animation(const int id) const;
-	// Removes text from the world based on an object ID
+	// Add animation along with its nested animations to the world to be rendered, returns no handle to the text
+	int Add_Animation(const Animation& animation);
+	// Removes the animation (and nested ones) from the world based on an object ID
 	void Remove_Animation(const int id);
-	// Removes text from the world based on text; gets ID automatically
-	void Remove_Animation(const Animation& text);
+	// Removes animation from the world based on animation itself; gets ID automatically
+	void Remove_Animation(const Animation& animation);
 
 	// Returns the number of objects in the world, simply objects.size()
 	int Number_Of_Objects(void);
@@ -87,5 +90,6 @@ private:
 	std::vector<Object> objects;
 	std::vector<Object> objects_2d;
 	std::vector<Text> texts;
+	std::vector<Animation> animations;
 
 };

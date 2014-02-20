@@ -48,7 +48,7 @@ Vertex& Vertex::operator+=(const Vertex& vertex)
 	X += vertex.X;
 	Y += vertex.Y;
 	Z += vertex.Z;
-	return *this;
+	return (*this);
 }
 
 
@@ -58,14 +58,14 @@ Mesh Vertex::operator+(const Vertex& vertex) const
 	Mesh mesh;
 	mesh += *this;
 	mesh += vertex;
-	return mesh;
+	return (mesh);
 }
 
 
 // Checks whether this Vertex is exactly the same as another
 bool Vertex::operator==(const Vertex& check) const
 {
-	return check.X == this->X && check.Y == this->Y && check.Z == this->Z;
+	return (check.X == this->X && check.Y == this->Y && check.Z == this->Z);
 }
 
 
@@ -76,12 +76,12 @@ Vertex Vertex::Midpoint(const Vertex& vertex) const
 	copy.X = (X + vertex.X) / 2;
 	copy.Y = (Y + vertex.Y) / 2;
 	copy.Z = (Z + vertex.Z) / 2;
-	return copy;
+	return (copy);
 }
 
 
 // Returns a direction with the coordinates of the vertex
 Direction Vertex::To_Direction(void) const
 {
-	return Direction::Coordinates(X, Y, Z);
+	return (Direction::Coordinates(X, Y, Z));
 }

@@ -86,7 +86,7 @@ void Lighting::Update_Lights(void) const
 
 int Lighting::Get_Number_Of_Lights(void) const
 {
-	return number_of_lights;
+	return (number_of_lights);
 }
 
 

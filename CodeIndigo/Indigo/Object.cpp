@@ -66,7 +66,6 @@ void Object::Render(void) const
 		return;
 	}
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	int lighting_enabled;
 	if (glIsEnabled(GL_LIGHTING))
 	{
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,

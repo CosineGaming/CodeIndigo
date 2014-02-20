@@ -22,7 +22,9 @@ Camera::Camera(const Camera& camera)
 	Place(camera.X, camera.Y, camera.Z);
 	Look_At(camera.eye);
 	up = camera.up;
+	return;
 }
+
 
 
 Camera::~Camera(void)
