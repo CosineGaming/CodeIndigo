@@ -13,8 +13,7 @@ class Object
 
 public:
 
-	// Create an object given optional position, a mesh,
-	// and whether the object should render in wireframe
+	// Create an object given optional position, a mesh, and whether the object should render in wireframe
 	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), float *color = nullptr,
 		void(*update_function)(const int frame, Object& self) = nullptr, const char * change_texture = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
 		const bool dynamic_mesh = false, const bool world_collide = true, const float shine = 60.0, const bool line = false);

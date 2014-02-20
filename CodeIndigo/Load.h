@@ -14,6 +14,6 @@ private:
 	void Wait(const int time);
 
 	World load_world;
-	void(*Load_Function)(const int time)
+	void(*Load_Function)(const int time);
 
 }

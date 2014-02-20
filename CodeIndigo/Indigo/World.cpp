@@ -14,8 +14,8 @@ World::World(void)
 {
 	objects = std::vector<Object>();
 	texts = std::vector<Text>();
-	lighting = Lighting();
-	camera = Camera();
+	Light_Setup = Lighting();
+	View = Camera();
 	return;
 }
 
@@ -25,8 +25,8 @@ World::World(const World& world)
 {
 	objects = world.objects;
 	texts = world.texts;
-	lighting = world.lighting;
-	camera = world.camera;
+	Light_Setup = world.Light_Setup;
+	View = world.View;
 	return;
 }
 
@@ -70,8 +70,8 @@ void World::Render(void) const
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	Indigo::Reshape();
-	camera.Look();
-	lighting.Update_Lights();
+	View.Look();
+	Light_Setup.Update_Lights();
 	for (std::size_t Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
 	{
 		objects[Object_ID].Render();

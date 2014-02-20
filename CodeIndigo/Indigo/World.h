@@ -81,11 +81,12 @@ public:
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const int time);
 
-private:
+	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc.
+	Lighting Light_Setup;
+	// The camera for looking in the world
+	Camera View;
 
-	// Used to modify the lighting arrangement of the world (doesn't hold vectors, etc.)
-	Lighting lighting;
-	Camera camera;
+private:
 
 	std::vector<Object> objects;
 	std::vector<Object> objects_2d;

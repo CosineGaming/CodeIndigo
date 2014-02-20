@@ -10,8 +10,8 @@ Camera::Camera(float x, float y, float z, Direction looking, Direction above)
 {
 	// Create a new camera by a position and a direction
 	Place(x, y, z);
-	eye = looking;
-	up = above;
+	Eye = looking;
+	Up = above;
 	return;
 }
 
@@ -20,8 +20,8 @@ Camera::Camera(const Camera& camera)
 {
 	// Create a camera based off another
 	Place(camera.X, camera.Y, camera.Z);
-	Look_At(camera.eye);
-	up = camera.up;
+	Look_At(camera.Eye);
+	Up = camera.Up;
 	return;
 }
 
@@ -47,7 +47,7 @@ void Camera::Place(const float x, const float y, const float z)
 void Camera::Move(const float forward, const float side, const float up)
 {
 	// Move relative to the way it's pointing and where it is
-	Direction direction = eye;
+	Direction direction = Eye;
 	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();
@@ -66,7 +66,7 @@ void Camera::Move(const float forward, const float side, const float up)
 // Look in a direction
 void Camera::Look_At(const Direction& direction)
 {
-	eye = direction.Distance(Direction::Coordinates(X, Y, Z));
+	Eye = direction.Distance(Direction::Coordinates(X, Y, Z));
 	return;
 }
 
@@ -74,7 +74,7 @@ void Camera::Look_At(const Direction& direction)
 // Look at a point
 void Camera::Look_At(const float x, const float y, const float z)
 {
-	eye.Set_Coordinates(x - X, y - Y, z - Z);
+	Eye.Set_Coordinates(x - X, y - Y, z - Z);
 	return;
 }
 
@@ -82,7 +82,7 @@ void Camera::Look_At(const float x, const float y, const float z)
 // Look in a direction
 void Camera::Look_Towards(const Direction& direction)
 {
-	eye = direction;
+	Eye = direction;
 	return;
 }
 
@@ -90,7 +90,7 @@ void Camera::Look_Towards(const Direction& direction)
 // Look at a point
 void Camera::Look_Towards(const float x, const float y, const float z)
 {
-	eye.Set_Coordinates(x, y, z);
+	Eye.Set_Coordinates(x, y, z);
 	return;
 }
 
@@ -103,7 +103,7 @@ void Camera::Watch(const Object& object, const Direction& relative_camera_positi
 	Place(position.Get_X() + object.X,
 		position.Get_Y() + object.Y,
 		position.Get_Z() + object.Z);
-	eye.Set_Coordinates(object.X - X, object.Y - Y, object.Z - Z);
+	Eye.Set_Coordinates(object.X - X, object.Y - Y, object.Z - Z);
 	return;
 }
 
@@ -113,7 +113,7 @@ void Camera::Look(void) const
 	// Look through the camera for this frame
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(X, Y, Z, X + eye.Get_X(), Y + eye.Get_Y(), Z + eye.Get_Z(),
-		up.Get_X(), up.Get_Y(), up.Get_Z());
+	gluLookAt(X, Y, Z, X + Eye.Get_X(), Y + Eye.Get_Y(), Z + Eye.Get_Z(),
+		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
 	return;
 }

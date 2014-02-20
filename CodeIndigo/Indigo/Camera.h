@@ -34,12 +34,12 @@ public:
 	// Look through the camera for this frame
 	void Look(void) const;
 	// The direction of the camera that is up.
-	Direction up;
+	Direction Up;
 	// The camera's position
 	float X;
 	float Y;
 	float Z;
 	// The way the camera is looking
-	Direction eye;
+	Direction Eye;
 private:
 };

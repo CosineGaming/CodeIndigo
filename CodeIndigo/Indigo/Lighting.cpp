@@ -43,11 +43,11 @@ void Lighting::Set_Ambient(float intensity)
 }
 
 
-void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
+void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 	float diffuse, float specular, float * color_offset)
 {
-	int Light = light_values[number_of_lights];
-	float position_array[] = {X, Y, Z, 1.0 - (float) infinity};
+	int light = light_values[number_of_lights];
+	float position_array[] = {X, Y, Z, 1.0 - (float) direction};
 	float diffuse_array [] = {diffuse, diffuse, diffuse, 1.0};
 	float specular_array[] = {specular, specular, specular, 1.0};
 	if (color_offset)
@@ -61,14 +61,15 @@ void Lighting::Add_Light(float X, float Y, float Z, bool infinity,
 	light_positions[number_of_lights][1] = position_array[1];
 	light_positions[number_of_lights][2] = position_array[2];
 	light_positions[number_of_lights][3] = position_array[3];
-	glEnable(Light);
+	std::cout << position_array[3];
+	glEnable(light);
 	for (int i=number_of_lights+1; i<8; ++i)
 	{
 		glDisable(light_values[i]);
 	}
-	glLightfv(Light, GL_POSITION, position_array);
-	glLightfv(Light, GL_DIFFUSE, diffuse_array);
-	glLightfv(Light, GL_SPECULAR, specular_array);
+	glLightfv(light, GL_POSITION, position_array);
+	glLightfv(light, GL_DIFFUSE, diffuse_array);
+	glLightfv(light, GL_SPECULAR, specular_array);
 	++number_of_lights;
 	return;
 }
