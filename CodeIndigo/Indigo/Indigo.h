@@ -10,10 +10,8 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(int argc = 0, char ** argv = nullptr, const char * window_name = "Indigo",
-		const int& max_framerate = 48, const bool& fullscreen = 1, float * background = nullptr,
-		const int& window_width = 800, const int& window_height = 600,
-		const int& field_of_view = 60);
+	void Initialize(int argc, char ** argv, const char * window_name = "Indigo", const int max_framerate = 120, const bool fullscreen = true, float * background = nullptr,
+		const int window_width = 800, const int window_height = 600, const int field_of_view = 60);
 	// Starts the main loop with update, render, and input
 	void Run(void);
 	// Acts for when the window reshapes
@@ -32,7 +30,7 @@ namespace Indigo
 	void Render(void);
 
 	// Get elapsed time in the game, optional modulo for partial times
-	int Elapsed(const int& modulo = 0);
+	int Elapsed(const int modulo = 0);
 
 	// Stores the current world to render
 	extern World Current_World;
@@ -66,7 +64,7 @@ namespace Indigo
 	extern void(*Render_Function)(void);
 
 	// Members with the index of a key which is currently down are true, always lowercase
-	extern bool keys[256];
+	extern bool Keys[256];
 	// Stores whether shift is pressed
 	extern bool Shift;
 	// Stores whether mouse buttons are down

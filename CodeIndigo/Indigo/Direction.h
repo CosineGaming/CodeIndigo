@@ -10,7 +10,9 @@ class Vertex;
 
 class Direction
 {
+
 public:
+
 	// Construct a new direction based off of distance and 2 angles
 	Direction(const float in_distance = 1.0, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
 	// Construct a new direction based off of x, y, and z
@@ -53,11 +55,14 @@ public:
 	Direction Distance(const Direction& to) const;
 	// Makes a vertex with the X, Y, and Z values
 	Vertex To_Vertex(void) const;
+
 private:
+
 	// The distance stretched when getting coords(1 for a normalized direction)
 	float distance;
 	// The angle moving left and right, or rotating on the y axis
 	float angle_x;
 	// The angle moving up and down, or rotating on the x axis
 	float angle_y;
+
 };

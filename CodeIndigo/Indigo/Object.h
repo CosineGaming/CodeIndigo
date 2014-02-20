@@ -10,19 +10,21 @@
 
 class Object
 {
+
 public:
+
 	// Create an object given optional position, a mesh,
 	// and whether the object should render in wireframe
 	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), float *color = nullptr,
-		void(*update_function)(const int frame, Object& self) = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
-		const bool world_collide = true, const float shine = 60.0, const bool line = false);
+		void(*update_function)(const int frame, Object& self) = nullptr, const char * change_texture = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
+		const bool dynamic_mesh = false, const bool world_collide = true, const float shine = 60.0, const bool line = false);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
 	~Object(void);
 
 	// Renders the object
-	void Render();
+	void Render() const;
 
 	// Places the object at the X, Y, and Z coordinates
 	void Place(const float x, const float y=0.0, const float z=0.0);
@@ -46,23 +48,28 @@ public:
 	int ID;
 	// Called every time the World updates, set this as you please
 	void(*Update)(const int time, Object& self);
+	// Relative position of points
+	Mesh Data;
+	// The Direction the object is facing. Rotates in rendering!
+	Direction Facing;
+	// Whether or not to collide when searching through World::Collide
+	bool World_Collide;
+	// The color of the object
+	float * Object_Color;
+	// Whether or not to use smooth, vertex normals
+	bool Vertex_Normals;
+	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
+	float Object_Shine;
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y;
 	float Z;
-	// Relative position of points
-	Mesh Data;
-	// The Direction the object is Facing
-	Direction facing;
-	// Whether or not to use smooth, vertex normals
-	bool vertex_normals;
-	// The color of the object
-	float * object_color;
-	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
-	float object_shine;
-	// The OpenGL draw mode for each render type.
-	static const int Render_Types[5];
-	// Whether or not to collide when searching through World::Collide
-	bool World_Collide;
+
 private:
+
+	// The OpenGL draw mode for each render type.
+	static const int render_types[5];
+	// To be used in Indigo20, whether or not Data will ever be changed.
+	bool dynamic;
+
 };

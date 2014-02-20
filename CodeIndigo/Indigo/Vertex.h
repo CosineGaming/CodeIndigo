@@ -7,7 +7,9 @@ class Direction;
 
 class Vertex
 {
+
 public:
+
 	// Create a new, blank vertex
 	Vertex(void);
 	// Copies a vertex
@@ -30,5 +32,7 @@ public:
 	float X;
 	float Y;
 	float Z;
+
 private:
+
 };

@@ -5,7 +5,9 @@
 
 class Lighting
 {
+
 public:
+
 	// Create a new, blank light arrangement
 	Lighting(void);
 	// Copy a light arrangement
@@ -21,11 +23,14 @@ public:
 	void Update_Lights(void) const;
 	// Get the number of lights in the scene
 	int Get_Number_Of_Lights(void) const;
+
 private:
+
 	// The OpenGL light values
-	static const int Light_Values[8];
+	static const int light_values[8];
 	// The position of the lights for arranging
-	float Light_Positions[8][4];
+	float light_positions[8][4];
 	// The number of lights in the current scene
-	int Number_Of_Lights;
+	int number_of_lights;
+
 };

@@ -8,7 +8,9 @@
 
 class Mesh
 {
+
 public:
+
 	// Create a new, empty mesh
 	Mesh(const int group_size=3);
 	// Create a new mesh with some vertices and an optional group size
@@ -17,8 +19,10 @@ public:
 	Mesh(const Mesh& mesh);
 	// Destroy the mesh
 	~Mesh(void);
+
 	// Once added to the object, the mesh is locked into place
-	void Initialize(void);
+	void Initialize(const bool dynamic);
+
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.
 	// /*Example*/ Mesh myCubeMesh = Mesh::Cube(1.0, 50.0, 24.2, 13.5);
@@ -32,6 +36,7 @@ public:
 	// Used in recursion for the Sphere function
 	static Mesh Bulge_Sphere(const float radius, const int recursions,
 		const Vertex& left, const Vertex& right, const Vertex& top);
+
 	// Allows [] to get a vertex like an array
 	Vertex& operator[](const int index) const;
 	// Allows += to add a vertex to the end
@@ -46,6 +51,7 @@ public:
 	Mesh operator+(const Mesh& mesh) const;
 	// Allows + to add a vector of vertices to the end
 	Mesh operator+(const std::vector <Vertex>& vertices) const;
+
 	// Add a new vertex to the end of the mesh,
 	// the last vertex made to be 0,0,0.
 	// So if the last was 0,1,5, then 2,-1,3 would add 2,0,8
@@ -58,41 +64,48 @@ public:
 	Vertex& Get_Vertex(const int index) const;
 	// Get all the vertices, or a subset of them 
 	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;
+
 	// Calculate all per-vertex normals for the mesh
 	void Mesh::Smooth_Normals(void);
 	// Get the normal for a specific vertex
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
-	Vertex Smooth_Normal(const int index);
+	Vertex Smooth_Normal(const int index) const;
 	// Texture the entire mesh with one file, texture coordinates will be used only once called
-	void Texture(char * filename);
+	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-	Vertex Texture_Coordinate(const int index);
+	Vertex Texture_Coordinate(const int index) const;
 	// Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
 	void Set_Texture_Coordinate(const int index, const Vertex& coordinate);
 	// Get the number of Vertices in the mesh
+
 	int Size(void) const;
 	// Number of actual different vertices defined
 	int Vertex_Data_Amount(void) const;
 	// How many sides to each polygon
 	int Group_Size;
+
 	// Hitbox used for collision, normally auto-generated. {Left Bottom Back}, {Right Top Front}
 	Vertex Hitbox[2];
 	// Add points to the mesh in function notation
 	void Add(const Vertex& vertex);
 	void Add(const Mesh& mesh);
 	void Add(const std::vector <Vertex>& vertices);
+
+	// The texture handle number
+	int Texture_ID;
+
+private:
+
+	// The vertices pool to choose from. Never rendered unless in elements!
+	std::vector<Vertex> vertices;
+	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
+	std::vector<int> elements;
 	// The per-face normals; less pretty and not used by default
 	std::vector<Vertex> flat_normals;
 	// The per-vertex normals. Only calculated once added to world
 	std::vector<Vertex> smooth_normals;
-	// The vertices to choose from
-	std::vector<Vertex> vertices;
-	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
-	std::vector<int> elements;
-	// The texture handle number
-	int texture;
 	// A set of texture coordinates, one for every element. Manually set with Set_Texture_Coordinate()
 	std::vector<Vertex> texture_coordinates;
-private:
+
 };

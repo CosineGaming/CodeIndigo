@@ -57,7 +57,7 @@ float Direction::Angle_Distance(const Direction& direction) const
 {
 	if (!(Get_X_Angle() == direction.Get_X_Angle() && Get_Y_Angle() == direction.Get_Y_Angle() && Get_Distance() == direction.Get_Distance()))
 	{
-		return acos(Dot(direction) / (Get_Distance() * direction.Get_Distance())) * DEGREES_PER_RADIAN;
+		return (float)(acos(Dot(direction) / (Get_Distance() * direction.Get_Distance())) * DEGREES_PER_RADIAN);
 	}
 	return 0;
 }
@@ -88,12 +88,12 @@ float Direction::Get_Distance(void) const
 
 float Direction::Get_X_Angle(void) const
 {
-	return angle_x * DEGREES_PER_RADIAN;
+	return (float)(angle_x * DEGREES_PER_RADIAN);
 }
 
 float Direction::Get_Y_Angle(void) const
 {
-	return angle_y * DEGREES_PER_RADIAN;
+	return (float)(angle_y * DEGREES_PER_RADIAN);
 }
 
 
@@ -122,19 +122,19 @@ void Direction::Set_Distance(const float in_distance)
 
 void Direction::Set_X_Angle(const float in_angle_x)
 {
-	angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	angle_x = (float)fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
 	if (angle_x < 0)
 	{
-		angle_x += 360.0 / DEGREES_PER_RADIAN;
+		angle_x += (float)(360.0 / DEGREES_PER_RADIAN);
 	}
 }
 
 void Direction::Set_Y_Angle(const float in_angle_y)
 {
-	angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	angle_y = (float)fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
 	if (angle_y < 0)
 	{
-		angle_y += 360.0 / DEGREES_PER_RADIAN;
+		angle_y += (float)(360.0 / DEGREES_PER_RADIAN);
 	}
 }
 
@@ -143,9 +143,9 @@ void Direction::Set_Y_Angle(const float in_angle_y)
 void Direction::Set_Coordinates(const float x, const float y, const float z)
 {
 	Set_Direction(
-		sqrt(x*x + y*y + z*z),
-		atan2(x, z) * DEGREES_PER_RADIAN,
-		atan2(y, sqrt(x*x + z*z)) * DEGREES_PER_RADIAN);
+		(float)(sqrt(x*x + y*y + z*z)),
+		(float)(atan2(x, z) * DEGREES_PER_RADIAN),
+		(float)(atan2(y, sqrt(x*x + z*z)) * DEGREES_PER_RADIAN));
 	return;
 }
 
@@ -164,15 +164,15 @@ void Direction::Set_Direction(const float in_distance, const float in_angle_x, c
 	distance = in_distance;
 	if (distance != 0)
 	{
-		angle_x = fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+		angle_x = (float)fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
 		if (angle_x < 0)
 		{
-			angle_x += 360.0 / DEGREES_PER_RADIAN;
+			angle_x += (float)(360.0 / DEGREES_PER_RADIAN);
 		}
-		angle_y = fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+		angle_y = (float)fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
 		if (angle_y < 0)
 		{
-			angle_y += 360.0 / DEGREES_PER_RADIAN;
+			angle_y += (float)(360.0 / DEGREES_PER_RADIAN);
 		}
 	}
 	else

@@ -16,7 +16,7 @@ Mesh::Mesh(const int group_size)
 	Group_Size = group_size;
 	vertices = std::vector<Vertex>();
 	elements = std::vector<int>();
-	texture = -1;
+	Texture_ID = -1;
 	return;
 }
 
@@ -28,7 +28,7 @@ Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
 	elements = std::vector<int>();
 	Add(add_vertices);
 	Group_Size = group_size;
-	texture = -1;
+	Texture_ID = -1;
 	return;
 }
 
@@ -43,7 +43,7 @@ Mesh::Mesh(const Mesh& mesh)
 	Group_Size = mesh.Group_Size;
 	Hitbox[0] = mesh.Hitbox[0];
 	Hitbox[1] = mesh.Hitbox[1];
-	texture = mesh.texture;
+	Texture_ID = mesh.Texture_ID;
 	return;
 }
 
@@ -55,8 +55,8 @@ Mesh::~Mesh(void)
 }
 
 
-// Once added to the object, the mesh is locked into place
-void Mesh::Initialize(void)
+// Once added to the object, the mesh is locked into place. If dynamic, Initialize() may be called again to set in changes. Forward compatability for Indigo20.
+void Mesh::Initialize(const bool dynamic)
 {
 	Smooth_Normals();
 	return;
@@ -135,33 +135,33 @@ Mesh Mesh::Sphere(const float radius, const int recursions, const bool draw_sphe
 Mesh Mesh::Box(const float width, const float height, const float length)
 {
 	Mesh mesh = Mesh();
-	float Half_Lengths[3] =
+	float half_lengths[3] =
 	{
 		width / 2.0f,
 		height / 2.0f,
 		length / 2.0f
 	};
-	int Pair[2] = { 0, 1 };
+	int pair[2] = { 0, 1 };
 	mesh.Group_Size = 4;
-	for (int Side = 0; Side<3; Side++)
+	for (int side = 0; side<3; side++)
 	{
-		for (int Twice = 0; Twice<2; Twice++)
+		for (int twice = 0; twice<2; twice++)
 		{
-			for (int Point = 0; Point<4; Point++)
+			for (int point = 0; point<4; point++)
 			{
-				Half_Lengths[Pair[Point % 2]] *= -1;
-				mesh += Vertex(Half_Lengths[0],
-					Half_Lengths[1], Half_Lengths[2]);
+				half_lengths[pair[point % 2]] *= -1;
+				mesh += Vertex(half_lengths[0],
+					half_lengths[1], half_lengths[2]);
 			}
-			if (0 == Twice)
+			if (0 == twice)
 			{
-				Half_Lengths[0] *= -1;
-				Half_Lengths[1] *= -1;
-				Half_Lengths[2] *= -1;
-				Half_Lengths[Pair[0]] *= -1;
+				half_lengths[0] *= -1;
+				half_lengths[1] *= -1;
+				half_lengths[2] *= -1;
+				half_lengths[pair[0]] *= -1;
 			}
 		}
-		Pair[2 != Pair[1]] += 1; // 0, 1; 0, 2; 1, 2
+		pair[2 != pair[1]] += 1; // 0, 1; 0, 2; 1, 2
 	}
 	return mesh;
 }
@@ -326,9 +326,9 @@ void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
 	{
 		Vertex last = add_vertices.back();
 	}
-	for (int Point = 0; Point<add_vertices.size(); ++Point)
+	for (std::size_t point = 0; point<add_vertices.size(); ++point)
 	{
-		Vertex add = add_vertices[Point];
+		Vertex add = add_vertices[point];
 		add += last;
 		Add(add);
 	}
@@ -361,7 +361,7 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 	end += 1;
 	std::vector<int> options = std::vector<int>(elements.begin() + beginning, elements.begin() + end);
 	std::vector<Vertex> all;
-	for (int i = 0; i < options.size(); ++i)
+	for (std::size_t i = 0; i < options.size(); ++i)
 	{
 		all.push_back(vertices[options[i]]);
 	}
@@ -421,14 +421,14 @@ Vertex Mesh::Flat_Normal(const int index) const
 
 
 // Get the smoother per-vertex normal for a vertex; calculate if needed
-Vertex Mesh::Smooth_Normal(const int index)
+Vertex Mesh::Smooth_Normal(const int index) const
 {
 	return smooth_normals[elements[index]];
 }
 
 
 // Texture the entire mesh with one file, texture coordinates will be used only once called
-void Mesh::Texture(char * filename)
+void Mesh::Texture(const char * filename)
 {
 	std::ifstream file(filename, std::ios::binary);
 	if (!file)
@@ -464,15 +464,15 @@ void Mesh::Texture(char * filename)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	texture = handle;
+	Texture_ID = handle;
 	delete [] data;
 }
 
 
 // Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-Vertex Mesh::Texture_Coordinate(const int index)
+Vertex Mesh::Texture_Coordinate(const int index) const
 {
-	if (texture_coordinates.size() < index + 1)
+	if (texture_coordinates.size() < (std::size_t)(index + 1))
 	{
 		return Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0);
 	}
@@ -490,9 +490,9 @@ Vertex Mesh::Texture_Coordinate(const int index)
 // Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
 void Mesh::Set_Texture_Coordinate(const int index, const Vertex& coordinate)
 {
-	if (texture_coordinates.size() < index + 1)
+	if (texture_coordinates.size() < (std::size_t)(index + 1))
 	{
-		for (int i = 0; i < texture_coordinates.size() - index - 1; ++i)
+		for (std::size_t i = 0; i < texture_coordinates.size() - index - 1; ++i)
 		{
 			texture_coordinates.push_back(Vertex(-1, -1, -1));
 		}
@@ -595,7 +595,7 @@ void Mesh::Add(const Mesh& mesh)
 // Add new vertices to the end of the mesh
 void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
-	for (int Point = 0; Point < add_vertices.size(); ++Point)
+	for (std::size_t Point = 0; Point < add_vertices.size(); ++Point)
 	{
 		Add(add_vertices[Point]);
 	}

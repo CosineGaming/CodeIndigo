@@ -11,7 +11,7 @@ class Camera
 public:
 	// Create a new camera by a position and a direction
 	Camera(const float x = 0.0, const float y = 0.0, const float z = 0.0,
-		Direction direction=Direction(1.0),
+		Direction looking=Direction(1.0),
 		Direction above=Direction(1.0, 0.0, 90.0));
 	// Create a camera based off another
 	Camera(const Camera& camera);
@@ -33,11 +33,13 @@ public:
 	void Watch(const Object& object, const Direction& direction);
 	// Look through the camera for this frame
 	void Look(void) const;
-	// Should be private, but copying.
+	// The direction of the camera that is up.
 	Direction up;
+	// The camera's position
 	float X;
 	float Y;
 	float Z;
+	// The way the camera is looking
 	Direction eye;
 private:
 };

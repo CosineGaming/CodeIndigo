@@ -10,18 +10,21 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color,
-	void(*update_function)(const int frame, Object& self), const bool smooth, const Direction& towards,
-	const bool world_collide, const float shine, const bool line)
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color, void(*update_function)(const int frame, Object& self),
+	const char * change_texture, const bool smooth, const Direction& towards, const bool dynamic_mesh, const bool world_collide, const float shine, const bool line)
 {
 	Place(x, y, z);
 	Data = mesh;
-	Data.Initialize();
-	object_color = color;
+	if (change_texture)
+	{
+		Data.Texture(change_texture);
+	}
+	Data.Initialize(dynamic_mesh);
+	Object_Color = color;
 	Update = update_function;
-	vertex_normals = smooth;
-	facing = towards;
-	object_shine = shine;
+	Vertex_Normals = smooth;
+	Facing = towards;
+	Object_Shine = shine;
 	Line = line;
 	World_Collide = world_collide;
 	Is_Blank = mesh.Size() == 0;
@@ -35,11 +38,11 @@ Object::Object(const Object& object)
 {
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
-	object_color = object.object_color;
+	Object_Color = object.Object_Color;
 	Update = object.Update;
-	vertex_normals = object.vertex_normals;
-	facing = object.facing;
-	object_shine = object.object_shine;
+	Vertex_Normals = object.Vertex_Normals;
+	Facing = object.Facing;
+	Object_Shine = object.Object_Shine;
 	Line = object.Line;
 	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
@@ -56,7 +59,7 @@ Object::~Object(void)
 
 
 // Renders the object
-void Object::Render(void)
+void Object::Render(void) const
 {
 	if (Is_Blank)
 	{
@@ -67,13 +70,13 @@ void Object::Render(void)
 	if (glIsEnabled(GL_LIGHTING))
 	{
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE,
-			object_color ? object_color : full_array);
+			Object_Color ? Object_Color : full_array);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, object_shine);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, Object_Shine);
 	}
 	else
 	{
-		float * color = object_color ? object_color : full_array;
+		float * color = Object_Color ? Object_Color : full_array;
 		glColor3f(color[0], color[1], color[2]);
 	}
 	if (Line)
@@ -84,28 +87,26 @@ void Object::Render(void)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	if (Data.texture != -1)
+	if (Data.Texture_ID != -1)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, Data.texture);
+		glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
 	}
 	else
 	{
 		glDisable(GL_TEXTURE_2D);
 	}
-	Direction around = Direction(1.0, 0.0, 0.0).Cross(facing);
-	around.Normalize();
-	facing.Normalize();
+	Direction around = Direction(1.0, 0.0, 0.0).Cross(Facing);
 	glPushMatrix();
 	glTranslatef(X, Y, Z);
-	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(facing), around.Get_X(), around.Get_Y(), around.Get_Z());
+	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), around.Get_X(), around.Get_Y(), around.Get_Z());
 	Direction forward = Direction(1.0, 0.0, 0.0);
-	glBegin(Render_Types[Data.Group_Size]);
+	glBegin(render_types[Data.Group_Size]);
 	for (int Point=0; Point<Data.Size(); ++Point)
 	{
 		// When each polygon is finished, calculate a light normal
 		Vertex normal;
-		if (vertex_normals)
+		if (Vertex_Normals)
 		{
 			normal = Data.Smooth_Normal(Point);
 		}
@@ -114,7 +115,7 @@ void Object::Render(void)
 			normal = Data.Flat_Normal(Point);
 		}
 		Vertex Cursor = Data[Point];
-		if (Data.texture != -1)
+		if (Data.Texture_ID != -1)
 		{
 			Vertex coord = Data.Texture_Coordinate(Point);
 			glTexCoord2f(coord.X, coord.Y);
@@ -141,7 +142,7 @@ void Object::Place(const float x, const float y, const float z)
 // Moves the forward, side, and up based on the facing direction
 void Object::Move(const float forward, const float side, const float up)
 {
-	Direction direction = facing;
+	Direction direction = Facing;
 	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();
@@ -248,4 +249,4 @@ void Object::Set_Hitbox(const float right, const float top, const float front, c
 
 
 // The OpenGL draw mode for each render type.
-const int Object::Render_Types[5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};
+const int Object::render_types[5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};

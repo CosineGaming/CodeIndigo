@@ -3,11 +3,12 @@
 #include <iostream>
 
 
-// Create new Text based off of the text
-Text::Text(const float x, const float y, char * display, float * color, void * font, const int frames_to_last, void(*finished)(void))
+// Create new text based off of the text. -1 is bottom, 1 is top. Text is placed with it's top-left corner at (text_x, text_y).
+// If frames_to_last is negative, text won't disappear.
+Text::Text(const float text_x, const float text_y, char * display, float * color, void * font, const int time_to_last, void(*finished_function)(void))
 {
-	X = x;
-	Y = y;
+	x = text_x;
+	x = text_y;
 	text = display;
 	text_color = color;
 	if (!text_color)
@@ -15,8 +16,15 @@ Text::Text(const float x, const float y, char * display, float * color, void * f
 		text_color = Indigo::White_Color;
 	}
 	typeset = font;
-	last = frames_to_last;
-	done = finished;
+	if (time_to_last >= 0)
+	{
+		finished = time_to_last + Indigo::Elapsed();
+	}
+	else
+	{
+		finished = time_to_last;
+	}
+	done = finished_function;
 	ID = 0;
 	return;
 }
@@ -25,12 +33,12 @@ Text::Text(const float x, const float y, char * display, float * color, void * f
 // Create new Text based off of another Text object
 Text::Text(const Text& copy)
 {
-	X = copy.X;
-	Y = copy.Y;
+	x = copy.x;
+	x = copy.y;
 	text = copy.text;
 	text_color = copy.text_color;
 	typeset = copy.typeset;
-	last = copy.last;
+	finished = copy.finished;
 	done = copy.done;
 	ID = copy.ID;
 	return;
@@ -45,22 +53,15 @@ Text::~Text()
 
 
 // Render the text
-void Text::Render(void)
+void Text::Render(void) const
 {
-	if (last != 0)
+	glColor3f(text_color[0], text_color[1], text_color[2]);
+	glRasterPos2f(x, y);
+	for (int character = 0; text[character] != '\0'; ++character)
 	{
-		glColor3f(text_color[0], text_color[1], text_color[2]);
-		glRasterPos2f(X, Y);
-		for (int character = 0; text[character] != '\0'; ++character)
-		{
-			glutBitmapCharacter(typeset, text[character]);
-		}
-		if (last > 0)
-		{
-			last--;
-		}
+		glutBitmapCharacter(typeset, text[character]);
 	}
-	else
+	if (Indigo::Elapsed() >= finished && finished >= 0)
 	{
 		if (done)
 		{

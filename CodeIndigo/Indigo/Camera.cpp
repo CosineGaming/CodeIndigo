@@ -6,11 +6,11 @@
 #include "glut.h"
 
 
-Camera::Camera(float x, float y, float z, Direction direction, Direction above)
+Camera::Camera(float x, float y, float z, Direction looking, Direction above)
 {
 	// Create a new camera by a position and a direction
 	Place(x, y, z);
-	eye = direction;
+	eye = looking;
 	up = above;
 	return;
 }
@@ -96,7 +96,7 @@ void Camera::Look_Towards(const float x, const float y, const float z)
 // Look at an object
 void Camera::Watch(const Object& object, const Direction& relative_camera_position)
 {
-	Direction position = object.facing;
+	Direction position = object.Facing;
 	position.Add_Direction(0.0, relative_camera_position.Get_X_Angle(), relative_camera_position.Get_Y_Angle());
 	Place(position.Get_X() + object.X,
 		position.Get_Y() + object.Y,

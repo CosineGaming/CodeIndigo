@@ -10,10 +10,8 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(int argc, char ** argv, const char * window_name,
-		const int& max_framerate, const bool& fullscreen, float * background,
-		const int& window_width, const int& window_height,
-		const int& field_of_view)
+	void Initialize(int argc, char ** argv, const char * window_name, const int max_framerate, const bool fullscreen, float * background,
+		const int window_width, const int window_height, const int field_of_view)
 	{
 		// Initiate glut
 		glutInit(&argc, argv);
@@ -88,7 +86,7 @@ namespace Indigo
 		glMatrixMode(GL_MODELVIEW);
 	}
 
-	// Acts for keys which act once, and stores for multi-acting keys
+	// Acts for Keys which act once, and stores for multi-acting Keys
 	void Key_Pressed(unsigned char key, int x, int y)
 	{
 		// Convert uppercases to lowercase
@@ -100,12 +98,12 @@ namespace Indigo
 		{
 			Key_Pressed_Function(key, x, y);
 		}
-		keys[key] = true;
+		Keys[key] = true;
 		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
 		return;
 	}
 
-	// Acts for keys which act on release, and removes stored keys
+	// Acts for Keys which act on release, and removes stored Keys
 	void Key_Released(unsigned char key, int x, int y)
 	{
 		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
@@ -118,7 +116,7 @@ namespace Indigo
 		{
 			Key_Released_Function(key, x, y);
 		}
-		keys[key] = false;
+		Keys[key] = false;
 		return;
 	}
 
@@ -198,20 +196,20 @@ namespace Indigo
 			Relative_Mouse_Moved_Function = nullptr;
 			return;
 		}
-		float y_angle = player->facing.Get_Y_Angle() + y * -1 * sensitivity;
+		float y_angle = player->Facing.Get_Y_Angle() + y * -1 * sensitivity;
 		if (!(y_angle > 89 && y_angle < 271))
 		{
-			player->facing.Add_Direction(0.0, x * -1 * sensitivity, y * -1 * sensitivity);
+			player->Facing.Add_Direction(0.0, x * -1 * sensitivity, y * -1 * sensitivity);
 		}
 		else
 		{
 			if (y_angle < 180)
 			{
-				player->facing.Set_Direction(1.0, player->facing.Get_X_Angle() + x * -1 * sensitivity, 89);
+				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * -1 * sensitivity, 89);
 			}
 			else
 			{
-				player->facing.Set_Direction(1.0, player->facing.Get_X_Angle() + x * -1 * sensitivity, 271);
+				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * -1 * sensitivity, 271);
 			}
 		}
 	}
@@ -267,7 +265,7 @@ namespace Indigo
 	}
 
 	// Get elapsed time in the game, optional modulo for partial times
-	int Elapsed(const int& modulo)
+	int Elapsed(const int modulo)
 	{
 		return modulo == 0 ? glutGet(GLUT_ELAPSED_TIME) : glutGet(GLUT_ELAPSED_TIME % modulo);
 	}
@@ -308,7 +306,7 @@ namespace Indigo
 
 
 	// Members with the index of a key which is currently down are true
-	bool keys[256];
+	bool Keys[256];
 
 	// Stores whether shift is pressed
 	bool Shift = false;
