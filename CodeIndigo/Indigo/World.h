@@ -30,6 +30,20 @@ public:
 	// Renders every object in the world
 	void Render(void) const;
 
+	/*
+	Add a skybox, a backdrop to the world. Accepts a filename of a texture.
+	The texture will be in the format of six square textures arranged like this:
+	     -----
+	     |Top|
+	-----------------------
+	|Left|Front|Right|Back|
+	-----------------------
+	    |Bottom|
+	    -------------
+	Set to nullptr to remove the skybox.
+	*/
+	void Add_Skybox(const char * texture);
+
 	// Adds an object to the world to be rendered and updated, returns an object ID
 	int Add_Object(const Object& object);
 	// Gets an object based on an index. DO NOT attempt to store the reference after a push_back. Ever.
@@ -92,5 +106,7 @@ private:
 	std::vector<Object> objects_2d;
 	std::vector<Text> texts;
 	std::vector<Animation> animations;
+
+	Object skybox;
 
 };

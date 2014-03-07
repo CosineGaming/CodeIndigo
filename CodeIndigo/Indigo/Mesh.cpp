@@ -134,35 +134,40 @@ Mesh Mesh::Sphere(const float radius, const int recursions, const bool draw_sphe
 
 Mesh Mesh::Box(const float width, const float height, const float length)
 {
-	Mesh mesh = Mesh();
-	float half_lengths[3] =
-	{
-		width / 2.0f,
-		height / 2.0f,
-		length / 2.0f
-	};
-	int pair[2] = { 0, 1 };
-	mesh.Group_Size = 4;
-	for (int side = 0; side<3; side++)
-	{
-		for (int twice = 0; twice<2; twice++)
-		{
-			for (int point = 0; point<4; point++)
-			{
-				half_lengths[pair[point % 2]] *= -1;
-				mesh += Vertex(half_lengths[0],
-					half_lengths[1], half_lengths[2]);
-			}
-			if (0 == twice)
-			{
-				half_lengths[0] *= -1;
-				half_lengths[1] *= -1;
-				half_lengths[2] *= -1;
-				half_lengths[pair[0]] *= -1;
-			}
-		}
-		pair[2 != pair[1]] += 1; // 0, 1; 0, 2; 1, 2
-	}
+	float r_width = width / 2.0;
+	float r_height = height / 2.0;
+	float r_length = length / 2.0;
+	Mesh mesh = Mesh(4)
+		// Front
+		+ Vertex(-r_width,  r_height,  r_length)
+		+ Vertex( r_width,  r_height,  r_length)
+		+ Vertex( r_width, -r_height,  r_length)
+		+ Vertex(-r_width, -r_height,  r_length)
+		// Back
+		+ Vertex(-r_width,  r_height, -r_length)
+		+ Vertex( r_width,  r_height, -r_length)
+		+ Vertex( r_width, -r_height, -r_length)
+		+ Vertex(-r_width, -r_height, -r_length)
+		// Left
+		+ Vertex(-r_width,  r_height, -r_length)
+		+ Vertex(-r_width,  r_height,  r_length)
+		+ Vertex(-r_width, -r_height,  r_length)
+		+ Vertex(-r_width, -r_height, -r_length)
+		// Right
+		+ Vertex( r_width,  r_height, -r_length)
+		+ Vertex( r_width,  r_height,  r_length)
+		+ Vertex( r_width, -r_height,  r_length)
+		+ Vertex( r_width, -r_height, -r_length)
+		// Top
+		+ Vertex(-r_width,  r_height, -r_length)
+		+ Vertex( r_width,  r_height, -r_length)
+		+ Vertex( r_width,  r_height,  r_length)
+		+ Vertex(-r_width,  r_height,  r_length)
+		// Bottom
+		+ Vertex(-r_width, -r_height, -r_length)
+		+ Vertex( r_width, -r_height, -r_length)
+		+ Vertex( r_width, -r_height,  r_length)
+		+ Vertex(-r_width, -r_height,  r_length);
 	return (mesh);
 }
 
@@ -397,6 +402,7 @@ void Mesh::Smooth_Normals(void)
 		else
 		{
 			// Incorrectly ==ed, pick a fairly random but hopefully related normal
+			std::cout << "Compen! Compensation! Ba-dum... Dum!" << std::endl;
 			smooth_normals.push_back(Flat_Normal(point * Group_Size));
 		}
 	}
@@ -524,11 +530,11 @@ void Mesh::Add(const Vertex& vertex)
 {
 	// Checks if this vertex has been mentioned before
 	bool duplicate = false;
-	for (int Check = 0; Check<Vertex_Data_Amount(); ++Check)
+	for (int check = 0; check<Vertex_Data_Amount(); ++check)
 	{
-		if (vertex == vertices[Check])
+		if (vertex == vertices[check])
 		{
-			elements.push_back(Check);
+			elements.push_back(check);
 			duplicate = true;
 		}
 	}
@@ -589,9 +595,9 @@ void Mesh::Add(const Vertex& vertex)
 // Add new vertices to the end of the mesh
 void Mesh::Add(const Mesh& mesh)
 {
-	for (int Point = 0; Point < mesh.Size(); ++Point)
+	for (int point = 0; point < mesh.Size(); ++point)
 	{
-		Add(mesh[Point]);
+		Add(mesh[point]);
 	}
 	return;
 }
@@ -600,9 +606,9 @@ void Mesh::Add(const Mesh& mesh)
 // Add new vertices to the end of the mesh
 void Mesh::Add(const std::vector <Vertex>& add_vertices)
 {
-	for (std::size_t Point = 0; Point < add_vertices.size(); ++Point)
+	for (std::size_t point = 0; point < add_vertices.size(); ++point)
 	{
-		Add(add_vertices[Point]);
+		Add(add_vertices[point]);
 	}
 	return;
 }

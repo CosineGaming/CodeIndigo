@@ -31,8 +31,10 @@ public:
 	void Look_Towards(const float x, const float y, const float z);
 	// Look at an object
 	void Watch(const Object& object, const Direction& direction);
-	// Look through the camera for this frame
+	// Look through the camera for this frame with a full transformation
 	void Look(void) const;
+	// Look through the camera, but at the position 0,0,0. Used for Skybox.
+	void Look_In_Place(void) const;
 	// The direction of the camera that is up.
 	Direction Up;
 	// The camera's position

@@ -16,6 +16,7 @@ World::World(void)
 	texts = std::vector<Text>();
 	Light_Setup = Lighting();
 	View = Camera();
+	skybox = Object();
 	return;
 }
 
@@ -27,6 +28,7 @@ World::World(const World& world)
 	texts = world.texts;
 	Light_Setup = world.Light_Setup;
 	View = world.View;
+	skybox = world.skybox;
 	return;
 }
 
@@ -45,18 +47,18 @@ void World::Update(const int time)
 	{
 		Update_Function(time);
 	}
-	for (std::size_t Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
+	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
-		if (objects[Object_ID].Update)
+		if (objects[object].Update)
 		{
-			objects[Object_ID].Update(time, objects[Object_ID]);
+			objects[object].Update(time, objects[object]);
 		}
 	}
-	for (std::size_t Object_ID = 0; Object_ID<objects_2d.size(); ++Object_ID)
+	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
-		if (objects_2d[Object_ID].Update)
+		if (objects_2d[object].Update)
 		{
-			objects_2d[Object_ID].Update(time, objects_2d[Object_ID]);
+			objects_2d[object].Update(time, objects_2d[object]);
 		}
 	}
 	return;
@@ -66,33 +68,110 @@ void World::Update(const int time)
 // Renders every object in the world
 void World::Render(void) const
 {
+
+	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Indigo::Reshape();
+	Light_Setup.Update_Lights();
+
+	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
+	if (!skybox.Is_Blank)
+	{
+		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		View.Look_In_Place();
+		skybox.Render();
+	}
+
+	// HUD Object: View Transform, Perspective, Lighting, No Depth Test
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
-	Indigo::Reshape();
+
+	// Standard Object: View Transform, Perspective, Lighting, Depth Test
 	View.Look();
-	Light_Setup.Update_Lights();
-	for (std::size_t Object_ID = 0; Object_ID<objects.size(); ++Object_ID)
+	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
-		objects[Object_ID].Render();
+		objects[object].Render();
 	}
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glOrtho(-1 * Indigo::Aspect_Ratio, Indigo::Aspect_Ratio, -1, 1, -1, 1);
+
+	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
+	Indigo::Reshape_2D();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
-	for (std::size_t Object_ID = 0; Object_ID<objects_2d.size(); ++Object_ID)
+	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
-		objects_2d[Object_ID].Render();
+		objects_2d[object].Render();
 	}
 	for (std::size_t text = 0; text < texts.size(); ++text)
 	{
 		texts[text].Render();
 	}
+	
+	// Finish Frame
 	glutSwapBuffers();
 	return;
+
+}
+
+
+/*
+Add a skybox, a backdrop to the world. Accepts a filename of a texture.
+The texture will be in the format of six square textures arranged like this:
+     -----
+     |Top|
+-----------------------
+|Left|Front|Right|Back|
+-----------------------
+    |Bottom|
+    --------
+Set to nullptr to remove the skybox.
+*/
+void World::Add_Skybox(const char * texture)
+{
+
+	if (!texture)
+	{
+		skybox = Object();
+		return;
+	}
+
+	Mesh mesh = Mesh::Cube(0.5);
+	mesh.Texture(texture);
+
+	// Front
+	mesh.Set_Texture_Coordinate(3 , Vertex(0.25, 0.3333));
+	mesh.Set_Texture_Coordinate(2 , Vertex(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(1 , Vertex(0.50, 0.6666));
+	mesh.Set_Texture_Coordinate(0 , Vertex(0.25, 0.6666));
+	// Back
+	mesh.Set_Texture_Coordinate(6 , Vertex(0.75, 0.3333));
+	mesh.Set_Texture_Coordinate(7 , Vertex(1.00, 0.3333));
+	mesh.Set_Texture_Coordinate(4 , Vertex(1.00, 0.6666));
+	mesh.Set_Texture_Coordinate(5 , Vertex(0.75, 0.6666));
+	// Left
+	mesh.Set_Texture_Coordinate(11, Vertex(0.00, 0.3333));
+	mesh.Set_Texture_Coordinate(10, Vertex(0.25, 0.3333));
+	mesh.Set_Texture_Coordinate(9 , Vertex(0.25, 0.6666));
+	mesh.Set_Texture_Coordinate(8 , Vertex(0.00, 0.6666));
+	// Right
+	mesh.Set_Texture_Coordinate(14, Vertex(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(15, Vertex(0.75, 0.3333));
+	mesh.Set_Texture_Coordinate(12, Vertex(0.75, 0.6666));
+	mesh.Set_Texture_Coordinate(13, Vertex(0.50, 0.6666));
+	// Bottom
+	mesh.Set_Texture_Coordinate(19, Vertex(0.25, 0.6666));
+	mesh.Set_Texture_Coordinate(18, Vertex(0.50, 0.6666));
+	mesh.Set_Texture_Coordinate(17, Vertex(0.50, 1.0000));
+	mesh.Set_Texture_Coordinate(16, Vertex(0.25, 1.0000));
+	// Top
+	mesh.Set_Texture_Coordinate(21, Vertex(0.25, 0.0000));
+	mesh.Set_Texture_Coordinate(20, Vertex(0.50, 0.0000));
+	mesh.Set_Texture_Coordinate(23, Vertex(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(22, Vertex(0.25, 0.3333));
+
+	skybox = Object(0, 0, 0, mesh);
+	return;
+
 }
 
 
@@ -231,13 +310,13 @@ int World::Number_Of_Texts(void)
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 int World::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
 {
-	for (std::size_t Object = 0; Object < objects.size(); ++Object)
+	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
-		if (Object != object.ID && objects[Object].World_Collide)
+		if (object != objects[object].ID && objects[object].World_Collide)
 		{
-			if (objects[Object].Collide(object, add_x, add_y, add_z))
+			if (objects[object].Collide(object, add_x, add_y, add_z))
 			{
-				return (Object);
+				return (object);
 				break;
 			}
 		}
@@ -249,11 +328,11 @@ int World::Collide(const Object& object, const float add_x, const float add_y, c
 // Checks whether any object will ever be intersected by a direction
 int World::Collide(const Direction& position, const Direction& direction)
 {
-	for (std::size_t Object = 0; Object < objects.size(); ++Object)
+	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
-		if (objects[Object].World_Collide && objects[Object].Collide(position, direction))
+		if (objects[object].World_Collide && objects[object].Collide(position, direction))
 		{
-			return (Object);
+			return (object);
 		}
 	}
 	return (-1);
@@ -263,11 +342,11 @@ int World::Collide(const Direction& position, const Direction& direction)
 // Checks whether a vertex is within any object
 int World::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
 {
-	for (std::size_t Object = 0; Object < objects.size(); ++Object)
+	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
-		if (objects[Object].World_Collide && objects[Object].Collide(vertex, add_x, add_y, add_z))
+		if (objects[object].World_Collide && objects[object].Collide(vertex, add_x, add_y, add_z))
 		{
-			return (Object);
+			return (object);
 		}
 	}
 	return (-1);

@@ -52,16 +52,15 @@ void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 	float specular_array[] = {specular, specular, specular, 1.0};
 	if (color_offset)
 	{
-		for (int Color = 0; Color<3; ++Color)
+		for (int color = 0; color<3; ++color)
 		{
-			specular_array[Color] += color_offset[Color];
+			specular_array[color] += color_offset[color];
 		}
 	}
 	light_positions[number_of_lights][0] = position_array[0];
 	light_positions[number_of_lights][1] = position_array[1];
 	light_positions[number_of_lights][2] = position_array[2];
 	light_positions[number_of_lights][3] = position_array[3];
-	std::cout << position_array[3];
 	glEnable(light);
 	for (int i=number_of_lights+1; i<8; ++i)
 	{
@@ -78,9 +77,9 @@ void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 // Update the positions of all lights, and ensure they're enabled
 void Lighting::Update_Lights(void) const
 {
-	for (int Light = 0; Light<number_of_lights; ++Light)
+	for (int light = 0; light<number_of_lights; ++light)
 	{
-		glLightfv(light_values[Light], GL_POSITION, light_positions[Light]);
+		glLightfv(light_values[light], GL_POSITION, light_positions[light]);
 	}
 }
 

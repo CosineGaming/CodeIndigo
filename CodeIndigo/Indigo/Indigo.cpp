@@ -66,14 +66,12 @@ namespace Indigo
 	// Acts for when the window reshapes
 	void Reshape(int width, int height)
 	{
-		bool viewport = true;
 		if (0 == width || 0 == height)
 		{
 			width = glutGet(GLUT_WINDOW_WIDTH);
 			height = glutGet(GLUT_WINDOW_HEIGHT);
-			viewport = false;
 		}
-		if (viewport)
+		else
 		{
 			glViewport(0, 0, width, height);
 		}
@@ -83,6 +81,25 @@ namespace Indigo
 		gluPerspective(Field_Of_View, Aspect_Ratio, 0.01, 500.0);
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
+		glMatrixMode(GL_MODELVIEW);
+	}
+
+	// Acts for when the window reshapes in an Orthographic environment
+	void Reshape_2D(int width, int height)
+	{
+		if (0 == width || 0 == height)
+		{
+			width = glutGet(GLUT_WINDOW_WIDTH);
+			height = glutGet(GLUT_WINDOW_HEIGHT);
+		}
+		else
+		{
+			glViewport(0, 0, width, height);
+		}
+		Aspect_Ratio = (float) width / (float) height;
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(-1 * Aspect_Ratio, Aspect_Ratio, -1, 1, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
 	}
 
@@ -243,6 +260,7 @@ namespace Indigo
 		static int last_time = 0;
 		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
 		last_time = glutGet(GLUT_ELAPSED_TIME);
+		Actual_FPS = 1000.0 / last_time;
 		if (Update_Function)
 		{
 			Update_Function(delta_time);
@@ -319,6 +337,9 @@ namespace Indigo
 
 	// Stores the aspect ratio of the screen
 	float Aspect_Ratio = 1;
+
+	// Stores the current actual FPS of the update loop
+	int Actual_FPS;
 
 
 	// Colors

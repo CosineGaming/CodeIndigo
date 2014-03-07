@@ -27,6 +27,7 @@ Animation::Animation(Mesh * original, Mesh finished, int frames)
 		animations.push_back(Animation(&((*original)[point].Z), finished[point].Z, frames));
 	}
 	ID = -1;
+	return;
 }
 
 
@@ -37,6 +38,7 @@ Animation::Animation(Object * original, float x, float y, float z, int frames)
 	animations.push_back(Animation(&(original->Y), y, frames));
 	animations.push_back(Animation(&(original->Z), z, frames));
 	ID = -1;
+	return;
 }
 
 

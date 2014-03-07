@@ -59,7 +59,10 @@ float Direction::Angle_Distance(const Direction& direction) const
 	{
 		return (float)(acos(Dot(direction) / (Get_Distance() * direction.Get_Distance())) * DEGREES_PER_RADIAN);
 	}
-	return (0);
+	else
+	{
+		return (0);
+	}
 }
 
 

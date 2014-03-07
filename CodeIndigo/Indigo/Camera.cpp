@@ -6,9 +6,9 @@
 #include "glut.h"
 
 
+// Create a new camera by a position and a direction
 Camera::Camera(float x, float y, float z, Direction looking, Direction above)
 {
-	// Create a new camera by a position and a direction
 	Place(x, y, z);
 	Eye = looking;
 	Up = above;
@@ -16,9 +16,9 @@ Camera::Camera(float x, float y, float z, Direction looking, Direction above)
 }
 
 
+// Create a camera based off another
 Camera::Camera(const Camera& camera)
 {
-	// Create a camera based off another
 	Place(camera.X, camera.Y, camera.Z);
 	Look_At(camera.Eye);
 	Up = camera.Up;
@@ -27,16 +27,16 @@ Camera::Camera(const Camera& camera)
 
 
 
+// Remove the camera and free memory
 Camera::~Camera(void)
 {
-	// Remove the camera and free memory
 	return;
 }
 
 
+// Place the camera at a point
 void Camera::Place(const float x, const float y, const float z)
 {
-	// Place the camera at a point
 	X = x;
 	Y = y;
 	Z = z;
@@ -44,9 +44,9 @@ void Camera::Place(const float x, const float y, const float z)
 }
 
 
+// Move relative to the way it's pointing and where it is
 void Camera::Move(const float forward, const float side, const float up)
 {
-	// Move relative to the way it's pointing and where it is
 	Direction direction = Eye;
 	direction.Set_Direction(forward, direction.Get_X_Angle(), 0.0);
 	X += direction.Get_X();
@@ -108,12 +108,23 @@ void Camera::Watch(const Object& object, const Direction& relative_camera_positi
 }
 
 
+// Look through the camera for this frame with a full transformation
 void Camera::Look(void) const
 {
-	// Look through the camera for this frame
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(X, Y, Z, X + Eye.Get_X(), Y + Eye.Get_Y(), Z + Eye.Get_Z(),
+		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
+	return;
+}
+
+
+// Look through the camera, but at the position 0,0,0. Used for Skybox.
+void Camera::Look_In_Place(void) const
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0, 0, 0, Eye.Get_X(), Eye.Get_Y(), Eye.Get_Z(),
 		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
 	return;
 }

@@ -101,22 +101,22 @@ void Object::Render(void) const
 	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), around.Get_X(), around.Get_Y(), around.Get_Z());
 	Direction forward = Direction(1.0, 0.0, 0.0);
 	glBegin(render_types[Data.Group_Size]);
-	for (int Point=0; Point<Data.Size(); ++Point)
+	for (int point = 0; point<Data.Size(); ++point)
 	{
 		// When each polygon is finished, calculate a light normal
 		Vertex normal;
 		if (Vertex_Normals)
 		{
-			normal = Data.Smooth_Normal(Point);
+			normal = Data.Smooth_Normal(point);
 		}
 		else
 		{
-			normal = Data.Flat_Normal(Point);
+			normal = Data.Flat_Normal(point);
 		}
-		Vertex Cursor = Data[Point];
+		Vertex Cursor = Data[point];
 		if (Data.Texture_ID != -1)
 		{
-			Vertex coord = Data.Texture_Coordinate(Point);
+			Vertex coord = Data.Texture_Coordinate(point);
 			glTexCoord2f(coord.X, coord.Y);
 		}
 		glNormal3f(normal.X, normal.Y, normal.Z);
