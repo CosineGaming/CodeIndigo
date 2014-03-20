@@ -13,6 +13,8 @@
 World::World(void)
 {
 	objects = std::vector<Object>();
+	objects_front = std::vector<Object>();
+	objects_2d = std::vector<Object>();
 	texts = std::vector<Text>();
 	Light_Setup = Lighting();
 	View = Camera();
@@ -25,6 +27,8 @@ World::World(void)
 World::World(const World& world)
 {
 	objects = world.objects;
+	objects_front = world.objects_front;
+	objects_2d = world.objects_2d;
 	texts = world.texts;
 	Light_Setup = world.Light_Setup;
 	View = world.View;
@@ -54,6 +58,13 @@ void World::Update(const int time)
 			objects[object].Update(time, objects[object]);
 		}
 	}
+	for (std::size_t object = 0; object < objects_front.size(); ++object)
+	{
+		if (objects_front[object].Update)
+		{
+			objects_front[object].Update(time, objects[object]);
+		}
+	}
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
 		if (objects_2d[object].Update)
@@ -77,27 +88,32 @@ void World::Render(void) const
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
+		View.Look_In_Place();
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
-		View.Look_In_Place();
 		skybox.Render();
 	}
 
-	// HUD Object: View Transform, Perspective, Lighting, No Depth Test
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
-
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
 	View.Look();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
 		objects[object].Render();
 	}
 
+	// Front Object: View Pointing, Perspective, Lighting, No Depth Test, No View Translate
+	View.Look_Default();
+	glDisable(GL_DEPTH_TEST);
+	for (std::size_t object = 0; object < objects_front.size(); ++object)
+	{
+		objects_front[object].Render();
+	}
+
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
 	Indigo::Reshape_2D();
 	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
 		objects_2d[object].Render();
@@ -199,6 +215,38 @@ void World::Remove_Object(const int id)
 
 // Removes an object from the world based on object; gets ID automatically
 void World::Remove_Object(const Object& object)
+{
+	objects[object.ID] = Object();
+	return;
+}
+
+
+// Adds a front object to the world to be rendered and updated, returns an object ID.
+// A front object is 3D, but doesn't get covered up by normal 3D objects. (Drawn in order of added)
+// A front object is also not affected by the view. The camera is assumed to look in the negative Z direction at 0,0,0.
+int World::Add_Front_Object(const Object& object)
+{
+	objects_front.push_back(object);
+	int Object_ID = objects_front.size() - 1;
+	objects_front[Object_ID].ID = Object_ID;
+	return (Object_ID);
+}
+
+// Gets a front object based on an index. DO NOT attempt to store the reference after a push_back. Ever. Velociraptors.
+Object& World::Get_Front_Object(const int id) const
+{
+	return (const_cast <Object&>(objects_front[id]));
+}
+
+// Removes a front object from the world based on an object ID
+void World::Remove_Front_Object(const int id)
+{
+	objects_front[id] = Object();
+	return;
+}
+
+// Removes a front object from the world based on object; gets ID automatically
+void World::Remove_Front_Object(const Object& object)
 {
 	objects[object.ID] = Object();
 	return;

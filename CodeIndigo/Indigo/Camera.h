@@ -35,6 +35,8 @@ public:
 	void Look(void) const;
 	// Look through the camera, but at the position 0,0,0. Used for Skybox.
 	void Look_In_Place(void) const;
+	// Look through the camera at the position 0,0,0 pointing in the negative Z direction.
+	void Look_Default(void) const;
 	// The direction of the camera that is up.
 	Direction Up;
 	// The camera's position

@@ -167,21 +167,15 @@ void Direction::Add_Coordinates(const float x, const float y, const float z)
 void Direction::Set_Direction(const float in_distance, const float in_angle_x, const float in_angle_y)
 {
 	distance = in_distance;
-	if (distance != 0)
+	angle_x = (float)fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_x < 0)
 	{
-		angle_x = (float)fmod(in_angle_x / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-		if (angle_x < 0)
-		{
-			angle_x += (float)(360.0 / DEGREES_PER_RADIAN);
-		}
-		angle_y = (float)fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
-		if (angle_y < 0)
-		{
-			angle_y += (float)(360.0 / DEGREES_PER_RADIAN);
-		}
+		angle_x += (float)(360.0 / DEGREES_PER_RADIAN);
 	}
-	else
+	angle_y = (float)fmod(in_angle_y / DEGREES_PER_RADIAN, 360.0 / DEGREES_PER_RADIAN);
+	if (angle_y < 0)
 	{
+		angle_y += (float)(360.0 / DEGREES_PER_RADIAN);
 	}
 	return;
 }

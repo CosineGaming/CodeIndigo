@@ -95,15 +95,13 @@ void Object::Render(void) const
 	{
 		glDisable(GL_TEXTURE_2D);
 	}
-	Direction around = Direction(1.0, 0.0, 0.0).Cross(Facing);
 	glPushMatrix();
 	glTranslatef(X, Y, Z);
+	Direction around = Facing.Cross(Direction(1.0, 0.0, 0.0));
 	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), around.Get_X(), around.Get_Y(), around.Get_Z());
-	Direction forward = Direction(1.0, 0.0, 0.0);
 	glBegin(render_types[Data.Group_Size]);
 	for (int point = 0; point<Data.Size(); ++point)
 	{
-		// When each polygon is finished, calculate a light normal
 		Vertex normal;
 		if (Vertex_Normals)
 		{

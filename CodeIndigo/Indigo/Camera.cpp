@@ -128,3 +128,12 @@ void Camera::Look_In_Place(void) const
 		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
 	return;
 }
+
+
+// Look through the camera at the position 0,0,0 pointing in the negative Z direction.
+void Camera::Look_Default(void) const
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	return;
+}

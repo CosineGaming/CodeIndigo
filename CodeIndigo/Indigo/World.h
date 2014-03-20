@@ -21,7 +21,7 @@ public:
 	// Create a new, empty world
 	World(void);
 	// Copy a world
-	World::World(const World& world);
+	World(const World& world);
 	// Deletes the world, opens memory
 	~World(void);
 
@@ -52,6 +52,17 @@ public:
 	void Remove_Object(const int id);
 	// Removes an object from the world based on object; gets ID automatically
 	void Remove_Object(const Object& object);
+
+	// Adds a front object to the world to be rendered and updated, returns an object ID.
+	// A front object is 3D, but doesn't get covered up by normal 3D objects. (Drawn in order of added)
+	// A front object is also not affected by the view. The camera is assumed to look in the negative Z direction at 0,0,0.
+	int Add_Front_Object(const Object& object);
+	// Gets a front object based on an index. DO NOT attempt to store the reference after a push_back. Ever. Velociraptors.
+	Object& Get_Front_Object(const int id) const;
+	// Removes a front object from the world based on an object ID
+	void Remove_Front_Object(const int id);
+	// Removes a front object from the world based on object; gets ID automatically
+	void Remove_Front_Object(const Object& object);
 
 	// Adds a 2D object to the world to be rendered and updated, returns an object ID
 	int Add_2D_Object(const Object& object);
@@ -103,6 +114,7 @@ public:
 private:
 
 	std::vector<Object> objects;
+	std::vector<Object> objects_front;
 	std::vector<Object> objects_2d;
 	std::vector<Text> texts;
 	std::vector<Animation> animations;

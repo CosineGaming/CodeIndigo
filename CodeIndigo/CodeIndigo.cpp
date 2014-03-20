@@ -1,4 +1,5 @@
 #include "Indigo\IndigoEngine.h"
+#include <iostream>
 
 void update(int time, Object& self)
 {
@@ -36,14 +37,31 @@ void rotate(int time, Object& self)
 	self.Facing.Add_Direction(0.0, 0.24 * time);
 }
 
+void shiny(int time, Object& self)
+{
+	static int direction = 1;
+	self.Object_Shine += direction * time * 0.001;
+	if (self.Object_Shine >= 128)
+	{
+		self.Object_Shine = 128;
+		direction = -1;
+	}
+	if (self.Object_Shine <= 0)
+	{
+		self.Object_Shine = 0;
+		direction = 1;
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize(argc, argv, "My test!");
 	Indigo::Current_World.Add_Skybox("Textures\\Skybox.bmp");
 	Indigo::Current_World.Light_Setup.Add_Light(0, 0, 0, false);
-	Indigo::Current_World.Add_Object(Object(0, 0, -5, Mesh::Cube(2), nullptr, rotate));
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh::Sphere(200, 5), Indigo::Blue_Color));
-	Indigo::Current_World.Add_Object(Object(0, 5, 5, Mesh::Sphere(2), Indigo::Red_Color, go_up, "Textures\\texture.bmp"));
+	Indigo::Current_World.Add_Front_Object(Object(0.5, -0.5, 0.0, Mesh::Box(0.1, 0.1, 2.0)));
+	Indigo::Current_World.Add_Object(Object(0, 0, -5, Mesh::Cube(2), nullptr, rotate, nullptr, false, Direction(1,0,0), false, true, 0));
+	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh::Sphere(200, 5), Indigo::Blue_Color, shiny, nullptr, true, Direction(1, 0, 0), false, true, 0));
+	Indigo::Current_World.Add_Object(Object(0, 5, 5, Mesh::Sphere(2), Indigo::Red_Color, go_up, "Textures\\texture.bmp", false));
 	Indigo::Current_World.Add_Object(Object(0, -1.5, 0, Mesh::Rectangle(0.2,0.2), nullptr, nullptr, "Textures\\Floor.bmp", false, Direction(1,0,90)));
 	Indigo::Current_World.Add_Object(player);
 	Indigo::Run();
