@@ -79,7 +79,7 @@ float Direction::Get_Y(void) const
 
 float Direction::Get_Z(void) const
 {
-	return (cos(angle_x) * cos(angle_y) * distance);
+	return (cos(angle_x) * cos(angle_y) * distance * -1);
 }
 
 
@@ -147,10 +147,11 @@ void Direction::Set_Y_Angle(const float in_angle_y)
 // Set the coordinates of the direction
 void Direction::Set_Coordinates(const float x, const float y, const float z)
 {
+	float Z = z * -1;
 	Set_Direction(
-		(float)(sqrt(x*x + y*y + z*z)),
-		(float)(atan2(x, z) * DEGREES_PER_RADIAN),
-		(float)(atan2(y, sqrt(x*x + z*z)) * DEGREES_PER_RADIAN));
+		(float) (sqrt(x*x + y*y + Z*Z)),
+		(float) (atan2(x, Z) * DEGREES_PER_RADIAN),
+		(float) (atan2(y, sqrt(x*x + Z*Z)) * DEGREES_PER_RADIAN));
 	return;
 }
 

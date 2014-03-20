@@ -56,10 +56,11 @@ void Camera::Move(const float forward, const float side, const float up)
 	X += direction.Get_X();
 	Y += direction.Get_Y();
 	Z += direction.Get_Z();
-	direction.Set_Direction(up, direction.Get_X_Angle(), 90.0);
+	direction.Set_Direction(up, 0.0, 90.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();
 	Z += direction.Get_Z();
+	return;
 }
 
 

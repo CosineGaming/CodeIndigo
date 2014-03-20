@@ -215,17 +215,17 @@ namespace Indigo
 		float y_angle = player->Facing.Get_Y_Angle() + y * -1 * sensitivity;
 		if (!(y_angle > 89 && y_angle < 271))
 		{
-			player->Facing.Add_Direction(0.0, x * -1 * sensitivity, y * -1 * sensitivity);
+			player->Facing.Add_Direction(0.0, x * sensitivity, y * -1 * sensitivity);
 		}
 		else
 		{
 			if (y_angle < 180)
 			{
-				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * -1 * sensitivity, 89);
+				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * sensitivity, 89);
 			}
 			else
 			{
-				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * -1 * sensitivity, 271);
+				player->Facing.Set_Direction(1.0, player->Facing.Get_X_Angle() + x * sensitivity, 271);
 			}
 		}
 	}

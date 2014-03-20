@@ -97,7 +97,7 @@ void Object::Render(void) const
 	}
 	glPushMatrix();
 	glTranslatef(X, Y, Z);
-	Direction around = Facing.Cross(Direction(1.0, 0.0, 0.0));
+	Direction around = Direction(1.0, 0.0, 0.0).Cross(Facing);
 	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), around.Get_X(), around.Get_Y(), around.Get_Z());
 	glBegin(render_types[Data.Group_Size]);
 	for (int point = 0; point<Data.Size(); ++point)
@@ -144,7 +144,7 @@ void Object::Move(const float forward, const float side, const float up)
 	X += direction.Get_X();
 	Y += direction.Get_Y();
 	Z += direction.Get_Z();
-	direction.Set_Direction(side, direction.Get_X_Angle() + 90, 0.0);
+	direction.Set_Direction(side, direction.Get_X_Angle() + 90.0, 0.0);
 	X += direction.Get_X();
 	Y += direction.Get_Y();
 	Z += direction.Get_Z();
