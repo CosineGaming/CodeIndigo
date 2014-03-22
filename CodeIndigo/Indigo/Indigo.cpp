@@ -115,6 +115,7 @@ namespace Indigo
 			Key_Pressed_Function(key, x, y);
 		}
 		Keys[key] = true;
+		Keys_Pressed[key] = true;
 		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
 		return;
 	}
@@ -134,6 +135,14 @@ namespace Indigo
 		}
 		Keys[key] = false;
 		return;
+	}
+
+	// Checks whether a key has just been pressed
+	bool Pressed(unsigned char key)
+	{
+		bool pressed = Keys_Pressed[key];
+		Keys_Pressed[key] = false;
+		return pressed;
 	}
 
 	// Acts for when the mouse is pressed or released
@@ -323,6 +332,9 @@ namespace Indigo
 
 	// Members with the index of a key which is currently down are true
 	bool Keys[256];
+
+	// Don't use, used internally. Use Pressed('a') instead.
+	bool Keys_Pressed[256];
 
 	// Stores whether shift is pressed
 	bool Shift = false;

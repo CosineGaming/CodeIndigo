@@ -34,6 +34,15 @@ void go_up(int time, Object& self)
 
 void rotate(int time, Object& self)
 {
+	static char * fps = new char[5];
+	static bool done = false;
+	if (!done)
+	{
+		float color[3] = { 1.0, 0.0, 0.0 };
+		Indigo::Current_World.Add_Text(Text(0, 0, fps, color));
+		done = true;
+	}
+	_itoa_s(1000 / time, fps, 5, 10);
 	self.Facing.Add_Direction(0.0, 0.24 * time);
 }
 
@@ -64,18 +73,21 @@ void hit(int time, Object& self)
 	{
 		if (animating == 1)
 		{
-			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() - 0.4 * time);
-			if (!(self.Facing.Get_X_Angle() > 270 || self.Facing.Get_X_Angle() < 0))
+			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() - 0.6 * time);
+			self.Z -= 0.004 * time;
+			if (self.Facing.Get_X_Angle() < 300)
 			{
 				animating = 2;
 			}
 		}
 		else
 		{
-			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() + 0.4 * time);
-			if (!(self.Facing.Get_X_Angle() > 270 || self.Facing.Get_X_Angle() < 0))
+			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() + 0.6 * time);
+			self.Z += 0.004 * time;
+			if (self.Facing.Get_X_Angle() > 0 && self.Facing.Get_X_Angle() < 270)
 			{
 				self.Facing.Set_X_Angle(0);
+				self.Z = 0;
 				animating = 0;
 			}
 		}

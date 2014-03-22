@@ -47,6 +47,8 @@ namespace Indigo
 	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);
 	// ... when a key is released
 	extern void(*Key_Released_Function)(unsigned char key, int x, int y);
+	// Checks whether a key has just been pressed
+	extern bool Pressed(unsigned char key);
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is moved
@@ -69,6 +71,8 @@ namespace Indigo
 
 	// Members with the index of a key which is currently down are true, always lowercase
 	extern bool Keys[256];
+	// Don't use, used internally. Use Pressed('a') instead.
+	extern bool Keys_Pressed[256];
 	// Stores whether shift is pressed
 	extern bool Shift;
 	// Stores whether mouse buttons are down
