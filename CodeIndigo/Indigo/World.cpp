@@ -62,7 +62,7 @@ void World::Update(const int time)
 	{
 		if (objects_front[object].Update)
 		{
-			objects_front[object].Update(time, objects[object]);
+			objects_front[object].Update(time, objects_front[object]);
 		}
 	}
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
@@ -103,9 +103,9 @@ void World::Render(void) const
 		objects[object].Render();
 	}
 
-	// Front Object: View Pointing, Perspective, Lighting, No Depth Test, No View Translate
+	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Translate
 	View.Look_Default();
-	glDisable(GL_DEPTH_TEST);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
 		objects_front[object].Render();
@@ -114,6 +114,7 @@ void World::Render(void) const
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
 	Indigo::Reshape_2D();
 	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
 		objects_2d[object].Render();

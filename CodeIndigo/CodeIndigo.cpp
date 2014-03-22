@@ -53,12 +53,41 @@ void shiny(int time, Object& self)
 	}
 }
 
+void hit(int time, Object& self)
+{
+	static int animating = 0;
+	if (Indigo::Left_Mouse && animating == 0)
+	{
+		animating = 1;
+	}
+	if (animating != 0)
+	{
+		if (animating == 1)
+		{
+			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() - 0.4 * time);
+			if (!(self.Facing.Get_X_Angle() > 270 || self.Facing.Get_X_Angle() < 0))
+			{
+				animating = 2;
+			}
+		}
+		else
+		{
+			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() + 0.4 * time);
+			if (!(self.Facing.Get_X_Angle() > 270 || self.Facing.Get_X_Angle() < 0))
+			{
+				self.Facing.Set_X_Angle(0);
+				animating = 0;
+			}
+		}
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize(argc, argv, "My test!");
 	Indigo::Current_World.Add_Skybox("Textures\\Skybox.bmp");
 	Indigo::Current_World.Light_Setup.Add_Light(0, 0, 0, false);
-	Indigo::Current_World.Add_Front_Object(Object(0.5, -0.5, 0.0, Mesh::Box(0.1, 0.1, 2.0)));
+	Indigo::Current_World.Add_Front_Object(Object(0.3, -0.2, 0.0, Mesh::Box(0.1, 0.1, 1.0), nullptr, hit));
 	Indigo::Current_World.Add_Object(Object(0, 0, -5, Mesh::Cube(2), nullptr, rotate, nullptr, false, Direction(1,0,0), false, true, 0));
 	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh::Sphere(200, 5), Indigo::Blue_Color, shiny, nullptr, true, Direction(1, 0, 0), false, true, 0));
 	Indigo::Current_World.Add_Object(Object(0, 5, 5, Mesh::Sphere(2), Indigo::Red_Color, go_up, "Textures\\texture.bmp", false));
