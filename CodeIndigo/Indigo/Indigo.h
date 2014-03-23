@@ -51,6 +51,8 @@ namespace Indigo
 	extern bool Pressed(unsigned char key);
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
+	// ... when the mouse is pressed or released. Given in Window Coordinates
+	extern void(*Mouse_Raw_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is moved
 	extern void(*Mouse_Moved_Function)(int x, int y);
 	// ... when the mouse is moved, given relative to the center
@@ -79,10 +81,15 @@ namespace Indigo
 	extern bool Left_Mouse;
 	extern bool Right_Mouse;
 	extern bool Middle_Mouse;
-	// Stores the aspect ratio of the screen
-	extern float Aspect_Ratio;
 	// Stores the current actual FPS of the update loop
 	extern int Actual_FPS;
+
+	// Stores the width of the screen
+	extern int Screen_Width;
+	// Stores the height of the screen
+	extern int Screen_Height;
+	// Stores the aspect ratio of the screen
+	extern float Aspect_Ratio;
 
 	// Colors
 	extern float White_Color[3];

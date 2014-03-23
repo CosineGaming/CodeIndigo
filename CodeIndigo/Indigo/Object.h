@@ -59,6 +59,8 @@ public:
 	bool Vertex_Normals;
 	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
 	float Object_Shine;
+	// Data for the user to define for whatever purpose.
+	std::vector<float> User_Data;
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y;

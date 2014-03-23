@@ -74,6 +74,8 @@ namespace Indigo
 		{
 			glViewport(0, 0, width, height);
 		}
+		Screen_Width = width;
+		Screen_Height = height;
 		Aspect_Ratio = (float) width / (float) height;
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -165,6 +167,10 @@ namespace Indigo
 		{
 			Mouse_Button_Function(button, state, (x - (glutGet(GLUT_WINDOW_WIDTH) - glutGet(GLUT_WINDOW_HEIGHT)) / 2) * 2.0 / glutGet(GLUT_WINDOW_HEIGHT) - 1,
 				-1 * (y * 2.0 / glutGet(GLUT_WINDOW_HEIGHT) - 1));
+		}
+		if (Mouse_Raw_Button_Function)
+		{
+			Mouse_Raw_Button_Function(button, state, x, y);
 		}
 		return;
 	}
@@ -316,6 +322,9 @@ namespace Indigo
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	void(*Mouse_Button_Function)(int button, int state, float x, float y);
 
+	// ... when the mouse is pressed or released. Given in Window Coordinates
+	void(*Mouse_Raw_Button_Function)(int button, int state, float x, float y);
+
 	// ... when the mouse is moved
 	void(*Mouse_Moved_Function)(int x, int y);
 
@@ -346,11 +355,18 @@ namespace Indigo
 
 	bool Middle_Mouse;
 
-	// Stores the aspect ratio of the screen
-	float Aspect_Ratio = 1;
-
 	// Stores the current actual FPS of the update loop
 	int Actual_FPS;
+
+
+	// Stores the width of the screen
+	int Screen_Width;
+
+	// Stores the height of the screen
+	int Screen_Height;
+
+	// Stores the aspect ratio of the screen
+	float Aspect_Ratio;
 
 
 	// Colors

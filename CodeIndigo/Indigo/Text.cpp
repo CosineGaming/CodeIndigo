@@ -8,7 +8,7 @@
 Text::Text(const float text_x, const float text_y, char * display, float * color, void * font, const int time_to_last, void(*finished_function)(void))
 {
 	x = text_x;
-	x = text_y;
+	y = text_y;
 	text = display;
 	text_color = color;
 	if (!text_color)
@@ -34,7 +34,7 @@ Text::Text(const float text_x, const float text_y, char * display, float * color
 Text::Text(const Text& copy)
 {
 	x = copy.x;
-	x = copy.y;
+	y = copy.y;
 	text = copy.text;
 	text_color = copy.text_color;
 	typeset = copy.typeset;

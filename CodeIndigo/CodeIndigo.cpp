@@ -1,109 +1,131 @@
 #include "Indigo\IndigoEngine.h"
 #include <iostream>
 
-void update(int time, Object& self)
-{
-	if (Indigo::Keys['w'])
-	{
-		self.Move(0.2*time);
-	}
-	if (Indigo::Keys['s'])
-	{
-		self.Move(-0.2*time);
-	}
-	if (Indigo::Keys['a'])
-	{
-		self.Move(0, -0.2*time);
-	}
-	if (Indigo::Keys['d'])
-	{
-		self.Move(0, 0.2*time);
-	}
-	Indigo::Current_World.View.Place(self.X, self.Y + 0.75, self.Z);
-	Indigo::Current_World.View.Eye = self.Facing;
-	Indigo::FPS_Mouse(true, &self);
-}
+Direction camera = Direction(6);
 
-Object player = Object(0, 0.75, 0, Mesh(), nullptr, update);
+int start;
 
-void go_up(int time, Object& self)
-{
-	self.Y += 0.0005 * time;
-	return;
-}
+int placing = 2;
+int value = -1;
 
-void rotate(int time, Object& self)
+void rotate(int x, int y)
 {
-	static char * fps = new char[5];
-	static bool done = false;
-	if (!done)
+	static int last_x = 0;
+	static int last_y = 0;
+	int right = x - last_x;
+	int up = y - last_y;
+	last_x = x;
+	last_y = y;
+	if (Indigo::Right_Mouse)
 	{
-		float color[3] = { 1.0, 0.0, 0.0 };
-		Indigo::Current_World.Add_Text(Text(0, 0, fps, color));
-		done = true;
+		camera.Add_Direction(0, right * 0.1, up * 0.1);
+		Indigo::Current_World.View.Place(camera.Get_X(), camera.Get_Y(), camera.Get_Z());
+		Indigo::Current_World.View.Look_At(0, 0, 0);
 	}
-	_itoa_s(1000 / time, fps, 5, 10);
-	self.Facing.Add_Direction(0.0, 0.24 * time);
-}
-
-void shiny(int time, Object& self)
-{
-	static int direction = 1;
-	self.Object_Shine += direction * time * 0.001;
-	if (self.Object_Shine >= 128)
+	else if (placing != 0)
 	{
-		self.Object_Shine = 128;
-		direction = -1;
-	}
-	if (self.Object_Shine <= 0)
-	{
-		self.Object_Shine = 0;
-		direction = 1;
-	}
-}
-
-void hit(int time, Object& self)
-{
-	static int animating = 0;
-	if (Indigo::Left_Mouse && animating == 0)
-	{
-		animating = 1;
-	}
-	if (animating != 0)
-	{
-		if (animating == 1)
+		static float partial = value;
+		partial += 0.1 * (x > y ? x : y);
+		value = int(partial);
+		if (value > 1)
 		{
-			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() - 0.6 * time);
-			self.Z -= 0.004 * time;
-			if (self.Facing.Get_X_Angle() < 300)
-			{
-				animating = 2;
-			}
+			value = 1;
+			partial = 1;
+		}
+		if (value < -1)
+		{
+			value = -1;
+			partial = -1;
+		}
+	}
+}
+
+void place(int button, int state, float x, float y)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	{
+		if (placing == 0)
+		{
+			glutSetCursor(GLUT_CURSOR_NONE);
+			placing = 3;
 		}
 		else
 		{
-			self.Facing.Set_X_Angle(self.Facing.Get_X_Angle() + 0.6 * time);
-			self.Z += 0.004 * time;
-			if (self.Facing.Get_X_Angle() > 0 && self.Facing.Get_X_Angle() < 270)
+			static int x = 0;
+			static int y = 0;
+			static int z = 0;
+			if (placing == 3)
 			{
-				self.Facing.Set_X_Angle(0);
-				self.Z = 0;
-				animating = 0;
+				x = value;
+				placing = 2;
+			}
+			if (placing == 2)
+			{
+				y = value;
+				placing = 1;
+			}
+			if (placing == 1)
+			{
+				z = value;
+				Object& picked = Indigo::Current_World.Get_Object((z + 1) * 9 + (y + 1) * 3 + z + 1);
+				if (picked.Line)
+				{
+					picked.Line = false;
+				}
+				else
+				{
+					placing = 3;
+				}
+				placing = 0;
+			}
+		}
+		/*
+		Indigo::Reshape();
+		Indigo::Current_World.View.Look();
+		double z;
+		double X;
+		double Y;
+		double Z;
+		double view[16];
+		double projection[16];
+		int window[4];
+		glGetDoublev(GL_MODELVIEW_MATRIX, view);
+		glGetDoublev(GL_PROJECTION_MATRIX, projection);
+		glGetIntegerv(GL_VIEWPORT, window);
+		glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+		std::cout << z << ": " << std::endl;
+		if (gluUnProject(x, Indigo::Screen_Width - y, z, view, projection, window, &X, &Y, &Z))
+		{
+			Indigo::Current_World.Add_Object(Object(X, Y, Z, Mesh::Sphere(0.1)));
+			std::cout << X << ", " << Y << ", " << Z << std::endl;
+		}*/
+	}
+}
+
+void load(int time)
+{
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			for (int z = -1; z <= 1; ++z)
+			{
+				start = Indigo::Current_World.Number_Of_Objects();
+				Indigo::Current_World.Add_Object(Object(x, y, z, Mesh::Cube(1), nullptr, nullptr, nullptr, true, Direction(1,0,0), false, true, 256, true));
 			}
 		}
 	}
+	Indigo::Current_World.Light_Setup.Add_Light(0.0, 5.0, 5.0);
+	Indigo::Current_World.View.Place(camera.Get_X(), camera.Get_Y(), camera.Get_Z());
+	Indigo::Current_World.View.Look_At(0, 0, 0);
+	Indigo::Update_Function = nullptr;
 }
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize(argc, argv, "My test!");
-	Indigo::Current_World.Add_Skybox("Textures\\Skybox.bmp");
-	Indigo::Current_World.Light_Setup.Add_Light(0, 0, 0, false);
-	Indigo::Current_World.Add_Front_Object(Object(0.3, -0.2, 0.0, Mesh::Box(0.1, 0.1, 1.0), nullptr, hit));
-	Indigo::Current_World.Add_Object(Object(0, 0, -5, Mesh::Cube(2), nullptr, rotate, nullptr, false, Direction(1,0,0), false, true, 0));
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh::Sphere(200, 5), Indigo::Blue_Color, shiny, nullptr, true, Direction(1, 0, 0), false, true, 0));
-	Indigo::Current_World.Add_Object(Object(0, 5, 5, Mesh::Sphere(2), Indigo::Red_Color, go_up, "Textures\\texture.bmp", false));
-	Indigo::Current_World.Add_Object(Object(0, -1.5, 0, Mesh::Rectangle(0.2,0.2), nullptr, nullptr, "Textures\\Floor.bmp", false, Direction(1,0,90)));
-	Indigo::Current_World.Add_Object(player);
+	Indigo::Initialize(argc, argv, "Tic-Tac-Toe");
+	Indigo::Mouse_Moved_Function = rotate;
+	Indigo::Mouse_Raw_Button_Function = place;
+	Indigo::Update_Function = load;
 	Indigo::Run();
 }

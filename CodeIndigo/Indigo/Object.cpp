@@ -28,6 +28,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, fl
 	Line = line;
 	World_Collide = world_collide;
 	Is_Blank = mesh.Size() == 0;
+	User_Data = std::vector<float>();
 	ID = -1;
 	return;
 }
@@ -46,6 +47,7 @@ Object::Object(const Object& object)
 	Line = object.Line;
 	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
+	User_Data = object.User_Data;
 	ID = object.ID;
 	return;
 }
