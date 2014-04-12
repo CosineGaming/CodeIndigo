@@ -35,6 +35,8 @@ namespace Indigo
 
 	// Get elapsed time in the game, optional modulo for partial times
 	int Elapsed(const int minus = 0);
+	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
+	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
 
 	// Stores the current world to render
 	extern World Current_World;
@@ -59,12 +61,12 @@ namespace Indigo
 	// Also hides mouse when defined.
 	extern void(*Relative_Mouse_Moved_Function)(int x, int y);
 	// Default FPS-style mouse code, used intrinsically. Call FPS_Mouse to set up.
-	extern void FPS_Mouse_Callback(int x, int y, Object * player = nullptr, float sensitivity = 0);
+	void FPS_Mouse_Callback(int x, int y, Object * player = nullptr, float sensitivity = 0);
 	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
-	extern void FPS_Mouse_Function(int x, int y);
+	void FPS_Mouse_Function(int x, int y);
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
 	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	extern void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
+	void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
 	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
 	extern void(*Update_Function)(int time);

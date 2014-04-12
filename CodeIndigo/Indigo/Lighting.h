@@ -32,5 +32,7 @@ private:
 	float light_positions[8][4];
 	// The number of lights in the current scene
 	int number_of_lights;
+	// The stored ambient value for update
+	float ambient[4];
 
 };

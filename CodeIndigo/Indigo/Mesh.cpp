@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 #include "Direction.h"
+#include "Indigo.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -76,34 +77,74 @@ Mesh Mesh::Load(const char * filename)
 	}
 	else
 	{
-		std::vector<Vertex> options;
 		std::string line;
+		std::vector<Vertex> textures;
+		std::vector<Vertex> normals;
 		while (std::getline(file, line))
 		{
 			if (line[0] == 'v' && line[1] == ' ')
 			{
-				std::istringstream stream(line.substr(2));
+				line = line.substr(2);
+				const char * stream = line.c_str();
 				Vertex option;
-				stream >> option.X;
-				stream >> option.Y;
-				stream >> option.Z;
-				options.push_back(option);
+				int next;
+				option.X = Indigo::Fast_Float(stream, &next, 0);
+				option.Y = Indigo::Fast_Float(stream, &next, next);
+				option.Z = Indigo::Fast_Float(stream, nullptr, next);
+				mesh.vertices.push_back(option);
+			}
+			if (line[0] == 'v' && line[1] == 't')
+			{
+				line = line.substr(3);
+				const char * stream = line.c_str();
+				Vertex option;
+				int next;
+				option.X = Indigo::Fast_Float(stream, &next, 0);
+				option.Y = Indigo::Fast_Float(stream, nullptr, next);
+				textures.push_back(option);
+			}
+			if (line[0] == 'v' && line[1] == 'n')
+			{
+				line = line.substr(3);
+				const char * stream = line.c_str();
+				Vertex normal;
+				int next;
+				normal.X = Indigo::Fast_Float(stream, &next, 0);
+				normal.Y = Indigo::Fast_Float(stream, &next, next);
+				normal.Z = Indigo::Fast_Float(stream, nullptr, next);
+				normals.push_back(normal);
 			}
 			else if (line[0] == 'f' && line[1] == ' ')
 			{
 				std::string values(line.substr(2));
-				int face[3];
-				face[0] = atoi(values.c_str());
-				values = values.substr(values.find(' ') + 1);
-				face[1] = atoi(values.c_str());
-				values = values.substr(values.find(' ') + 1);
-				face[2] = atoi(values.c_str());
-				face[0] -= 1;
-				face[1] -= 1;
-				face[2] -= 1;
-				mesh += options[face[0]];
-				mesh += options[face[1]];
-				mesh += options[face[2]];
+				for (int point = 0; point < 3; ++point)
+				{
+					// Vertex
+					int vertex = atoi(values.c_str()) - 1;
+					mesh.elements.push_back(vertex);
+					int index = mesh.Size() - 1;
+					// Vertex Texture
+					values = values.substr(values.find('/') + 1);
+					if (values[0] != '/')
+					{
+						mesh.Set_Texture_Coordinate(index, textures[atoi(values.c_str()) - 1]);
+					}
+					// Vertex Normal
+					if (point == 2)
+					{
+						values = values.substr(values.find('/') + 1);
+						int place = atoi(values.c_str()) - 1;
+						if (normals.size() > place)
+						{
+							mesh.flat_normals.push_back(normals[place]);
+						}
+						else
+						{
+							mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index));
+						}
+					}
+					values = values.substr(values.find(' ') + 1);
+				}
 			}
 		}
 		file.close();
@@ -139,30 +180,30 @@ Mesh Mesh::Box(const float width, const float height, const float length)
 	float r_length = length / 2.0;
 	Mesh mesh = Mesh(4)
 		// Front
-		+ Vertex(-r_width,  r_height,  r_length)
-		+ Vertex( r_width,  r_height,  r_length)
-		+ Vertex( r_width, -r_height,  r_length)
 		+ Vertex(-r_width, -r_height,  r_length)
+		+ Vertex( r_width, -r_height,  r_length)
+		+ Vertex( r_width,  r_height,  r_length)
+		+ Vertex(-r_width,  r_height,  r_length)
 		// Back
 		+ Vertex(-r_width,  r_height, -r_length)
 		+ Vertex( r_width,  r_height, -r_length)
 		+ Vertex( r_width, -r_height, -r_length)
 		+ Vertex(-r_width, -r_height, -r_length)
 		// Left
-		+ Vertex(-r_width,  r_height, -r_length)
-		+ Vertex(-r_width,  r_height,  r_length)
-		+ Vertex(-r_width, -r_height,  r_length)
 		+ Vertex(-r_width, -r_height, -r_length)
+		+ Vertex(-r_width, -r_height,  r_length)
+		+ Vertex(-r_width,  r_height,  r_length)
+		+ Vertex(-r_width,  r_height, -r_length)
 		// Right
 		+ Vertex( r_width,  r_height, -r_length)
 		+ Vertex( r_width,  r_height,  r_length)
 		+ Vertex( r_width, -r_height,  r_length)
 		+ Vertex( r_width, -r_height, -r_length)
 		// Top
-		+ Vertex(-r_width,  r_height, -r_length)
-		+ Vertex( r_width,  r_height, -r_length)
-		+ Vertex( r_width,  r_height,  r_length)
 		+ Vertex(-r_width,  r_height,  r_length)
+		+ Vertex( r_width,  r_height,  r_length)
+		+ Vertex( r_width,  r_height, -r_length)
+		+ Vertex(-r_width,  r_height, -r_length)
 		// Bottom
 		+ Vertex(-r_width, -r_height, -r_length)
 		+ Vertex( r_width, -r_height, -r_length)
@@ -192,9 +233,10 @@ Mesh Mesh::Regular_Shape(const int sides, const float side_length)
 	Mesh mesh(1);
 	mesh += Vertex(0.0, 0.0, 0.0);
 	Direction cursor(side_length);
-	for (; cursor.Get_X_Angle() <= 360.0; cursor.Add_Direction(0.0, 360.0 / sides))
+	for (int point=0; point<sides; ++point)
 	{
 		mesh += cursor.To_Vertex();
+		cursor.Add_Direction(0.0, -360.0 / sides);
 	}
 	return (mesh);
 }
@@ -371,6 +413,17 @@ std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
 		all.push_back(vertices[options[i]]);
 	}
 	return (all);
+}
+
+
+// Finds one flat normal. Assumes index is end of group.
+Vertex Mesh::Find_Flat_Normal(const int index) const
+{
+	Direction normal = Get_Vertex(index - 1).To_Direction().Distance(Get_Vertex(index - 2).To_Direction());
+	Direction with = Get_Vertex(index).To_Direction().Distance(Get_Vertex(index - 2).To_Direction());
+	normal = normal.Cross(with);
+	normal.Normalize();
+	return normal.To_Vertex();
 }
 
 
@@ -573,20 +626,7 @@ void Mesh::Add(const Vertex& vertex)
 	int point = Size() - 1;
 	if (point % (Group_Size > 2 ? Group_Size : 1) == Group_Size - 1 || (Group_Size < 3 && point >= 3))
 	{
-		Direction normal = Get_Vertex(point - 1).To_Direction().Distance(Get_Vertex(point - 2).To_Direction());
-		Direction with = Get_Vertex(point).To_Direction().Distance(Get_Vertex(point - 2).To_Direction());
-		normal = normal.Cross(with);
-		normal.Normalize();
-		with = Get_Vertex(point - 2).To_Direction();
-		if (normal.Dot(with) > 0)
-		{
-			Vertex value = normal.To_Vertex();
-			flat_normals.push_back(Vertex(value.X * -1, value.Y * -1, value.Z * -1));
-		}
-		else
-		{
-			flat_normals.push_back(normal.To_Vertex());
-		}
+		flat_normals.push_back(Find_Flat_Normal(point));
 	}
 	return;
 }

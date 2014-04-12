@@ -246,14 +246,14 @@ namespace Indigo
 	}
 
 	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
-	extern void FPS_Mouse_Function(int x, int y)
+	void FPS_Mouse_Function(int x, int y)
 	{
 		FPS_Mouse_Callback(x, y);
 	}
 
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
 	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	extern void FPS_Mouse(bool enable, Object * player, float sensitivity)
+	void FPS_Mouse(bool enable, Object * player, float sensitivity)
 	{
 		if (enable)
 		{
@@ -301,6 +301,37 @@ namespace Indigo
 		return glutGet(GLUT_ELAPSED_TIME) - minus;
 	}
 
+	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
+	float Fast_Float(const char * stream, int* output, const int start)
+	{
+		int i = start;
+		for (; stream[i] == ' '; ++i);
+		int negative = 1;
+		if (stream[i] == '-')
+		{
+			negative = -1;
+			++i;
+		}
+		float result = 0;
+		for (; stream[i] >= '0' && stream[i] <= '9'; ++i)
+		{
+			result = result * 10 + (stream[i] - '0');
+		}
+		++i;
+		float precision = 0.1;
+		for (; stream[i] >= '0' && stream[i] <= '9'; ++i)
+		{
+			result += precision * (stream[i] - '0');
+			precision *= 0.1;
+		}
+		++i;
+		result *= negative;
+		if (output)
+		{
+			*output = i;
+		}
+		return result;
+	}
 
 
 	// Stores the current world to render

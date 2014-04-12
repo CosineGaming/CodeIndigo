@@ -65,8 +65,10 @@ public:
 	// Get all the vertices, or a subset of them 
 	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;
 
+	// Calculate one flat normal. Assumes index is end of group.
+	Vertex Find_Flat_Normal(const int index) const;
 	// Calculate all per-vertex normals for the mesh
-	void Mesh::Smooth_Normals(void);
+	void Smooth_Normals(void);
 	// Get the normal for a specific vertex
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed

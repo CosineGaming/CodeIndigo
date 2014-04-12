@@ -1,131 +1,74 @@
 #include "Indigo\IndigoEngine.h"
 #include <iostream>
 
-Direction camera = Direction(6);
+Object player = Object(0, 0.75, 0);
 
-int start;
+World progressive;
 
-int placing = 2;
-int value = -1;
-
-void rotate(int x, int y)
+void run(int time)
 {
-	static int last_x = 0;
-	static int last_y = 0;
-	int right = x - last_x;
-	int up = y - last_y;
-	last_x = x;
-	last_y = y;
-	if (Indigo::Right_Mouse)
+	if (Indigo::Keys['w'])
 	{
-		camera.Add_Direction(0, right * 0.1, up * 0.1);
-		Indigo::Current_World.View.Place(camera.Get_X(), camera.Get_Y(), camera.Get_Z());
-		Indigo::Current_World.View.Look_At(0, 0, 0);
+		player.Move(0.002 * time);
 	}
-	else if (placing != 0)
+	if (Indigo::Keys['s'])
 	{
-		static float partial = value;
-		partial += 0.1 * (x > y ? x : y);
-		value = int(partial);
-		if (value > 1)
-		{
-			value = 1;
-			partial = 1;
-		}
-		if (value < -1)
-		{
-			value = -1;
-			partial = -1;
-		}
+		player.Move(-0.002 * time);
 	}
+	if (Indigo::Keys['a'])
+	{
+		player.Move(0, -0.002 * time);
+	}
+	if (Indigo::Keys['d'])
+	{
+		player.Move(0, 0.002 * time);
+	}
+	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
+	Indigo::Current_World.View.Eye = player.Facing;
 }
 
-void place(int button, int state, float x, float y)
+void steadyload(int time)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+	static int i = 0;
+	static int wait = 10;
+	if (wait <= 0)
 	{
-		if (placing == 0)
+		Indigo::Current_World.Add_Object(progressive.Get_Object(i));
+		++i;
+		if (i >= progressive.Number_Of_Objects())
 		{
-			glutSetCursor(GLUT_CURSOR_NONE);
-			placing = 3;
+			Indigo::Update_Function = run;
 		}
-		else
-		{
-			static int x = 0;
-			static int y = 0;
-			static int z = 0;
-			if (placing == 3)
-			{
-				x = value;
-				placing = 2;
-			}
-			if (placing == 2)
-			{
-				y = value;
-				placing = 1;
-			}
-			if (placing == 1)
-			{
-				z = value;
-				Object& picked = Indigo::Current_World.Get_Object((z + 1) * 9 + (y + 1) * 3 + z + 1);
-				if (picked.Line)
-				{
-					picked.Line = false;
-				}
-				else
-				{
-					placing = 3;
-				}
-				placing = 0;
-			}
-		}
-		/*
-		Indigo::Reshape();
-		Indigo::Current_World.View.Look();
-		double z;
-		double X;
-		double Y;
-		double Z;
-		double view[16];
-		double projection[16];
-		int window[4];
-		glGetDoublev(GL_MODELVIEW_MATRIX, view);
-		glGetDoublev(GL_PROJECTION_MATRIX, projection);
-		glGetIntegerv(GL_VIEWPORT, window);
-		glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-		std::cout << z << ": " << std::endl;
-		if (gluUnProject(x, Indigo::Screen_Width - y, z, view, projection, window, &X, &Y, &Z))
-		{
-			Indigo::Current_World.Add_Object(Object(X, Y, Z, Mesh::Sphere(0.1)));
-			std::cout << X << ", " << Y << ", " << Z << std::endl;
-		}*/
+		wait = 10;
+	}
+	else
+	{
+		wait -= time;
 	}
 }
 
 void load(int time)
 {
-	for (int x = -1; x <= 1; ++x)
-	{
-		for (int y = -1; y <= 1; ++y)
-		{
-			for (int z = -1; z <= 1; ++z)
-			{
-				start = Indigo::Current_World.Number_Of_Objects();
-				Indigo::Current_World.Add_Object(Object(x, y, z, Mesh::Cube(1), nullptr, nullptr, nullptr, true, Direction(1,0,0), false, true, 256, true));
-			}
-		}
-	}
-	Indigo::Current_World.Light_Setup.Add_Light(0.0, 5.0, 5.0);
-	Indigo::Current_World.View.Place(camera.Get_X(), camera.Get_Y(), camera.Get_Z());
-	Indigo::Current_World.View.Look_At(0, 0, 0);
-	Indigo::Update_Function = nullptr;
+	std::cout << "Loading OBJ" << std::endl;
+	Mesh woman = Mesh::Load("C:/Users/Judah/Documents/Frost/human.obj");
+	std::cout << "Initializing (just a speed test, will be repeated)" << std::endl;
+	woman.Initialize(true);
+	std::cout << "Texturing" << std::endl;
+	woman.Texture("C:/Users/Judah/Documents/Frost/human.bmp");
+	std::cout << "Ok, really adding. Don't measure, partially optimised." << std::endl;
+	progressive.Add_Object(Object(0, 0, 0, woman));
+	std::cout << "Now YOU, tunnel..." << std::endl;
+	progressive.Add_Object(Object(0, 0, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp"));
+	std::cout << time << std::endl;
+	Indigo::FPS_Mouse(true, &player);
+	Indigo::Current_World.Light_Setup.Add_Light(0.0, 0.0, 0.0);
+	Indigo::Update_Function = steadyload;
 }
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize(argc, argv, "Tic-Tac-Toe");
-	Indigo::Mouse_Moved_Function = rotate;
-	Indigo::Mouse_Raw_Button_Function = place;
+	std::cout << Indigo::Fast_Float(" -10.9458") << std::endl;
+	Indigo::Initialize(argc, argv, "Indigo Engine Test");
 	Indigo::Update_Function = load;
 	Indigo::Run();
 }

@@ -8,7 +8,6 @@
 
 Lighting::Lighting(void)
 {
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	Set_Ambient(0.15);
 	number_of_lights = 0;
 	return;
@@ -37,8 +36,10 @@ Lighting::~Lighting(void)
 
 void Lighting::Set_Ambient(float intensity)
 {
-	float ambient[] = {intensity, intensity, intensity, 1.0};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	ambient[0] = intensity;
+	ambient[1] = intensity;
+	ambient[2] = intensity;
+	ambient[3] = 1.0;
 	return;
 }
 
@@ -77,6 +78,9 @@ void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 // Update the positions of all lights, and ensure they're enabled
 void Lighting::Update_Lights(void) const
 {
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 	for (int light = 0; light<number_of_lights; ++light)
 	{
 		glLightfv(light_values[light], GL_POSITION, light_positions[light]);
