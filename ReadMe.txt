@@ -62,9 +62,10 @@ And you use a library that others CAN use for FREE, but WHY they would I have no
 
 Code Indigo is a 3D mystery game. Play it! One method is to compile the source with C++ and Nate Robin's legacy GLUT.
 Get glut at http://user.xmission.com/~nate/glut.html (for windows). Then install it (.h -> include, .lib -> lib, .dll -> system32).
+Also get glm at http://sourceforge.net/projects/ogl-math/files/latest/download?source=files and install that.
 Or, more simply, find one of my releases and simply run CodeIndigo.exe. Sorry, Mac people I'll compile for you later.
 For now, Mac pople, you can compile yourselves (get XCode in that App Store thing, advanced user recommended).
-I have done tests and if you paste the code into XCode it should simply compile.
+I have done tests and if you paste the code into XCode it will not simply compile. You'll need to change a few header names, etc. You'll see.
 
 A good deal of the code here is the high tech Indigo Engine. Feel free to use it in your own projects.
 It is conveniently stored in the files listed here. Feel free to  place them in a folder called Indigo

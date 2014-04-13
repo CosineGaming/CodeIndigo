@@ -124,25 +124,30 @@ Mesh Mesh::Load(const char * filename)
 					mesh.elements.push_back(vertex);
 					int index = mesh.Size() - 1;
 					// Vertex Texture
-					values = values.substr(values.find('/') + 1);
-					if (values[0] != '/')
+					int texturenormal = values.find('/') + 1;
+					if (texturenormal != std::string::npos)
 					{
-						mesh.Set_Texture_Coordinate(index, textures[atoi(values.c_str()) - 1]);
-					}
-					// Vertex Normal
-					if (point == 2)
-					{
+						values = values.substr(texturenormal);
+						if (values[0] != '/')
+						{
+							mesh.Set_Texture_Coordinate(index, textures[atoi(values.c_str()) - 1]);
+						}
+						// Vertex Normal
 						values = values.substr(values.find('/') + 1);
-						int place = atoi(values.c_str()) - 1;
-						if (normals.size() > place)
+						if (point == 2 && values[0] != ' ')
 						{
-							mesh.flat_normals.push_back(normals[place]);
-						}
-						else
-						{
-							mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index));
+							int place = atoi(values.c_str()) - 1;
+							if (normals.size() > place)
+							{
+								mesh.flat_normals.push_back(normals[place]);
+							}
+							else
+							{
+								mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index));
+							}
 						}
 					}
+					// Move on to next point
 					values = values.substr(values.find(' ') + 1);
 				}
 			}
@@ -596,31 +601,7 @@ void Mesh::Add(const Vertex& vertex)
 	{
 		vertices.push_back(vertex);
 		elements.push_back(Vertex_Data_Amount() - 1);
-		// Update the hitbox with the new vertex
-		if (vertex.X < Hitbox[0].X)
-		{
-			Hitbox[0].X = vertex.X;
-		}
-		if (vertex.Y < Hitbox[0].Y)
-		{
-			Hitbox[0].Y = vertex.Y;
-		}
-		if (vertex.Z < Hitbox[0].Z)
-		{
-			Hitbox[0].Z = vertex.Z;
-		}
-		if (vertex.X > Hitbox[1].X)
-		{
-			Hitbox[1].X = vertex.X;
-		}
-		if (vertex.Y > Hitbox[1].Y)
-		{
-			Hitbox[1].Y = vertex.Y;
-		}
-		if (vertex.Z > Hitbox[1].Z)
-		{
-			Hitbox[1].Z = vertex.Z;
-		}
+		Update_Hitbox(vertex);
 	}
 	// Calculate the light normal if this ends a face
 	int point = Size() - 1;

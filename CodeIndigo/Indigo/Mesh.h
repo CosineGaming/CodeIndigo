@@ -73,6 +73,8 @@ public:
 	Vertex Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
 	Vertex Smooth_Normal(const int index) const;
+	// Update the hitbox knowing that this point exists in the mesh
+
 	// Texture the entire mesh with one file, texture coordinates will be used only once called
 	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex

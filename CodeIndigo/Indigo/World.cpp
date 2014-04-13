@@ -103,7 +103,7 @@ void World::Render(void) const
 		objects[object].Render();
 	}
 
-	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Translate
+	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
 	View.Look_Default();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
