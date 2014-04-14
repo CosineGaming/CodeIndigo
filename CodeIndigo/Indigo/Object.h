@@ -22,6 +22,8 @@ public:
 	// Destroys the object
 	~Object(void);
 
+	// Updates the object, preparing for User-Defined Update_Function
+	void Update(const int time);
 	// Renders the object
 	void Render() const;
 
@@ -46,7 +48,7 @@ public:
 	// An ID used for accessing and deleting the object
 	int ID;
 	// Called every time the World updates, set this as you please
-	void(*Update)(const int time, Object& self);
+	void(*Update_Function)(const int time, Object& self);
 	// Relative position of points
 	Mesh Data;
 	// The Direction the object is facing. Rotates in rendering!

@@ -2,10 +2,15 @@
 // along with useful functions for drawing and warping them
 
 #include "Object.h"
+
 #include "Indigo.h"
+
 #include <stdlib.h>
 #include <iostream> // DELETE
 #include "glut.h"
+#include "glm\glm.hpp"
+#include "glm\gtx\transform.hpp"
+#include "glm\gtc\matrix_transform.hpp"
 
 
 // Create an object given optional position, a mesh,
@@ -21,7 +26,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, fl
 	}
 	Data.Initialize(dynamic_mesh);
 	Object_Color = color;
-	Update = update_function;
+	Update_Function = update_function;
 	Vertex_Normals = smooth;
 	Facing = towards;
 	Object_Shine = shine;
@@ -40,7 +45,7 @@ Object::Object(const Object& object)
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
 	Object_Color = object.Object_Color;
-	Update = object.Update;
+	Update_Function = object.Update_Function;
 	Vertex_Normals = object.Vertex_Normals;
 	Facing = object.Facing;
 	Object_Shine = object.Object_Shine;
@@ -57,6 +62,16 @@ Object::Object(const Object& object)
 Object::~Object(void)
 {
 	return;
+}
+
+
+// Updates the object, preparing for User-Defined Update_Function
+void Object::Update(const int time)
+{
+	if (Update_Function)
+	{
+		Update_Function(time, *this);
+	}
 }
 
 
@@ -98,9 +113,12 @@ void Object::Render(void) const
 		glDisable(GL_TEXTURE_2D);
 	}
 	glPushMatrix();
-	glTranslatef(X, Y, Z);
+	glm::mat4 modeling = glm::mat4(1);
+	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
 	Direction around = Direction(1.0, 0.0, 0.0).Cross(Facing);
-	glRotatef(Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), around.Get_X(), around.Get_Y(), around.Get_Z());
+	modeling = glm::rotate(modeling, Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), glm::vec3(around.Get_X(), around.Get_Y(), around.Get_Z()));
+	glMatrixMode(GL_MODELVIEW);
+	glMultMatrixf(&(modeling[0][0]));
 	glBegin(render_types[Data.Group_Size]);
 	for (int point = 0; point<Data.Size(); ++point)
 	{

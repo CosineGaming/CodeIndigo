@@ -1,12 +1,15 @@
 // Defines a mesh of points for render
 
 #include "Mesh.h"
+
 #include "Direction.h"
 #include "Indigo.h"
+
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
+#include "glut.h"
 
 
 // Create a new, empty mesh
@@ -493,6 +496,36 @@ Vertex Mesh::Smooth_Normal(const int index) const
 }
 
 
+// Update the hitbox knowing that this point exists in the mesh
+void Mesh::Update_Hitbox(Vertex vertex)
+{
+	if (vertex.X < Hitbox[0].X)
+	{
+		Hitbox[0].X = vertex.X;
+	}
+	if (vertex.Y < Hitbox[0].Y)
+	{
+		Hitbox[0].Y = vertex.Y;
+	}
+	if (vertex.Z < Hitbox[0].Z)
+	{
+		Hitbox[0].Z = vertex.Z;
+	}
+	if (vertex.X > Hitbox[1].X)
+	{
+		Hitbox[1].X = vertex.X;
+	}
+	if (vertex.Y > Hitbox[1].Y)
+	{
+		Hitbox[1].Y = vertex.Y;
+	}
+	if (vertex.Z > Hitbox[1].Z)
+	{
+		Hitbox[1].Z = vertex.Z;
+	}
+}
+
+
 // Texture the entire mesh with one file, texture coordinates will be used only once called
 void Mesh::Texture(const char * filename)
 {
@@ -601,6 +634,7 @@ void Mesh::Add(const Vertex& vertex)
 	{
 		vertices.push_back(vertex);
 		elements.push_back(Vertex_Data_Amount() - 1);
+		// Update the hitbox with this new info
 		Update_Hitbox(vertex);
 	}
 	// Calculate the light normal if this ends a face

@@ -11,7 +11,7 @@ namespace Indigo
 {
 	// Initializes window and rendering matrices.
 	void Initialize(int argc, char ** argv, const char * window_name, const int max_framerate, const bool fullscreen, float * background,
-		const int window_width, const int window_height, const int field_of_view)
+		const int window_width, const int window_height)
 	{
 		// Initiate glut
 		glutInit(&argc, argv);
@@ -30,7 +30,6 @@ namespace Indigo
 
 		// Set callbacks
 		Frame_Length_Minimum = 1000 / max_framerate;
-		Field_Of_View = field_of_view;
 		glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 		glutDisplayFunc(Render);
 		glutTimerFunc(10, Update, 0);
@@ -79,7 +78,8 @@ namespace Indigo
 		Aspect_Ratio = (float) width / (float) height;
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(Field_Of_View, Aspect_Ratio, 0.01, 500.0);
+		Current_World.View.Project();
+		glMultMatrixf(&(Current_World.View.Projection[0][0]));
 		glFogf(GL_FOG_START, 400.0);
 		glFogf(GL_FOG_END, 500.0);
 		glMatrixMode(GL_MODELVIEW);

@@ -1,17 +1,23 @@
 // Allows the world to be viewed from different points
 
 #include "Camera.h"
+#include "Indigo.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include "glut.h"
+#include "glm\vec3.hpp"
+#include "glm\gtx\transform.hpp"
+#include "glm\gtc\matrix_transform.hpp"
 
 
 // Create a new camera by a position and a direction
-Camera::Camera(float x, float y, float z, Direction looking, Direction above)
+Camera::Camera(const float x, const float y, const float z, const Direction looking, const Direction above, const int field_of_view_x)
 {
 	Place(x, y, z);
 	Eye = looking;
 	Up = above;
+	Field_Of_View = field_of_view_x;
 	return;
 }
 
@@ -96,7 +102,7 @@ void Camera::Look_Towards(const float x, const float y, const float z)
 }
 
 
-// Look at an object
+// Look at an object, should be updated frame-ly to maintain accuracy
 void Camera::Watch(const Object& object, const Direction& relative_camera_position)
 {
 	Direction position = object.Facing;
@@ -109,32 +115,25 @@ void Camera::Watch(const Object& object, const Direction& relative_camera_positi
 }
 
 
-// Look through the camera for this frame with a full transformation
-void Camera::Look(void) const
+// Whenever the window resizes / initializes or FOV changes,
+// correct aspect ratio and angle for Projection matrix and store
+void Camera::Project(void)
 {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(X, Y, Z, X + Eye.Get_X(), Y + Eye.Get_Y(), Z + Eye.Get_Z(),
-		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
-	return;
+	Projection = glm::perspective((float)Indigo::Aspect_Ratio * Field_Of_View, (float)Indigo::Aspect_Ratio, (float)0.01, (float)500.0);
+}
+
+
+// Look through the camera for this frame with a full transformation
+glm::mat4 Camera::Look(void) const
+{
+	return glm::lookAt(glm::vec3(X, Y, Z), glm::vec3(X + Eye.Get_X(), Y + Eye.Get_Y(), Z + Eye.Get_Z()),
+		glm::vec3(Up.Get_X(), Up.Get_Y(), Up.Get_Z()));
 }
 
 
 // Look through the camera, but at the position 0,0,0. Used for Skybox.
-void Camera::Look_In_Place(void) const
+glm::mat4 Camera::Look_In_Place(void) const
 {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 0, 0, Eye.Get_X(), Eye.Get_Y(), Eye.Get_Z(),
-		Up.Get_X(), Up.Get_Y(), Up.Get_Z());
-	return;
-}
-
-
-// Look through the camera at the position 0,0,0 pointing in the negative Z direction.
-void Camera::Look_Default(void) const
-{
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	return;
+	return glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(Eye.Get_X(), Eye.Get_Y(), Eye.Get_Z()),
+		glm::vec3(Up.Get_X(), Up.Get_Y(), Up.Get_Z()));
 }

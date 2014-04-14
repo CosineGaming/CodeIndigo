@@ -53,24 +53,15 @@ void World::Update(const int time)
 	}
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
-		if (objects[object].Update)
-		{
-			objects[object].Update(time, objects[object]);
-		}
+		objects[object].Update(time);
 	}
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
-		if (objects_front[object].Update)
-		{
-			objects_front[object].Update(time, objects_front[object]);
-		}
+		objects_front[object].Update(time);
 	}
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
-		if (objects_2d[object].Update)
-		{
-			objects_2d[object].Update(time, objects_2d[object]);
-		}
+		objects_2d[object].Update(time);
 	}
 	return;
 }

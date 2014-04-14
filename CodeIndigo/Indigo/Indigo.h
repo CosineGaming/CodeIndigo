@@ -42,8 +42,6 @@ namespace Indigo
 	extern World Current_World;
 	// Stores the milliseconds to add between each frame
 	extern int Frame_Length_Minimum;
-	// Stores the field of view
-	extern int Field_Of_View;
 
 	// Stores the function to call when a key is pressed
 	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);
