@@ -76,32 +76,6 @@ namespace Indigo
 		Screen_Width = width;
 		Screen_Height = height;
 		Aspect_Ratio = (float) width / (float) height;
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		Current_World.View.Project();
-		glMultMatrixf(&(Current_World.View.Projection[0][0]));
-		glFogf(GL_FOG_START, 400.0);
-		glFogf(GL_FOG_END, 500.0);
-		glMatrixMode(GL_MODELVIEW);
-	}
-
-	// Acts for when the window reshapes in an Orthographic environment
-	void Reshape_2D(int width, int height)
-	{
-		if (0 == width || 0 == height)
-		{
-			width = glutGet(GLUT_WINDOW_WIDTH);
-			height = glutGet(GLUT_WINDOW_HEIGHT);
-		}
-		else
-		{
-			glViewport(0, 0, width, height);
-		}
-		Aspect_Ratio = (float) width / (float) height;
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-1 * Aspect_Ratio, Aspect_Ratio, -1, 1, -1, 1);
-		glMatrixMode(GL_MODELVIEW);
 	}
 
 	// Acts for Keys which act once, and stores for multi-acting Keys

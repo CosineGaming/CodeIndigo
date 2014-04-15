@@ -11,15 +11,13 @@ namespace Indigo
 {
 	// Initializes window and rendering matrices.
 	void Initialize(int argc, char ** argv, const char * window_name = "Indigo", const int max_framerate = 120, const bool fullscreen = true, float * background = nullptr,
-		const int window_width = 800, const int window_height = 600, const int field_of_view = 60);
+		const int window_width = 800, const int window_height = 600);
 
 	// Starts the main loop with update, render, and input
 	void Run(void);
 
 	// Acts for when the window reshapes
 	void Reshape(int width = 0, int height = 0);
-	// Acts for when the window reshapes in an Orthographic environment
-	void Reshape_2D(int width = 0, int height = 0);
 	// Acts for keys which act once, and stores for multi-acting keys
 	void Key_Pressed(unsigned char key, int x, int y);
 	// Acts for keys which act on release, and removes stored keys

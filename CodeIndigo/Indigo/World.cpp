@@ -73,20 +73,22 @@ void World::Render(void) const
 
 	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	Indigo::Reshape();
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&View.Project()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
 	Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
-		View.Look_In_Place();
+		glLoadMatrixf(&(View.Look_In_Place()[0][0]));
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		skybox.Render();
 	}
 
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
-	View.Look();
+	glLoadMatrixf(&(View.Look()[0][0]));
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
@@ -95,7 +97,7 @@ void World::Render(void) const
 	}
 
 	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
-	View.Look_Default();
+	glLoadIdentity();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
@@ -103,7 +105,9 @@ void World::Render(void) const
 	}
 
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
-	Indigo::Reshape_2D();
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(&View.Project_2D()[0][0]);
+	glMatrixMode(GL_MODELVIEW);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)

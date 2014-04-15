@@ -20,7 +20,7 @@ public:
 	~Mesh(void);
 
 	// Once added to the object, the mesh is locked into place
-	void Initialize(const bool dynamic);
+	void Initialize(void);
 
 	// Mesh constructors:
 	// A function to construct a mesh of the type with it's name.

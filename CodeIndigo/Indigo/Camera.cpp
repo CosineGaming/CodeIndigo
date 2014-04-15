@@ -115,11 +115,17 @@ void Camera::Watch(const Object& object, const Direction& relative_camera_positi
 }
 
 
-// Whenever the window resizes / initializes or FOV changes,
-// correct aspect ratio and angle for Projection matrix and store
-void Camera::Project(void)
+// Set up the projection matrix for this frame
+glm::mat4 Camera::Project(void) const
 {
-	Projection = glm::perspective((float)Indigo::Aspect_Ratio * Field_Of_View, (float)Indigo::Aspect_Ratio, (float)0.01, (float)500.0);
+	return glm::perspective(Field_Of_View / Indigo::Aspect_Ratio, (float) Indigo::Aspect_Ratio, (float)0.01, (float)500.0);
+}
+
+
+// Set up the 2D orthogonal matrix for this frame
+glm::mat4 Camera::Project_2D(void) const
+{
+	return glm::ortho(-1 * Indigo::Aspect_Ratio, Indigo::Aspect_Ratio, -1.0f, 1.0f, -1.0f, 1.0f);
 }
 
 

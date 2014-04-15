@@ -17,7 +17,7 @@ public:
 	// Create a new camera by a position and a direction
 	Camera(const float x = 0.0, const float y = 0.0, const float z = 0.0,
 		const Direction looking=Direction(1.0),
-		const Direction above = Direction(1.0, 0.0, 90.0), const int field_of_view = 90);
+		const Direction above = Direction(1.0, 0.0, 90.0), const int field_of_view_x = 90);
 	// Create a camera based off another
 	Camera(const Camera& camera);
 	// Remove the camera and free memory
@@ -38,9 +38,10 @@ public:
 	// Look at an object, should be updated frame-ly to maintain accuracy
 	void Watch(const Object& object, const Direction& direction);
 
-	// Whenever the window resizes / initializes or FOV changes,
-	// correct aspect ratio and angle for Projection matrix and store
-	void Project(void);
+	// Set up the projection matrix for this frame
+	glm::mat4 Project(void) const;
+	// Set up the projection matrix for this frame
+	glm::mat4 Project_2D(void) const;
 
 	// Look through the camera for this frame with a full transformation, actually executed by [I200: World, I300: Fragment Shader]
 	glm::mat4 Look(void) const;
@@ -57,8 +58,6 @@ public:
 	Direction Eye;
 	// The angle of the field of view on the x axis
 	int Field_Of_View;
-	// The last updated projection matrix
-	glm::mat4 Projection;
 
 private:
 

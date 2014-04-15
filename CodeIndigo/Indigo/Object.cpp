@@ -16,7 +16,7 @@
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
 Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color, void(*update_function)(const int frame, Object& self),
-	const char * change_texture, const bool smooth, const Direction& towards, const bool dynamic_mesh, const bool world_collide, const float shine, const bool line)
+	const char * change_texture, const bool smooth, const Direction& towards, const bool world_collide, const float shine, const bool line)
 {
 	Place(x, y, z);
 	Data = mesh;
@@ -24,7 +24,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, fl
 	{
 		Data.Texture(change_texture);
 	}
-	Data.Initialize(dynamic_mesh);
+	Data.Initialize();
 	Object_Color = color;
 	Update_Function = update_function;
 	Vertex_Normals = smooth;
@@ -115,10 +115,9 @@ void Object::Render(void) const
 	glPushMatrix();
 	glm::mat4 modeling = glm::mat4(1);
 	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
-	Direction around = Direction(1.0, 0.0, 0.0).Cross(Facing);
-	modeling = glm::rotate(modeling, Direction(1.0, 0.0, 0.0).Angle_Distance(Facing), glm::vec3(around.Get_X(), around.Get_Y(), around.Get_Z()));
-	glMatrixMode(GL_MODELVIEW);
-	glMultMatrixf(&(modeling[0][0]));
+	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
+	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	glMultMatrixf(&modeling[0][0]);
 	glBegin(render_types[Data.Group_Size]);
 	for (int point = 0; point<Data.Size(); ++point)
 	{

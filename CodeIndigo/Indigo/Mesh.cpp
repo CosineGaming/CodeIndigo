@@ -59,8 +59,8 @@ Mesh::~Mesh(void)
 }
 
 
-// Once added to the object, the mesh is locked into place. If dynamic, Initialize() may be called again to set in changes. Forward compatability for Indigo20.
-void Mesh::Initialize(const bool dynamic)
+// Once added to the object, the mesh is locked into place.
+void Mesh::Initialize(void)
 {
 	Smooth_Normals();
 	return;
