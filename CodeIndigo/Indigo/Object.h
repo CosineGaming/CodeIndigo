@@ -15,7 +15,7 @@ public:
 
 	// Create an object given optional position, a mesh, and whether the object should render in wireframe
 	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), float *color = nullptr,
-		void(*update_function)(const int frame, Object& self) = nullptr, const char * change_texture = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
+		void(*update_function)(const float time, Object& self) = nullptr, const char * change_texture = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
 		const bool world_collide = true, const float shine = 60.0, const bool line = false);
 	// Copy an object
 	Object(const Object& object);
@@ -23,7 +23,7 @@ public:
 	~Object(void);
 
 	// Updates the object, preparing for User-Defined Update_Function
-	void Update(const int time);
+	void Update(const float time);
 	// Renders the object
 	void Render() const;
 
@@ -48,7 +48,7 @@ public:
 	// An ID used for accessing and deleting the object
 	int ID;
 	// Called every time the World updates, set this as you please
-	void(*Update_Function)(const int time, Object& self);
+	void(*Update_Function)(const float time, Object& self);
 	// Relative position of points
 	Mesh Data;
 	// The Direction the object is facing. Rotates in rendering!

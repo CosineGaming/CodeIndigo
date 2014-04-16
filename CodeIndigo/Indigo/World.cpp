@@ -45,7 +45,7 @@ World::~World(void)
 
 
 // Updates every object in the world, prepares to render again
-void World::Update(const int time)
+void World::Update(const float time)
 {
 	if (Update_Function)
 	{

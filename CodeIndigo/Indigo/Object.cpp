@@ -15,7 +15,7 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color, void(*update_function)(const int frame, Object& self),
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color, void(*update_function)(const float time, Object& self),
 	const char * change_texture, const bool smooth, const Direction& towards, const bool world_collide, const float shine, const bool line)
 {
 	Place(x, y, z);
@@ -66,7 +66,7 @@ Object::~Object(void)
 
 
 // Updates the object, preparing for User-Defined Update_Function
-void Object::Update(const int time)
+void Object::Update(const float time)
 {
 	if (Update_Function)
 	{

@@ -30,11 +30,11 @@ namespace Indigo
 		//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 		/*if (fullscreen)
 		{
-			glutFullScreen();
+		glutFullScreen();
 		}
 		if (!background)
 		{
-			background = Sky_Color;
+		background = Sky_Color;
 		}*/
 		glClearColor(background[0], background[1], background[2], 1.0);
 
@@ -59,6 +59,7 @@ namespace Indigo
 		glFogf(GL_FOG_DENSITY, 0.002);
 
 		// Enable rendering options
+		Reshape(Window);
 		glShadeModel(GL_SMOOTH);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -108,6 +109,7 @@ namespace Indigo
 		}
 		Screen_Width = window_width;
 		Screen_Height = window_height;
+		std::cout << Screen_Width << ", " << Screen_Height << std::endl;
 		Aspect_Ratio = (float) window_width / (float) window_height;
 	}
 
@@ -171,7 +173,7 @@ namespace Indigo
 		}
 		if (Mouse_Button_Function)
 		{
-			Mouse_Button_Function(button, state, (Mouse_Position.X - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height- 1,
+			Mouse_Button_Function(button, state, (Mouse_Position.X - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height - 1,
 				-1 * (Mouse_Position.Y * 2.0 / Screen_Height - 1));
 		}
 		if (Mouse_Raw_Button_Function)
@@ -359,9 +361,9 @@ namespace Indigo
 	// ... when the mouse is moved, given relative to the center.
 	// Also hides mouse when defined.
 	void(*Relative_Mouse_Moved_Function)(int x, int y);
-
+	
 	// ... every time the world updates
-	void(*Update_Function)(int time);
+	void(*Update_Function)(float time);
 
 	// ... just before the rendering of objects in the world
 	void(*Render_Function)(void);

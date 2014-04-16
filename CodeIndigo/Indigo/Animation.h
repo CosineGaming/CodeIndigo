@@ -21,7 +21,7 @@ public:
 	// Destroy an animation and remove it from the update list
 	~Animation(void);
 	// Update each animation in animations
-	void Update(int time);
+	void Update(float time);
 	// The ID for storing in the world
 	int ID;
 

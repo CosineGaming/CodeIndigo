@@ -26,7 +26,7 @@ public:
 	~World(void);
 
 	// Updates every object in the world, prepares to render again
-	void Update(const int time);
+	void Update(const float time);
 	// Renders every object in the world
 	void Render(void) const;
 
@@ -104,7 +104,7 @@ public:
 	int Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 
 	// Called every time the World updates, set this as you please
-	void(*Update_Function)(const int time);
+	void(*Update_Function)(const float time);
 
 	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc.
 	Lighting Light_Setup;

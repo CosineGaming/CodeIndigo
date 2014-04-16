@@ -50,7 +50,7 @@ Animation::~Animation(void)
 
 
 // Update each animation in animations
-void Animation::Update(int time)
+void Animation::Update(float time)
 {
 	for (std::size_t animation = 0; animation < animations.size(); ++animation)
 	{

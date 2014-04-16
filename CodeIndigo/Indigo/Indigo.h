@@ -72,7 +72,7 @@ namespace Indigo
 	extern void(*Error_Function)(int type, const char * message);
 	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
-	extern void(*Update_Function)(int time);
+	extern void(*Update_Function)(float time);
 	// ... just before the rendering of objects in the world
 	extern void(*Render_Function)(void);
 
