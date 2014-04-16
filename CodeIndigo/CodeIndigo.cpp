@@ -1,4 +1,4 @@
-#include "Indigo\IndigoEngine.h"
+#include "Indigo/IndigoEngine.h"
 #include <iostream>
 
 Object player = Object(0, 0.75, 0);
@@ -9,6 +9,7 @@ char * fps = new char[4];
 
 void run(float time)
 {
+	std::cout << "\b\b" << 1000 / (int)time;
 	if (Indigo::Keys['w'])
 	{
 		player.Move(0.009 * time);
@@ -99,7 +100,8 @@ void load(float time)
 int main()
 {
 	float color[3] = { 0, 0.192, 0.314 };
-	Indigo::Initialize("Indigo Engine Test", 120, false, color, 800, 600);
+	Indigo::Initialize("Indigo Engine Test", color);
 	Indigo::Update_Function = load;
+	std::cout << "60";
 	Indigo::Run();
 }

@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <iostream>
 #include "GLFW/glfw3.h"
-#include "glm\vec3.hpp"
-#include "glm\gtx\transform.hpp"
-#include "glm\gtc\matrix_transform.hpp"
+#include "glm/vec3.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 
 // Create a new camera by a position and a direction

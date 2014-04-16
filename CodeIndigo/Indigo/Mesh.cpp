@@ -1,5 +1,7 @@
 // Defines a mesh of points for render
 
+#include "GL/glew.h"
+
 #include "Mesh.h"
 
 #include "Direction.h"
@@ -63,6 +65,9 @@ Mesh::~Mesh(void)
 void Mesh::Initialize(void)
 {
 	Smooth_Normals();
+	glGenBuffers(1, &Index);
+	glBindBuffer(GL_ARRAY_BUFFER, Index);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size(), &vertices[0], GL_STATIC_DRAW);
 	return;
 }
 
@@ -76,7 +81,7 @@ Mesh Mesh::Load(const char * filename)
 	std::ifstream file(filename, std::ios::in);
 	if (!file)
 	{
-		std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh.\n";
+		std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh." << std::endl;
 	}
 	else
 	{
@@ -557,13 +562,11 @@ void Mesh::Texture(const char * filename)
 	file.read(data, size);
 	file.close();
 
-	unsigned int handle;
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D, handle);
+	glGenTextures(1, &Texture_ID);
+	glBindTexture(GL_TEXTURE_2D, Texture_ID);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	Texture_ID = handle;
 	delete [] data;
 	return;
 }

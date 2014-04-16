@@ -30,6 +30,9 @@ public:
 	// Renders every object in the world
 	void Render(void) const;
 
+	// Compiles and puts in place custom Vertex or Fragment Shaders
+	void Shader(const char * vertex, const char * fragment);
+
 	/*
 	Add a skybox, a backdrop to the world. Accepts a filename of a texture.
 	The texture will be in the format of six square textures arranged like this:
@@ -119,6 +122,10 @@ private:
 	std::vector<Text> texts;
 	std::vector<Animation> animations;
 
+	// 
 	Object skybox;
+
+	// The handle for the full shader together.
+	unsigned int shader_index;
 
 };

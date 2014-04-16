@@ -5,8 +5,8 @@
 #include "Object.h"
 #include "Direction.h"
 
-#include "glm\glm.hpp"
-#include "glm\mat4x4.hpp"
+#include "glm/glm.hpp"
+#include "glm/mat4x4.hpp"
 
 
 class Camera

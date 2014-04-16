@@ -77,10 +77,10 @@
     <ClInclude Include="..\CodeIndigo\Indigo\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\CodeIndigo\Indigo\Vertex.h">
+    <ClInclude Include="..\CodeIndigo\Indigo\World.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\CodeIndigo\Indigo\World.h">
+    <ClInclude Include="..\CodeIndigo\Indigo\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

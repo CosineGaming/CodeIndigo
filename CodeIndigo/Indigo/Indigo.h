@@ -13,8 +13,8 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(const char * window_name = "Indigo", const int max_framerate = 120, const bool fullscreen = true, float * background = nullptr,
-		const int window_width = 0, const int window_height = 0);
+	void Initialize(const char * window_name = "Indigo", float * background = nullptr, const int window_width = 0,
+		const int window_height = 0, const int max_framerate = 60, const bool fullscreen = true);
 
 	// Starts the main loop with update, render, and input. Returns 0 ideally... 1 on problem.
 	int Run(void);
@@ -89,8 +89,9 @@ namespace Indigo
 	extern bool Right_Mouse;
 	extern bool Middle_Mouse;
 	extern Vertex Mouse_Position;
-	// Stores the current actual FPS of the update loop
-	extern int Actual_FPS;
+
+	// The index for the VAO thingy, not probably important.
+	extern unsigned int VAO;
 
 	// Stores the width of the screen
 	extern int Screen_Width;
@@ -99,7 +100,9 @@ namespace Indigo
 	// Stores the aspect ratio of the screen
 	extern float Aspect_Ratio;
 	// Stores the milliseconds to add between each frame
-	extern int Frame_Length_Minimum;
+	extern float Frame_Length_Minimum;
+	// Stores the current actual FPS of the update loop
+	extern int Actual_FPS;
 
 	// Colors
 	extern float White_Color[3];

@@ -1,22 +1,24 @@
 // Basic OpenGL functions, also takes care of most of the background work.
 // These function will mostly be called in Main.
 
+#include "GL/glew.h"
+
 #include "Indigo.h"
 
 
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(const char * window_name, const int max_framerate, const bool fullscreen, float * background,
-		const int window_width, const int window_height)
+	void Initialize(const char * window_name, float * background, const int window_width,
+		const int window_height, const int max_framerate, const bool fullscreen)
 	{
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
-		glfwWindowHint(GLFW_SAMPLES, 4);
-		glfwWindowHint(GLFW_VERSION_MAJOR, 2);
-		glfwWindowHint(GLFW_VERSION_MINOR, 1);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_SAMPLES, 8);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		if (fullscreen)
 		{
 			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -27,16 +29,16 @@ namespace Indigo
 			Window = glfwCreateWindow(window_width, window_height, window_name, NULL, NULL);
 		}
 		glfwMakeContextCurrent(Window);
-		//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-		/*if (fullscreen)
-		{
-		glutFullScreen();
-		}
-		if (!background)
-		{
-		background = Sky_Color;
-		}*/
 		glClearColor(background[0], background[1], background[2], 1.0);
+
+		// GLEW
+		glewExperimental = true;
+		if (glewInit())
+		{
+			std::cout << "There was this GLEW thing, and it was all like, NO!" << std::endl << "And we were sad. Try reinstalling."
+				<< std::endl << "For more info contact the creator of your game." << std::endl << "Tell them about this:" << std::endl
+				<< glewGetErrorString(0) << std::endl;
+		}
 
 		// Set callbacks
 		if (max_framerate == 0)
@@ -45,12 +47,16 @@ namespace Indigo
 		}
 		else
 		{
-			Frame_Length_Minimum = 1000 / max_framerate;
+			Frame_Length_Minimum = 1000.0 / max_framerate;
 		}
 		glfwSetFramebufferSizeCallback(Window, Reshape);
 		glfwSetCursorPosCallback(Window, Mouse_Moved);
 		glfwSetMouseButtonCallback(Window, Mouse_Button);
 		glfwSetKeyCallback(Window, Key_Action);
+
+		// Set up the Geocacher. (Reference? Yes, of course. To what? My brain is an Odd. Place.)
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 
 		// Setup fog
 		glEnable(GL_FOG);
@@ -109,7 +115,6 @@ namespace Indigo
 		}
 		Screen_Width = window_width;
 		Screen_Height = window_height;
-		std::cout << Screen_Width << ", " << Screen_Height << std::endl;
 		Aspect_Ratio = (float) window_width / (float) window_height;
 	}
 
@@ -394,8 +399,9 @@ namespace Indigo
 
 	Vertex Mouse_Position = Vertex(0, 0);
 
-	// Stores the current actual FPS of the update loop
-	int Actual_FPS = 60;
+
+	// The index for the VAO thingy, not probably important.
+	unsigned int VAO;
 
 
 	// Stores the width of the screen
@@ -408,7 +414,10 @@ namespace Indigo
 	float Aspect_Ratio = 1;
 
 	// Stores the milliseconds to add between each frame
-	int Frame_Length_Minimum = 0;
+	float Frame_Length_Minimum = 0;
+
+	// Stores the current actual FPS of the update loop
+	int Actual_FPS = 60;
 
 
 	// Colors

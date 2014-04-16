@@ -1,11 +1,15 @@
 // Defines a class for holding objects
 
+#include "GL/glew.h"
+
 #include "World.h"
 
 #include "Animation.h"
 #include "Indigo.h"
 
-#include <stdlib.h>
+#include <fstream>
+#include <string>
+#include <iostream>
 #include "GLFW/glfw3.h"
 
 
@@ -73,22 +77,22 @@ void World::Render(void) const
 
 	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&View.Project()[0][0]);
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_PROJECTION); // TODO: I200
+	//glLoadMatrixf(&View.Project()[0][0]);
+	//glMatrixMode(GL_MODELVIEW);
 	Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
-		glLoadMatrixf(&(View.Look_In_Place()[0][0]));
+		//glLoadMatrixf(&(View.Look_In_Place()[0][0])); // TODO: I200
 		glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		skybox.Render();
 	}
 
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
-	glLoadMatrixf(&(View.Look()[0][0]));
+	//glLoadMatrixf(&(View.Look()[0][0])); // TODO: I200
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
@@ -97,7 +101,7 @@ void World::Render(void) const
 	}
 
 	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
-	glLoadIdentity();
+	// glLoadIdentity(); // TODO: I200
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
@@ -105,9 +109,9 @@ void World::Render(void) const
 	}
 
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(&View.Project_2D()[0][0]);
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_PROJECTION); // TODO: I200
+	//glLoadMatrixf(&View.Project_2D()[0][0]);
+	//glMatrixMode(GL_MODELVIEW);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
@@ -122,6 +126,71 @@ void World::Render(void) const
 	// Finish Frame
 	glfwSwapBuffers(Indigo::Window);
 	return;
+
+}
+
+
+// Compiles and puts in place custom Vertex and Fragment Shaders
+void World::Shader(const char * vertex, const char * fragment)
+{
+
+	std::ifstream shader = std::ifstream(vertex, std::ios::in);
+	if (!shader)
+	{
+		std::cout << "Uhh... Huh? Couldn't find vertex shader! Failing silently." << std::endl;
+		return;
+	}
+	std::string total;
+	std::string line;
+	while (std::getline(shader, line))
+	{
+		total += line;
+		total += "\n";
+	}
+	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	const char * source = total.c_str();
+	glShaderSource(vertex_shader, 1, &source, NULL);
+	glCompileShader(vertex_shader);
+	int failed;
+	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &failed);
+	if (failed)
+	{
+		int size;
+		glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &size);
+		char * data = new char[size];
+		glGetShaderInfoLog(vertex_shader, size, NULL, data);
+		std::cout << "KITTEN KILLER! In vertex shader: " << std::endl << data << std::endl;
+		delete[] data;
+	}
+
+	std::ifstream shader = std::ifstream(fragment, std::ios::in);
+	if (!shader)
+	{
+		std::cout << "Uhh... Huh? Couldn't find fragment shader! Failing silently." << std::endl;
+		return;
+	}
+	std::string total;
+	std::string line;
+	while (std::getline(shader, line))
+	{
+		total += line;
+		total += "\n";
+	}
+	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	const char * source = total.c_str();
+	glShaderSource(fragment_shader, 1, &source, NULL);
+	glCompileShader(fragment_shader);
+	int failed;
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &failed);
+	if (failed)
+	{
+		int size;
+		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
+		char * data = new char[size];
+		glGetShaderInfoLog(fragment_shader, size, NULL, data);
+		std::cout << "KITTEN KILLER! In vertex shader: " << std::endl << data << std::endl;
+		delete [] data;
+	}
 
 }
 

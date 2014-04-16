@@ -95,8 +95,10 @@ public:
 	void Add(const Mesh& mesh);
 	void Add(const std::vector <Vertex>& vertices);
 
-	// The texture handle number
-	int Texture_ID;
+	// The actual data is stored on the GPU. Here's the index for gathering it.
+	unsigned int Index;
+	// Just like the Index, but for the Texture. The texture handle number.
+	unsigned int Texture_ID;
 
 private:
 
