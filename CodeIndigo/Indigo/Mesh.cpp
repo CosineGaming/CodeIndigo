@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "glut.h"
+#include "GLFW/glfw3.h"
 
 
 // Create a new, empty mesh

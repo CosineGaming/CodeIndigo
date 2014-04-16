@@ -59,7 +59,7 @@ void Text::Render(void) const
 	glRasterPos2f(x, y);
 	for (int character = 0; text[character] != '\0'; ++character)
 	{
-		glutBitmapCharacter(typeset, text[character]);
+		//glutBitmapCharacter(typeset, text[character]);
 	}
 	if (Indigo::Elapsed() >= finished && finished >= 0)
 	{

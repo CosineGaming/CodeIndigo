@@ -6,47 +6,59 @@
 #include "World.h"
 #include "Animation.h"
 
+#include <iostream>
+#include "GLFW/glfw3.h"
+
 
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(int argc, char ** argv, const char * window_name = "Indigo", const int max_framerate = 120, const bool fullscreen = true, float * background = nullptr,
-		const int window_width = 800, const int window_height = 600);
+	void Initialize(const char * window_name = "Indigo", const int max_framerate = 120, const bool fullscreen = true, float * background = nullptr,
+		const int window_width = 0, const int window_height = 0);
 
-	// Starts the main loop with update, render, and input
-	void Run(void);
+	// Starts the main loop with update, render, and input. Returns 0 ideally... 1 on problem.
+	int Run(void);
+	// Exits the loop, destroying the window. More contexts can still be created.
+	void Close(void);
 
 	// Acts for when the window reshapes
-	void Reshape(int width = 0, int height = 0);
+	void Reshape(GLFWwindow * window, int width = 0, int height = 0);
 	// Acts for keys which act once, and stores for multi-acting keys
-	void Key_Pressed(unsigned char key, int x, int y);
-	// Acts for keys which act on release, and removes stored keys
-	void Key_Released(unsigned char key, int x, int y);
+	void Key_Action(GLFWwindow * window, int key, int scancode, int action, int modifiers);
+	// Checks whether a key has just been pressed
+	bool Pressed(unsigned char key);
 	// Acts for when the mouse is pressed or released
-	void Mouse_Button(int button, int state, int x, int y);
+	void Mouse_Button(GLFWwindow * window, int button, int state, int modifiers);
 	// Acts for when the mouse is moved
-	void Mouse_Moved(int x, int y);
+	void Mouse_Moved(GLFWwindow * window, double x, double y);
+	// Default FPS-style mouse code, used intrinsically. Call FPS_Mouse to set up.
+	void FPS_Mouse_Callback(int x, int y, Object * player = nullptr, float sensitivity = 0);
+	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
+	void FPS_Mouse_Function(int x, int y);
+	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
+	// Then, use Indigo::Current_World.camera.facing = player.facing;
+	void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
+	// Acts for when an error is encountered
+	void Error_Found(int type, const char * message);
 	// Updates world
-	void Update(int trash);
+	void Update(const float time);
 	// Renders world
 	void Render(void);
 
-	// Get elapsed time in the game, optional modulo for partial times
-	int Elapsed(const int minus = 0);
+	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
+	float Elapsed(const float minus = 0);
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
 
 	// Stores the current world to render
 	extern World Current_World;
-	// Stores the milliseconds to add between each frame
-	extern int Frame_Length_Minimum;
+	// Stores the window we're rendering onto
+	extern GLFWwindow * Window;
 
 	// Stores the function to call when a key is pressed
 	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);
 	// ... when a key is released
 	extern void(*Key_Released_Function)(unsigned char key, int x, int y);
-	// Checks whether a key has just been pressed
-	extern bool Pressed(unsigned char key);
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is pressed or released. Given in Window Coordinates
@@ -56,29 +68,27 @@ namespace Indigo
 	// ... when the mouse is moved, given relative to the center
 	// Also hides mouse when defined.
 	extern void(*Relative_Mouse_Moved_Function)(int x, int y);
-	// Default FPS-style mouse code, used intrinsically. Call FPS_Mouse to set up.
-	void FPS_Mouse_Callback(int x, int y, Object * player = nullptr, float sensitivity = 0);
-	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
-	void FPS_Mouse_Function(int x, int y);
-	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
-	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
+	// ... on an error
+	extern void(*Error_Function)(int type, const char * message);
 	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
 	extern void(*Update_Function)(int time);
 	// ... just before the rendering of objects in the world
 	extern void(*Render_Function)(void);
 
-	// Members with the index of a key which is currently down are true, always lowercase
-	extern bool Keys[256];
+	// Members with the index of a key which is currently down are true, always lowercase. Abnormals are GLFW_ESCAPE, etc.
+	extern bool Keys[512];
 	// Don't use, used internally. Use Pressed('a') instead.
-	extern bool Keys_Pressed[256];
-	// Stores whether shift is pressed
+	extern bool Keys_Pressed[512];
+	// Stores whether modifiers are pressed
 	extern bool Shift;
-	// Stores whether mouse buttons are down
+	extern bool Control;
+	extern bool Alt;
+	// Stores whether mouse buttons are down and where the cursor is
 	extern bool Left_Mouse;
 	extern bool Right_Mouse;
 	extern bool Middle_Mouse;
+	extern Vertex Mouse_Position;
 	// Stores the current actual FPS of the update loop
 	extern int Actual_FPS;
 
@@ -88,6 +98,8 @@ namespace Indigo
 	extern int Screen_Height;
 	// Stores the aspect ratio of the screen
 	extern float Aspect_Ratio;
+	// Stores the milliseconds to add between each frame
+	extern int Frame_Length_Minimum;
 
 	// Colors
 	extern float White_Color[3];

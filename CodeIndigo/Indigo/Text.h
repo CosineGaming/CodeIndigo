@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdlib>
-#include "glut.h"
+#include "GLFW/glfw3.h"
 
 
 class Text
@@ -9,7 +9,7 @@ public:
 
 	// Create new text based off of the text. -1 is bottom, 1 is top. Text is placed with it's top-left corner at (text_x, text_y).
 	// If time_to_last is negative, text won't disappear.
-	Text(const float text_x=0, const float text_y=0, char * display="", float * color = nullptr, void * font = GLUT_BITMAP_HELVETICA_18, const int time_to_last = -1, void(*finished)(void)=nullptr);
+	Text(const float text_x=0, const float text_y=0, char * display="", float * color = nullptr, void * font = nullptr, const int time_to_last = -1, void(*finished)(void)=nullptr);
 	// Create new Text based off of another Text object
 	Text(const Text& copy);
 	// Destroy the text

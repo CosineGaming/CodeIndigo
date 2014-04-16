@@ -95,10 +95,10 @@ void load(int time)
 	Indigo::Update_Function = steadyload;
 }
 
-int main(int argc, char ** argv)
+int main()
 {
 	float color[3] = { 0, 0.192, 0.314 };
-	Indigo::Initialize(argc, argv, "Indigo Engine Test", 120, true, color);
+	Indigo::Initialize("Indigo Engine Test", 120, false, color, 800, 600);
 	Indigo::Update_Function = load;
 	Indigo::Run();
 }

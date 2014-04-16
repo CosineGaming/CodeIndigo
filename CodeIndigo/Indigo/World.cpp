@@ -6,7 +6,7 @@
 #include "Indigo.h"
 
 #include <stdlib.h>
-#include "glut.h"
+#include "GLFW/glfw3.h"
 
 
 // Create a new, empty world
@@ -120,7 +120,7 @@ void World::Render(void) const
 	}
 	
 	// Finish Frame
-	glutSwapBuffers();
+	glfwSwapBuffers(Indigo::Window);
 	return;
 
 }

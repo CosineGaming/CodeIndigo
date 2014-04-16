@@ -2,7 +2,7 @@
 
 #include "Lighting.h"
 #include <stdlib.h>
-#include "glut.h"
+#include "GLFW/glfw3.h"
 #include <iostream>
 
 

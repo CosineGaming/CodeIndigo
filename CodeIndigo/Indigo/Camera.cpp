@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include "glut.h"
+#include "GLFW/glfw3.h"
 #include "glm\vec3.hpp"
 #include "glm\gtx\transform.hpp"
 #include "glm\gtc\matrix_transform.hpp"

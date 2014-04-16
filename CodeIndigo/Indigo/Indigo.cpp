@@ -2,43 +2,55 @@
 // These function will mostly be called in Main.
 
 #include "Indigo.h"
-#include <stdlib.h>
-#include "glut.h"
-#include <iostream>
 
 
 namespace Indigo
 {
 	// Initializes window and rendering matrices.
-	void Initialize(int argc, char ** argv, const char * window_name, const int max_framerate, const bool fullscreen, float * background,
+	void Initialize(const char * window_name, const int max_framerate, const bool fullscreen, float * background,
 		const int window_width, const int window_height)
 	{
 		// Initiate glut
-		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-		glutInitWindowSize(window_width, window_height);
-		glutCreateWindow(window_name);
+		glfwSetErrorCallback(Error_Found);
+		glfwInit();
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_VERSION_MAJOR, 2);
+		glfwWindowHint(GLFW_VERSION_MINOR, 1);
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		if (fullscreen)
+		{
+			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			Window = glfwCreateWindow(window_width ? window_width : monitor->width, window_height ? window_height : monitor->height, window_name, glfwGetPrimaryMonitor(), NULL);
+		}
+		else
+		{
+			Window = glfwCreateWindow(window_width, window_height, window_name, NULL, NULL);
+		}
+		glfwMakeContextCurrent(Window);
+		//glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+		/*if (fullscreen)
 		{
 			glutFullScreen();
 		}
 		if (!background)
 		{
 			background = Sky_Color;
-		}
+		}*/
 		glClearColor(background[0], background[1], background[2], 1.0);
 
 		// Set callbacks
-		Frame_Length_Minimum = 1000 / max_framerate;
-		glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
-		glutDisplayFunc(Render);
-		glutTimerFunc(10, Update, 0);
-		glutReshapeFunc(Reshape);
-		glutPassiveMotionFunc(Mouse_Moved);
-		glutMotionFunc(Mouse_Moved);
-		glutMouseFunc(Mouse_Button);
-		glutKeyboardFunc(Key_Pressed);
-		glutKeyboardUpFunc(Key_Released);
+		if (max_framerate == 0)
+		{
+			Frame_Length_Minimum = 0;
+		}
+		else
+		{
+			Frame_Length_Minimum = 1000 / max_framerate;
+		}
+		glfwSetFramebufferSizeCallback(Window, Reshape);
+		glfwSetCursorPosCallback(Window, Mouse_Moved);
+		glfwSetMouseButtonCallback(Window, Mouse_Button);
+		glfwSetKeyCallback(Window, Key_Action);
 
 		// Setup fog
 		glEnable(GL_FOG);
@@ -55,61 +67,79 @@ namespace Indigo
 	}
 
 	// Starts the main loop with update, render, and input
-	void Run(void)
+	int Run(void)
 	{
-		glutMainLoop();
+		while (!glfwWindowShouldClose(Window))
+		{
+			static float last = 0;
+			if (Elapsed(last) >= Frame_Length_Minimum)
+			{
+				Update(Elapsed(last));
+				Render();
+				glfwPollEvents();
+				last = Elapsed();
+			}
+		}
+		glfwTerminate();
+		return 0;
+
+	}
+
+	void Close(void)
+	{
+		glfwSetWindowShouldClose(Window, true);
 		return;
 	}
 
 	// Acts for when the window reshapes
-	void Reshape(int width, int height)
+	void Reshape(GLFWwindow * window, int width, int height)
 	{
+		int window_width;
+		int window_height;
 		if (0 == width || 0 == height)
 		{
-			width = glutGet(GLUT_WINDOW_WIDTH);
-			height = glutGet(GLUT_WINDOW_HEIGHT);
+			glfwGetFramebufferSize(Window, &window_width, &window_height);
 		}
 		else
 		{
+			window_width = width;
+			window_height = height;
 			glViewport(0, 0, width, height);
 		}
-		Screen_Width = width;
-		Screen_Height = height;
-		Aspect_Ratio = (float) width / (float) height;
+		Screen_Width = window_width;
+		Screen_Height = window_height;
+		Aspect_Ratio = (float) window_width / (float) window_height;
 	}
 
 	// Acts for Keys which act once, and stores for multi-acting Keys
-	void Key_Pressed(unsigned char key, int x, int y)
+	void Key_Action(GLFWwindow * window, int key, int scancode, int action, int modifiers)
 	{
 		// Convert uppercases to lowercase
 		if (key >= 65 && key <= 90)
 		{
 			key += 32;
 		}
-		if (Key_Pressed_Function)
-		{
-			Key_Pressed_Function(key, x, y);
-		}
-		Keys[key] = true;
-		Keys_Pressed[key] = true;
-		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
-		return;
-	}
+		Shift = modifiers & GLFW_MOD_SHIFT;
+		Control = modifiers & GLFW_MOD_CONTROL;
+		Alt = modifiers & GLFW_MOD_ALT;
 
-	// Acts for Keys which act on release, and removes stored Keys
-	void Key_Released(unsigned char key, int x, int y)
-	{
-		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
-		// Convert uppercases to lowercase
-		if (key >= 65 && key <= 90)
+		if (action == GLFW_PRESS)
 		{
-			key += 32;
+			if (Key_Pressed_Function)
+			{
+				Key_Pressed_Function(key, Mouse_Position.X, Mouse_Position.Y);
+			}
+			Keys[key] = true;
+			Keys_Pressed[key] = true;
 		}
-		if (Key_Released_Function)
+		if (action == GLFW_RELEASE)
 		{
-			Key_Released_Function(key, x, y);
+			if (Key_Released_Function)
+			{
+				Key_Released_Function(key, Mouse_Position.X, Mouse_Position.Y);
+			}
+			Keys[key] = false;
 		}
-		Keys[key] = false;
 		return;
 	}
 
@@ -122,55 +152,46 @@ namespace Indigo
 	}
 
 	// Acts for when the mouse is pressed or released
-	void Mouse_Button(int button, int state, int x, int y)
+	void Mouse_Button(GLFWwindow * window, int button, int state, int modifiers)
 	{
-		Shift = glutGetModifiers() == GLUT_ACTIVE_SHIFT;
-		if (button == GLUT_LEFT_BUTTON)
+		Shift = modifiers & GLFW_MOD_SHIFT;
+		Control = modifiers & GLFW_MOD_CONTROL;
+		Alt = modifiers & GLFW_MOD_ALT;
+		if (button == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			Left_Mouse = state == GLUT_DOWN;
+			Left_Mouse = state == GLFW_PRESS;
 		}
-		if (button == GLUT_RIGHT_BUTTON)
+		if (button == GLFW_MOUSE_BUTTON_RIGHT)
 		{
-			Right_Mouse = state == GLUT_DOWN;
+			Right_Mouse = state == GLFW_PRESS;
 		}
-		if (button == GLUT_MIDDLE_BUTTON)
+		if (button == GLFW_MOUSE_BUTTON_MIDDLE)
 		{
-			Middle_Mouse = state == GLUT_DOWN;
+			Middle_Mouse = state == GLFW_PRESS;
 		}
 		if (Mouse_Button_Function)
 		{
-			Mouse_Button_Function(button, state, (x - (glutGet(GLUT_WINDOW_WIDTH) - glutGet(GLUT_WINDOW_HEIGHT)) / 2) * 2.0 / glutGet(GLUT_WINDOW_HEIGHT) - 1,
-				-1 * (y * 2.0 / glutGet(GLUT_WINDOW_HEIGHT) - 1));
+			Mouse_Button_Function(button, state, (Mouse_Position.X - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height- 1,
+				-1 * (Mouse_Position.Y * 2.0 / Screen_Height - 1));
 		}
 		if (Mouse_Raw_Button_Function)
 		{
-			Mouse_Raw_Button_Function(button, state, x, y);
+			Mouse_Raw_Button_Function(button, state, Mouse_Position.X, Mouse_Position.Y);
 		}
 		return;
 	}
 
 	// Acts for when the mouse is moved
-	void Mouse_Moved(int x, int y)
+	void Mouse_Moved(GLFWwindow * window, double x, double y)
 	{
 		if (Relative_Mouse_Moved_Function)
 		{
-			int width = glutGet(GLUT_WINDOW_WIDTH);
-			int height = glutGet(GLUT_WINDOW_HEIGHT);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			static int last_x = 0;
 			static int last_y = 0;
-			if (!((width / 2 == x && height / 2 == y)
-				|| (0 == x - last_x && 0 == y - last_y)))
-			{
-				Relative_Mouse_Moved_Function(x - last_x, y - last_y);
-			}
-			static const int margin = 100;
-			if (x < margin || x > width - margin || y < margin || y > height - margin)
-			{
-				glutWarpPointer(width / 2, height / 2);
-			}
+			Relative_Mouse_Moved_Function(x - last_x, y - last_y);
 			last_x = x;
 			last_y = y;
-			glutSetCursor(GLUT_CURSOR_NONE);
 		}
 		if (Mouse_Moved_Function)
 		{
@@ -236,25 +257,30 @@ namespace Indigo
 		}
 		else
 		{
-			glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			Relative_Mouse_Moved_Function = nullptr;
 		}
 	}
 
-	// Updates world
-	void Update(int trash)
+	// Acts for when an error is encountered
+	void Error_Found(int type, const char * message)
 	{
-		glutTimerFunc(Frame_Length_Minimum, Update, 0);
-		static int last_time = 0;
-		int delta_time = glutGet(GLUT_ELAPSED_TIME) - last_time;
-		last_time = glutGet(GLUT_ELAPSED_TIME);
-		Actual_FPS = 1000.0 / last_time;
+		std::cout << "Error. " << message << std::endl;
+		if (Error_Function)
+		{
+			Error_Function(type, message);
+		}
+	}
+
+	// Updates world
+	void Update(const float time)
+	{
+		Actual_FPS = 1000.0 / time;
 		if (Update_Function)
 		{
-			Update_Function(delta_time);
+			Update_Function(time);
 		}
-		Current_World.Update(delta_time);
-		glutPostRedisplay();
+		Current_World.Update(time);
 		return;
 	}
 
@@ -269,10 +295,10 @@ namespace Indigo
 		return;
 	}
 
-	// Get elapsed time in the game, optional minus for partial times
-	int Elapsed(const int minus)
+	// Get elapsed time in the game, optional minus for partial times, in milliseconds
+	float Elapsed(const float minus)
 	{
-		return glutGet(GLUT_ELAPSED_TIME) - minus;
+		return glfwGetTime() * 1000 - minus;
 	}
 
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
@@ -311,11 +337,8 @@ namespace Indigo
 	// Stores the current world to render
 	World Current_World;
 
-	// Stores the milliseconds to add between each frame
-	int Frame_Length_Minimum;
-
-	// Stors the field of view
-	int Field_Of_View;
+	// Stores the window we're rendering onto
+	GLFWwindow * Window = nullptr;
 
 
 	// Stores the function to call when a key is pressed
@@ -343,35 +366,47 @@ namespace Indigo
 	// ... just before the rendering of objects in the world
 	void(*Render_Function)(void);
 
+	// ... on an error
+	void(*Error_Function)(int type, const char * message);
 
-	// Members with the index of a key which is currently down are true
-	bool Keys[256];
+
+	// Members with the index of a key which is currently down are true, always lowercase. Abnormals are GLFW_ESCAPE, etc.
+	bool Keys[512];
 
 	// Don't use, used internally. Use Pressed('a') instead.
-	bool Keys_Pressed[256];
+	bool Keys_Pressed[512];
 
-	// Stores whether shift is pressed
-	bool Shift = false;
+	// Stores whether modifiers are pressed
+	bool Shift;
+
+	bool Control;
+
+	bool Alt;
 
 	// Stores whether mouse buttons are down
-	bool Left_Mouse;
+	bool Left_Mouse = false;
 
-	bool Right_Mouse;
+	bool Right_Mouse = false;
 
-	bool Middle_Mouse;
+	bool Middle_Mouse = false;
+
+	Vertex Mouse_Position = Vertex(0, 0);
 
 	// Stores the current actual FPS of the update loop
-	int Actual_FPS;
+	int Actual_FPS = 60;
 
 
 	// Stores the width of the screen
-	int Screen_Width;
+	int Screen_Width = 0;
 
 	// Stores the height of the screen
-	int Screen_Height;
+	int Screen_Height = 0;
 
 	// Stores the aspect ratio of the screen
-	float Aspect_Ratio;
+	float Aspect_Ratio = 1;
+
+	// Stores the milliseconds to add between each frame
+	int Frame_Length_Minimum = 0;
 
 
 	// Colors
