@@ -134,6 +134,7 @@ void World::Render(void) const
 void World::Shader(const char * vertex, const char * fragment)
 {
 
+	// Vertex
 	std::ifstream shader = std::ifstream(vertex, std::ios::in);
 	if (!shader)
 	{
@@ -151,46 +152,72 @@ void World::Shader(const char * vertex, const char * fragment)
 	const char * source = total.c_str();
 	glShaderSource(vertex_shader, 1, &source, NULL);
 	glCompileShader(vertex_shader);
-	int failed;
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &failed);
-	if (failed)
+	int succeeded;
+	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &succeeded);
+	if (succeeded)
 	{
 		int size;
 		glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size];
 		glGetShaderInfoLog(vertex_shader, size, NULL, data);
-		std::cout << "KITTEN KILLER! In vertex shader: " << std::endl << data << std::endl;
+		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
 		delete[] data;
+		return;
 	}
+	delete [] source;
+	source = nullptr;
 
-	std::ifstream shader = std::ifstream(fragment, std::ios::in);
+	// Fragment
+	shader = std::ifstream(fragment, std::ios::in);
 	if (!shader)
 	{
 		std::cout << "Uhh... Huh? Couldn't find fragment shader! Failing silently." << std::endl;
 		return;
 	}
-	std::string total;
-	std::string line;
+	total = std::string();
 	while (std::getline(shader, line))
 	{
 		total += line;
 		total += "\n";
 	}
 	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	const char * source = total.c_str();
+	source = total.c_str();
 	glShaderSource(fragment_shader, 1, &source, NULL);
 	glCompileShader(fragment_shader);
-	int failed;
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &failed);
-	if (failed)
+	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &succeeded);
+	if (succeeded == GL_FALSE)
 	{
 		int size;
 		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size];
 		glGetShaderInfoLog(fragment_shader, size, NULL, data);
-		std::cout << "KITTEN KILLER! In vertex shader: " << std::endl << data << std::endl;
+		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
 		delete [] data;
+		return;
 	}
+
+	// Link
+	shader_index = glCreateProgram();
+	glAttachShader(shader_index, vertex_shader);
+	glAttachShader(shader_index, fragment_shader);
+	glLinkProgram(shader_index);
+	glGetShaderiv(shader_index, GL_LINK_STATUS, &succeeded);
+	if (succeeded == GL_FALSE)
+	{
+		int size;
+		glGetShaderiv(shader_index, GL_INFO_LOG_LENGTH, &size);
+		char * data = new char[size];
+		glGetShaderInfoLog(shader_index, size, NULL, data);
+		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being a nerd. Failing silently, but: " << std::endl << data << std::endl;
+		delete[] data;
+		return;
+	}
+
+	// Cleanup
+	glDeleteShader(vertex_shader);
+	glDeleteShader(fragment_shader);
+
+	return;
 
 }
 

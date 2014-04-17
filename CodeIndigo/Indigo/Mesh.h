@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Vertex.h"
-
 #include <vector>
+#include "glm/glm.hpp"
 
 
 class Mesh
@@ -13,7 +12,7 @@ public:
 	// Create a new, empty mesh
 	Mesh(const int group_size=3);
 	// Create a new mesh with some vertices and an optional group size
-	Mesh(const std::vector <Vertex>& vertices, const int group_size=3);
+	Mesh(const std::vector <glm::vec3>& vertices, const int group_size=3);
 	// Copy a mesh
 	Mesh(const Mesh& mesh);
 	// Destroy the mesh
@@ -34,52 +33,42 @@ public:
 	static Mesh Rectangle(const float width, const float height);
 	// Used in recursion for the Sphere function
 	static Mesh Bulge_Sphere(const float radius, const int recursions,
-		const Vertex& left, const Vertex& right, const Vertex& top);
+		const glm::vec3& left, const glm::vec3& right, const glm::vec3& top);
 
 	// Allows [] to get a vertex like an array
-	Vertex& operator[](const int index) const;
+	glm::vec3& operator[](const int index) const;
 	// Allows += to add a vertex to the end
-	Mesh& operator+=(const Vertex& vertex);
+	Mesh& operator+=(const glm::vec3& vertex);
 	// Allows += to add a mesh to the end
 	Mesh& operator+=(const Mesh& mesh);
 	// Allows += to add a vector of vertices to the end
-	Mesh& operator+=(const std::vector <Vertex>& vertices);
+	Mesh& operator+=(const std::vector <glm::vec3>& vertices);
 	// Allows + to add a vertex to the end
-	Mesh operator+(const Vertex& vertex) const;
+	Mesh operator+(const glm::vec3& vertex) const;
 	// Allows + to add a mesh to the end
 	Mesh operator+(const Mesh& mesh) const;
 	// Allows + to add a vector of vertices to the end
-	Mesh operator+(const std::vector <Vertex>& vertices) const;
+	Mesh operator+(const std::vector <glm::vec3>& vertices) const;
 
-	// Add a new vertex to the end of the mesh,
-	// the last vertex made to be 0,0,0.
-	// So if the last was 0,1,5, then 2,-1,3 would add 2,0,8
-	void Add_Relative(const Vertex& vertex);
-	// Add a new mesh to the end relative to the last point
-	void Add_Relative(const Mesh& mesh);
-	// Add a new set of vertices to the end relative to the last point
-	void Add_Relative(const std::vector <Vertex>& vertices);
 	// Gets a vertex by its index
-	Vertex& Get_Vertex(const int index) const;
-	// Get all the vertices, or a subset of them 
-	std::vector <Vertex> Get_Vertices(int beginning = 0, int end = -1) const;
+	glm::vec3& Get_Vertex(const int index) const;
 
 	// Calculate one flat normal. Assumes index is end of group.
-	Vertex Find_Flat_Normal(const int index) const;
+	glm::vec3 Find_Flat_Normal(const int index) const;
 	// Calculate all per-vertex normals for the mesh
 	void Smooth_Normals(void);
 	// Get the normal for a specific vertex
-	Vertex Flat_Normal(const int index) const;
+	glm::vec3 Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
-	Vertex Smooth_Normal(const int index) const;
+	glm::vec3 Smooth_Normal(const int index) const;
 	// Update the hitbox knowing that this point exists in the mesh
-	void Update_Hitbox(Vertex vertex);
+	void Update_Hitbox(glm::vec3 vertex);
 	// Texture the entire mesh with one file, texture coordinates will be used only once called
 	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-	Vertex Texture_Coordinate(const int index) const;
+	glm::vec3 Texture_Coordinate(const int index) const;
 	// Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
-	void Set_Texture_Coordinate(const int index, const Vertex& coordinate);
+	void Set_Texture_Coordinate(const int index, const glm::vec3& coordinate);
 	// Get the number of Vertices in the mesh
 
 	int Size(void) const;
@@ -88,29 +77,31 @@ public:
 	// How many sides to each polygon
 	int Group_Size;
 
-	// Hitbox used for collision, normally auto-generated. {Left Bottom Back}, {Right Top Front}
-	Vertex Hitbox[2];
+	// Hitbox used for collision, normally auto-generated. Radius of shape around center, rotation independent
+	float Hitbox;
 	// Add points to the mesh in function notation
-	void Add(const Vertex& vertex);
+	void Add(const glm::vec3& vertex);
 	void Add(const Mesh& mesh);
-	void Add(const std::vector <Vertex>& vertices);
+	void Add(const std::vector <glm::vec3>& vertices);
 
 	// The actual data is stored on the GPU. Here's the index for gathering it.
-	unsigned int Index;
+	unsigned int Vertices_ID;
+	// The list of verts to use is also on the GPU. Here you yoga.
+	unsigned int Elements_ID;
 	// Just like the Index, but for the Texture. The texture handle number.
 	unsigned int Texture_ID;
 
 private:
 
-	// The vertices pool to choose from. Never rendered unless in elements!
-	std::vector<Vertex> vertices;
+	// The vertices pool to choose from. Never rendered unless in elements! (x,y,z pairs)
+	std::vector<float> vertices;
 	// The actual vertices in order; indices of vertices (0 for first, unlike obj files)
-	std::vector<int> elements;
-	// The per-face normals; less pretty and not used by default
-	std::vector<Vertex> flat_normals;
-	// The per-vertex normals. Only calculated once added to world
-	std::vector<Vertex> smooth_normals;
-	// A set of texture coordinates, one for every element. Manually set with Set_Texture_Coordinate()
-	std::vector<Vertex> texture_coordinates;
+	std::vector<unsigned short> elements;
+	// The per-face normals; less pretty and not used by default (x,y,z pairs)
+	std::vector<float> flat_normals;
+	// The per-vertex normals. Only calculated once added to world. (x,y,z pairs)
+	std::vector<float> smooth_normals;
+	// A set of texture coordinates, one for every element (x,y pairs). Manually set with Set_Texture_Coordinate()
+	std::vector<float> texture_coordinates;
 
 };

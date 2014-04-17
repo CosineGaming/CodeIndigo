@@ -1,6 +1,6 @@
 #pragma once
 
-class Mesh;
+/*class Mesh;
 
 class Direction;
 
@@ -35,4 +35,4 @@ public:
 
 private:
 
-};
+};*/

@@ -8,7 +8,7 @@
 
 namespace Indigo
 {
-	// Initializes window and rendering matrices.
+	// Initializes window and rendering matrices. Really ought to be called first.
 	void Initialize(const char * window_name, float * background, const int window_width,
 		const int window_height, const int max_framerate, const bool fullscreen)
 	{

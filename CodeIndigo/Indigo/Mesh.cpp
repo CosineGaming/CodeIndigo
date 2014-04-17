@@ -17,21 +17,20 @@
 // Create a new, empty mesh
 Mesh::Mesh(const int group_size)
 {
-	Hitbox[0] = Vertex(0, 0, 0);
-	Hitbox[1] = Vertex(0, 0, 0);
+	Hitbox = 0;
 	Group_Size = group_size;
-	vertices = std::vector<Vertex>();
-	elements = std::vector<int>();
+	vertices = std::vector<float>();
+	elements = std::vector<unsigned short>();
 	Texture_ID = -1;
 	return;
 }
 
 
 // Create a new mesh with some vertices
-Mesh::Mesh(const std::vector <Vertex>& add_vertices, const int group_size)
+Mesh::Mesh(const std::vector <glm::vec3>& add_vertices, const int group_size)
 {
-	vertices = std::vector<Vertex>();
-	elements = std::vector<int>();
+	vertices = std::vector<float>();
+	elements = std::vector<unsigned short>();
 	Add(add_vertices);
 	Group_Size = group_size;
 	Texture_ID = -1;
@@ -47,8 +46,7 @@ Mesh::Mesh(const Mesh& mesh)
 	flat_normals = mesh.flat_normals;
 	smooth_normals = mesh.smooth_normals;
 	Group_Size = mesh.Group_Size;
-	Hitbox[0] = mesh.Hitbox[0];
-	Hitbox[1] = mesh.Hitbox[1];
+	Hitbox = mesh.Hitbox;
 	Texture_ID = mesh.Texture_ID;
 	return;
 }
@@ -65,9 +63,12 @@ Mesh::~Mesh(void)
 void Mesh::Initialize(void)
 {
 	Smooth_Normals();
-	glGenBuffers(1, &Index);
-	glBindBuffer(GL_ARRAY_BUFFER, Index);
+	glGenBuffers(1, &Vertices_ID);
+	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &Elements_ID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size(), &elements[0], GL_STATIC_DRAW);
 	return;
 }
 
@@ -86,40 +87,42 @@ Mesh Mesh::Load(const char * filename)
 	else
 	{
 		std::string line;
-		std::vector<Vertex> textures;
-		std::vector<Vertex> normals;
+		std::vector<glm::vec3> textures;
+		std::vector<glm::vec3> normals;
 		while (std::getline(file, line))
 		{
 			if (line[0] == 'v' && line[1] == ' ')
 			{
 				line = line.substr(2);
 				const char * stream = line.c_str();
-				Vertex option;
+				glm::vec3 option;
 				int next;
-				option.X = Indigo::Fast_Float(stream, &next, 0);
-				option.Y = Indigo::Fast_Float(stream, &next, next);
-				option.Z = Indigo::Fast_Float(stream, nullptr, next);
-				mesh.vertices.push_back(option);
+				option.x = Indigo::Fast_Float(stream, &next, 0);
+				option.y = Indigo::Fast_Float(stream, &next, next);
+				option.z = Indigo::Fast_Float(stream, nullptr, next);
+				mesh.vertices.push_back(option.x);
+				mesh.vertices.push_back(option.y);
+				mesh.vertices.push_back(option.z);
 			}
 			if (line[0] == 'v' && line[1] == 't')
 			{
 				line = line.substr(3);
 				const char * stream = line.c_str();
-				Vertex option;
+				glm::vec3 option;
 				int next;
-				option.X = Indigo::Fast_Float(stream, &next, 0);
-				option.Y = Indigo::Fast_Float(stream, nullptr, next);
+				option.x = Indigo::Fast_Float(stream, &next, 0);
+				option.y = Indigo::Fast_Float(stream, nullptr, next);
 				textures.push_back(option);
 			}
 			if (line[0] == 'v' && line[1] == 'n')
 			{
 				line = line.substr(3);
 				const char * stream = line.c_str();
-				Vertex normal;
+				glm::vec3 normal;
 				int next;
-				normal.X = Indigo::Fast_Float(stream, &next, 0);
-				normal.Y = Indigo::Fast_Float(stream, &next, next);
-				normal.Z = Indigo::Fast_Float(stream, nullptr, next);
+				normal.x = Indigo::Fast_Float(stream, &next, 0);
+				normal.y = Indigo::Fast_Float(stream, &next, next);
+				normal.z = Indigo::Fast_Float(stream, nullptr, next);
 				normals.push_back(normal);
 			}
 			else if (line[0] == 'f' && line[1] == ' ')
@@ -127,11 +130,11 @@ Mesh Mesh::Load(const char * filename)
 				std::string values(line.substr(2));
 				for (int point = 0; point < 3; ++point)
 				{
-					// Vertex
+					// glm::vec3
 					int vertex = atoi(values.c_str()) - 1;
 					mesh.elements.push_back(vertex);
 					int index = mesh.Size() - 1;
-					// Vertex Texture
+					// glm::vec3 Texture
 					int texturenormal = values.find('/') + 1;
 					if (texturenormal != std::string::npos)
 					{
@@ -140,18 +143,22 @@ Mesh Mesh::Load(const char * filename)
 						{
 							mesh.Set_Texture_Coordinate(index, textures[atoi(values.c_str()) - 1]);
 						}
-						// Vertex Normal
+						// glm::vec3 Normal
 						values = values.substr(values.find('/') + 1);
 						if (point == 2 && values[0] != ' ')
 						{
 							int place = atoi(values.c_str()) - 1;
 							if (normals.size() > place)
 							{
-								mesh.flat_normals.push_back(normals[place]);
+								mesh.flat_normals.push_back(normals[place].x);
+								mesh.flat_normals.push_back(normals[place].y);
+								mesh.flat_normals.push_back(normals[place].z);
 							}
 							else
 							{
-								mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index));
+								mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index).x);
+								mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index).y);
+								mesh.flat_normals.push_back(mesh.Find_Flat_Normal(index).z);
 							}
 						}
 					}
@@ -169,17 +176,17 @@ Mesh Mesh::Load(const char * filename)
 Mesh Mesh::Sphere(const float radius, const int recursions, const bool draw_sphere)
 {
 	Mesh mesh(3);
-	Vertex top = Vertex(0.0, radius, 0.0);
+	glm::vec3 top = glm::vec3(0.0, radius, 0.0);
 	Direction cursor(radius, 0.0, 0.0);
 	for (int triangle = 0; triangle<8; ++triangle)
 	{
 		if (triangle == 4)
 		{
-			top = Vertex(0.0, -1 * radius, 0.0);
+			top = glm::vec3(0.0, -1 * radius, 0.0);
 		}
-		Vertex left = cursor.To_Vertex();
+		glm::vec3 left = cursor.To_Vertex();
 		cursor.Add_Direction(0.0, 90.0, 0.0);
-		Vertex right = cursor.To_Vertex();
+		glm::vec3 right = cursor.To_Vertex();
 		mesh += Bulge_Sphere(radius, recursions, left, right, top);
 	}
 	return (mesh);
@@ -193,35 +200,35 @@ Mesh Mesh::Box(const float width, const float height, const float length)
 	float r_length = length / 2.0;
 	Mesh mesh = Mesh(4)
 		// Front
-		+ Vertex(-r_width, -r_height,  r_length)
-		+ Vertex( r_width, -r_height,  r_length)
-		+ Vertex( r_width,  r_height,  r_length)
-		+ Vertex(-r_width,  r_height,  r_length)
+		+ glm::vec3(-r_width, -r_height,  r_length)
+		+ glm::vec3( r_width, -r_height,  r_length)
+		+ glm::vec3( r_width,  r_height,  r_length)
+		+ glm::vec3(-r_width,  r_height,  r_length)
 		// Back
-		+ Vertex(-r_width,  r_height, -r_length)
-		+ Vertex( r_width,  r_height, -r_length)
-		+ Vertex( r_width, -r_height, -r_length)
-		+ Vertex(-r_width, -r_height, -r_length)
+		+ glm::vec3(-r_width,  r_height, -r_length)
+		+ glm::vec3( r_width,  r_height, -r_length)
+		+ glm::vec3( r_width, -r_height, -r_length)
+		+ glm::vec3(-r_width, -r_height, -r_length)
 		// Left
-		+ Vertex(-r_width, -r_height, -r_length)
-		+ Vertex(-r_width, -r_height,  r_length)
-		+ Vertex(-r_width,  r_height,  r_length)
-		+ Vertex(-r_width,  r_height, -r_length)
+		+ glm::vec3(-r_width, -r_height, -r_length)
+		+ glm::vec3(-r_width, -r_height,  r_length)
+		+ glm::vec3(-r_width,  r_height,  r_length)
+		+ glm::vec3(-r_width,  r_height, -r_length)
 		// Right
-		+ Vertex( r_width,  r_height, -r_length)
-		+ Vertex( r_width,  r_height,  r_length)
-		+ Vertex( r_width, -r_height,  r_length)
-		+ Vertex( r_width, -r_height, -r_length)
+		+ glm::vec3( r_width,  r_height, -r_length)
+		+ glm::vec3( r_width,  r_height,  r_length)
+		+ glm::vec3( r_width, -r_height,  r_length)
+		+ glm::vec3( r_width, -r_height, -r_length)
 		// Top
-		+ Vertex(-r_width,  r_height,  r_length)
-		+ Vertex( r_width,  r_height,  r_length)
-		+ Vertex( r_width,  r_height, -r_length)
-		+ Vertex(-r_width,  r_height, -r_length)
+		+ glm::vec3(-r_width,  r_height,  r_length)
+		+ glm::vec3( r_width,  r_height,  r_length)
+		+ glm::vec3( r_width,  r_height, -r_length)
+		+ glm::vec3(-r_width,  r_height, -r_length)
 		// Bottom
-		+ Vertex(-r_width, -r_height, -r_length)
-		+ Vertex( r_width, -r_height, -r_length)
-		+ Vertex( r_width, -r_height,  r_length)
-		+ Vertex(-r_width, -r_height,  r_length);
+		+ glm::vec3(-r_width, -r_height, -r_length)
+		+ glm::vec3( r_width, -r_height, -r_length)
+		+ glm::vec3( r_width, -r_height,  r_length)
+		+ glm::vec3(-r_width, -r_height,  r_length);
 	return (mesh);
 }
 
@@ -229,8 +236,8 @@ Mesh Mesh::Box(const float width, const float height, const float length)
 Mesh Mesh::Line(const float width, const float height, const float length)
 {
 	Mesh mesh;
-	mesh += Vertex(0.0, 0.0, 0.0);
-	mesh += Vertex(width, height, length);
+	mesh += glm::vec3(0.0, 0.0, 0.0);
+	mesh += glm::vec3(width, height, length);
 	return (mesh);
 }
 
@@ -244,7 +251,7 @@ Mesh Mesh::Cube(const float side)
 Mesh Mesh::Regular_Shape(const int sides, const float side_length)
 {
 	Mesh mesh(1);
-	mesh += Vertex(0.0, 0.0, 0.0);
+	mesh += glm::vec3(0.0, 0.0, 0.0);
 	Direction cursor(side_length);
 	for (int point=0; point<sides; ++point)
 	{
@@ -258,24 +265,27 @@ Mesh Mesh::Regular_Shape(const int sides, const float side_length)
 Mesh Mesh::Rectangle(const float width, const float height)
 {
 	Mesh mesh(4);
-	mesh += Vertex(width / -2, height / -2, 0.0);
-	mesh += Vertex(width / 2, height / -2, 0.0);
-	mesh += Vertex(width / 2, height / 2, 0.0);
-	mesh += Vertex(width / -2, height / 2, 0.0);
+	mesh += glm::vec3(width / -2, height / -2, 0.0);
+	mesh += glm::vec3(width / 2, height / -2, 0.0);
+	mesh += glm::vec3(width / 2, height / 2, 0.0);
+	mesh += glm::vec3(width / -2, height / 2, 0.0);
 	return (mesh);
 }
 
 
 // Used in recursion for the Sphere function
 Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
-	const Vertex& left, const Vertex& right, const Vertex& top)
+	const glm::vec3& left, const glm::vec3& right, const glm::vec3& top)
 {
 	Mesh mesh(0);
 	if (recursions > 0)
 	{
-		Vertex mid_left = left.Midpoint(top);
-		Vertex mid_right = top.Midpoint(right);
-		Vertex mid_top = left.Midpoint(right);
+		glm::vec3 mid_left = left + top;
+		mid_left /= 2;
+		glm::vec3 mid_right = top + right;
+		mid_right /= 2;
+		glm::vec3 mid_top = left + right;
+		mid_top /= 2;
 		mesh += Bulge_Sphere(radius, recursions - 1, mid_left, mid_right, mid_top);
 		mesh += Bulge_Sphere(radius, recursions - 1, mid_left, mid_right, top);
 		mesh += Bulge_Sphere(radius, recursions - 1, left, mid_top, mid_left);
@@ -283,12 +293,12 @@ Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 	}
 	else
 	{
-		Vertex options[3] = { left, right, top };
+		glm::vec3 options[3] = { left, right, top };
 		for (int vertex = 0; vertex<3; ++vertex)
 		{
-			Direction distance = options[vertex].To_Direction();
+			Direction distance = Direction(options[vertex]);
 			distance.Set_Distance(radius);
-			mesh += Vertex(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
+			mesh += glm::vec3(distance.Get_X(), distance.Get_Y(), distance.Get_Z());
 		}
 	}
 	return (mesh);
@@ -296,14 +306,14 @@ Mesh Mesh::Bulge_Sphere(const float radius, const int recursions,
 
 
 // Allows [] to get a vertex like an array
-Vertex& Mesh::operator[](const int index) const
+glm::vec3& Mesh::operator[](const int index) const
 {
 	return (Get_Vertex(index));
 }
 
 
 // Allows += to add a vertex to the end
-Mesh& Mesh::operator+=(const Vertex& vertex)
+Mesh& Mesh::operator+=(const glm::vec3& vertex)
 {
 	Add(vertex);
 	return (*this);
@@ -313,13 +323,41 @@ Mesh& Mesh::operator+=(const Vertex& vertex)
 // Allows += to add a mesh to the end
 Mesh& Mesh::operator+=(const Mesh& mesh)
 {
-	Add(mesh.Get_Vertices());
+	for (int i = 0; i < mesh.Vertex_Data_Amount(); ++i)
+	{
+		vertices.push_back(mesh.vertices[i]);
+	}
+	for (int i = 0; i < mesh.flat_normals.size(); ++i)
+	{
+		vertices.push_back(mesh.flat_normals[i]);
+	}
+	for (int i = 0; i < mesh.smooth_normals.size(); ++i)
+	{
+		vertices.push_back(mesh.smooth_normals[i]);
+	}
+	if (mesh.texture_coordinates.size() != 0)
+	{
+		while (texture_coordinates.size()<Size() * 3)
+		{
+			texture_coordinates.push_back(-1);
+			texture_coordinates.push_back(-1);
+			texture_coordinates.push_back(-1);
+		}
+		for (int i = 0; i < mesh.texture_coordinates.size(); ++i)
+		{
+			texture_coordinates.push_back(mesh.texture_coordinates[i]);
+		}
+	}
+	for (int i = 0; i < mesh.Size(); ++i)
+	{
+		elements.push_back(mesh.elements[i] + Size());
+	}
 	return (*this);
 }
 
 
 // Allows += to add a vector of vertices to the end
-Mesh& Mesh::operator+=(const std::vector <Vertex>& add_vertices)
+Mesh& Mesh::operator+=(const std::vector <glm::vec3>& add_vertices)
 {
 	Add(add_vertices);
 	return (*this);
@@ -327,7 +365,7 @@ Mesh& Mesh::operator+=(const std::vector <Vertex>& add_vertices)
 
 
 // Allows + to add a vertex to the end
-Mesh Mesh::operator+(const Vertex& vertex) const
+Mesh Mesh::operator+(const glm::vec3& vertex) const
 {
 	Mesh copy = *this;
 	copy.Add(vertex);
@@ -339,12 +377,12 @@ Mesh Mesh::operator+(const Vertex& vertex) const
 Mesh Mesh::operator+(const Mesh& mesh) const
 {
 	Mesh copy = *this;
-	copy.Add(mesh.Get_Vertices());
+	copy += mesh;
 	return (copy);
 }
 
 
-Mesh Mesh::operator+(const std::vector <Vertex>& add_vertices) const
+Mesh Mesh::operator+(const std::vector <glm::vec3>& add_vertices) const
 {
 	// Allows + to add vertices to the end
 	Mesh copy = *this;
@@ -353,87 +391,18 @@ Mesh Mesh::operator+(const std::vector <Vertex>& add_vertices) const
 }
 
 
-// Add a new vertex to the end of the mesh,
-// the last vertex made to be 0,0,0.
-// So if the last was 0,1,5, then 2,-1,3 would add 2,0,8
-void Mesh::Add_Relative(const Vertex& vertex)
-{
-	Vertex add = vertex;
-	Vertex last;
-	if (vertices.size() != 0)
-	{
-		Vertex last = vertices.back();
-	}
-	add += last;
-	Add(add);
-	return;
-}
-
-
-// Add a new mesh to the end relative to the last point
-void Mesh::Add_Relative(const Mesh& mesh)
-{
-	Add_Relative(mesh.Get_Vertices());
-	return;
-}
-
-
-// Add a new set of vertices to the end relative to the last point
-void Mesh::Add_Relative(const std::vector <Vertex>& add_vertices)
-{
-	Vertex last;
-	if (add_vertices.size() != 0)
-	{
-		Vertex last = add_vertices.back();
-	}
-	for (std::size_t point = 0; point<add_vertices.size(); ++point)
-	{
-		Vertex add = add_vertices[point];
-		add += last;
-		Add(add);
-	}
-	return;
-}
-
-
 // Gets a vertex by its index
-Vertex& Mesh::Get_Vertex(const int index) const
+glm::vec3& Mesh::Get_Vertex(const int index) const
 {
-	return (const_cast<Vertex&>(vertices[elements[index]]));
-}
-
-
-// Get all the vertices, or a subset of them 
-std::vector<Vertex> Mesh::Get_Vertices(int beginning, int end) const
-{
-	if (beginning < 0)
-	{
-		beginning += elements.size();
-	}
-	if (end < 0)
-	{
-		end += elements.size();
-	}
-	if (end < beginning)
-	{
-		end = beginning;
-	}
-	end += 1;
-	std::vector<int> options = std::vector<int>(elements.begin() + beginning, elements.begin() + end);
-	std::vector<Vertex> all;
-	for (std::size_t i = 0; i < options.size(); ++i)
-	{
-		all.push_back(vertices[options[i]]);
-	}
-	return (all);
+	return glm::vec3(vertices[elements[index * 3]], vertices[elements[index * 3 + 1]], vertices[elements[index * 3 + 2]]);
 }
 
 
 // Finds one flat normal. Assumes index is end of group.
-Vertex Mesh::Find_Flat_Normal(const int index) const
+glm::vec3 Mesh::Find_Flat_Normal(const int index) const
 {
-	Direction normal = Get_Vertex(index - 1).To_Direction().Distance(Get_Vertex(index - 2).To_Direction());
-	Direction with = Get_Vertex(index).To_Direction().Distance(Get_Vertex(index - 2).To_Direction());
+	Direction normal = Direction(Get_Vertex(index - 1)).Distance(Direction(Get_Vertex(index - 2)));
+	Direction with = Direction(Get_Vertex(index)).Distance(Direction(Get_Vertex(index - 2)));
 	normal = normal.Cross(with);
 	normal.Normalize();
 	return normal.To_Vertex();
@@ -443,12 +412,12 @@ Vertex Mesh::Find_Flat_Normal(const int index) const
 // Calculate all per-vertex normals for the mesh
 void Mesh::Smooth_Normals(void)
 {
-	smooth_normals = std::vector<Vertex>();
-	Vertex * normals = new Vertex[Vertex_Data_Amount()];
+	smooth_normals = std::vector<float>();
+	glm::vec3 * normals = new glm::vec3[Vertex_Data_Amount()];
 	int * amounts = new int[Vertex_Data_Amount()];
 	for (int point = 0; point < Vertex_Data_Amount(); ++point)
 	{
-		normals[point] = Vertex(0, 0, 0);
+		normals[point] = glm::vec3(0, 0, 0);
 		amounts[point] = 0;
 	}
 	for (int point = 0; point < Size(); ++point)
@@ -460,16 +429,21 @@ void Mesh::Smooth_Normals(void)
 	{
 		if (amounts[point] != 0)
 		{
-			normals[point].X /= amounts[point];
-			normals[point].Y /= amounts[point];
-			normals[point].Z /= amounts[point];
-			smooth_normals.push_back(normals[point]);
+			normals[point].x /= amounts[point];
+			normals[point].y /= amounts[point];
+			normals[point].z /= amounts[point];
+			smooth_normals.push_back(normals[point].x);
+			smooth_normals.push_back(normals[point].y);
+			smooth_normals.push_back(normals[point].z);
 		}
 		else
 		{
 			// Incorrectly ==ed, pick a fairly random but hopefully related normal
 			std::cout << "Compen! Compensation! Ba-dum... Dum!" << std::endl;
-			smooth_normals.push_back(Flat_Normal(point * Group_Size));
+			glm::vec3 add = Flat_Normal(point * Group_Size);
+			smooth_normals.push_back(add.x);
+			smooth_normals.push_back(add.y);
+			smooth_normals.push_back(add.z);
 		}
 	}
 	delete [] normals;
@@ -480,53 +454,44 @@ void Mesh::Smooth_Normals(void)
 
 
 // Get the normal for a specific vertex by face
-Vertex Mesh::Flat_Normal(const int index) const
+glm::vec3 Mesh::Flat_Normal(const int index) const
 {
 	if (index < 3 && Group_Size == 0)
 	{
 		if (Size() >= 3)
-			return (flat_normals[2]);
+			return (glm::vec3(flat_normals[6], flat_normals[7], flat_normals[8]));
 		else
-			return (Vertex(0, 0, 0));
+			return (glm::vec3(0, 1, 0));
 	}
 	else
-		return (flat_normals[Group_Size != 0 ? index / Group_Size : index - 3]);
+	{
+		int start = (Group_Size != 0 ? index / Group_Size : index - 3) * 3;
+		return glm::vec3(flat_normals[start], flat_normals[start + 1], flat_normals[start + 2]);
+	}
 }
 
 
 // Get the smoother per-vertex normal for a vertex; calculate if needed
-Vertex Mesh::Smooth_Normal(const int index) const
+glm::vec3 Mesh::Smooth_Normal(const int index) const
 {
-	return (smooth_normals[elements[index]]);
+	return glm::vec3(smooth_normals[elements[index]], smooth_normals[elements[index]+1], smooth_normals[elements[index]+2]);
 }
 
 
 // Update the hitbox knowing that this point exists in the mesh
-void Mesh::Update_Hitbox(Vertex vertex)
+void Mesh::Update_Hitbox(glm::vec3 vertex)
 {
-	if (vertex.X < Hitbox[0].X)
+	if (abs(vertex.x) > Hitbox)
 	{
-		Hitbox[0].X = vertex.X;
+		Hitbox = abs(vertex.x);
 	}
-	if (vertex.Y < Hitbox[0].Y)
+	if (abs(vertex.y) > Hitbox)
 	{
-		Hitbox[0].Y = vertex.Y;
+		Hitbox = abs(vertex.y);
 	}
-	if (vertex.Z < Hitbox[0].Z)
+	if (abs(vertex.z) > Hitbox)
 	{
-		Hitbox[0].Z = vertex.Z;
-	}
-	if (vertex.X > Hitbox[1].X)
-	{
-		Hitbox[1].X = vertex.X;
-	}
-	if (vertex.Y > Hitbox[1].Y)
-	{
-		Hitbox[1].Y = vertex.Y;
-	}
-	if (vertex.Z > Hitbox[1].Z)
-	{
-		Hitbox[1].Z = vertex.Z;
+		Hitbox = abs(vertex.z);
 	}
 }
 
@@ -573,31 +538,31 @@ void Mesh::Texture(const char * filename)
 
 
 // Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-Vertex Mesh::Texture_Coordinate(const int index) const
+glm::vec3 Mesh::Texture_Coordinate(const int index) const
 {
-	if (texture_coordinates.size() < (std::size_t)(index + 1))
+	if (texture_coordinates.size() < (std::size_t)(index*3 + 1))
 	{
-		return (Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0));
+		return (glm::vec3((index*3 % Group_Size) % 3 != 0, index*3 % Group_Size < 2, 0));
 	}
-	else if (texture_coordinates[index] == Vertex(-1, -1, -1))
+	else if (glm::vec3(texture_coordinates[index*3], texture_coordinates[index*3+1], texture_coordinates[index*3+2]) == glm::vec3(-1, -1, -1))
 	{
-		return (Vertex((index % Group_Size) % 3 != 0, index % Group_Size < 2, 0));
+		return (glm::vec3((index*3 % Group_Size) % 3 != 0, index*3 % Group_Size < 2, 0));
 	}
 	else
 	{
-		return (texture_coordinates[index]);
+		return (glm::vec3(texture_coordinates[index * 3], texture_coordinates[index * 3 + 1], texture_coordinates[index * 3 + 2]));
 	}
 }
 
 
 // Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
-void Mesh::Set_Texture_Coordinate(const int index, const Vertex& coordinate)
+void Mesh::Set_Texture_Coordinate(const int index, const glm::vec3& coordinate)
 {
 	if (texture_coordinates.size() < (std::size_t)(index + 1))
 	{
 		for (std::size_t i = 0; i < texture_coordinates.size() - index - 1; ++i)
 		{
-			texture_coordinates.push_back(Vertex(-1, -1, -1));
+			texture_coordinates.push_back(glm::vec3(-1, -1, -1));
 		}
 	}
 	texture_coordinates[index] = coordinate;
@@ -614,17 +579,17 @@ int Mesh::Size(void) const
 
 
 // Number of actual different vertices defined
-int Mesh::Vertex_Data_Amount(void) const
+int Mesh::glm::vec3_Data_Amount(void) const
 {
 	return (vertices.size());
 }
 
 
-void Mesh::Add(const Vertex& vertex)
+void Mesh::Add(const glm::vec3& vertex)
 {
 	// Checks if this vertex has been mentioned before
 	bool duplicate = false;
-	for (int check = 0; check<Vertex_Data_Amount(); ++check)
+	for (int check = 0; check<glm::vec3_Data_Amount(); ++check)
 	{
 		if (vertex == vertices[check])
 		{
@@ -636,7 +601,7 @@ void Mesh::Add(const Vertex& vertex)
 	if (!duplicate)
 	{
 		vertices.push_back(vertex);
-		elements.push_back(Vertex_Data_Amount() - 1);
+		elements.push_back(glm::vec3_Data_Amount() - 1);
 		// Update the hitbox with this new info
 		Update_Hitbox(vertex);
 	}
@@ -662,7 +627,7 @@ void Mesh::Add(const Mesh& mesh)
 
 
 // Add new vertices to the end of the mesh
-void Mesh::Add(const std::vector <Vertex>& add_vertices)
+void Mesh::Add(const std::vector <glm::vec3>& add_vertices)
 {
 	for (std::size_t point = 0; point < add_vertices.size(); ++point)
 	{

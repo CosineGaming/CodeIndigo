@@ -116,13 +116,14 @@ public:
 
 private:
 
+	// All the various Object-like things which the world stores
 	std::vector<Object> objects;
 	std::vector<Object> objects_front;
 	std::vector<Object> objects_2d;
 	std::vector<Text> texts;
 	std::vector<Animation> animations;
 
-	// 
+	// A skybox is a box which is always in the back, textured to look like the game background
 	Object skybox;
 
 	// The handle for the full shader together.

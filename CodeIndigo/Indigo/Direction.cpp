@@ -20,6 +20,13 @@ Direction Direction::Coordinates(const float x, const float y, const float z)
 }
 
 
+// Construct a new direction from a glm::vec3
+Direction(const glm::vec3 vertex)
+{
+	Set_Coordinates(vertex.x, vertex.y, vertex.z);
+}
+
+
 // Destroy a direction
 Direction::~Direction(void)
 {
@@ -202,7 +209,7 @@ Direction Direction::Distance(const Direction& to) const
 
 
 // Makes a vertex with the X, Y, and Z values
-Vertex Direction::To_Vertex(void) const
+glm::vec3 Direction::To_Vertex(void) const
 {
-	return (Vertex(Get_X(), Get_Y(), Get_Z()));
+	return (glm::vec3(Get_X(), Get_Y(), Get_Z()));
 }

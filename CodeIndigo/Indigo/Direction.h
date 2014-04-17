@@ -2,10 +2,10 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-
 #define DEGREES_PER_RADIAN (180 / M_PI)
 
-class Vertex;
+#include "glm/glm.hpp"
+#include "glm/vec3.hpp"
 
 
 class Direction
@@ -17,6 +17,8 @@ public:
 	Direction(const float in_distance = 1.0, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
 	// Construct a new direction based off of x, y, and z
 	static Direction Coordinates(const float x, const float y, const float z);
+	// Construct a new direction from a glm::vec3
+	Direction(const glm::vec3 vertex);
 	// Destroy a direction
 	~Direction(void);
 	// Make the distance 1
@@ -54,7 +56,7 @@ public:
 	// Find the distance between this direction and another
 	Direction Distance(const Direction& to) const;
 	// Makes a vertex with the X, Y, and Z values
-	Vertex To_Vertex(void) const;
+	glm::vec3 To_Vertex(void) const;
 
 private:
 
