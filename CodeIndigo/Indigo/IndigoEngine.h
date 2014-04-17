@@ -8,5 +8,7 @@
 #include "Mesh.h"
 #include "Object.h"
 #include "Text.h"
-#include "Vertex.h"
 #include "World.h"
+
+#include "glm/glm.hpp"
+#include "glm/vec3.hpp"

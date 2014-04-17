@@ -88,7 +88,7 @@ namespace Indigo
 	extern bool Left_Mouse;
 	extern bool Right_Mouse;
 	extern bool Middle_Mouse;
-	extern Vertex Mouse_Position;
+	extern glm::vec3 Mouse_Position;
 
 	// The index for the VAO thingy, not probably important.
 	extern unsigned int VAO;

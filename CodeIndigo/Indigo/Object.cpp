@@ -125,7 +125,7 @@ void Object::Render(void) const
 	//glBegin(render_types[Data.Group_Size]);
 	//for (int point = 0; point<Data.Size(); ++point)
 	//{
-	//	Vertex normal;
+	//	glm::vec3 normal;
 	//	if (Vertex_Normals)
 	//	{
 	//		normal = Data.Smooth_Normal(point);
@@ -134,10 +134,10 @@ void Object::Render(void) const
 	//	{
 	//		normal = Data.Flat_Normal(point);
 	//	}
-	//	Vertex Cursor = Data[point];
+	//	glm::vec3 Cursor = Data[point];
 	//	if (Data.Texture_ID != -1)
 	//	{
-	//		Vertex coord = Data.Texture_Coordinate(point);
+	//		glm::vec3 coord = Data.Texture_Coordinate(point);
 	//		glTexCoord2f(coord.X, coord.Y);
 	//	}
 	//	glNormal3f(normal.X, normal.Y, normal.Z);
@@ -147,7 +147,7 @@ void Object::Render(void) const
 	//glPopMatrix();
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(0, 3, render_types[Data.Group_Size], GL_FALSE, 0, (void *) 0);
+	glVertexAttribPointer(0, Data.Vertex_Data_Amount(), render_types[Data.Group_Size], GL_FALSE, 0, (void *) 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 	glDrawElements(render_types[Data.Group_Size], Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 	glDisableVertexAttribArray(0);
@@ -188,13 +188,7 @@ void Object::Move(const float forward, const float side, const float up)
 // Checks whether this object collides with another object
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
-	return(
-		object.Data.Hitbox[0].X + object.X + add_x <= Data.Hitbox[1].X + X
-		&& object.Data.Hitbox[0].Y + object.Y + add_y <= Data.Hitbox[1].Y + Y
-		&& object.Data.Hitbox[0].Z + object.Z + add_z <= Data.Hitbox[1].Z + Z
-		&& object.Data.Hitbox[1].X + object.X + add_x >= Data.Hitbox[0].X + X
-		&& object.Data.Hitbox[1].Y + object.Y + add_y >= Data.Hitbox[0].Y + Y
-		&& object.Data.Hitbox[1].Z + object.Z + add_z >= Data.Hitbox[0].Z + Z);
+	return (Direction(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
 }
 
 
@@ -202,7 +196,7 @@ bool Object::Collide(const Object& object, const float add_x, const float add_y,
 bool Object::Collide(const Direction& position, const Direction& direction) const
 {
 
-	Vertex * hitbox = const_cast<Vertex *>(Data.Hitbox);
+	/*glm::vec3 * hitbox = const_cast<glm::vec3 *>(Data.Hitbox);
 
 	if (position.Get_Z() < Data.Hitbox[0].Z)
 	{
@@ -248,29 +242,22 @@ bool Object::Collide(const Direction& position, const Direction& direction) cons
 	return direction.Get_X_Angle() >= least.Get_X_Angle()
 		&& direction.Get_X_Angle() <= most.Get_X_Angle()
 		&& direction.Get_Y_Angle() >= least.Get_Y_Angle()
-		&& direction.Get_Y_Angle() <= most.Get_Y_Angle();
+		&& direction.Get_Y_Angle() <= most.Get_Y_Angle();*/
 
 }
 
 
 // Checks whether this vertex is withing this object
-bool Object::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z) const
+bool Object::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z) const
 {
-	return(
-		vertex.X + add_x <= Data.Hitbox[1].X + X
-		&& vertex.Y + add_y <= Data.Hitbox[1].Y + Y
-		&& vertex.Z + add_z <= Data.Hitbox[1].Z + Z
-		&& vertex.X + add_x >= Data.Hitbox[0].X + X
-		&& vertex.Y + add_y >= Data.Hitbox[0].Y + Y
-		&& vertex.Z + add_z >= Data.Hitbox[0].Z + Z);
+	return (Direction(X, Y, Z).Distance(Direction::Coordinates(vertex.x + add_x, vertex.y + add_y, vertex.z + add_z)).Get_Distance() < Data.Hitbox);
 }
 
 
 // Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
-void Object::Set_Hitbox(const float right, const float top, const float front, const float left, const float bottom, const float back)
+void Object::Set_Hitbox(const float distance)
 {
-	Data.Hitbox[1] = Vertex(right, top, front);
-	Data.Hitbox[0] = Vertex(left, bottom, back);
+	Data.Hitbox = distance;
 }
 
 

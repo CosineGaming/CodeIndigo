@@ -126,15 +126,15 @@ namespace Indigo
 		{
 			key += 32;
 		}
-		Shift = modifiers & GLFW_MOD_SHIFT;
-		Control = modifiers & GLFW_MOD_CONTROL;
-		Alt = modifiers & GLFW_MOD_ALT;
+		Shift = (modifiers & GLFW_MOD_SHIFT) != 0;
+		Control = (modifiers & GLFW_MOD_CONTROL) != 0;
+		Alt = (modifiers & GLFW_MOD_ALT) != 0;
 
 		if (action == GLFW_PRESS)
 		{
 			if (Key_Pressed_Function)
 			{
-				Key_Pressed_Function(key, Mouse_Position.X, Mouse_Position.Y);
+				Key_Pressed_Function(key, Mouse_Position.x, Mouse_Position.y);
 			}
 			Keys[key] = true;
 			Keys_Pressed[key] = true;
@@ -143,7 +143,7 @@ namespace Indigo
 		{
 			if (Key_Released_Function)
 			{
-				Key_Released_Function(key, Mouse_Position.X, Mouse_Position.Y);
+				Key_Released_Function(key, Mouse_Position.x, Mouse_Position.y);
 			}
 			Keys[key] = false;
 		}
@@ -161,9 +161,9 @@ namespace Indigo
 	// Acts for when the mouse is pressed or released
 	void Mouse_Button(GLFWwindow * window, int button, int state, int modifiers)
 	{
-		Shift = modifiers & GLFW_MOD_SHIFT;
-		Control = modifiers & GLFW_MOD_CONTROL;
-		Alt = modifiers & GLFW_MOD_ALT;
+		Shift = (modifiers & GLFW_MOD_SHIFT) != 0;
+		Control = (modifiers & GLFW_MOD_CONTROL) != 0;
+		Alt = (modifiers & GLFW_MOD_ALT) != 0;
 		if (button == GLFW_MOUSE_BUTTON_LEFT)
 		{
 			Left_Mouse = state == GLFW_PRESS;
@@ -178,12 +178,12 @@ namespace Indigo
 		}
 		if (Mouse_Button_Function)
 		{
-			Mouse_Button_Function(button, state, (Mouse_Position.X - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height - 1,
-				-1 * (Mouse_Position.Y * 2.0 / Screen_Height - 1));
+			Mouse_Button_Function(button, state, (Mouse_Position.x - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height - 1,
+				-1 * (Mouse_Position.y * 2.0 / Screen_Height - 1));
 		}
 		if (Mouse_Raw_Button_Function)
 		{
-			Mouse_Raw_Button_Function(button, state, Mouse_Position.X, Mouse_Position.Y);
+			Mouse_Raw_Button_Function(button, state, Mouse_Position.x, Mouse_Position.y);
 		}
 		return;
 	}
@@ -282,7 +282,7 @@ namespace Indigo
 	// Updates world
 	void Update(const float time)
 	{
-		Actual_FPS = 1000.0 / time;
+		Actual_FPS = 1000 / time;
 		if (Update_Function)
 		{
 			Update_Function(time);
@@ -397,7 +397,7 @@ namespace Indigo
 
 	bool Middle_Mouse = false;
 
-	Vertex Mouse_Position = Vertex(0, 0);
+	glm::vec3 Mouse_Position = glm::vec3(0, 0, 0);
 
 
 	// The index for the VAO thingy, not probably important.

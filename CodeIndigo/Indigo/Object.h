@@ -4,8 +4,10 @@
 #pragma once
 
 #include "Mesh.h"
-#include "Vertex.h"
 #include "Direction.h"
+
+#include "glm/glm.hpp"
+#include "glm/vec3.hpp"
 
 
 class Object
@@ -37,9 +39,9 @@ public:
 	// Checks whether this object will ever be intersected by a direction
 	bool Collide(const Direction& position, const Direction& direction) const;
 	// Checks whether this vertex is withing this object
-	bool Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
+	bool Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
-	void Set_Hitbox(const float right=0.0, const float top=0.0, const float front=0.0, const float left=0.0, const float bottom=0.0, const float back=0.0);
+	void Set_Hitbox(const float distance=0.0);
 
 	// Checked for whether to draw filled or lines
 	bool Line;

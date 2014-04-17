@@ -1,12 +1,12 @@
 // Defines a three-dimensional position
 
-#include "Direction.h"
-#include "Vertex.h"
+/*#include "Direction.h"
+#include "glm::vec3.h"
 #include "Mesh.h"
 
 
 // Create a new, blank vertex
-Vertex::Vertex(void)
+glm::vec3::glm::vec3(void)
 {
 	X = 0.0;
 	Y = 0.0;
@@ -16,7 +16,7 @@ Vertex::Vertex(void)
 
 
 // Copies a vertex
-Vertex::Vertex(const Vertex& vertex)
+glm::vec3::glm::vec3(const glm::vec3& vertex)
 {
 	X = vertex.X;
 	Y = vertex.Y;
@@ -26,7 +26,7 @@ Vertex::Vertex(const Vertex& vertex)
 
 
 // Create a vertex with these values
-Vertex::Vertex(const float x, const float y, const float z)
+glm::vec3::glm::vec3(const float x, const float y, const float z)
 {
 	X = x;
 	Y = y;
@@ -36,14 +36,14 @@ Vertex::Vertex(const float x, const float y, const float z)
 
 
 // Destroy a vertex
-Vertex::~Vertex(void)
+glm::vec3::~glm::vec3(void)
 {
 	return;
 }
 
 
 // Enables += to add the X, Y, and Z values to a vertex
-Vertex& Vertex::operator+=(const Vertex& vertex)
+glm::vec3& glm::vec3::operator+=(const glm::vec3& vertex)
 {
 	X += vertex.X;
 	Y += vertex.Y;
@@ -53,7 +53,7 @@ Vertex& Vertex::operator+=(const Vertex& vertex)
 
 
 // Enables + to put values together into a mesh
-Mesh Vertex::operator+(const Vertex& vertex) const
+Mesh glm::vec3::operator+(const glm::vec3& vertex) const
 {
 	Mesh mesh;
 	mesh += *this;
@@ -62,17 +62,17 @@ Mesh Vertex::operator+(const Vertex& vertex) const
 }
 
 
-// Checks whether this Vertex is exactly the same as another
-bool Vertex::operator==(const Vertex& check) const
+// Checks whether this glm::vec3 is exactly the same as another
+bool glm::vec3::operator==(const glm::vec3& check) const
 {
 	return (check.X == this->X && check.Y == this->Y && check.Z == this->Z);
 }
 
 
 // Finds the midpoint between 2 vertices, useful for triangular recursion
-Vertex Vertex::Midpoint(const Vertex& vertex) const
+glm::vec3 glm::vec3::Midpoint(const glm::vec3& vertex) const
 {
-	Vertex copy = *this;
+	glm::vec3 copy = *this;
 	copy.X = (X + vertex.X) / 2;
 	copy.Y = (Y + vertex.Y) / 2;
 	copy.Z = (Z + vertex.Z) / 2;
@@ -81,7 +81,8 @@ Vertex Vertex::Midpoint(const Vertex& vertex) const
 
 
 // Returns a direction with the coordinates of the vertex
-Direction Vertex::To_Direction(void) const
+Direction glm::vec3::To_Direction(void) const
 {
 	return (Direction::Coordinates(X, Y, Z));
 }
+*/

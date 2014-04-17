@@ -130,11 +130,11 @@ void World::Render(void) const
 }
 
 
-// Compiles and puts in place custom Vertex and Fragment Shaders
+// Compiles and puts in place custom glm::vec3 and Fragment Shaders
 void World::Shader(const char * vertex, const char * fragment)
 {
 
-	// Vertex
+	// glm::vec3
 	std::ifstream shader = std::ifstream(vertex, std::ios::in);
 	if (!shader)
 	{
@@ -247,35 +247,35 @@ void World::Add_Skybox(const char * texture)
 	mesh.Texture(texture);
 
 	// Front
-	mesh.Set_Texture_Coordinate(3 , Vertex(0.25, 0.3333));
-	mesh.Set_Texture_Coordinate(2 , Vertex(0.50, 0.3333));
-	mesh.Set_Texture_Coordinate(1 , Vertex(0.50, 0.6666));
-	mesh.Set_Texture_Coordinate(0 , Vertex(0.25, 0.6666));
+	mesh.Set_Texture_Coordinate(3 , glm::vec3(0.25, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(2 , glm::vec3(0.50, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(1 , glm::vec3(0.50, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(0 , glm::vec3(0.25, 0.6666, 0));
 	// Back
-	mesh.Set_Texture_Coordinate(6 , Vertex(0.75, 0.3333));
-	mesh.Set_Texture_Coordinate(7 , Vertex(1.00, 0.3333));
-	mesh.Set_Texture_Coordinate(4 , Vertex(1.00, 0.6666));
-	mesh.Set_Texture_Coordinate(5 , Vertex(0.75, 0.6666));
+	mesh.Set_Texture_Coordinate(6 , glm::vec3(0.75, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(7 , glm::vec3(1.00, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(4 , glm::vec3(1.00, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(5 , glm::vec3(0.75, 0.6666, 0));
 	// Left
-	mesh.Set_Texture_Coordinate(11, Vertex(0.00, 0.3333));
-	mesh.Set_Texture_Coordinate(10, Vertex(0.25, 0.3333));
-	mesh.Set_Texture_Coordinate(9 , Vertex(0.25, 0.6666));
-	mesh.Set_Texture_Coordinate(8 , Vertex(0.00, 0.6666));
+	mesh.Set_Texture_Coordinate(11, glm::vec3(0.00, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(10, glm::vec3(0.25, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(9 , glm::vec3(0.25, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(8 , glm::vec3(0.00, 0.6666, 0));
 	// Right
-	mesh.Set_Texture_Coordinate(14, Vertex(0.50, 0.3333));
-	mesh.Set_Texture_Coordinate(15, Vertex(0.75, 0.3333));
-	mesh.Set_Texture_Coordinate(12, Vertex(0.75, 0.6666));
-	mesh.Set_Texture_Coordinate(13, Vertex(0.50, 0.6666));
+	mesh.Set_Texture_Coordinate(14, glm::vec3(0.50, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(15, glm::vec3(0.75, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(12, glm::vec3(0.75, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(13, glm::vec3(0.50, 0.6666, 0));
 	// Bottom
-	mesh.Set_Texture_Coordinate(19, Vertex(0.25, 0.6666));
-	mesh.Set_Texture_Coordinate(18, Vertex(0.50, 0.6666));
-	mesh.Set_Texture_Coordinate(17, Vertex(0.50, 1.0000));
-	mesh.Set_Texture_Coordinate(16, Vertex(0.25, 1.0000));
+	mesh.Set_Texture_Coordinate(19, glm::vec3(0.25, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(18, glm::vec3(0.50, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(17, glm::vec3(0.50, 1.0000, 0));
+	mesh.Set_Texture_Coordinate(16, glm::vec3(0.25, 1.0000, 0));
 	// Top
-	mesh.Set_Texture_Coordinate(21, Vertex(0.25, 0.0000));
-	mesh.Set_Texture_Coordinate(20, Vertex(0.50, 0.0000));
-	mesh.Set_Texture_Coordinate(23, Vertex(0.50, 0.3333));
-	mesh.Set_Texture_Coordinate(22, Vertex(0.25, 0.3333));
+	mesh.Set_Texture_Coordinate(21, glm::vec3(0.25, 0.0000, 0));
+	mesh.Set_Texture_Coordinate(20, glm::vec3(0.50, 0.0000, 0));
+	mesh.Set_Texture_Coordinate(23, glm::vec3(0.50, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(22, glm::vec3(0.25, 0.3333, 0));
 
 	skybox = Object(0, 0, 0, mesh);
 	return;
@@ -480,7 +480,7 @@ int World::Collide(const Direction& position, const Direction& direction)
 
 
 // Checks whether a vertex is within any object
-int World::Collide(const Vertex& vertex, const float add_x, const float add_y, const float add_z)
+int World::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z)
 {
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{

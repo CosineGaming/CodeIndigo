@@ -30,7 +30,7 @@ public:
 	// Renders every object in the world
 	void Render(void) const;
 
-	// Compiles and puts in place custom Vertex or Fragment Shaders
+	// Compiles and puts in place custom glm::vec3 or Fragment Shaders
 	void Shader(const char * vertex, const char * fragment);
 
 	/*
@@ -104,7 +104,7 @@ public:
 	// Checks whether any object will ever be intersected by a direction
 	int Collide(const Direction& position, const Direction& direction);
 	// Checks whether a vertex is within any object
-	int Collide(const Vertex& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
+	int Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time);

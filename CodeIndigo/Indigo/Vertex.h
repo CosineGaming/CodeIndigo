@@ -5,27 +5,27 @@
 class Direction;
 
 
-class Vertex
+class glm::vec3
 {
 
 public:
 
 	// Create a new, blank vertex
-	Vertex(void);
+	glm::vec3(void);
 	// Copies a vertex
-	Vertex(const Vertex& vertex);
+	glm::vec3(const glm::vec3& vertex);
 	// Create a vertex with these values
-	Vertex(const float x, const float y, const float z=0);
+	glm::vec3(const float x, const float y, const float z=0);
 	// Destroy a vertex
-	~Vertex(void);
+	~glm::vec3(void);
 	// Enables += to add the X, Y, and Z values to a vertex
-	Vertex& operator+=(const Vertex& vertex);
+	glm::vec3& operator+=(const glm::vec3& vertex);
 	// Enables + to put values together into a mesh
-	Mesh operator+(const Vertex& vertex) const;
-	// Checks whether this Vertex is (0, 0, 0)
-	bool operator==(const Vertex& check) const;
+	Mesh operator+(const glm::vec3& vertex) const;
+	// Checks whether this glm::vec3 is (0, 0, 0)
+	bool operator==(const glm::vec3& check) const;
 	// Finds the midpoint between 2 vertices, useful for triangular recursion
-	Vertex Midpoint(const Vertex& vertex) const;
+	glm::vec3 Midpoint(const glm::vec3& vertex) const;
 	// Returns a direction with the coordinates of the vertex
 	Direction To_Direction(void) const;
 	// Position of the vertex

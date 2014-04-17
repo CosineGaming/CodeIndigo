@@ -323,7 +323,7 @@ Mesh& Mesh::operator+=(const glm::vec3& vertex)
 // Allows += to add a mesh to the end
 Mesh& Mesh::operator+=(const Mesh& mesh)
 {
-	for (int i = 0; i < mesh.Vertex_Data_Amount(); ++i)
+	for (int i = 0; i < mesh.vertices.size(); ++i)
 	{
 		vertices.push_back(mesh.vertices[i]);
 	}
@@ -337,9 +337,8 @@ Mesh& Mesh::operator+=(const Mesh& mesh)
 	}
 	if (mesh.texture_coordinates.size() != 0)
 	{
-		while (texture_coordinates.size()<Size() * 3)
+		while (texture_coordinates.size()<Size() * 2)
 		{
-			texture_coordinates.push_back(-1);
 			texture_coordinates.push_back(-1);
 			texture_coordinates.push_back(-1);
 		}
@@ -350,7 +349,7 @@ Mesh& Mesh::operator+=(const Mesh& mesh)
 	}
 	for (int i = 0; i < mesh.Size(); ++i)
 	{
-		elements.push_back(mesh.elements[i] + Size());
+		elements.push_back(mesh.elements[i] + Vertex_Data_Amount());
 	}
 	return (*this);
 }
@@ -394,7 +393,7 @@ Mesh Mesh::operator+(const std::vector <glm::vec3>& add_vertices) const
 // Gets a vertex by its index
 glm::vec3& Mesh::Get_Vertex(const int index) const
 {
-	return glm::vec3(vertices[elements[index * 3]], vertices[elements[index * 3 + 1]], vertices[elements[index * 3 + 2]]);
+	return glm::vec3(vertices[elements[index] * 3], vertices[elements[index] * 3 + 1], vertices[elements[index] * 3 + 2]);
 }
 
 
@@ -461,7 +460,7 @@ glm::vec3 Mesh::Flat_Normal(const int index) const
 		if (Size() >= 3)
 			return (glm::vec3(flat_normals[6], flat_normals[7], flat_normals[8]));
 		else
-			return (glm::vec3(0, 1, 0));
+			return (glm::vec3(0, 0, 1));
 	}
 	else
 	{
@@ -474,7 +473,7 @@ glm::vec3 Mesh::Flat_Normal(const int index) const
 // Get the smoother per-vertex normal for a vertex; calculate if needed
 glm::vec3 Mesh::Smooth_Normal(const int index) const
 {
-	return glm::vec3(smooth_normals[elements[index]], smooth_normals[elements[index]+1], smooth_normals[elements[index]+2]);
+	return glm::vec3(smooth_normals[elements[index] * 3], smooth_normals[elements[index] * 3 + 1], smooth_normals[elements[index] * 3 + 2]);
 }
 
 
@@ -540,17 +539,17 @@ void Mesh::Texture(const char * filename)
 // Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
 glm::vec3 Mesh::Texture_Coordinate(const int index) const
 {
-	if (texture_coordinates.size() < (std::size_t)(index*3 + 1))
+	if (texture_coordinates.size() < (std::size_t)(index + 1)*2)
 	{
-		return (glm::vec3((index*3 % Group_Size) % 3 != 0, index*3 % Group_Size < 2, 0));
+		return (glm::vec3(((index) % Group_Size) % 3 != 0, (index*3) % Group_Size < 2, 0));
 	}
-	else if (glm::vec3(texture_coordinates[index*3], texture_coordinates[index*3+1], texture_coordinates[index*3+2]) == glm::vec3(-1, -1, -1))
+	else if (glm::vec3(texture_coordinates[index*2], texture_coordinates[index*2+1], -1) == glm::vec3(-1, -1, -1))
 	{
-		return (glm::vec3((index*3 % Group_Size) % 3 != 0, index*3 % Group_Size < 2, 0));
+		return (glm::vec3(((index) % Group_Size) % 3 != 0, (index*3) % Group_Size < 2, 0));
 	}
 	else
 	{
-		return (glm::vec3(texture_coordinates[index * 3], texture_coordinates[index * 3 + 1], texture_coordinates[index * 3 + 2]));
+		return (glm::vec3(texture_coordinates[index * 2], texture_coordinates[index * 2 + 1], 0));
 	}
 }
 
@@ -558,14 +557,13 @@ glm::vec3 Mesh::Texture_Coordinate(const int index) const
 // Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
 void Mesh::Set_Texture_Coordinate(const int index, const glm::vec3& coordinate)
 {
-	if (texture_coordinates.size() < (std::size_t)(index + 1))
+	while (texture_coordinates.size() < (std::size_t)(index*2 + 1))
 	{
-		for (std::size_t i = 0; i < texture_coordinates.size() - index - 1; ++i)
-		{
-			texture_coordinates.push_back(glm::vec3(-1, -1, -1));
-		}
+		texture_coordinates.push_back(-1);
+		texture_coordinates.push_back(-1);
 	}
-	texture_coordinates[index] = coordinate;
+	texture_coordinates[index * 2] = coordinate.x;
+	texture_coordinates[index * 2 + 1] = coordinate.y;
 	return;
 }
 
@@ -579,9 +577,9 @@ int Mesh::Size(void) const
 
 
 // Number of actual different vertices defined
-int Mesh::glm::vec3_Data_Amount(void) const
+int Mesh::Vertex_Data_Amount(void) const
 {
-	return (vertices.size());
+	return (vertices.size() / 3);
 }
 
 
@@ -589,9 +587,9 @@ void Mesh::Add(const glm::vec3& vertex)
 {
 	// Checks if this vertex has been mentioned before
 	bool duplicate = false;
-	for (int check = 0; check<glm::vec3_Data_Amount(); ++check)
+	for (int check = 0; check<Vertex_Data_Amount(); ++check)
 	{
-		if (vertex == vertices[check])
+		if (vertex == Get_Vertex(check))
 		{
 			elements.push_back(check);
 			duplicate = true;
@@ -600,8 +598,10 @@ void Mesh::Add(const glm::vec3& vertex)
 	// Add a new vertex to the end of the mesh if not a duplicate
 	if (!duplicate)
 	{
-		vertices.push_back(vertex);
-		elements.push_back(glm::vec3_Data_Amount() - 1);
+		vertices.push_back(vertex.x);
+		vertices.push_back(vertex.y);
+		vertices.push_back(vertex.z);
+		elements.push_back(Vertex_Data_Amount() - 1);
 		// Update the hitbox with this new info
 		Update_Hitbox(vertex);
 	}
@@ -609,7 +609,10 @@ void Mesh::Add(const glm::vec3& vertex)
 	int point = Size() - 1;
 	if (point % (Group_Size > 2 ? Group_Size : 1) == Group_Size - 1 || (Group_Size < 3 && point >= 3))
 	{
-		flat_normals.push_back(Find_Flat_Normal(point));
+		glm::vec3 normal = Find_Flat_Normal(point);
+		flat_normals.push_back(normal.x);
+		flat_normals.push_back(normal.y);
+		flat_normals.push_back(normal.z);
 	}
 	return;
 }
