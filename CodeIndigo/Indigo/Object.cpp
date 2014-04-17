@@ -148,9 +148,9 @@ void Object::Render(void) const
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
 	glVertexAttribPointer(0, Data.Vertex_Data_Amount(), render_types[Data.Group_Size], GL_FALSE, 0, (void *) 0);
+	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 	glDrawElements(render_types[Data.Group_Size], Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
-	glDisableVertexAttribArray(0);
 	return;
 }
 
