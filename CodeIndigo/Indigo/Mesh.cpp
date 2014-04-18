@@ -65,10 +65,10 @@ void Mesh::Initialize(void)
 	Smooth_Normals();
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 	glGenBuffers(1, &Elements_ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size(), &elements[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 	return;
 }
 

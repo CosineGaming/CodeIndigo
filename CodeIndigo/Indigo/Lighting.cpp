@@ -62,14 +62,14 @@ void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 	light_positions[number_of_lights][1] = position_array[1];
 	light_positions[number_of_lights][2] = position_array[2];
 	light_positions[number_of_lights][3] = position_array[3];
-	glEnable(light);
+	//glEnable(light);
 	for (int i=number_of_lights+1; i<8; ++i)
 	{
 		glDisable(light_values[i]);
 	}
-	glLightfv(light, GL_POSITION, position_array);
-	glLightfv(light, GL_DIFFUSE, diffuse_array);
-	glLightfv(light, GL_SPECULAR, specular_array);
+	//glLightfv(light, GL_POSITION, position_array);
+	//glLightfv(light, GL_DIFFUSE, diffuse_array);
+	//glLightfv(light, GL_SPECULAR, specular_array);
 	++number_of_lights;
 	return;
 }
@@ -78,12 +78,12 @@ void Lighting::Add_Light(float X, float Y, float Z, bool direction,
 // Update the positions of all lights, and ensure they're enabled
 void Lighting::Update_Lights(void) const
 {
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+	//glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	//glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
+	//glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 	for (int light = 0; light<number_of_lights; ++light)
 	{
-		glLightfv(light_values[light], GL_POSITION, light_positions[light]);
+		//glLightfv(light_values[light], GL_POSITION, light_positions[light]);
 	}
 }
 

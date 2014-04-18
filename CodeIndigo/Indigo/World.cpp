@@ -75,25 +75,32 @@ void World::Update(const float time)
 void World::Render(void) const
 {
 
+	std::cout << "World Render begin -------" << std::endl;
+	Indigo::Error_Dump();
 	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+	glDisableVertexAttribArray(0);
+
 	//glMatrixMode(GL_PROJECTION); // TODO: I200
 	//glLoadMatrixf(&View.Project()[0][0]);
 	//glMatrixMode(GL_MODELVIEW);
-	Light_Setup.Update_Lights();
+	//Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
 		//glLoadMatrixf(&(View.Look_In_Place()[0][0])); // TODO: I200
-		glDisable(GL_LIGHTING);
+		//glDisable(GL_LIGHTING);
 		glDisable(GL_DEPTH_TEST);
 		skybox.Render();
 	}
 
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
 	//glLoadMatrixf(&(View.Look()[0][0])); // TODO: I200
-	glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
@@ -112,7 +119,7 @@ void World::Render(void) const
 	//glMatrixMode(GL_PROJECTION); // TODO: I200
 	//glLoadMatrixf(&View.Project_2D()[0][0]);
 	//glMatrixMode(GL_MODELVIEW);
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
@@ -125,6 +132,7 @@ void World::Render(void) const
 	
 	// Finish Frame
 	glfwSwapBuffers(Indigo::Window);
+	Indigo::Error_Dump();
 	return;
 
 }
@@ -134,22 +142,23 @@ void World::Render(void) const
 void World::Shader(const char * vertex, const char * fragment)
 {
 
-	// glm::vec3
-	std::ifstream shader = std::ifstream(vertex, std::ios::in);
-	if (!shader)
+	// Vertex
+	std::ifstream vs_stream = std::ifstream(vertex, std::ios::in);
+	if (!vs_stream)
 	{
-		std::cout << "Uhh... Huh? Couldn't find vertex shader! Failing silently." << std::endl;
+		std::cout << "Uhh... Huh? Couldn't find vertex shader \"" << vertex << "\"! Failing silently." << std::endl;
 		return;
 	}
 	std::string total;
 	std::string line;
-	while (std::getline(shader, line))
+	while (std::getline(vs_stream, line))
 	{
 		total += line;
 		total += "\n";
 	}
-	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	vs_stream.close();
 	const char * source = total.c_str();
+	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader, 1, &source, NULL);
 	glCompileShader(vertex_shader);
 	int succeeded;
@@ -164,25 +173,24 @@ void World::Shader(const char * vertex, const char * fragment)
 		delete[] data;
 		return;
 	}
-	delete [] source;
-	source = nullptr;
 
 	// Fragment
-	shader = std::ifstream(fragment, std::ios::in);
-	if (!shader)
+	std::ifstream fs_stream = std::ifstream(fragment, std::ios::in);
+	if (!fs_stream)
 	{
-		std::cout << "Uhh... Huh? Couldn't find fragment shader! Failing silently." << std::endl;
+		std::cout << "Uhh... Huh? Couldn't find fragment shader \"" << fragment << "\"! Failing silently." << std::endl;
 		return;
 	}
-	total = std::string();
-	while (std::getline(shader, line))
+	total = "";
+	while (std::getline(fs_stream, line))
 	{
 		total += line;
 		total += "\n";
 	}
+	fs_stream.close();
+	const char * fragment_source = total.c_str();
 	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	source = total.c_str();
-	glShaderSource(fragment_shader, 1, &source, NULL);
+	glShaderSource(fragment_shader, 1, &fragment_source, NULL);
 	glCompileShader(fragment_shader);
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &succeeded);
 	if (succeeded == GL_FALSE)
@@ -216,6 +224,8 @@ void World::Shader(const char * vertex, const char * fragment)
 	// Cleanup
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
+
+	glUseProgram(shader_index);
 
 	return;
 

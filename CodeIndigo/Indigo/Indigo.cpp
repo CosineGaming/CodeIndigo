@@ -32,12 +32,11 @@ namespace Indigo
 		glClearColor(background[0], background[1], background[2], 1.0);
 
 		// GLEW
-		glewExperimental = true;
+		glewExperimental = GL_TRUE;
 		if (glewInit())
 		{
 			std::cout << "There was this GLEW thing, and it was all like, NO!" << std::endl << "And we were sad. Try reinstalling."
-				<< std::endl << "For more info contact the creator of your game." << std::endl << "Tell them about this:" << std::endl
-				<< glewGetErrorString(0) << std::endl;
+				<< std::endl << "For more info contact the creator of your game." << std::endl;
 		}
 
 		// Set callbacks
@@ -59,16 +58,14 @@ namespace Indigo
 		glBindVertexArray(VAO);
 
 		// Setup fog
-		glEnable(GL_FOG);
-		glFogfv(GL_FOG_COLOR, White_Color);
-		glHint(GL_FOG_HINT, GL_DONT_CARE);
-		glFogf(GL_FOG_DENSITY, 0.002);
+		//glEnable(GL_FOG);
+		//glFogfv(GL_FOG_COLOR, White_Color);
+		//glHint(GL_FOG_HINT, GL_DONT_CARE);
+		//glFogf(GL_FOG_DENSITY, 0.002);
 
 		// Enable rendering options
 		Reshape(Window);
-		glShadeModel(GL_SMOOTH);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		Error_Dump();
 
 		return;
 	}
@@ -338,6 +335,23 @@ namespace Indigo
 			*output = i;
 		}
 		return result;
+	}
+
+
+	// Get all the errors since last error dump to main console window
+	void Error_Dump(void)
+	{
+		std::cout << "------ Begin Error Dump --------" << std::endl;
+		int code = -1;
+		while (code != GL_NO_ERROR)
+		{
+			code = glGetError();
+			if (code != GL_NO_ERROR)
+			{
+				std::cout << code << std::endl;
+			}
+		}
+		std::cout << "------- End Error Dump ---------" << std::endl;
 	}
 
 

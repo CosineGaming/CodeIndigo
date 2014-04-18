@@ -87,18 +87,18 @@ void Object::Render(void) const
 		return;
 	}
 	float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	if (glIsEnabled(GL_LIGHTING))
-	{
+	//if (glIsEnabled(GL_LIGHTING))
+	//{
 		//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, // TODO: I200
 		//	Object_Color ? Object_Color : full_array);
 		//glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
 		//glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, Object_Shine);
-	}
-	else
-	{
+	//}
+	//else
+	//{
 		//float * color = Object_Color ? Object_Color : full_array; // TODO: I200
 		//glColor3f(color[0], color[1], color[2]);
-	}
+	//}
 	if (Line)
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: I200
@@ -107,20 +107,20 @@ void Object::Render(void) const
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // TODO: I200
 	}
-	if (Data.Texture_ID != -1)
-	{
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
-	}
-	else
-	{
-		glDisable(GL_TEXTURE_2D);
-	}
+	//if (Data.Texture_ID != -1)
+	//{
+	//	glEnable(GL_TEXTURE_2D);
+	//	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
+	//}
+	//else
+	//{
+	//	glDisable(GL_TEXTURE_2D);
+	//}
 	//glPushMatrix();
-	glm::mat4 modeling = glm::mat4(1);
-	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
-	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
-	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	//glm::mat4 modeling = glm::mat4(1);
+	//modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
+	//modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
+	//modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
 	//glMultMatrixf(&modeling[0][0]); // TODO: I200
 	//glBegin(render_types[Data.Group_Size]);
 	//for (int point = 0; point<Data.Size(); ++point)
@@ -145,10 +145,7 @@ void Object::Render(void) const
 	//}
 	//glEnd();
 	//glPopMatrix();
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(0, Data.Vertex_Data_Amount(), render_types[Data.Group_Size], GL_FALSE, 0, (void *) 0);
-	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 	glDrawElements(render_types[Data.Group_Size], Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 	return;

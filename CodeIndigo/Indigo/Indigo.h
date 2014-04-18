@@ -49,6 +49,8 @@ namespace Indigo
 	float Elapsed(const float minus = 0);
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
+	// Get all the errors since last error dump to main console window
+	void Error_Dump(void);
 
 	// Stores the current world to render
 	extern World Current_World;
