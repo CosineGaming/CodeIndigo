@@ -37,6 +37,7 @@ World::World(const World& world)
 	Light_Setup = world.Light_Setup;
 	View = world.View;
 	skybox = world.skybox;
+	shader_index = world.shader_index;
 	return;
 }
 
@@ -75,19 +76,15 @@ void World::Update(const float time)
 void World::Render(void) const
 {
 
-	std::cout << "World Render begin -------" << std::endl;
-	Indigo::Error_Dump();
 	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-	glDisableVertexAttribArray(0);
 
 	//glMatrixMode(GL_PROJECTION); // TODO: I200
 	//glLoadMatrixf(&View.Project()[0][0]);
 	//glMatrixMode(GL_MODELVIEW);
 	//Light_Setup.Update_Lights();
+
+	glUseProgram(shader_index);
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
@@ -163,11 +160,11 @@ void World::Shader(const char * vertex, const char * fragment)
 	glCompileShader(vertex_shader);
 	int succeeded;
 	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &succeeded);
-	if (succeeded)
+	if (succeeded == GL_FALSE)
 	{
 		int size;
 		glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &size);
-		char * data = new char[size];
+		char * data = new char[size + 1];
 		glGetShaderInfoLog(vertex_shader, size, NULL, data);
 		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
 		delete[] data;
@@ -181,7 +178,7 @@ void World::Shader(const char * vertex, const char * fragment)
 		std::cout << "Uhh... Huh? Couldn't find fragment shader \"" << fragment << "\"! Failing silently." << std::endl;
 		return;
 	}
-	total = "";
+	total = std::string();
 	while (std::getline(fs_stream, line))
 	{
 		total += line;
@@ -197,7 +194,7 @@ void World::Shader(const char * vertex, const char * fragment)
 	{
 		int size;
 		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
-		char * data = new char[size];
+		char * data = new char[size + 1];
 		glGetShaderInfoLog(fragment_shader, size, NULL, data);
 		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
 		delete [] data;
@@ -209,23 +206,23 @@ void World::Shader(const char * vertex, const char * fragment)
 	glAttachShader(shader_index, vertex_shader);
 	glAttachShader(shader_index, fragment_shader);
 	glLinkProgram(shader_index);
-	glGetShaderiv(shader_index, GL_LINK_STATUS, &succeeded);
+	glGetProgramiv(shader_index, GL_LINK_STATUS, &succeeded);
+	Indigo::Error_Dump();
 	if (succeeded == GL_FALSE)
 	{
 		int size;
-		glGetShaderiv(shader_index, GL_INFO_LOG_LENGTH, &size);
+		glGetProgramiv(shader_index, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size];
-		glGetShaderInfoLog(shader_index, size, NULL, data);
+		glGetProgramInfoLog(shader_index, size, NULL, data);
 		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being a nerd. Failing silently, but: " << std::endl << data << std::endl;
 		delete[] data;
+		glDeleteShader(vertex_shader);
 		return;
 	}
 
 	// Cleanup
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
-
-	glUseProgram(shader_index);
 
 	return;
 

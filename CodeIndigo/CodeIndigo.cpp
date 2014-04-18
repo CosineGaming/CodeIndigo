@@ -84,14 +84,14 @@ void strike(float time, Object& hand)
 
 void load(float time)
 {
-	progressive.Add_Object(Object(1, 0, 1, Mesh::Load("C:/Users/Judah/Documents/Frost/human.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/human.bmp"));
+	//progressive.Add_Object(Object(1, 0, 1, Mesh::Load("C:/Users/Judah/Documents/Frost/human.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/human.bmp"));
 	progressive.Add_Object(Object(0, 0, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp"));
-	progressive.Add_Object(Object(100, -1.5, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/Crossing.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/Crossing.bmp"));
-	Indigo::Current_World.Add_Front_Object(Object(-0.1, -0.16, 0.3, Mesh::Load("C:/Users/Judah/Documents/Frost/Arm.obj"), nullptr, strike, "C:/Users/Judah/Documents/Frost/Arm.bmp", true, Direction(1,3,15)));
+	//progressive.Add_Object(Object(100, -1.5, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/Crossing.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/Crossing.bmp"));
+	//Indigo::Current_World.Add_Front_Object(Object(-0.1, -0.16, 0.3, Mesh::Load("C:/Users/Judah/Documents/Frost/Arm.obj"), nullptr, strike, "C:/Users/Judah/Documents/Frost/Arm.bmp", true, Direction(1,3,15)));
 	Indigo::FPS_Mouse(true, &player);
 	_itoa_s(60, fps, 4, 10);
-	Indigo::Current_World.Add_Text(Text(-1.0, 0.8, fps, Indigo::White_Color));
-	Indigo::Current_World.Light_Setup.Add_Light(0.0, 10.0, 0.0);
+	//Indigo::Current_World.Add_Text(Text(-1.0, 0.8, fps, Indigo::White_Color));
+	//Indigo::Current_World.Light_Setup.Add_Light(0.0, 10.0, 0.0);
 	Indigo::Update_Function = steadyload;
 }
 
@@ -99,8 +99,7 @@ int main()
 {
 	float color[3] = { 0, 0.192, 0.314 };
 	Indigo::Initialize("Indigo Engine Test", color);
-	Indigo::Current_World.Shader("C:/Users/Judah/Documents/GitHub/CodeIndigo/Default.vs", "C:/Users/Judah/Documents/GitHub/CodeIndigo/Default.fs");
 	Indigo::Update_Function = load;
-	std::cout << "60";
+	Indigo::Current_World.Shader("Default.vs", "Default.fs");
 	Indigo::Run();
 }
