@@ -20,9 +20,11 @@ World::World(void)
 	objects_front = std::vector<Object>();
 	objects_2d = std::vector<Object>();
 	texts = std::vector<Text>();
+	animations = std::vector<Animation>();
 	Light_Setup = Lighting();
 	View = Camera();
 	skybox = Object();
+	Shader_Index = 0;
 	return;
 }
 
@@ -34,10 +36,11 @@ World::World(const World& world)
 	objects_front = world.objects_front;
 	objects_2d = world.objects_2d;
 	texts = world.texts;
+	animations = world.animations;
 	Light_Setup = world.Light_Setup;
 	View = world.View;
 	skybox = world.skybox;
-	shader_index = world.shader_index;
+	Shader_Index = world.Shader_Index;
 	return;
 }
 
@@ -84,15 +87,17 @@ void World::Render(void) const
 	//glMatrixMode(GL_MODELVIEW);
 	//Light_Setup.Update_Lights();
 
-	glUseProgram(shader_index);
+	glUseProgram(Shader_Index);
+
+	glm::mat4 project = View.Project();
+	glm::mat4 project_2d = View.Project_2D();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
 		//glLoadMatrixf(&(View.Look_In_Place()[0][0])); // TODO: I200
 		//glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
-		skybox.Render();
+		skybox.Render(project, View.Look_In_Place());
 	}
 
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
@@ -101,7 +106,7 @@ void World::Render(void) const
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
-		objects[object].Render();
+		objects[object].Render(project, View.Look());
 	}
 
 	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
@@ -109,7 +114,7 @@ void World::Render(void) const
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
-		objects_front[object].Render();
+		objects_front[object].Render(project, glm::mat4(1));
 	}
 
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
@@ -120,22 +125,22 @@ void World::Render(void) const
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
-		objects_2d[object].Render();
+		objects_2d[object].Render(project_2d, glm::mat4(1));
 	}
 	for (std::size_t text = 0; text < texts.size(); ++text)
 	{
-		texts[text].Render();
+		texts[text].Render(project_2d, glm::mat4(1));
 	}
 	
 	// Finish Frame
 	glfwSwapBuffers(Indigo::Window);
-	Indigo::Error_Dump();
+
 	return;
 
 }
 
 
-// Compiles and puts in place custom glm::vec3 and Fragment Shaders
+// Compiles and puts in place custom Vertex and Fragment Shaders
 void World::Shader(const char * vertex, const char * fragment)
 {
 
@@ -202,18 +207,18 @@ void World::Shader(const char * vertex, const char * fragment)
 	}
 
 	// Link
-	shader_index = glCreateProgram();
-	glAttachShader(shader_index, vertex_shader);
-	glAttachShader(shader_index, fragment_shader);
-	glLinkProgram(shader_index);
-	glGetProgramiv(shader_index, GL_LINK_STATUS, &succeeded);
+	Shader_Index = glCreateProgram();
+	glAttachShader(Shader_Index, vertex_shader);
+	glAttachShader(Shader_Index, fragment_shader);
+	glLinkProgram(Shader_Index);
+	glGetProgramiv(Shader_Index, GL_LINK_STATUS, &succeeded);
 	Indigo::Error_Dump();
 	if (succeeded == GL_FALSE)
 	{
 		int size;
-		glGetProgramiv(shader_index, GL_INFO_LOG_LENGTH, &size);
+		glGetProgramiv(Shader_Index, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size];
-		glGetProgramInfoLog(shader_index, size, NULL, data);
+		glGetProgramInfoLog(Shader_Index, size, NULL, data);
 		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being a nerd. Failing silently, but: " << std::endl << data << std::endl;
 		delete[] data;
 		glDeleteShader(vertex_shader);
@@ -223,6 +228,10 @@ void World::Shader(const char * vertex, const char * fragment)
 	// Cleanup
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
+
+	Matrix_Handle = glGetUniformLocation(Shader_Index, "MVP");
+	View_Matrix = glGetUniformLocation(Shader_Index, "V");
+	Model_Matrix = glGetUniformLocation(Shader_Index, "M");
 
 	return;
 
@@ -254,35 +263,35 @@ void World::Add_Skybox(const char * texture)
 	mesh.Texture(texture);
 
 	// Front
-	mesh.Set_Texture_Coordinate(3 , glm::vec3(0.25, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(2 , glm::vec3(0.50, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(1 , glm::vec3(0.50, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(0 , glm::vec3(0.25, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(3 , glm::vec2(0.25, 0.3333));
+	mesh.Set_Texture_Coordinate(2 , glm::vec2(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(1 , glm::vec2(0.50, 0.6666));
+	mesh.Set_Texture_Coordinate(0 , glm::vec2(0.25, 0.6666));
 	// Back
-	mesh.Set_Texture_Coordinate(6 , glm::vec3(0.75, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(7 , glm::vec3(1.00, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(4 , glm::vec3(1.00, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(5 , glm::vec3(0.75, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(6 , glm::vec2(0.75, 0.3333));
+	mesh.Set_Texture_Coordinate(7 , glm::vec2(1.00, 0.3333));
+	mesh.Set_Texture_Coordinate(4 , glm::vec2(1.00, 0.6666));
+	mesh.Set_Texture_Coordinate(5 , glm::vec2(0.75, 0.6666));
 	// Left
-	mesh.Set_Texture_Coordinate(11, glm::vec3(0.00, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(10, glm::vec3(0.25, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(9 , glm::vec3(0.25, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(8 , glm::vec3(0.00, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(11, glm::vec2(0.00, 0.3333));
+	mesh.Set_Texture_Coordinate(10, glm::vec2(0.25, 0.3333));
+	mesh.Set_Texture_Coordinate(9 , glm::vec2(0.25, 0.6666));
+	mesh.Set_Texture_Coordinate(8 , glm::vec2(0.00, 0.6666));
 	// Right
-	mesh.Set_Texture_Coordinate(14, glm::vec3(0.50, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(15, glm::vec3(0.75, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(12, glm::vec3(0.75, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(13, glm::vec3(0.50, 0.6666, 0));
+	mesh.Set_Texture_Coordinate(14, glm::vec2(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(15, glm::vec2(0.75, 0.3333));
+	mesh.Set_Texture_Coordinate(12, glm::vec2(0.75, 0.6666));
+	mesh.Set_Texture_Coordinate(13, glm::vec2(0.50, 0.6666));
 	// Bottom
-	mesh.Set_Texture_Coordinate(19, glm::vec3(0.25, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(18, glm::vec3(0.50, 0.6666, 0));
-	mesh.Set_Texture_Coordinate(17, glm::vec3(0.50, 1.0000, 0));
-	mesh.Set_Texture_Coordinate(16, glm::vec3(0.25, 1.0000, 0));
+	mesh.Set_Texture_Coordinate(19, glm::vec2(0.25, 0.6666));
+	mesh.Set_Texture_Coordinate(18, glm::vec2(0.50, 0.6666));
+	mesh.Set_Texture_Coordinate(17, glm::vec2(0.50, 1.0000));
+	mesh.Set_Texture_Coordinate(16, glm::vec2(0.25, 1.0000));
 	// Top
-	mesh.Set_Texture_Coordinate(21, glm::vec3(0.25, 0.0000, 0));
-	mesh.Set_Texture_Coordinate(20, glm::vec3(0.50, 0.0000, 0));
-	mesh.Set_Texture_Coordinate(23, glm::vec3(0.50, 0.3333, 0));
-	mesh.Set_Texture_Coordinate(22, glm::vec3(0.25, 0.3333, 0));
+	mesh.Set_Texture_Coordinate(21, glm::vec2(0.25, 0.0000));
+	mesh.Set_Texture_Coordinate(20, glm::vec2(0.50, 0.0000));
+	mesh.Set_Texture_Coordinate(23, glm::vec2(0.50, 0.3333));
+	mesh.Set_Texture_Coordinate(22, glm::vec2(0.25, 0.3333));
 
 	skybox = Object(0, 0, 0, mesh);
 	return;
@@ -473,7 +482,7 @@ int World::Collide(const Object& object, const float add_x, const float add_y, c
 
 
 // Checks whether any object will ever be intersected by a direction
-int World::Collide(const Direction& position, const Direction& direction)
+int World::Collide(const glm::vec3& position, const Direction& direction)
 {
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{

@@ -1,6 +1,7 @@
 #pragma once
-#include <cstdlib>
+
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
 
 class Text
@@ -15,7 +16,7 @@ public:
 	// Destroy the text
 	~Text();
 	// Render the text, returns true if text should be deleted
-	void Render(void) const;
+	void Render(glm::mat4 project, glm::mat4 view) const;
 	// The ID the world uses
 	int ID;
 

@@ -85,7 +85,6 @@
     <ClCompile Include="..\CodeIndigo\Indigo\Mesh.cpp" />
     <ClCompile Include="..\CodeIndigo\Indigo\Object.cpp" />
     <ClCompile Include="..\CodeIndigo\Indigo\Text.cpp" />
-    <ClCompile Include="..\CodeIndigo\Indigo\Vertex.cpp" />
     <ClCompile Include="..\CodeIndigo\Indigo\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -98,7 +97,6 @@
     <ClInclude Include="..\CodeIndigo\Indigo\Mesh.h" />
     <ClInclude Include="..\CodeIndigo\Indigo\Object.h" />
     <ClInclude Include="..\CodeIndigo\Indigo\Text.h" />
-    <ClInclude Include="..\CodeIndigo\Indigo\Vertex.h" />
     <ClInclude Include="..\CodeIndigo\Indigo\World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

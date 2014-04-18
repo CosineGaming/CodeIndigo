@@ -16,8 +16,8 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z, const Mesh& mesh, float *color, void(*update_function)(const float time, Object& self),
-	const char * change_texture, const bool smooth, const Direction& towards, const bool world_collide, const float shine, const bool line)
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, void(*update_function)(const float time, Object& self), const char * change_texture,
+	const bool smooth, const glm::vec3& color, const Direction& towards, const bool world_collide, const float shine, const bool line)
 {
 	Place(x, y, z);
 	Data = mesh;
@@ -26,11 +26,14 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, fl
 	{
 		Data.Texture(change_texture);
 	}
+	if (color != glm::vec3(-1, -1, -1))
+	{
+		Data.Color = color;
+	}
 	if (!Is_Blank)
 	{
 		Data.Initialize();
 	}
-	Object_Color = color;
 	Update_Function = update_function;
 	Vertex_Normals = smooth;
 	Facing = towards;
@@ -48,7 +51,6 @@ Object::Object(const Object& object)
 {
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
-	Object_Color = object.Object_Color;
 	Update_Function = object.Update_Function;
 	Vertex_Normals = object.Vertex_Normals;
 	Facing = object.Facing;
@@ -80,7 +82,7 @@ void Object::Update(const float time)
 
 
 // Renders the object
-void Object::Render(void) const
+void Object::Render(glm::mat4& projection, glm::mat4& view) const
 {
 	if (Is_Blank)
 	{
@@ -117,10 +119,14 @@ void Object::Render(void) const
 	//	glDisable(GL_TEXTURE_2D);
 	//}
 	//glPushMatrix();
-	//glm::mat4 modeling = glm::mat4(1);
-	//modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
-	//modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
-	//modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	glm::mat4 modeling = glm::mat4(1);
+	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
+	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
+	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	glUniformMatrix4fv(Indigo::Current_World.Model_Matrix, 1, GL_FALSE, &modeling[0][0]);
+	glm::mat4 mvp = projection * view * modeling;
+	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
+
 	//glMultMatrixf(&modeling[0][0]); // TODO: I200
 	//glBegin(render_types[Data.Group_Size]);
 	//for (int point = 0; point<Data.Size(); ++point)
@@ -145,12 +151,29 @@ void Object::Render(void) const
 	//}
 	//glEnd();
 	//glPopMatrix();
-	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
+
+	glBindVertexArray(Data.VAO);
+
+	// Vertices
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-	glDisableVertexAttribArray(0);
+
+	// Vertices
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+	// Color
+	glUniform3f(glGetUniformLocation(Indigo::Current_World.Shader_Index, "object_color"), Data.Color.x, Data.Color.y, Data.Color.z);
+
+	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 	glDrawElements(render_types[Data.Group_Size], Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
+
+	// End
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 	return;
 }
 
@@ -193,7 +216,7 @@ bool Object::Collide(const Object& object, const float add_x, const float add_y,
 
 
 // Checks whether this object will ever be intersected by a direction
-bool Object::Collide(const Direction& position, const Direction& direction) const
+bool Object::Collide(const glm::vec3& position, const Direction& direction) const
 {
 
 	/*glm::vec3 * hitbox = const_cast<glm::vec3 *>(Data.Hitbox);

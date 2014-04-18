@@ -48,14 +48,11 @@ namespace Indigo
 		{
 			Frame_Length_Minimum = 1000.0 / max_framerate;
 		}
+
 		glfwSetFramebufferSizeCallback(Window, Reshape);
 		glfwSetCursorPosCallback(Window, Mouse_Moved);
 		glfwSetMouseButtonCallback(Window, Mouse_Button);
 		glfwSetKeyCallback(Window, Key_Action);
-
-		// Set up the Geocacher. (Reference? Yes, of course. To what? My brain is an Odd. Place.)
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
 
 		// Setup fog
 		//glEnable(GL_FOG);
@@ -84,6 +81,7 @@ namespace Indigo
 				last = Elapsed();
 			}
 		}
+		glDeleteVertexArrays(1, &VAO);
 		glfwTerminate();
 		return 0;
 

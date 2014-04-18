@@ -16,9 +16,8 @@ class Object
 public:
 
 	// Create an object given optional position, a mesh, and whether the object should render in wireframe
-	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), float *color = nullptr,
-		void(*update_function)(const float time, Object& self) = nullptr, const char * change_texture = nullptr, const bool smooth = true, const Direction& towards = Direction(1, 0, 0),
-		const bool world_collide = true, const float shine = 60.0, const bool line = false);
+	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), void(*update_function)(const float time, Object& self) = nullptr, const char * change_texture = nullptr,
+		const bool smooth = true, const glm::vec3& color = glm::vec3(-1,-1,-1), const Direction& towards = Direction(1, 0, 0), const bool world_collide = true, const float shine = 60.0, const bool line = false);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
@@ -27,7 +26,7 @@ public:
 	// Updates the object, preparing for User-Defined Update_Function
 	void Update(const float time);
 	// Renders the object
-	void Render() const;
+	void Render(glm::mat4& projection, glm::mat4& view) const;
 
 	// Places the object at the X, Y, and Z coordinates
 	void Place(const float x, const float y=0.0, const float z=0.0);
@@ -37,7 +36,7 @@ public:
 	// Checks whether this object collides with another object
 	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0) const;
 	// Checks whether this object will ever be intersected by a direction
-	bool Collide(const Direction& position, const Direction& direction) const;
+	bool Collide(const glm::vec3& position, const Direction& direction) const;
 	// Checks whether this vertex is withing this object
 	bool Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
@@ -57,8 +56,6 @@ public:
 	Direction Facing;
 	// Whether or not to collide when searching through World::Collide
 	bool World_Collide;
-	// The color of the object
-	float * Object_Color;
 	// Whether or not to use smooth, vertex normals
 	bool Vertex_Normals;
 	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
@@ -74,7 +71,9 @@ private:
 
 	// The OpenGL draw mode for each render type.
 	static const int render_types[5];
-	// To be used in Indigo20, whether or not Data will ever be changed.
-	bool dynamic;
+	// The color of the object
+	float * object_color;
+	// The handle for the color sent
+	unsigned int color_handle;
 
 };

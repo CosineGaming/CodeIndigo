@@ -30,7 +30,7 @@ public:
 	// Renders every object in the world
 	void Render(void) const;
 
-	// Compiles and puts in place custom glm::vec3 or Fragment Shaders
+	// Compiles and puts in place custom Vertex or Fragment Shaders
 	void Shader(const char * vertex, const char * fragment);
 
 	/*
@@ -102,7 +102,7 @@ public:
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 	// Checks whether any object will ever be intersected by a direction
-	int Collide(const Direction& position, const Direction& direction);
+	int Collide(const glm::vec3& position, const Direction& direction);
 	// Checks whether a vertex is within any object
 	int Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
 
@@ -113,6 +113,15 @@ public:
 	Lighting Light_Setup;
 	// The camera for looking in the world
 	Camera View;
+
+	// The handle for the full MVP matrix
+	unsigned int Matrix_Handle;
+	// The handle for the matrix defined by View.Look()
+	unsigned int View_Matrix;
+	// The handle for the matrix defined by each Object
+	unsigned int Model_Matrix;
+	// The handle for the full shader together.
+	unsigned int Shader_Index;
 
 private:
 
@@ -125,8 +134,5 @@ private:
 
 	// A skybox is a box which is always in the back, textured to look like the game background
 	Object skybox;
-
-	// The handle for the full shader together.
-	unsigned int shader_index;
 
 };

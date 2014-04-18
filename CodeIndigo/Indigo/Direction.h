@@ -17,7 +17,7 @@ public:
 	Direction(const float in_distance = 1.0, const float in_angle_x = 0.0, const float in_angle_y = 0.0);
 	// Construct a new direction based off of x, y, and z
 	static Direction Coordinates(const float x, const float y, const float z);
-	// Construct a new direction from a glm::vec3
+	// Construct a new direction from a Vertex
 	Direction(const glm::vec3 vertex);
 	// Destroy a direction
 	~Direction(void);

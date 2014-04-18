@@ -53,7 +53,7 @@ Text::~Text()
 
 
 // Render the text
-void Text::Render(void) const
+void Text::Render(glm::mat4 project, glm::mat4 view) const
 {
 	//glColor3f(text_color[0], text_color[1], text_color[2]);
 	//glRasterPos2f(x, y);

@@ -95,22 +95,20 @@ void Mesh::Initialize(void)
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
-	for (int i = 0; i < Size(); ++i)
+	if (Texture_ID != -1)
 	{
-		if (i == texture_coordinates.size())
+		for (int i = 0; i < Size(); ++i)
 		{
-			std::cout << "Not generated." << std::endl;
-			texture_coordinates.push_back(Texture_Coordinate(i));
+			if (i >= texture_coordinates.size())
+			if (texture_coordinates[i] == glm::vec2(-1, -1))
+			{
+				texture_coordinates[i] = Texture_Coordinate(i);
+			}
 		}
-		else if (texture_coordinates[i] == glm::vec2(-1, -1))
-		{
-			std::cout << "Wrong ." << std::endl;
-			texture_coordinates[i] = Texture_Coordinate(i);
-		}
+		glGenBuffers(1, &UV_ID);
+		glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
+		glBufferData(GL_ARRAY_BUFFER, Size() * sizeof(glm::vec2), &texture_coordinates[0], GL_STATIC_DRAW);
 	}
-	glGenBuffers(1, &UV_ID);
-	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
-	glBufferData(GL_ARRAY_BUFFER, Size() * sizeof(glm::vec2), &texture_coordinates[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Elements_ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);

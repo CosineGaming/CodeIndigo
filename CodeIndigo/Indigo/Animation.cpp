@@ -22,9 +22,9 @@ Animation::Animation(Mesh * original, Mesh finished, int frames)
 {
 	for (int point = 0; point < original->Size(); ++point)
 	{
-		animations.push_back(Animation(&((*original)[point].x), finished[point].x, frames));
-		animations.push_back(Animation(&((*original)[point].y), finished[point].y, frames));
-		animations.push_back(Animation(&((*original)[point].z), finished[point].z, frames));
+		animations.push_back(Animation(&((*original).Edit_Vertex(point).x), finished[point].x, frames));
+		animations.push_back(Animation(&((*original).Edit_Vertex(point).y), finished[point].y, frames));
+		animations.push_back(Animation(&((*original).Edit_Vertex(point).z), finished[point].z, frames));
 	}
 	ID = -1;
 	return;
