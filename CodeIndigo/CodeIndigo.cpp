@@ -13,19 +13,19 @@ void run(float time)
 	}
 	if (Indigo::Keys['w'])
 	{
-		player.Move(0.009 * time);
+		player.Move(0.02 * time);
 	}
 	if (Indigo::Keys['s'])
 	{
-		player.Move(-0.009 * time);
+		player.Move(-0.02 * time);
 	}
 	if (Indigo::Keys['a'])
 	{
-		player.Move(0, -0.009 * time);
+		player.Move(0, -0.02 * time);
 	}
 	if (Indigo::Keys['d'])
 	{
-		player.Move(0, 0.009 * time);
+		player.Move(0, 0.02 * time);
 	}
 	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
 	Indigo::Current_World.View.Eye = player.Facing;

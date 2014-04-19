@@ -137,13 +137,14 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
-	// Texture
-	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID == -1 ? 0 : Data.Texture_ID);
-
 	// Texture UVs
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+
+	// Texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID == -1 ? 0 : Data.Texture_ID);
 
 	// Light normals
 	glEnableVertexAttribArray(2);
