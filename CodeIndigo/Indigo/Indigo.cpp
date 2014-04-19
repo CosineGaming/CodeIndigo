@@ -15,7 +15,7 @@ namespace Indigo
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
-		glfwWindowHint(GLFW_SAMPLES, 8);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -54,6 +54,8 @@ namespace Indigo
 		glfwSetMouseButtonCallback(Window, Mouse_Button);
 		glfwSetKeyCallback(Window, Key_Action);
 
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 		// Setup fog
 		//glEnable(GL_FOG);
 		//glFogfv(GL_FOG_COLOR, White_Color);
@@ -62,7 +64,6 @@ namespace Indigo
 
 		// Enable rendering options
 		Reshape(Window);
-		Error_Dump();
 
 		return;
 	}
@@ -70,18 +71,20 @@ namespace Indigo
 	// Starts the main loop with update, render, and input
 	int Run(void)
 	{
+		float last = 0;
 		while (!glfwWindowShouldClose(Window))
 		{
-			static float last = 0;
-			if (Elapsed(last) >= Frame_Length_Minimum)
+			float now = Elapsed();
+			float delta = now - last;
+			if (delta >= Frame_Length_Minimum)
 			{
-				Update(Elapsed(last));
+				last = now;
+				Update(delta);
 				Render();
+				glfwSwapBuffers(Indigo::Window);
 				glfwPollEvents();
-				last = Elapsed();
 			}
 		}
-		glDeleteVertexArrays(1, &VAO);
 		glfwTerminate();
 		return 0;
 

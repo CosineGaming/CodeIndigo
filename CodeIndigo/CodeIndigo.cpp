@@ -29,7 +29,6 @@ void run(float time)
 	}
 	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
 	Indigo::Current_World.View.Eye = player.Facing;
-	_itoa_s(1000 / time, fps, 4, 10);
 }
 
 void strike(float time, Object& hand)
@@ -66,16 +65,15 @@ void strike(float time, Object& hand)
 
 void load(float time)
 {
-	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh(3) + glm::vec3(-1, -1, -1) + glm::vec3(1, -1, -1) + glm::vec3(0, 1, -1), nullptr, "C:/Users/Judah/Documents/Frost/Hand.bmp", true, glm::vec3(0,1,0)));
-	//progressive.Add_Object(Object(1, 0, 1, Mesh::Load("C:/Users/Judah/Documents/Frost/human.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/human.bmp"));
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj"), nullptr, "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp"));
-	//progressive.Add_Object(Object(100, -1.5, 0, Mesh::Load("C:/Users/Judah/Documents/Frost/Crossing.obj"), nullptr, nullptr, "C:/Users/Judah/Documents/Frost/Crossing.bmp"));
-	//Indigo::Current_World.Add_Front_Object(Object(-0.1, -0.16, 0.3, Mesh::Load("C:/Users/Judah/Documents/Frost/Arm.obj"), nullptr, strike, "C:/Users/Judah/Documents/Frost/Arm.bmp", true, Direction(1,3,15)));
+	//Indigo::Current_World.Add_Object(Object(1, 0, 1, Mesh("C:/Users/Judah/Documents/Frost/human.obj", "C:/Users/Judah/Documents/Frost/human.bmp")));
+	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
+	//Indigo::Current_World.Add_Object(Object(100, -1.5, 0, Mesh("C:/Users/Judah/Documents/Frost/Crossing.obj", "C:/Users/Judah/Documents/Frost/Crossing.bmp")));
+	Indigo::Current_World.Add_Front_Object(Object(-0.1, -0.16, 0.3, Mesh("C:/Users/Judah/Documents/Frost/Arm.obj", "C:/Users/Judah/Documents/Frost/Arm.bmp"), nullptr, Direction(1, 3, 15)));
 	Indigo::FPS_Mouse(true, &player);
-	_itoa_s(60, fps, 4, 10);
 	//Indigo::Current_World.Add_Text(Text(-1.0, 0.8, fps, Indigo::White_Color));
 	//Indigo::Current_World.Light_Setup.Add_Light(0.0, 10.0, 0.0);
 	Indigo::Update_Function = run;
+	std::cout << "Done loading." << std::endl;
 }
 
 int main()

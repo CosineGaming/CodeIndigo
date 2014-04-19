@@ -16,29 +16,18 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z, const Mesh& mesh, void(*update_function)(const float time, Object& self), const char * change_texture,
-	const bool smooth, const glm::vec3& color, const Direction& towards, const bool world_collide, const float shine, const bool line)
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, void(*update_function)(const float time, Object& self),
+	const Direction& towards, const bool world_collide)
 {
 	Place(x, y, z);
 	Data = mesh;
 	Is_Blank = mesh.Size() == 0;
-	if (change_texture)
-	{
-		Data.Texture(change_texture);
-	}
-	if (color != glm::vec3(-1, -1, -1))
-	{
-		Data.Color = color;
-	}
 	if (!Is_Blank)
 	{
 		Data.Initialize();
 	}
 	Update_Function = update_function;
-	Vertex_Normals = smooth;
 	Facing = towards;
-	Object_Shine = shine;
-	Line = line;
 	World_Collide = world_collide;
 	User_Data = std::vector<float>();
 	ID = -1;
@@ -52,10 +41,7 @@ Object::Object(const Object& object)
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
 	Update_Function = object.Update_Function;
-	Vertex_Normals = object.Vertex_Normals;
 	Facing = object.Facing;
-	Object_Shine = object.Object_Shine;
-	Line = object.Line;
 	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
 	User_Data = object.User_Data;
@@ -101,14 +87,6 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 		//float * color = Object_Color ? Object_Color : full_array; // TODO: I200
 		//glColor3f(color[0], color[1], color[2]);
 	//}
-	if (Line)
-	{
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO: I200
-	}
-	else
-	{
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // TODO: I200
-	}
 	//if (Data.Texture_ID != -1)
 	//{
 	//	glEnable(GL_TEXTURE_2D);
@@ -159,21 +137,33 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
-	// Vertices
+	// Texture
+	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID == -1 ? 0 : Data.Texture_ID);
+
+	// Texture UVs
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+
+	// Light normals
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+
+	// Light position
+	glUniform3f(glGetUniformLocation(Indigo::Current_World.Shader_Index, "in_light"), 0.0, 0.0, 0.0);
 
 	// Color
 	glUniform3f(glGetUniformLocation(Indigo::Current_World.Shader_Index, "object_color"), Data.Color.x, Data.Color.y, Data.Color.z);
 
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
-	glDrawElements(render_types[Data.Group_Size], Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
+	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 
 	// End
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 	return;
 }
 

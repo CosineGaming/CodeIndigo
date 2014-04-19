@@ -10,35 +10,19 @@ class Mesh
 public:
 
 	// Create a new, empty mesh
-	Mesh(const int group_size=3);
-	// Create a new mesh with some vertices and an optional group size
-	Mesh(const std::vector <glm::vec3>& vertices, const int group_size=3);
+	Mesh(void);
 	// Copy a mesh
 	Mesh(const Mesh& mesh);
+	// Create a new mesh by loading it from an obj file
+	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec3& color = glm::vec3(-1,-1,-1));
 	// Destroy the mesh
 	~Mesh(void);
 
-	// Once added to the object, the mesh is locked into place
+	// Once added to the object, the mesh is locked into place (on the GPU)
 	void Initialize(void);
-
-	// Mesh constructors:
-	// A function to construct a mesh of the type with it's name.
-	// /*Example*/ Mesh myCubeMesh = Mesh::Cube(1.0, 50.0, 24.2, 13.5);
-	static Mesh Load(const char * filename);
-	static Mesh Sphere(const float radius, const int recusions=3, const bool draw_sphere=true);
-	static Mesh Box(const float width, const float height, const float length);
-	static Mesh Line(const float width, const float height=0.0, const float length=0.0);
-	static Mesh Cube(const float side);
-	static Mesh Regular_Shape(const int sides, const float side_length);
-	static Mesh Rectangle(const float width, const float height);
-	// Used in recursion for the Sphere function
-	static Mesh Bulge_Sphere(const float radius, const int recursions,
-		const glm::vec3& left, const glm::vec3& right, const glm::vec3& top);
 
 	// Allows [] to get a vertex like an array
 	const glm::vec3& operator[](const int index) const;
-	// Allows += to add a vertex to the end
-	Mesh& operator+=(const glm::vec3& vertex);
 	// Allows += to add a mesh to the end
 	Mesh& operator+=(const Mesh& mesh);
 	// Allows += to add a vector of vertices to the end
@@ -47,8 +31,6 @@ public:
 	Mesh operator+(const glm::vec3& vertex) const;
 	// Allows + to add a mesh to the end
 	Mesh operator+(const Mesh& mesh) const;
-	// Allows + to add a vector of vertices to the end
-	Mesh operator+(const std::vector <glm::vec3>& vertices) const;
 
 	// Gets a vertex by its index
 	const glm::vec3& Get_Vertex(const int index) const;
@@ -57,8 +39,6 @@ public:
 
 	// Calculate one flat normal. Assumes index is end of group.
 	glm::vec3 Find_Flat_Normal(const int index) const;
-	// Calculate all per-vertex normals for the mesh
-	void Smooth_Normals(void);
 	// Get the normal for a specific vertex
 	glm::vec3 Flat_Normal(const int index) const;
 	// Get the smoother per-vertex normal for a vertex; calculate if needed
@@ -69,15 +49,11 @@ public:
 	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
 	glm::vec2 Texture_Coordinate(const int index) const;
-	// Set the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex. For the special cases that the automatic isn't nice.
-	void Set_Texture_Coordinate(const int index, const glm::vec2& coordinate);
-	// Get the number of Vertices in the mesh
 
+	// Get the number of Vertices in the mesh
 	int Size(void) const;
 	// Number of actual different vertices defined
 	int Vertex_Data_Amount(void) const;
-	// How many sides to each polygon
-	int Group_Size;
 
 	// Hitbox used for collision, normally auto-generated. Radius of shape around center, rotation independent
 	float Hitbox;
@@ -95,6 +71,8 @@ public:
 	unsigned int Vertices_ID;
 	// The list of verts to use is also on the GPU. Here you yoga.
 	unsigned int Elements_ID;
+	// The light normals on the GPU
+	unsigned int Normals_ID;
 	// The texture handle number.
 	unsigned int Texture_ID;
 	// The handle to the actual texture coordinates
@@ -114,6 +92,6 @@ private:
 	std::vector<glm::vec2> texture_coordinates;
 
 	// Once the elements are initialized, we only need to remember the number of them
-	unsigned int number_elements;
+	int number_elements;
 
 };

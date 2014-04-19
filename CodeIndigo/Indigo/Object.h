@@ -16,8 +16,8 @@ class Object
 public:
 
 	// Create an object given optional position, a mesh, and whether the object should render in wireframe
-	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), void(*update_function)(const float time, Object& self) = nullptr, const char * change_texture = nullptr,
-		const bool smooth = true, const glm::vec3& color = glm::vec3(-1,-1,-1), const Direction& towards = Direction(1, 0, 0), const bool world_collide = true, const float shine = 60.0, const bool line = false);
+	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), void(*update_function)(const float time, Object& self) = nullptr,
+		const Direction& towards = Direction(1, 0, 0), const bool world_collide = true);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
@@ -42,8 +42,6 @@ public:
 	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
 	void Set_Hitbox(const float distance=0.0);
 
-	// Checked for whether to draw filled or lines
-	bool Line;
 	// Check if it's been fully initialized
 	int Is_Blank;
 	// An ID used for accessing and deleting the object
@@ -56,10 +54,6 @@ public:
 	Direction Facing;
 	// Whether or not to collide when searching through World::Collide
 	bool World_Collide;
-	// Whether or not to use smooth, vertex normals
-	bool Vertex_Normals;
-	// The shininess of the object, from 0 to 128, lower numbers distribute light over greater area
-	float Object_Shine;
 	// Data for the user to define for whatever purpose.
 	std::vector<float> User_Data;
 	// X, Y, and Z position of center. Z is a constant if 2D.

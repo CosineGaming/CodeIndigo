@@ -92,9 +92,6 @@ namespace Indigo
 	extern bool Middle_Mouse;
 	extern glm::vec3 Mouse_Position;
 
-	// The index for the VAO thingy, not probably important.
-	extern unsigned int VAO;
-
 	// Stores the width of the screen
 	extern int Screen_Width;
 	// Stores the height of the screen

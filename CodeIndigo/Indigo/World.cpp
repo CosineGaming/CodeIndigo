@@ -10,7 +10,6 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include "GLFW/glfw3.h"
 
 
 // Create a new, empty world
@@ -91,6 +90,9 @@ void World::Render(void) const
 
 	glm::mat4 project = View.Project();
 	glm::mat4 project_2d = View.Project_2D();
+	glm::mat4 view = View.Look();
+
+	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
@@ -106,7 +108,7 @@ void World::Render(void) const
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
-		objects[object].Render(project, View.Look());
+		objects[object].Render(project, view);
 	}
 
 	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
@@ -131,9 +133,6 @@ void World::Render(void) const
 	{
 		texts[text].Render(project_2d, glm::mat4(1));
 	}
-	
-	// Finish Frame
-	glfwSwapBuffers(Indigo::Window);
 
 	return;
 
@@ -212,7 +211,6 @@ void World::Shader(const char * vertex, const char * fragment)
 	glAttachShader(Shader_Index, fragment_shader);
 	glLinkProgram(Shader_Index);
 	glGetProgramiv(Shader_Index, GL_LINK_STATUS, &succeeded);
-	Indigo::Error_Dump();
 	if (succeeded == GL_FALSE)
 	{
 		int size;
@@ -253,7 +251,7 @@ Set to nullptr to remove the skybox.
 void World::Add_Skybox(const char * texture)
 {
 
-	if (!texture)
+	/*if (!texture)
 	{
 		skybox = Object();
 		return;
@@ -293,7 +291,7 @@ void World::Add_Skybox(const char * texture)
 	mesh.Set_Texture_Coordinate(23, glm::vec2(0.50, 0.3333));
 	mesh.Set_Texture_Coordinate(22, glm::vec2(0.25, 0.3333));
 
-	skybox = Object(0, 0, 0, mesh);
+	skybox = Object(0, 0, 0, mesh);*/
 	return;
 
 }
