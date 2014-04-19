@@ -177,9 +177,8 @@ void Mesh::Initialize(void)
 	std::vector<unsigned short> verts = std::vector<unsigned short>();
 	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
 	std::vector<unsigned short> amounts = std::vector<unsigned short>();
-	std::vector<unsigned short> duplicate = std::vector<unsigned short>();
 
-	for (int point = 0; point < vertices.size(); point++)
+	/*for (int point = 0; point < vertices.size(); point++)
 	{
 		bool found = false;
 		for (int check = 0; check < verts.size(); ++check)
@@ -189,11 +188,11 @@ void Mesh::Initialize(void)
 				normals[check] += Flat_Normal(point);
 				amounts[check]++;
 				found = true;
-				break;
-			}
-			if (texture_coordinates[point] != texture_coordinates[point])
-			{
-				duplicate.push_back(check);
+				if (texture_coordinates[verts[check]] != texture_coordinates[point])
+				{
+					normals.insert(normals.begin() + check, glm::vec3(normals[check]));
+					amounts.insert(amounts.begin() + check, unsigned short(amounts[check]));
+				}
 			}
 		}
 		if (!found)
@@ -206,7 +205,7 @@ void Mesh::Initialize(void)
 	for (int point = 0; point < normals.size(); ++point)
 	{
 		normals[point] /= amounts[point];
-	}
+	}*/
 
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec2> coordinates = std::vector<glm::vec2>();
@@ -229,15 +228,42 @@ void Mesh::Initialize(void)
 			elements.push_back(positions.size() - 1);
 		}
 	}
+	smooth_normals = std::vector<glm::vec3>();
+	glm::vec3 * temp_normals = new glm::vec3[positions.size()];
+	int * temp_amounts = new int[positions.size()];
+	for (int point = 0; point < positions.size(); ++point)
+	{
+		temp_normals[point] = glm::vec3(0, 0, 0);
+		temp_amounts[point] = 0;
+	}
+	for (int point = 0; point < elements.size(); ++point)
+	{
+		temp_normals[elements[point]] += Flat_Normal(point);
+		temp_amounts[elements[point]]++;
+	}
+	for (int point = 0; point < positions.size(); ++point)
+	{
+		if (temp_amounts[point] != 0)
+		{
+			temp_normals[point] /= temp_amounts[point];
+			smooth_normals.push_back(temp_normals[point]);
+		}
+		else
+		{
+			// Incorrectly ==ed, pick a fairly random but hopefully related normal
+			std::cout << "Compen! Compensation! Ba-dum... Dum!" << std::endl;
+			smooth_normals.push_back(Flat_Normal(point * 3));
+		}
+	}
+	delete[] temp_normals;
+	delete[] temp_amounts;
+
 	texture_coordinates = coordinates;
 	vertices = positions;
-	smooth_normals = normals;
-	for (int i = 0; i < duplicate.size(); ++i)
-	{
-		smooth_normals.insert(smooth_normals.begin() + duplicate[i], smooth_normals[duplicate[i]]);
-	}
 
-	std::cout << vertices.size() << ", " << elements.size() << ", " << smooth_normals.size() << ", " << texture_coordinates.size() << std::endl;
+	std::cout << elements.size() << ", " << vertices.size() << ", " << smooth_normals.size() << ", " << texture_coordinates.size() << std::endl;
+
+	std::cout << elements[elements.size() - 2] << std::endl;
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -248,7 +274,7 @@ void Mesh::Initialize(void)
 
 	glGenBuffers(1, &Elements_ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);

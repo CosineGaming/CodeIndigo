@@ -12,5 +12,5 @@ out vec3 color;
 
 void main()
 {
-	color = texture(sampler, uv).rgb * clamp(dot(normalize(normal), normalize(vertex_to_light)), 1, 1);
+	color = texture(sampler, uv).rgb;// * clamp(dot(normalize(normal), normalize(vertex_to_light)), 1, 1);
 }
