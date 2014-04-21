@@ -1,16 +1,16 @@
-#version 330 core
+#version 120
 
-in vec2 uv;
-in vec3 vertex_to_camera;
-in vec3 vertex_to_light;
-in vec3 normal;
+varying vec2 F_UV;
+varying vec3 F_Normal;
+varying vec3 F_To_Camera;
+varying vec3 F_To_Light;
 
-uniform vec3 object_color;
-uniform sampler2D sampler;
+uniform vec3 F_Color;
+uniform sampler2D F_Sampler;
 
-out vec3 color;
+//out vec3 gl_FragColor;
 
 void main()
 {
-	color = texture(sampler, vec2(0.3,0.5)).rgb;// * clamp(dot(normalize(normal), normalize(vertex_to_light)), 1, 1);
+	gl_FragColor = vec4(texture2D(F_Sampler, F_UV).rgb, 1);// * clamp(dot(normalize(F_Normal), normalize(F_To_Light)), 1, 1);
 }

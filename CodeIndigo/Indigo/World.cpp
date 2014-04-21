@@ -236,6 +236,20 @@ void World::Shader(const char * vertex, const char * fragment)
 }
 
 
+// Get the location of a variable in a shader
+unsigned short World::Shader_Location(const char * name, const bool uniform)
+{
+	if (uniform)
+	{
+		return glGetUniformLocation(Shader_Index, name);
+	}
+	else
+	{
+		return glGetAttribLocation(Shader_Index, name);
+	}
+}
+
+
 /*
 Add a skybox, a backdrop to the world. Accepts a filename of a texture.
 The texture will be in the format of six square textures arranged like this:

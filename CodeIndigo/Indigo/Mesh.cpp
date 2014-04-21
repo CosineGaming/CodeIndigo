@@ -24,7 +24,6 @@ Mesh::Mesh(void)
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
 	Color = glm::vec3(1,1,1);
-	VAO = -1;
 	Vertices_ID = -1;
 	Elements_ID = -1;
 	Texture_ID = -1;
@@ -43,7 +42,6 @@ Mesh::Mesh(const Mesh& mesh)
 	texture_coordinates = mesh.texture_coordinates;
 	Hitbox = mesh.Hitbox;
 	Color = mesh.Color;
-	VAO = mesh.VAO;
 	Vertices_ID = mesh.Vertices_ID;
 	Elements_ID = mesh.Elements_ID;
 	Normals_ID = mesh.Normals_ID;
@@ -65,7 +63,6 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
 	Color = glm::vec3(1, 1, 1);
-	VAO = -1;
 	Vertices_ID = -1;
 	Elements_ID = -1;
 	Texture_ID = -1;
@@ -153,6 +150,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 			}
 		}
 		file.close();
+		Texture(texture);
 		std::cout << "Loaded " << vertices.size() << " vertices." << std::endl
 			<< "Size displays as " << Size() << " with number_elements being " << number_elements << std::endl
 			<< "Contains " << flat_normals.size() << " flat normals." << std::endl;
@@ -262,11 +260,6 @@ void Mesh::Initialize(void)
 	vertices = positions;
 
 	std::cout << elements.size() << ", " << vertices.size() << ", " << smooth_normals.size() << ", " << texture_coordinates.size() << std::endl;
-
-	std::cout << elements[elements.size() - 2] << std::endl;
-
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
 
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
@@ -432,11 +425,14 @@ void Mesh::Texture(const char * filename)
 
 	glGenTextures(1, &Texture_ID);
 	glBindTexture(GL_TEXTURE_2D, Texture_ID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	delete [] data;
+
 	return;
 }
 

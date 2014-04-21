@@ -56,6 +56,8 @@ namespace Indigo
 	extern World Current_World;
 	// Stores the window we're rendering onto
 	extern GLFWwindow * Window;
+	// Takes care of managing all the buffers
+	extern unsigned int VAO;
 
 	// Stores the function to call when a key is pressed
 	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);

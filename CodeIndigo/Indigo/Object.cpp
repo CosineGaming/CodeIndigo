@@ -74,7 +74,7 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	{
 		return;
 	}
-	float full_array [] = {1.0, 1.0, 1.0, 1.0};
+	//float full_array [] = {1.0, 1.0, 1.0, 1.0};
 	//if (glIsEnabled(GL_LIGHTING))
 	//{
 		//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, // TODO: I200
@@ -130,41 +130,32 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	//glEnd();
 	//glPopMatrix();
 
-	glBindVertexArray(Data.VAO);
-
 	// Vertices
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-	// Texture UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
 	// Texture
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID == -1 ? 0 : Data.Texture_ID);
+	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
+
+	// Texture UVs
+	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 
 	// Light normals
-	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 
 	// Light position
-	glUniform3f(glGetUniformLocation(Indigo::Current_World.Shader_Index, "in_light"), 0.0, 0.0, 0.0);
+	glUniform3f(Indigo::Current_World.Shader_Location("Light", true), 0.0, 0.0, 0.0);
 
 	// Color
-	glUniform3f(glGetUniformLocation(Indigo::Current_World.Shader_Index, "object_color"), Data.Color.x, Data.Color.y, Data.Color.z);
+	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);
 
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 
-	// End
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
 	return;
 }
 

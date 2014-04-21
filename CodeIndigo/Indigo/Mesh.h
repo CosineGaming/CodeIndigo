@@ -65,8 +65,6 @@ public:
 	// The color for the whole mesh, not one per vertex. RGB. (No alpha. If you want that, use Textures.)
 	glm::vec3 Color;
 
-	// The holder for all the elements and vertices, etc.
-	unsigned int VAO;
 	// The actual data is stored on the GPU. Here's the index for gathering it.
 	unsigned int Vertices_ID;
 	// The list of verts to use is also on the GPU. Here you yoga.

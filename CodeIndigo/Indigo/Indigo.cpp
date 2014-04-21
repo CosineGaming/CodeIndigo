@@ -16,9 +16,9 @@ namespace Indigo
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
 		glfwWindowHint(GLFW_SAMPLES, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		if (fullscreen)
 		{
 			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -28,6 +28,10 @@ namespace Indigo
 		{
 			Window = glfwCreateWindow(window_width, window_height, window_name, NULL, NULL);
 		}
+		glfwSetFramebufferSizeCallback(Window, Reshape);
+		glfwSetCursorPosCallback(Window, Mouse_Moved);
+		glfwSetMouseButtonCallback(Window, Mouse_Button);
+		glfwSetKeyCallback(Window, Key_Action);
 		glfwMakeContextCurrent(Window);
 		glClearColor(background[0], background[1], background[2], 1.0);
 
@@ -39,7 +43,7 @@ namespace Indigo
 				<< std::endl << "For more info contact the creator of your game." << std::endl;
 		}
 
-		// Set callbacks
+		// Set framerate
 		if (max_framerate == 0)
 		{
 			Frame_Length_Minimum = 0;
@@ -49,13 +53,17 @@ namespace Indigo
 			Frame_Length_Minimum = 1000.0 / max_framerate;
 		}
 
-		glfwSetFramebufferSizeCallback(Window, Reshape);
-		glfwSetCursorPosCallback(Window, Mouse_Moved);
-		glfwSetMouseButtonCallback(Window, Mouse_Button);
-		glfwSetKeyCallback(Window, Key_Action);
+		//glGenVertexArrays(1, &VAO);
+		//glBindVertexArray(VAO);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_TEXTURE_2D);
 		// Setup fog
 		//glEnable(GL_FOG);
 		//glFogfv(GL_FOG_COLOR, White_Color);
