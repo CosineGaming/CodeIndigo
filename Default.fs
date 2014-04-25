@@ -29,5 +29,5 @@ void main()
 		+ (F_To_Light.w == 1 ? F_Light_Color * F_Light_Power * pow(cosine_alpha, F_Shininess) / light_distance_squared : F_Light_Color * pow(cosine_alpha, F_Shininess))
 		// Alpha
 		, 1);
-	//gl_FragColor = vec4(F_Light_Color * color, 1); // Uncomment for debug
+	gl_FragColor = vec4(1,1,1, 1); // Uncomment for debug
 }

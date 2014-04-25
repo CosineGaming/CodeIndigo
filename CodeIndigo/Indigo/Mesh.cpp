@@ -62,11 +62,11 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	flat_normals = std::vector<glm::vec3>();
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
-	Color = glm::vec3(1, 1, 1);
-	Vertices_ID = -1;
-	Elements_ID = -1;
-	Texture_ID = -1;
-	number_elements = -1;
+	Color = color;
+	Vertices_ID = 0;
+	Elements_ID = 0;
+	Texture_ID = 0;
+	number_elements = 0;
 
 	std::ifstream file(filename, std::ios::in);
 	if (!file)
@@ -174,7 +174,6 @@ void Mesh::Initialize(void)
 
 	smooth_normals = std::vector<glm::vec3>();
 
-	std::cout << "1-";
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec2> coordinates = std::vector<glm::vec2>();
 	for (int point = 0; point < vertices.size(); ++point)
@@ -182,7 +181,7 @@ void Mesh::Initialize(void)
 		bool found = false;
 		for (int check = 0; check < positions.size(); ++check)
 		{
-			if (positions[check] == vertices[point] && coordinates[check] == texture_coordinates[point])
+			if (coordinates[check] == texture_coordinates[point] && positions[check] == vertices[point])
 			{
 				elements.push_back(check);
 				found = true;
@@ -196,7 +195,6 @@ void Mesh::Initialize(void)
 			elements.push_back(positions.size() - 1);
 		}
 	}
-	std::cout << "2-";
 	smooth_normals = std::vector<glm::vec3>();
 	glm::vec3 * temp_normals = new glm::vec3[positions.size()];
 	int * temp_amounts = new int[positions.size()];
@@ -226,7 +224,6 @@ void Mesh::Initialize(void)
 	}
 	delete[] temp_normals;
 	delete[] temp_amounts;
-	std::cout << "3\n";
 
 	texture_coordinates = coordinates;
 	vertices = positions;
@@ -249,6 +246,7 @@ void Mesh::Initialize(void)
 
 	number_elements = elements.size();
 
+	// No need for RAM to hold it anymore, it's in VRAM! * Feeling of relief as the ones and zeros are flushed out *
 	vertices = std::vector<glm::vec3>();
 	elements = std::vector<unsigned short>();
 	flat_normals = std::vector<glm::vec3>();
@@ -357,7 +355,7 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 }
 
 
-// Texture the entire mesh with one file, texture coordinates will be used only once called
+// Texture the entire mesh with one file
 void Mesh::Texture(const char * filename)
 {
 	std::ifstream file(filename, std::ios::binary);
@@ -429,7 +427,7 @@ glm::vec2 Mesh::Texture_Coordinate(const int index) const
 // Get the number of elements in the mesh
 int Mesh::Size(void) const
 {
-	if (number_elements == -1)
+	if (number_elements == 0)
 	{
 		if (elements.size())
 		{

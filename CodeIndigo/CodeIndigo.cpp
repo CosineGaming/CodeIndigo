@@ -5,13 +5,8 @@ Object player = Object(0, 0.75, 0);
 
 char * fps = new char[4];
 
-unsigned short normal;
-unsigned short trippy;
-
 void run(float time)
 {
-	static bool weird = false;
-	static int next = 0;
 	if (Indigo::Pressed('`'))
 	{
 		Indigo::Close();
@@ -31,20 +26,6 @@ void run(float time)
 	if (Indigo::Keys['d'])
 	{
 		player.Move(0, 0.02 * time);
-	}
-	if (Indigo::Elapsed() >= next)
-	{
-		weird = !weird;
-		if (weird)
-		{
-			Indigo::Current_World.Shader_Index = trippy;
-			next = Indigo::Elapsed() + rand() % 800;
-		}
-		else
-		{
-			Indigo::Current_World.Shader_Index = normal;
-			next = Indigo::Elapsed() + rand() % 45000;
-		}
 	}
 	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
 	Indigo::Current_World.View.Eye = player.Facing;
@@ -83,6 +64,7 @@ void strike(float time, Object& hand)
 void load(float time)
 {
 	srand(time);
+	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/Crossing.obj")));
 	//Indigo::Current_World.Add_Object(Object(1, 0, 1, Mesh("C:/Users/Judah/Documents/Frost/human.obj", "C:/Users/Judah/Documents/Frost/human.bmp")));
 	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
 	Indigo::Current_World.Add_Object(Object(100, -1.5, 0, Mesh("C:/Users/Judah/Documents/Frost/Crossing.obj", "C:/Users/Judah/Documents/Frost/Crossing.bmp")));
@@ -98,13 +80,9 @@ void load(float time)
 int main()
 {
 	float color[3] = { 0, 0.192, 0.314 };
-	Indigo::Initialize("Indigo Engine Test", color, 960, 540, 16, false);
+	Indigo::Initialize("Indigo Engine Test", color, 1366, 768, 60, false);
 	Indigo::Update_Function = load;
 	Indigo::Current_World.Shader("Default.vs", "Default.fs");
-	normal = Indigo::Current_World.Shader_Index;
-	Indigo::Current_World.Shader("Experiment.vs", "Experiment.fs");
-	trippy = Indigo::Current_World.Shader_Index;
-	Indigo::Current_World.Shader_Index = normal;
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.1);
 	Indigo::Current_World.Light_Setup.Set_Light(0.0, -1.0, 0.0, true);
 	Indigo::Run();

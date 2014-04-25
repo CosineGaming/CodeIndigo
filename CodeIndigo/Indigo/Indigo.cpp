@@ -15,7 +15,7 @@ namespace Indigo
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
-		glfwWindowHint(GLFW_SAMPLES, 1);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -53,8 +53,8 @@ namespace Indigo
 			Frame_Length_Minimum = 1000.0 / max_framerate;
 		}
 
-		//glGenVertexArrays(1, &VAO);
-		//glBindVertexArray(VAO);
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);

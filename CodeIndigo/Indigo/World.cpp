@@ -87,10 +87,6 @@ void World::Render(void) const
 	glm::mat4 view = View.Look();
 	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
 	Indigo::Current_World.Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
@@ -123,11 +119,6 @@ void World::Render(void) const
 	{
 		texts[text].Render(project_2d, glm::mat4(1));
 	}
-
-	// Finished
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
 
 	return;
 

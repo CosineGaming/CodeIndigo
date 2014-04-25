@@ -87,16 +87,6 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 		//float * color = Object_Color ? Object_Color : full_array; // TODO: I200
 		//glColor3f(color[0], color[1], color[2]);
 	//}
-	//if (Data.Texture_ID != -1)
-	//{
-	//	glEnable(GL_TEXTURE_2D);
-	//	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
-	//}
-	//else
-	//{
-	//	glDisable(GL_TEXTURE_2D);
-	//}
-	//glPushMatrix();
 	glm::mat4 modeling = glm::mat4(1);
 	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
@@ -105,32 +95,8 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glm::mat4 mvp = projection * view * modeling;
 	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
 
-	//glMultMatrixf(&modeling[0][0]); // TODO: I200
-	//glBegin(render_types[Data.Group_Size]);
-	//for (int point = 0; point<Data.Size(); ++point)
-	//{
-	//	glm::vec3 normal;
-	//	if (Vertex_Normals)
-	//	{
-	//		normal = Data.Smooth_Normal(point);
-	//	}
-	//	else
-	//	{
-	//		normal = Data.Flat_Normal(point);
-	//	}
-	//	glm::vec3 Cursor = Data[point];
-	//	if (Data.Texture_ID != -1)
-	//	{
-	//		glm::vec3 coord = Data.Texture_Coordinate(point);
-	//		glTexCoord2f(coord.X, coord.Y);
-	//	}
-	//	glNormal3f(normal.X, normal.Y, normal.Z);
-	//	glVertex3f(Cursor.X, Cursor.Y, Cursor.Z);
-	//}
-	//glEnd();
-	//glPopMatrix();
-
 	// Vertices
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
@@ -138,10 +104,12 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
 
 	// Texture UVs
+	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 
 	// Light normals
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 
@@ -156,6 +124,11 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 
 	// Draw!
 	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
+
+	// Finished
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 
 	return;
 }

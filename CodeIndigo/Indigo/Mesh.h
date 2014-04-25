@@ -45,7 +45,7 @@ public:
 	glm::vec3 Smooth_Normal(const int index) const;
 	// Update the hitbox knowing that this point exists in the mesh
 	void Update_Hitbox(glm::vec3 vertex);
-	// Texture the entire mesh with one file, texture coordinates will be used only once called
+	// Texture the entire mesh with one file
 	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
 	glm::vec2 Texture_Coordinate(const int index) const;
@@ -90,6 +90,6 @@ private:
 	std::vector<glm::vec2> texture_coordinates;
 
 	// Once the elements are initialized, we only need to remember the number of them
-	int number_elements;
+	unsigned int number_elements;
 
 };
