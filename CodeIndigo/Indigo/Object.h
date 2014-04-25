@@ -39,7 +39,7 @@ public:
 	bool Collide(const glm::vec3& position, const Direction& direction) const;
 	// Checks whether this vertex is withing this object
 	bool Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
-	// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
+	// Changes the relative hitbox for preliminary collision, set to 0 to make it uncollidable
 	void Set_Hitbox(const float distance=0.0);
 
 	// Check if it's been fully initialized

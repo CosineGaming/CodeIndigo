@@ -78,33 +78,28 @@ void World::Update(const float time)
 void World::Render(void) const
 {
 
-	// Setup Frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//glMatrixMode(GL_PROJECTION); // TODO: I200
-	//glLoadMatrixf(&View.Project()[0][0]);
-	//glMatrixMode(GL_MODELVIEW);
-	//Light_Setup.Update_Lights();
 
 	glUseProgram(Shader_Index);
 
 	glm::mat4 project = View.Project();
 	glm::mat4 project_2d = View.Project_2D();
 	glm::mat4 view = View.Look();
-
 	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	Indigo::Current_World.Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (!skybox.Is_Blank)
 	{
-		//glLoadMatrixf(&(View.Look_In_Place()[0][0])); // TODO: I200
-		//glDisable(GL_LIGHTING);
 		skybox.Render(project, View.Look_In_Place());
 	}
 
 	// Standard Object: View Transform, Perspective, Lighting, Depth Test
-	//glLoadMatrixf(&(View.Look()[0][0])); // TODO: I200
-	//glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects.size(); ++object)
 	{
@@ -112,7 +107,6 @@ void World::Render(void) const
 	}
 
 	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
-	// glLoadIdentity(); // TODO: I200
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (std::size_t object = 0; object < objects_front.size(); ++object)
 	{
@@ -120,10 +114,6 @@ void World::Render(void) const
 	}
 
 	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
-	//glMatrixMode(GL_PROJECTION); // TODO: I200
-	//glLoadMatrixf(&View.Project_2D()[0][0]);
-	//glMatrixMode(GL_MODELVIEW);
-	//glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
@@ -133,6 +123,11 @@ void World::Render(void) const
 	{
 		texts[text].Render(project_2d, glm::mat4(1));
 	}
+
+	// Finished
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 
 	return;
 
@@ -237,7 +232,7 @@ void World::Shader(const char * vertex, const char * fragment)
 
 
 // Get the location of a variable in a shader
-unsigned short World::Shader_Location(const char * name, const bool uniform)
+int World::Shader_Location(const char * name, const bool uniform)
 {
 	if (uniform)
 	{

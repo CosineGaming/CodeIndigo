@@ -135,7 +135,6 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
 	// Texture
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
 
 	// Texture UVs
@@ -146,14 +145,16 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 
-	// Light position
-	glUniform3f(Indigo::Current_World.Shader_Location("Light", true), 0.0, 0.0, 0.0);
+	// Shininess
+	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), 30.0);
 
 	// Color
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);
 
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
+
+	// Draw!
 	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 
 	return;
@@ -249,6 +250,8 @@ bool Object::Collide(const glm::vec3& position, const Direction& direction) cons
 		&& direction.Get_Y_Angle() >= least.Get_Y_Angle()
 		&& direction.Get_Y_Angle() <= most.Get_Y_Angle();*/
 
+	return false;
+
 }
 
 
@@ -259,7 +262,7 @@ bool Object::Collide(const glm::vec3& vertex, const float add_x, const float add
 }
 
 
-// Changes the relative hitbox for collision, set to 0 0 0 0 to make it uncollidable
+// Changes the relative hitbox for preliminary collision, set to 0 to make it uncollidable
 void Object::Set_Hitbox(const float distance)
 {
 	Data.Hitbox = distance;

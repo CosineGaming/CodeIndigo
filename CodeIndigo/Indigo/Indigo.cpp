@@ -15,7 +15,7 @@ namespace Indigo
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
-		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_SAMPLES, 1);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -55,9 +55,6 @@ namespace Indigo
 
 		//glGenVertexArrays(1, &VAO);
 		//glBindVertexArray(VAO);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -230,7 +227,7 @@ namespace Indigo
 		if ((!sensitivity && !stored_sensitivity) || (!player && !stored_player))
 		{
 			std::cout << "Error. FPS_Mouse_Callback is a function used intrinsically by Indigo Engine." << std::endl
-				<< " Do not call unless you know what you are doing. Use FPS_Mouse(playerObject) to setup." << std::endl
+				<< "Do not call unless you know what you are doing. Use FPS_Mouse(playerObject) to setup." << std::endl
 				<< "Resetting mouse callback to nullptr to prevent further error. Passing as warning." << std::endl;
 			Relative_Mouse_Moved_Function = nullptr;
 			return;

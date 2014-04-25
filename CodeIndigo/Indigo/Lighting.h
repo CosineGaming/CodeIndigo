@@ -16,23 +16,21 @@ public:
 	~Lighting(void);
 	// Set ambient lighting for the scene for easier lighting
 	void Set_Ambient(float intensity);
-	// Add a light source
-	void Add_Light(float X, float Y, float Z, bool direction=false,
-		float diffuse=0.95, float specular=1.0, float * color_offset=nullptr);
-	// Update the positions of all lights, and ensure they're enabled
+	// Set the light source
+	void Set_Light(float X, float Y, float Z, bool direction=false,
+		float power=60.0, glm::vec3 light_color=glm::vec3(1.0,1.0,1.0));
+	// Send the light to the shaders
 	void Update_Lights(void) const;
-	// Get the number of lights in the scene
-	int Get_Number_Of_Lights(void) const;
 
 private:
 
-	// The OpenGL light values
-	static const int light_values[8];
 	// The position of the lights for arranging
-	float light_positions[8][4];
-	// The number of lights in the current scene
-	int number_of_lights;
+	glm::vec4 position;
+	// The color of the light, usually full white
+	glm::vec3 color;
 	// The stored ambient value for update
-	float ambient[4];
+	float ambient;
+	// The power of the light -- how far it stretches
+	float intensity;
 
 };
