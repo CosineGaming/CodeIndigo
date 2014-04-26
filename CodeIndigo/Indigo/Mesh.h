@@ -73,7 +73,7 @@ public:
 	unsigned int Elements_ID;
 	// The light normals on the GPU
 	unsigned int Normals_ID;
-	// The texture handle number.
+	// The texture handle number
 	unsigned int Texture_ID;
 	// The handle to the actual texture coordinates
 	unsigned int UV_ID;

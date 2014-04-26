@@ -173,7 +173,7 @@ void Object::Move(const float forward, const float side, const float up)
 // Checks whether this object collides with another object
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
-	return (Direction(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
+	return (Direction::Coordinates(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
 }
 
 

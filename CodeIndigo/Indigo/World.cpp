@@ -462,13 +462,13 @@ int World::Number_Of_Texts(void)
 }
 
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
-int World::Collide(const Object& object, const float add_x, const float add_y, const float add_z)
+int World::Collide(const Object& with, const float add_x, const float add_y, const float add_z)
 {
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
-		if (object != objects[object].ID && objects[object].World_Collide)
+		if (object != with.ID && objects[object].World_Collide)
 		{
-			if (objects[object].Collide(object, add_x, add_y, add_z))
+			if (objects[object].Collide(with, add_x, add_y, add_z))
 			{
 				return (object);
 				break;

@@ -228,6 +228,8 @@ void Mesh::Initialize(void)
 	}
 	delete[] temp_normals;
 	delete[] temp_amounts;
+	temp_normals = nullptr;
+	temp_amounts = nullptr;
 
 	texture_coordinates = coordinates;
 	vertices = positions;
@@ -250,7 +252,7 @@ void Mesh::Initialize(void)
 
 	number_elements = elements.size();
 
-	// No need for RAM to hold it anymore, it's in VRAM! * Feeling of relief as the ones and zeros are flushed out *
+	// No need for RAM to hold it anymore, it's in VRAM! * Flush of relief as the RAM is released *
 	vertices = std::vector<glm::vec3>();
 	elements = std::vector<unsigned short>();
 	flat_normals = std::vector<glm::vec3>();
