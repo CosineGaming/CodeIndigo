@@ -14,7 +14,7 @@ public:
 	// Copy a mesh
 	Mesh(const Mesh& mesh);
 	// Create a new mesh by loading it from an obj file
-	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec3& color = glm::vec3(-1,-1,-1));
+	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec3& color = glm::vec3(1,1,1));
 	// Destroy the mesh
 	~Mesh(void);
 
@@ -48,7 +48,7 @@ public:
 	// Texture the entire mesh with one file
 	void Texture(const char * filename);
 	// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-	glm::vec2 Texture_Coordinate(const int index) const;
+	glm::vec2 Auto_Texture_Coordinate(const int index) const;
 
 	// Get the number of Vertices in the mesh
 	int Size(void) const;

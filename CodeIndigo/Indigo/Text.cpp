@@ -5,16 +5,12 @@
 
 // Create new text based off of the text. -1 is bottom, 1 is top. Text is placed with it's top-left corner at (text_x, text_y).
 // If frames_to_last is negative, text won't disappear.
-Text::Text(const float text_x, const float text_y, char * display, float * color, void * font, const float time_to_last, void(*finished_function)(void))
+Text::Text(const float text_x, const float text_y, char * display, glm::vec3 color, void * font, const float time_to_last, void(*finished_function)(void))
 {
 	x = text_x;
 	y = text_y;
 	text = display;
 	text_color = color;
-	if (!text_color)
-	{
-		text_color = Indigo::White_Color;
-	}
 	typeset = font;
 	if (time_to_last >= 0)
 	{

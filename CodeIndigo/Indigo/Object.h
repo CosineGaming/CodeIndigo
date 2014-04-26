@@ -63,11 +63,4 @@ public:
 
 private:
 
-	// The OpenGL draw mode for each render type.
-	static const int render_types[5];
-	// The color of the object
-	float * object_color;
-	// The handle for the color sent
-	unsigned int color_handle;
-
 };

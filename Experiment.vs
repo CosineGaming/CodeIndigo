@@ -1,4 +1,4 @@
-#version 120
+#version 330 core
 
 attribute vec3 Position;
 attribute vec2 UV;

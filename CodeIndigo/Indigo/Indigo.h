@@ -13,7 +13,7 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
-	void Initialize(const char * window_name = "Indigo", float * background = nullptr, const int window_width = 0,
+	void Initialize(const char * window_name = "Indigo", glm::vec3 background = glm::vec3(0.5, 0.8, 1.0), const int window_width = 0,
 		const int window_height = 0, const int max_framerate = 60, const bool fullscreen = true);
 
 	// Starts the main loop with update, render, and input. Returns 0 ideally... 1 on problem.
@@ -106,13 +106,13 @@ namespace Indigo
 	extern int Actual_FPS;
 
 	// Colors
-	extern float White_Color[3];
-	extern float Black_Color[3];
-	extern float Sky_Color[3];
-	extern float Red_Color[3];
-	extern float Green_Color[3];
-	extern float Blue_Color[3];
-	extern float Light_Blue_Color[3];
-	extern float Orange_Color[3];
+	extern glm::vec3 White_Color;
+	extern glm::vec3 Black_Color;
+	extern glm::vec3 Sky_Color;
+	extern glm::vec3 Red_Color;
+	extern glm::vec3 Green_Color;
+	extern glm::vec3 Blue_Color;
+	extern glm::vec3 Light_Blue_Color;
+	extern glm::vec3 Orange_Color;
 
 }

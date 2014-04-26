@@ -70,6 +70,8 @@ void Object::Update(const float time)
 // Renders the object
 void Object::Render(glm::mat4& projection, glm::mat4& view) const
 {
+
+	Indigo::Error_Dump();
 	if (Is_Blank)
 	{
 		return;
@@ -95,29 +97,38 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glm::mat4 mvp = projection * view * modeling;
 	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
 
-	// Vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
 	// Texture
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
-
-	// Texture UVs
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
-
-	// Light normals
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Sampler", true), 0);
 
 	// Shininess
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), 30.0);
 
 	// Color
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);
+
+	// Vertices
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Texture UVs
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("UV"));
+	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Light normals
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("Normal"));
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	Indigo::Error_Dump();
+
+	std::cout << "HI!" << std::endl;
 
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
@@ -126,9 +137,9 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
 
 	// Finished
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("UV"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("Normal"));
 
 	return;
 }
@@ -240,7 +251,3 @@ void Object::Set_Hitbox(const float distance)
 {
 	Data.Hitbox = distance;
 }
-
-
-// The OpenGL draw mode for each render type.
-const int Object::render_types[5] = {GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, 0, GL_TRIANGLES, GL_QUADS};

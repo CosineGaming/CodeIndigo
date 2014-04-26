@@ -9,16 +9,16 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
-	void Initialize(const char * window_name, float * background, const int window_width,
+	void Initialize(const char * window_name, glm::vec3 background, const int window_width,
 		const int window_height, const int max_framerate, const bool fullscreen)
 	{
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
 		glfwWindowHint(GLFW_SAMPLES, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		if (fullscreen)
 		{
 			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -60,7 +60,7 @@ namespace Indigo
 		glDepthFunc(GL_LESS);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_2D);
+		//glEnable(GL_TEXTURE_2D);
 		// Setup fog
 		//glEnable(GL_FOG);
 		//glFogfv(GL_FOG_COLOR, White_Color);
@@ -69,6 +69,8 @@ namespace Indigo
 
 		// Enable rendering options
 		Reshape(Window);
+
+		Indigo::Error_Dump();
 
 		return;
 	}
@@ -442,20 +444,20 @@ namespace Indigo
 
 	// Colors
 
-	float White_Color[3] = { 1.0, 1.0, 1.0 };
+	glm::vec3 White_Color(1.0, 1.0, 1.0);
 
-	float Black_Color[3] = { 0.0, 0.0, 0.0 };
+	glm::vec3 Black_Color(0.0, 0.0, 0.0);
 
-	float Sky_Color[3] = { 0.5, 0.8, 1.0 };
+	glm::vec3 Sky_Color(0.5, 0.8, 1.0);
 
-	float Red_Color[3] = { 0.4, 0.0, 0.0 };
+	glm::vec3 Red_Color(0.4, 0.0, 0.0);
 
-	float Green_Color[3] = { 0.0, 0.8, 0.0 };
+	glm::vec3 Green_Color(0.0, 0.8, 0.0);
 
-	float Blue_Color[3] = { 0.0, 0.0, 0.6 };
+	glm::vec3 Blue_Color(0.0, 0.0, 0.6);
 
-	float Light_Blue_Color[3] = { 0.4, 0.7, 0.9 };
+	glm::vec3 Light_Blue_Color(0.4, 0.7, 0.9);
 
-	float Orange_Color[3] = { 1.0, 0.4, 0.0 };
+	glm::vec3 Orange_Color(1.0, 0.4, 0.0);
 
 }

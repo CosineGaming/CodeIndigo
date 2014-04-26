@@ -228,13 +228,11 @@ void Mesh::Initialize(void)
 	texture_coordinates = coordinates;
 	vertices = positions;
 
+	std::cout << elements.size() << ", " << smooth_normals.size() << ", " << vertices.size() << ", " << texture_coordinates.size() << "@" << elements[3] << ", " << vertices[3].z << ", " << smooth_normals[3].z << std::endl;
+
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &Elements_ID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);
@@ -243,6 +241,10 @@ void Mesh::Initialize(void)
 	glGenBuffers(1, &UV_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
 	glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(glm::vec2), &texture_coordinates[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &Elements_ID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 
 	number_elements = elements.size();
 
@@ -386,7 +388,7 @@ void Mesh::Texture(const char * filename)
 	file.read(data, size);
 	file.close();
 
-	if (Texture_ID != -1)
+	if (Texture_ID != 0)
 	{
 		glDeleteTextures(1, &Texture_ID);
 	}
@@ -406,20 +408,9 @@ void Mesh::Texture(const char * filename)
 
 
 // Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-glm::vec2 Mesh::Texture_Coordinate(const int index) const
+glm::vec2 Mesh::Auto_Texture_Coordinate(const int index) const
 {
-	if (texture_coordinates.size() < (std::size_t)index + 1)
-	{
-		return (glm::vec2(index % 3 != 0, index % 3 < 2));
-	}
-	else if (texture_coordinates[index] == glm::vec2(-1, -1))
-	{
-		return (glm::vec2(index % 3 != 0, index % 3 < 2));
-	}
-	else
-	{
-		return texture_coordinates[index];
-	}
+	return (glm::vec2(index % 3 != 0, index % 3 < 2));
 }
 
 
