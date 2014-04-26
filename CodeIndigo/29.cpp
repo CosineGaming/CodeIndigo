@@ -1,15 +1,27 @@
 #include "Indigo/IndigoEngine.h"
 
-Object player;
+Object player = Object(0,0.75,0);
 
 void update(float time)
 {
+	const float speed = 0.01;
+	if (Indigo::Keys['w'])
+	{
+		player.Move(speed * time);
+	}
 	if (Indigo::Keys['s'])
 	{
-		player.Move(-0.001 * time, 0);
-		std::cout << player.X << ", " << player.Y << ", " << player.Z << std::endl;
+		player.Move(-speed * time);
 	}
-	Indigo::Current_World.View.Place(player.X, player.Y, player.Z);
+	if (Indigo::Keys['a'])
+	{
+		player.Move(0, -speed * time);
+	}
+	if (Indigo::Keys['d'])
+	{
+		player.Move(0, speed * time);
+	}
+	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
 	Indigo::Current_World.View.Eye = player.Facing;
 }
 

@@ -1,4 +1,4 @@
-#version 330 core
+#version 120
 
 varying vec2 F_UV;
 varying vec3 F_Normal;

@@ -71,7 +71,6 @@ void Object::Update(const float time)
 void Object::Render(glm::mat4& projection, glm::mat4& view) const
 {
 
-	Indigo::Error_Dump();
 	if (Is_Blank)
 	{
 		return;
@@ -125,10 +124,6 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	Indigo::Error_Dump();
-
-	std::cout << "HI!" << std::endl;
 
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
