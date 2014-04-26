@@ -173,7 +173,13 @@ void Object::Move(const float forward, const float side, const float up)
 // Checks whether this object collides with another object
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
-	return (Direction::Coordinates(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
+	//return (Direction::Coordinates(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
+	return (X + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
+		&& X + Data.Hitbox[1].x > object.X + object.Data.Hitbox[0].x
+		&& Y + Data.Hitbox[0].y < object.Y + object.Data.Hitbox[1].y
+		&& Y + Data.Hitbox[1].y > object.Y + object.Data.Hitbox[0].y
+		&& Z + Data.Hitbox[0].z < object.Z + object.Data.Hitbox[1].z
+		&& Z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z);
 }
 
 
@@ -237,12 +243,13 @@ bool Object::Collide(const glm::vec3& position, const Direction& direction) cons
 // Checks whether this vertex is withing this object
 bool Object::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z) const
 {
-	return (Direction(X, Y, Z).Distance(Direction::Coordinates(vertex.x + add_x, vertex.y + add_y, vertex.z + add_z)).Get_Distance() < Data.Hitbox);
+	//return (Direction(X, Y, Z).Distance(Direction::Coordinates(vertex.x + add_x, vertex.y + add_y, vertex.z + add_z)).Get_Distance() < Data.Hitbox);
 }
 
 
 // Changes the relative hitbox for preliminary collision, set to 0 to make it uncollidable
-void Object::Set_Hitbox(const float distance)
+void Object::Set_Hitbox(const glm::vec3& least, const glm::vec3& most)
 {
-	Data.Hitbox = distance;
+	Data.Hitbox[0] = least;
+	Data.Hitbox[1] = most;
 }

@@ -18,7 +18,7 @@ varying vec3 F_Distance_To_Light;
 
 void main()
 {
-	gl_Position = MVP * vec4(Position.x + Normal.x * 0.1, Position.y + Normal.y * 0.1, Position.z + Normal.z * 0.1, 1);
+	gl_Position = MVP * vec4(Position.x + Normal.x * 0.05, Position.y + Normal.y * 0.05, Position.z + Normal.z * 0.05, 1);
 	F_UV = UV;
 	F_Normal = (V*M*vec4(Normal, 0)).xyz;
 	F_To_Camera = -1 * (V*M*vec4(Position, 1)).xyz;

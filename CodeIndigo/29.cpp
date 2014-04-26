@@ -41,7 +41,7 @@ void Update(float time)
 	{
 		gravity_velocity = 0.02;
 	}
-	//Player.Y += gravity_velocity * time;
+	Player.Y += gravity_velocity * time;
 	if (Player.Y < 0.75 && Indigo::Current_World.Shader_Index == Normal_Shader)
 	{
 		Player.Y = 0.75;
@@ -62,6 +62,7 @@ void Update(float time)
 				{
 					Indigo::Current_World.Shader_Index = Alternative_Shader;
 				}
+				Player.Y = Indigo::Current_World.View.Y - 0.75;
 				while (Indigo::Current_World.Collide(Player) != -1)
 				{
 					WSAD_Move(speed*(time*=1.5));
@@ -74,7 +75,8 @@ void Update(float time)
 			std::cout << "Collide!\n";
 			Object old_pos = Object(Indigo::Current_World.View.X, Indigo::Current_World.View.Y - 0.75, Indigo::Current_World.View.Z);
 			Object check_pos = Object(Player.X, old_pos.Y, old_pos.Z);
-			check_pos.Set_Hitbox(0.75);
+			old_pos.Set_Hitbox(glm::vec3(-0.2, -0.75, -0.1), glm::vec3(0.2, 0.75, 0.1));
+			std::cout << Player.Collide(with) << std::endl;
 			if (!check_pos.Collide(with))
 			{
 				std::cout << "HA! Caught you, collide! I wasn't doing anything wrong!\n";
@@ -93,6 +95,7 @@ void Update(float time)
 			else
 			{
 				Player.Y = old_pos.Y;
+				gravity_velocity = 0;
 			}
 			check_pos.Place(old_pos.X, old_pos.Y, Player.Z);
 			if (!check_pos.Collide(with))
@@ -121,22 +124,13 @@ void Load(float time)
 	}
 	if (Indigo::Elapsed(begin) >= 200) // Wait before loading so the window can feel all happy
 	{
+		Portal.Place(0, 1, 9.5);
 		Indigo::Current_World.Add_Object(Portal);
-		Object platform = Object(0, -0.5, -12, Mesh("Meshes/Platform.obj", "Textures/Platform.bmp"));
-		platform.Set_Hitbox(0.5);
-		Indigo::Current_World.Add_Object(platform);
-		platform.Place(0, -0.5, -11);
-		Indigo::Current_World.Add_Object(platform);
-		platform.Place(0, -0.5, -10);
-		Indigo::Current_World.Add_Object(platform);
-		platform.Place(0, -0.5, -9);
-		Indigo::Current_World.Add_Object(platform);
-		platform.Place(0, -0.5, -8);
-		Indigo::Current_World.Add_Object(platform);
-		platform.Place(0, -0.5, -7);
-		Indigo::Current_World.Add_Object(platform);
-		Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("Meshes/Rooms/1.obj", "Textures/Rooms/1.bmp"), nullptr, Direction(), false));
-		Indigo::Current_World.Add_Object(Object(10, 0, -30, Mesh("Meshes/Rooms/2.obj", "Textures/Rooms/2.bmp"), nullptr, Direction(), false));
+		Object platform = Object(0, 1, -12, Mesh("Meshes/Platform.obj", "Textures/Platform.bmp"));
+		Indigo::Current_World.Add_Object(Object( 0, 0,   0, Mesh("Meshes/Rooms/0.obj", "Textures/Rooms/0.bmp"), nullptr, Direction(), false));
+		Indigo::Current_World.Add_Object(Object( 0, 0, -20, Mesh("Meshes/Rooms/1.obj", "Textures/Rooms/1.bmp"), nullptr, Direction(), false));
+		Indigo::Current_World.Add_Object(Object(10, 0, -50, Mesh("Meshes/Rooms/2.obj", "Textures/Rooms/2.bmp"), nullptr, Direction(), false));
+		Indigo::Current_World.Add_Object(Object(10, 0, -70, Mesh("Meshes/Rooms/3.obj", "Textures/Rooms/3.bmp"), nullptr, Direction(), false));
 		Indigo::Update_Function = Update;
 	}
 }
@@ -149,13 +143,10 @@ int main()
 	Indigo::FPS_Mouse(true, &Player);
 
 	Player = Object(0, 0.75, 0);
-	Player.Set_Hitbox(0.75);
-	std::cout << Player.Data.Hitbox << std::endl;
-	Portal = Object(0, 0, -10, Mesh("Meshes/Portal.obj", "Textures/Portal.bmp", 10));
+	Player.Set_Hitbox(glm::vec3(-0.2, -0.75, -0.1), glm::vec3(0.2, 0.75, 0.1));
+	Portal = Object(0, 0, 0, Mesh("Meshes/Portal.obj", "Textures/Portal.bmp", 10));
 	Portal.User_Data.push_back(1.0); // ID for portal; used in collisions
 	Portal_Collide = 1.0;
-	std::cout << Portal.Data.Hitbox << std::endl;
-	std::cout << Portal.World_Collide << std::endl;
 
 	Indigo::Current_World.Shader("Experiment.vs", "Experiment.fs");
 	Alternative_Shader = Indigo::Current_World.Shader_Index;

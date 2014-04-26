@@ -56,7 +56,7 @@ public:
 	int Vertex_Data_Amount(void) const;
 
 	// Hitbox used for collision, normally auto-generated. Radius of shape around center, rotation independent
-	float Hitbox;
+	glm::vec3 Hitbox[2];
 	// Add points to the mesh in function notation
 	void Add(const glm::vec3& vertex);
 	void Add(const Mesh& mesh);

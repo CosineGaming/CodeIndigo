@@ -17,7 +17,8 @@
 // Create a new, empty mesh
 Mesh::Mesh(void)
 {
-	Hitbox = 0;
+	Hitbox[0] = glm::vec3(0, 0, 0);
+	Hitbox[1] = glm::vec3(0, 0, 0);
 	vertices = std::vector<glm::vec3>();
 	elements = std::vector<unsigned short>();
 	flat_normals = std::vector<glm::vec3>();
@@ -41,7 +42,8 @@ Mesh::Mesh(const Mesh& mesh)
 	flat_normals = mesh.flat_normals;
 	smooth_normals = mesh.smooth_normals;
 	texture_coordinates = mesh.texture_coordinates;
-	Hitbox = mesh.Hitbox;
+	Hitbox[0] = mesh.Hitbox[0];
+	Hitbox[1] = mesh.Hitbox[1];
 	Color = mesh.Color;
 	Shine = mesh.Shine;
 	Vertices_ID = mesh.Vertices_ID;
@@ -58,7 +60,8 @@ Mesh::Mesh(const Mesh& mesh)
 Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec3& color)
 {
 
-	Hitbox = 0;
+	Hitbox[0] = glm::vec3(0, 0,0);
+	Hitbox[1] = glm::vec3(0, 0,0);
 	vertices = std::vector<glm::vec3>();
 	elements = std::vector<unsigned short>();
 	flat_normals = std::vector<glm::vec3>();
@@ -346,17 +349,29 @@ glm::vec3 Mesh::Smooth_Normal(const int index) const
 // Update the hitbox knowing that this point exists in the mesh
 void Mesh::Update_Hitbox(glm::vec3 vertex)
 {
-	if (abs(vertex.x) > Hitbox)
+	if (vertex.x < Hitbox[0].x)
 	{
-		Hitbox = abs(vertex.x);
+		Hitbox[0].x = vertex.x;
 	}
-	if (abs(vertex.y) > Hitbox)
+	if (vertex.x > Hitbox[1].x)
 	{
-		Hitbox = abs(vertex.y);
+		Hitbox[1].x = vertex.x;
 	}
-	if (abs(vertex.z) > Hitbox)
+	if (vertex.y < Hitbox[0].y)
 	{
-		Hitbox = abs(vertex.z);
+		Hitbox[0].y = vertex.y;
+	}
+	if (vertex.y > Hitbox[1].y)
+	{
+		Hitbox[1].y = vertex.y;
+	}
+	if (vertex.z < Hitbox[0].z)
+	{
+		Hitbox[0].z = vertex.z;
+	}
+	if (vertex.z > Hitbox[1].z)
+	{
+		Hitbox[1].z = vertex.z;
 	}
 }
 

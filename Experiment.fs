@@ -22,11 +22,11 @@ int rand(int seed)
 
 void main()
 {
-	vec3 color = 0.7 * F_Color * texture2D(F_Sampler, vec2(int(F_UV.x / 0.04) * 0.04, int(F_UV.y / 0.04) * 0.04)).rgb;
+	vec3 color = 0.9 * F_Color * texture2D(F_Sampler, vec2(int(F_UV.x / 0.04) * 0.04, int(F_UV.y / 0.04) * 0.04)).rgb;
 	int x_rand = rand(int(F_Normal.x * 235544345));
 	int y_rand = rand(int(F_Normal.y * 254556478));
 	int z_rand = rand(int(F_Normal.z * 245654678));
-	color += 0.3 * vec3((x_rand - x_rand / 1000 * 1000) / 1000.0, (y_rand - y_rand / 1000 * 1000) / 1000.0, (z_rand - z_rand / 1000 * 1000) / 1000.0);
+	color += 0.1 * vec3((x_rand - x_rand / 1000 * 1000) / 1000.0, (y_rand - y_rand / 1000 * 1000) / 1000.0, (z_rand - z_rand / 1000 * 1000) / 1000.0);
 	float light_distance_squared = F_To_Light.x * F_To_Light.x + F_To_Light.y * F_To_Light.y + F_To_Light.z * F_To_Light.z;
 	float cosine_theta = abs(dot(F_Normal, normalize(F_To_Light.xyz)));
 	float cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, F_Normal)), 0, 1);
