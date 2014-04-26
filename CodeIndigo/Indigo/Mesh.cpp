@@ -24,6 +24,7 @@ Mesh::Mesh(void)
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
 	Color = glm::vec3(1,1,1);
+	Shine = 0;
 	Vertices_ID = 0;
 	Elements_ID = 0;
 	Texture_ID = 0;
@@ -42,6 +43,7 @@ Mesh::Mesh(const Mesh& mesh)
 	texture_coordinates = mesh.texture_coordinates;
 	Hitbox = mesh.Hitbox;
 	Color = mesh.Color;
+	Shine = mesh.Shine;
 	Vertices_ID = mesh.Vertices_ID;
 	Elements_ID = mesh.Elements_ID;
 	Normals_ID = mesh.Normals_ID;
@@ -63,6 +65,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
 	Color = color;
+	Shine = shine;
 	Vertices_ID = 0;
 	Elements_ID = 0;
 	Texture_ID = 0;
@@ -120,6 +123,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				{
 					// Vertex
 					vertices.push_back(temp_vertices[atoi(values.c_str()) - 1]);
+					Update_Hitbox(vertices[vertices.size() - 1]);
 					// Vertex Texture
 					int texturenormal = values.find('/') + 1;
 					if (texturenormal != std::string::npos)
@@ -227,8 +231,6 @@ void Mesh::Initialize(void)
 
 	texture_coordinates = coordinates;
 	vertices = positions;
-
-	std::cout << elements.size() << ", " << smooth_normals.size() << ", " << vertices.size() << ", " << texture_coordinates.size() << "@" << elements[3] << ", " << vertices[3].z << ", " << smooth_normals[3].z << std::endl;
 
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
@@ -398,9 +400,8 @@ void Mesh::Texture(const char * filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
 	delete [] data;
 
 	return;

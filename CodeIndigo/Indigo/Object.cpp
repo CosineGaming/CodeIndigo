@@ -102,7 +102,7 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Sampler", true), 0);
 
 	// Shininess
-	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), 30.0);
+	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Data.Shine);
 
 	// Color
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);

@@ -64,6 +64,8 @@ public:
 
 	// The color for the whole mesh, not one per vertex. RGB. (No alpha. If you want that, use Textures.)
 	glm::vec3 Color;
+	// The shininess of the mesh, actually the size of specular highlights (higher is smaller)
+	float Shine;
 
 	// The actual data is stored on the GPU. Here's the index for gathering it.
 	unsigned int Vertices_ID;

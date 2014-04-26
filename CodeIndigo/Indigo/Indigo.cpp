@@ -33,9 +33,8 @@ namespace Indigo
 		glfwSetMouseButtonCallback(Window, Mouse_Button);
 		glfwSetKeyCallback(Window, Key_Action);
 		glfwMakeContextCurrent(Window);
-		glClearColor(background[0], background[1], background[2], 1.0);
 
-		// GLEW
+		// GLEW does all this magical driver OGL stuff
 		glewExperimental = GL_TRUE;
 		if (glewInit())
 		{
@@ -43,7 +42,7 @@ namespace Indigo
 				<< std::endl << "For more info contact the creator of your game." << std::endl;
 		}
 
-		// Set framerate
+		glClearColor(background[0], background[1], background[2], 1.0);
 		if (max_framerate == 0)
 		{
 			Frame_Length_Minimum = 0;
