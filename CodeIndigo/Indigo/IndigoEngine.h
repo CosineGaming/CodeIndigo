@@ -1,5 +1,7 @@
 // Include all files required for the Indigo Engine
 
+#include "GL/glew.h"
+
 #include "Animation.h"
 #include "Camera.h"
 #include "Direction.h"

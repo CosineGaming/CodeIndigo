@@ -48,6 +48,8 @@ public:
 	int ID;
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time, Object& self);
+	// Called right before the Object renders, set this as you please
+	void(*Render_Function)(void);
 	// Relative position of points
 	Mesh Data;
 	// The Direction the object is facing. Rotates in rendering!

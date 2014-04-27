@@ -85,7 +85,6 @@ void World::Render(void) const
 	glm::mat4 project = View.Project();
 	glm::mat4 project_2d = View.Project_2D();
 	glm::mat4 view = View.Look();
-	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 
 	Indigo::Current_World.Light_Setup.Update_Lights();
 

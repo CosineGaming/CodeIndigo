@@ -186,12 +186,10 @@ Mesh Mesh::Text(const char * text, const float size, const char * font)
 	{
 
 		int letter = check_letter - 32;
-		float y = (letter / 16) / 16.0; // The most 16s you can get
+		float y = 1 - (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
-		std::cout << y * 16 << ", " << x * 16 << std::endl;
 		float left = i * size;
 		float right = left + size;
-		std::cout << left << " to " << right << ", " << bottom << " to " << top << std::endl;
 		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
 		mesh.vertices.push_back(glm::vec3(right, bottom, 0)); // BR
 		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR

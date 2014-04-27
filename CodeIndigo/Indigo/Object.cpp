@@ -27,6 +27,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 		Data.Initialize();
 	}
 	Update_Function = update_function;
+	Render_Function = nullptr;
 	Facing = towards;
 	World_Collide = world_collide;
 	User_Data = std::vector<float>();
@@ -41,6 +42,7 @@ Object::Object(const Object& object)
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
 	Update_Function = object.Update_Function;
+	Render_Function = object.Render_Function;
 	Facing = object.Facing;
 	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
@@ -71,6 +73,10 @@ void Object::Update(const float time)
 void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bool lighting) const
 {
 
+	if (Render_Function)
+	{
+		Render_Function();
+	}
 	if (Is_Blank)
 	{
 		return;
@@ -93,6 +99,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
 	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
 	glUniformMatrix4fv(Indigo::Current_World.Model_Matrix, 1, GL_FALSE, &modeling[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
 	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
 

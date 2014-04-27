@@ -231,6 +231,55 @@ void Add_Platform(Object& object, float x, float y, float z, void (*function)(fl
 	Indigo::Current_World.Add_Object(object);
 }
 
+void Viewable_Text(void)
+{
+	glUseProgram(Normal_Shader);
+}
+
+void Tutorial(float time, Object & self)
+{
+	const char * tutorial [23] =
+	{
+		"Hello, there. I see you've found yourself in a room.",
+		"The door's blocked. You'll fall if you try going through it.",
+		"Perhaps take a look around the room.",
+		"Oh, look at that blue thing. I feel like you should walk through it.",
+		"Woah. Now that's some crazy stuff. This is Parallel.",
+		"You've been here before. You probably don't remember.",
+		"Parallel is the universe beneath the surface of every object.",
+		"Walls, lamps, computers, anything you think is solid. It's not.",
+		"One downlfall of existing in solid space is that you can't have solid objects.",
+		"That would be a bit of a contradiction.",
+		"So in Parallel, there is only one solid object: those grey Platforms.",
+		"Parallel bends the rules of space. Everything is close to one another.",
+		"Also, though, it's impossible to die there.",
+		"You'll simply go back to where you fell.",
+		"Unless, of course, that Platform has moved.",
+		"Then you'll go back to that Portal you stepped through, the blue one.",
+		"It kept track of you. Parallel will protect you, even in the real world.",
+		"It's that good.",
+		"Parallel wasn't always like this, with all the cracks and distortion.",
+		"It used to be full color just like the real world.",
+		"Parallel is Falling Apart.",
+		"Those Crystals above the Portals are helping you to save it.",
+		"Thank you for trying to save it."
+	};
+	static int index = -1;
+	static float update = 0;
+	if (Indigo::Elapsed() >= update)
+	{
+		Indigo::Current_World.Remove_2D_Object(self);
+		index++;
+		if (index < 23)
+		{
+			Object add = Object(-1.4, -0.75, 0, Mesh::Text(tutorial[index], 0.04), Tutorial);
+			add.Render_Function = Viewable_Text;
+			Indigo::Current_World.Add_2D_Object(add);
+			update = Indigo::Elapsed() + 8000;
+		}
+	}
+}
+
 void Load(float time)
 {
 	static float begin = 0;
@@ -252,7 +301,34 @@ void Load(float time)
 		Indigo::Current_World.Add_Object(Portal);
 		Portal.Place(13, 0, -52.5);
 		Indigo::Current_World.Add_Object(Portal);
+		Portal.Place(-3, -0.5, -77);
+		Indigo::Current_World.Add_Object(Portal);
+		Portal.Place(-10, -0.5, -54);
+		Indigo::Current_World.Add_Object(Portal);
+		Portal.Place(-48, -0.5, -54);
+		Indigo::Current_World.Add_Object(Portal);
+		Portal.Place(-66, 0, -52.5);
+		Indigo::Current_World.Add_Object(Portal);
 
+		Object crystal = Object(2, 5, 0, Mesh("Meshes/Crystal.obj", "Textures/Crystal.bmp"));
+		crystal.Place(0, 6, 10);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(0, 19, -18);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(1.5, 21, -30);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(0, 5, -40);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(13, 5, -52.5);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(-3, 4.5, -77);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(-10, 4.5, -54);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(-48, 4.5, -54);
+		Indigo::Current_World.Add_Object(crystal);
+		crystal.Place(-66, 5, -52.5);
+		Indigo::Current_World.Add_Object(crystal);
 
 		// Room 0
 		Object platform = Object(0, 1, 8, Mesh("Meshes/Platform.obj", "Textures/Platform.bmp"));
@@ -388,7 +464,7 @@ void Load(float time)
 		Add_Platform(platform, 12, 0, -60);
 		Add_Platform(platform, 12, 0, -61);
 		Add_Platform(platform, 11, 0, -56);
-		platform.User_Data[platform.User_Data.size()-1] = 4; // Super fast fast
+		platform.User_Data[platform.User_Data.size()-1] = 2.75; // Super fast fast
 		Add_Platform(platform, 11, 0, -61, Scroll_Z);
 		Add_Platform(platform, 11, 0, -80);
 		Add_Platform(platform, 11, 2, -78);
@@ -419,7 +495,28 @@ void Load(float time)
 		Add_Platform(platform, -50, 0, -71);
 		Add_Platform(platform, -49, 0, -71);
 		Add_Platform(platform, -48, 0, -71);
-		platform.User_Data[platform.User_Data.size() - 1] = 1; // Back to normal
+		platform.User_Data[platform.User_Data.size() - 1] = 1; // Super slow slow
+		// Secret pathway
+		Add_Platform(platform, -7, -0.5, -67);
+		Add_Platform(platform, -7, -0.5, -64);
+		Add_Platform(platform, -10, -0.5, -64);
+		Add_Platform(platform, -10, -0.5, -61);
+		Add_Platform(platform, -10, -0.5, -58);
+		Add_Platform(platform, -10, -0.5, -55);
+		Add_Platform(platform, -10, -0.5, -54);
+		Add_Platform(platform, -10, -0.5, -53);
+		Add_Platform(platform, -48, -0.5, -67);
+		Add_Platform(platform, -48, -0.5, -64);
+		Add_Platform(platform, -48, -0.5, -61);
+		Add_Platform(platform, -48, -0.5, -58);
+		Add_Platform(platform, -48, -0.5, -55);
+		Add_Platform(platform, -48, -0.5, -54);
+		Add_Platform(platform, -48, -0.5, -53);
+		// End secret
+		Add_Platform(platform, -66, 0, -70, Scroll_X);
+		Add_Platform(platform, -66, 0, -69, Scroll_Z);
+		Add_Platform(platform, -67, 0, -70);
+		Add_Platform(platform, -66, 0, -54);
 
 		// Invisible object that serves as a real world platform
 		Object real_floor = Object();
@@ -440,10 +537,10 @@ void Load(float time)
 		Add_Platform(real_floor, 10, 8, -50);
 
 		Indigo::Current_World.Add_Object(Object(10, 0, -70, Mesh("Meshes/Rooms/3.obj", "Textures/Rooms/3.bmp"), nullptr, Direction(), false));
-		// TDODO: Add Supports
+		real_floor.Set_Hitbox(glm::vec3(-60, 0, 15), glm::vec3(-18.5, 0, 21));
+		Add_Platform(real_floor, 10, -0.1, -70);
 
-		//Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("HI!")));
-		Indigo::Current_World.Add_Object(Object(2, 5, 0, Mesh("Meshes/Crystal.obj", "Textures/Crystal.bmp")));
+		Indigo::Current_World.Add_2D_Object(Object(0,0,0,Mesh(),Tutorial));
 
 		Indigo::Update_Function = Update;
 	}
@@ -456,11 +553,10 @@ int main()
 	Indigo::Update_Function = Load;
 	Indigo::FPS_Mouse(true, &Player);
 
-	Player = Object(13, 0.75, -50);
+	Player = Object(0, 0.75, 0);
 	Player.Set_Hitbox(glm::vec3(-0.2, -0.75, -0.1), glm::vec3(0.2, 0.75, 0.1));
 	Indigo::Current_World.View.Y = 1.5;
 	Portal = Object(0, 0, 0, Mesh("Meshes/Portal.obj", "Textures/Portal.bmp", 10));
-	std::cout << Portal.Data.Hitbox[0].x << "," << Portal.Data.Hitbox[0].y << "," << Portal.Data.Hitbox[0].z << " to " << Portal.Data.Hitbox[1].x << "," << Portal.Data.Hitbox[1].y << "," << Portal.Data.Hitbox[1].z << std::endl;
 	Portal_Collide = 0.0; // ID for portal; used in collisions
 	Portal.User_Data.push_back(Portal_Collide);
 	Gravity_Velocity = 0;

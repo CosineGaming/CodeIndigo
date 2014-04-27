@@ -69,7 +69,7 @@ namespace Indigo
 		// Enable rendering options
 		Reshape(Window);
 
-		Indigo::Error_Dump();
+		//Indigo::Error_Dump();
 
 		return;
 	}
