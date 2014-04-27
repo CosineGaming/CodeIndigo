@@ -87,7 +87,7 @@ void Update(float time)
 		{
 			Player = total_death;
 			Indigo::Current_World.View.Place(Player.X, Player.Y + 0.75, Player.Z);
-			Gravity_Velocity = -0.0001;
+			Gravity_Velocity = 0.002;
 		}
 	}
 	WSAD_Move(speed*time);
@@ -218,6 +218,7 @@ void Update(float time)
 		{
 			Player = total_death;
 			Indigo::Current_World.View.Place(Player.X, Player.Y + 0.75, Player.Z);
+			Gravity_Velocity = 0.002;
 		}
 		Indigo::Current_World.View.Place(Player.X, Player.Y + 0.75, Player.Z);
 	}
@@ -281,8 +282,7 @@ void Tutorial(float time, Object & self)
 		"You've been here before. You probably don't remember.",
 		"Parallel is the universe beneath the surface of every object.",
 		"Walls, lamps, computers, anything you think is solid. It's not.",
-		"One downlfall of existing in solid space is that you can't have solid objects.",
-		"That would be a bit of a contradiction.",
+		"One thing about existing in solid space is that you can't have solid objects.",
 		"So in Parallel, there is only one solid object: those grey Platforms.",
 		"Parallel bends the rules of space. Everything is close to one another.",
 		"Also, though, it's impossible to die there.",
@@ -290,7 +290,7 @@ void Tutorial(float time, Object & self)
 		"Unless, of course, that Platform has moved.",
 		"Then you'll go back to that Portal you stepped through, the blue one.",
 		"It kept track of you. Parallel will protect you, even in the real world.",
-		"It's that good.",
+		"Every time you pass through a Portal, you'll switch between worlds.",
 		"Parallel wasn't always like this, with all the cracks and distortion.",
 		"It used to be full color just like the real world.",
 		"Parallel is Falling Apart.",
@@ -348,11 +348,11 @@ void Load(float time)
 	Object crystal = Object(2, 5, 0, Mesh("Meshes/Crystal.obj", "Textures/Crystal.bmp"));
 	crystal.Place(0, 6, 10);
 	Game.Add_Object(crystal);
-	crystal.Place(0, 19, -18);
+	crystal.Place(0, 19, -16);
 	Game.Add_Object(crystal);
 	crystal.Place(1.5, 21, -28);
 	Game.Add_Object(crystal);
-	crystal.Place(0, 5, -40);
+	crystal.Place(0, 8, -40);
 	Game.Add_Object(crystal);
 	crystal.Place(13, 5, -52.5);
 	Game.Add_Object(crystal);
@@ -403,13 +403,13 @@ void Load(float time)
 		Add_Platform(platform, neg * 12, 1, -12);
 		Add_Platform(platform, neg * 11, 2, -12);
 		Add_Platform(platform, neg * 9, 2, -12);
-		Add_Platform(platform, neg * 5, 4, -12, Scroll_X);
-		Add_Platform(platform, neg * 15, 4, -12); // Bounces off edge of wall
+		Add_Platform(platform, neg * 5, 3, -12, Scroll_X);
+		Add_Platform(platform, neg * 15, 3, -12); // Bounces off edge of wall
 		neg *= -1;
 	}
 
 	// Room 1
-	Add_Platform(platform, 0, 4, -12);
+	Add_Platform(platform, 0, 3, -12);
 	Add_Platform(platform, 0, 2, -13);
 	Add_Platform(platform, 0, 2, -14);
 	Add_Platform(platform, 0, 2, -15);
