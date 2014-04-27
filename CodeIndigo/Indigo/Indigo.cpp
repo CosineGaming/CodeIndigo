@@ -77,6 +77,9 @@ namespace Indigo
 	// Starts the main loop with update, render, and input
 	int Run(void)
 	{
+		Render();
+		glfwSwapBuffers(Indigo::Window);
+		glfwPollEvents();
 		float last = 0;
 		while (!glfwWindowShouldClose(Window))
 		{
