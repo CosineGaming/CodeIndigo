@@ -68,7 +68,7 @@ void Object::Update(const float time)
 
 
 // Renders the object
-void Object::Render(glm::mat4& projection, glm::mat4& view) const
+void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bool lighting) const
 {
 
 	if (Is_Blank)
@@ -106,6 +106,9 @@ void Object::Render(glm::mat4& projection, glm::mat4& view) const
 
 	// Color
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);
+
+	// Lighting enabled?
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Light_Enabled", true), lighting);
 
 	// Vertices
 	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));
@@ -174,12 +177,12 @@ void Object::Move(const float forward, const float side, const float up)
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
 	//return (Direction::Coordinates(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
-	return (X + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
-		&& X + Data.Hitbox[1].x > object.X + object.Data.Hitbox[0].x
-		&& Y + Data.Hitbox[0].y < object.Y + object.Data.Hitbox[1].y
-		&& Y + Data.Hitbox[1].y > object.Y + object.Data.Hitbox[0].y
-		&& Z + Data.Hitbox[0].z < object.Z + object.Data.Hitbox[1].z
-		&& Z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z);
+	return (X + add_x + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
+		&& X + add_x + Data.Hitbox[1].x > object.X + object.Data.Hitbox[0].x
+		&& Y + add_y + Data.Hitbox[0].y < object.Y + object.Data.Hitbox[1].y
+		&& Y + add_y + Data.Hitbox[1].y > object.Y + object.Data.Hitbox[0].y
+		&& Z + add_z + Data.Hitbox[0].z < object.Z + object.Data.Hitbox[1].z
+		&& Z + add_z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z);
 }
 
 

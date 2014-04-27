@@ -307,9 +307,9 @@ namespace Indigo
 	}
 
 	// Get elapsed time in the game, optional minus for partial times, in milliseconds
-	float Elapsed(const float minus)
+	inline float Elapsed()
 	{
-		return glfwGetTime() * 1000 - minus;
+		return glfwGetTime() * 1000;
 	}
 
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start

@@ -15,6 +15,8 @@ public:
 	Mesh(const Mesh& mesh);
 	// Create a new mesh by loading it from an obj file
 	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec3& color = glm::vec3(1,1,1));
+	// Specialized constructor for creating text
+	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.bmp");
 	// Destroy the mesh
 	~Mesh(void);
 

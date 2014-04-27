@@ -113,11 +113,11 @@ void World::Render(void) const
 	glDisable(GL_DEPTH_TEST);
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
-		objects_2d[object].Render(project_2d, glm::mat4(1));
+		objects_2d[object].Render(project_2d, glm::mat4(1), false);
 	}
 	for (std::size_t text = 0; text < texts.size(); ++text)
 	{
-		texts[text].Render(project_2d, glm::mat4(1));
+		//texts[text].Render(project_2d, glm::mat4(1), false);
 	}
 
 	return;
@@ -468,7 +468,7 @@ int World::Collide(const Object& with, const float add_x, const float add_y, con
 	{
 		if (object != with.ID && objects[object].World_Collide)
 		{
-			if (objects[object].Collide(with, add_x, add_y, add_z))
+			if (with.Collide(objects[object], add_x, add_y, add_z))
 			{
 				return (object);
 				break;

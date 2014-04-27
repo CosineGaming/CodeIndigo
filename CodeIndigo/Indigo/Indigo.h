@@ -46,7 +46,7 @@ namespace Indigo
 	void Render(void);
 
 	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
-	float Elapsed(const float minus = 0);
+	inline float Elapsed();
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
 	// Get all the errors since last error dump to main console window

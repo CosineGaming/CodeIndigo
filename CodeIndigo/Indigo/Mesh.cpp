@@ -126,8 +126,8 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				{
 					// Vertex
 					vertices.push_back(temp_vertices[atoi(values.c_str()) - 1]);
-					Update_Hitbox(vertices[vertices.size() - 1]);
 					// Vertex Texture
+					Update_Hitbox(vertices[vertices.size() - 1]);
 					int texturenormal = values.find('/') + 1;
 					if (texturenormal != std::string::npos)
 					{
@@ -172,6 +172,54 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 Mesh::~Mesh(void)
 {
 	return;
+}
+
+
+// Specialized constructor for creating text
+Mesh Mesh::Text(const char * text, const float size, const char * font)
+{
+	Mesh mesh;
+	float bottom = 0;
+	float top = size;
+	int i = 0;
+	for (char check_letter = text[0]; check_letter != '\0'; check_letter = text[++i])
+	{
+
+		int letter = check_letter - 32;
+		float y = (letter / 16) / 16.0; // The most 16s you can get
+		float x = (letter % 16) / 16.0; // The rest
+		std::cout << y * 16 << ", " << x * 16 << std::endl;
+		float left = i * size;
+		float right = left + size;
+		std::cout << left << " to " << right << ", " << bottom << " to " << top << std::endl;
+		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
+		mesh.vertices.push_back(glm::vec3(right, bottom, 0)); // BR
+		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
+		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
+		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
+		mesh.vertices.push_back(glm::vec3(left, top, 0)); // TL
+
+		float tex_l = x;
+		float tex_r = x + 0.0625;
+		float tex_t = y;
+		float tex_b = y - 0.0625;
+		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_b)); // BL
+		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_b)); // BR
+		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_t)); // TR
+		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_b)); // BL
+		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_t)); // TR
+		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_t)); // TL
+
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+
+	}
+	mesh.Texture(font);
+	return mesh;
 }
 
 
