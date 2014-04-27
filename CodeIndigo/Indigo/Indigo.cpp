@@ -52,8 +52,8 @@ namespace Indigo
 			Frame_Length_Minimum = 1000.0 / max_framerate;
 		}
 
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
+		//glGenVertexArrays(1, &VAO);
+		//glBindVertexArray(VAO);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
