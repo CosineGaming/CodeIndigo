@@ -24,9 +24,9 @@ int rand(int seed)
 void main()
 {
 	vec3 color = 0.9 * F_Color * texture2D(F_Sampler, vec2(int(F_UV.x / 0.04) * 0.04, int(F_UV.y / 0.04) * 0.04)).rgb;
-	int x_rand = rand(int(F_Normal.x * 235544345));
-	int y_rand = rand(int(F_Normal.y * 254556478));
-	int z_rand = rand(int(F_Normal.z * 245654678));
+	int x_rand = rand(int(F_Normal.x * 23345));
+	int y_rand = rand(int(F_Normal.y * 25478));
+	int z_rand = rand(int(F_Normal.z * 24678));
 	color += 0.1 * vec3((x_rand - x_rand / 1000 * 1000) / 1000.0, (y_rand - y_rand / 1000 * 1000) / 1000.0, (z_rand - z_rand / 1000 * 1000) / 1000.0);
 	if (F_Light_Enabled == 1)
 	{
