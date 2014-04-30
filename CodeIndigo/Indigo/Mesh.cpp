@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <map>
 #include "GLFW/glfw3.h"
 
 
@@ -221,6 +222,17 @@ Mesh Mesh::Text(const char * text, const float size, const char * font)
 }
 
 
+struct Vertex_And_Texture_Coordinate
+{
+	glm::vec3 vertex;
+	glm::vec2 texture_coordinate;
+	bool operator< (const Vertex_And_Texture_Coordinate& compare) const
+	{
+		return memcmp(this, &compare, sizeof(Vertex_And_Texture_Coordinate)) > 0;
+	}
+};
+
+
 // Once added to the object, the mesh is locked into place. (on the GPU)
 void Mesh::Initialize(void)
 {
@@ -229,23 +241,23 @@ void Mesh::Initialize(void)
 
 	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
 	std::vector<glm::vec2> coordinates = std::vector<glm::vec2>();
+	std::map<Vertex_And_Texture_Coordinate, unsigned short> vertex_to_index;
 	for (int point = 0; point < vertices.size(); ++point)
 	{
-		bool found = false;
-		for (int check = 0; check < positions.size(); ++check)
-		{
-			if (coordinates[check] == texture_coordinates[point] && positions[check] == vertices[point])
-			{
-				elements.push_back(check);
-				found = true;
-				break;
-			}
-		}
-		if (!found)
+		unsigned short index = 0;
+		Vertex_And_Texture_Coordinate together = { vertices[point], texture_coordinates[point] };
+		std::map<Vertex_And_Texture_Coordinate, unsigned short>::iterator location = vertex_to_index.find(together);
+		if (location == vertex_to_index.end())
 		{
 			positions.push_back(vertices[point]);
 			coordinates.push_back(texture_coordinates[point]);
-			elements.push_back(positions.size() - 1);
+			unsigned short index = positions.size() - 1;
+			elements.push_back(index);
+			vertex_to_index[together] = index;
+		}
+		else
+		{
+			elements.push_back(location->second);
 		}
 	}
 	smooth_normals = std::vector<glm::vec3>();
