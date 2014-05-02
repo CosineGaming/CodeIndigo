@@ -39,9 +39,6 @@
     <ClCompile Include="..\CodeIndigo\Indigo\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\CodeIndigo\Indigo\Text.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CodeIndigo\Indigo\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,9 +66,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CodeIndigo\Indigo\Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CodeIndigo\Indigo\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CodeIndigo\Indigo\World.h">

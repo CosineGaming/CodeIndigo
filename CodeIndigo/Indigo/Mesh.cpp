@@ -25,7 +25,7 @@ Mesh::Mesh(void)
 	flat_normals = std::vector<glm::vec3>();
 	smooth_normals = std::vector<glm::vec3>();
 	texture_coordinates = std::vector<glm::vec2>();
-	Color = glm::vec3(1,1,1);
+	Color = glm::vec4(1,1,1,1);
 	Shine = 0;
 	Vertices_ID = 0;
 	Elements_ID = 0;
@@ -58,7 +58,7 @@ Mesh::Mesh(const Mesh& mesh)
 
 
 // Create a new mesh by loading it from an obj file
-Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec3& color)
+Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec4& color)
 {
 
 	Hitbox[0] = glm::vec3(0, 0,0);
@@ -164,6 +164,8 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 			Texture(texture);
 		}
 
+		Initialize();
+
 	}
 	return;
 }
@@ -182,6 +184,8 @@ Mesh Mesh::Text(const char * text, const float size, const char * font)
 	Mesh mesh;
 	float bottom = 0;
 	float top = size;
+	float left = 0;
+	float right = size;
 	int i = 0;
 	for (char check_letter = text[0]; check_letter != '\0'; check_letter = text[++i])
 	{
@@ -189,8 +193,6 @@ Mesh Mesh::Text(const char * text, const float size, const char * font)
 		int letter = check_letter - 32;
 		float y = 1 - (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
-		float left = i * size;
-		float right = left + size;
 		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
 		mesh.vertices.push_back(glm::vec3(right, bottom, 0)); // BR
 		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
@@ -216,8 +218,19 @@ Mesh Mesh::Text(const char * text, const float size, const char * font)
 		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
 		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
 
+		left += size;
+		right += size;
+		if (check_letter == '\n')
+		{
+			bottom -= size;
+			top -= size;
+			left = 0;
+			right = size;
+		}
+
 	}
 	mesh.Texture(font);
+	mesh.Initialize();
 	return mesh;
 }
 

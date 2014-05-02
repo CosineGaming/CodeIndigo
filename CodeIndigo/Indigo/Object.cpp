@@ -24,7 +24,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 	Is_Blank = mesh.Size() == 0;
 	if (!Is_Blank)
 	{
-		Data.Initialize();
+		//Data.Initialize();
 	}
 	Update_Function = update_function;
 	Render_Function = nullptr;
@@ -77,23 +77,12 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	{
 		Render_Function();
 	}
+
 	if (Is_Blank)
 	{
 		return;
 	}
-	//float full_array [] = {1.0, 1.0, 1.0, 1.0};
-	//if (glIsEnabled(GL_LIGHTING))
-	//{
-		//glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, // TODO: I200
-		//	Object_Color ? Object_Color : full_array);
-		//glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, full_array);
-		//glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, Object_Shine);
-	//}
-	//else
-	//{
-		//float * color = Object_Color ? Object_Color : full_array; // TODO: I200
-		//glColor3f(color[0], color[1], color[2]);
-	//}
+
 	glm::mat4 modeling = glm::mat4(1);
 	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
@@ -102,6 +91,12 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
 	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
+
+	// Custom data
+	for (int i = 0; i < Shader_Argument_Names.size(); ++i)
+	{
+		glUniform1f(Indigo::Current_World.Shader_Location(Shader_Argument_Names[i], true), Shader_Arguments[i]);
+	}
 
 	// Texture
 	glActiveTexture(GL_TEXTURE0);
@@ -112,7 +107,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Data.Shine);
 
 	// Color
-	glUniform3f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.x, Data.Color.y, Data.Color.z);
+	glUniform4f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.r, Data.Color.g, Data.Color.b, Data.Color.a);
 
 	// Lighting enabled?
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Light_Enabled", true), lighting);
@@ -262,4 +257,12 @@ void Object::Set_Hitbox(const glm::vec3& least, const glm::vec3& most)
 {
 	Data.Hitbox[0] = least;
 	Data.Hitbox[1] = most;
+}
+
+
+// Add a custom argument to send to the shader for this object.
+void Object::Shader_Argument(char * argument, float value)
+{
+	Shader_Argument_Names.push_back(argument);
+	Shader_Arguments.push_back(value);
 }

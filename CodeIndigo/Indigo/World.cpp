@@ -18,7 +18,6 @@ World::World(void)
 	objects = std::vector<Object>();
 	objects_front = std::vector<Object>();
 	objects_2d = std::vector<Object>();
-	texts = std::vector<Text>();
 	animations = std::vector<Animation>();
 	Light_Setup = Lighting();
 	View = Camera();
@@ -34,7 +33,6 @@ World::World(const World& world)
 	objects = world.objects;
 	objects_front = world.objects_front;
 	objects_2d = world.objects_2d;
-	texts = world.texts;
 	animations = world.animations;
 	Light_Setup = world.Light_Setup;
 	View = world.View;
@@ -113,10 +111,6 @@ void World::Render(void) const
 	for (std::size_t object = 0; object<objects_2d.size(); ++object)
 	{
 		objects_2d[object].Render(project_2d, glm::mat4(1), false);
-	}
-	for (std::size_t text = 0; text < texts.size(); ++text)
-	{
-		//texts[text].Render(project_2d, glm::mat4(1), false);
 	}
 
 	return;
@@ -389,34 +383,6 @@ void World::Remove_2D_Object(const Object& object)
 
 
 // Add text to the world to be rendered, returns no handle to the text
-int World::Add_Text(const Text& text)
-{
-	texts.push_back(text);
-	int Object_ID = texts.size() - 1;
-	texts[Object_ID].ID = Object_ID;
-	return (Object_ID);
-}
-
-// Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
-Text& World::Get_Text(const int id) const
-{
-	return (const_cast <Text&>(texts[id]));
-}
-
-// Removes text from the world based on an object ID
-void World::Remove_Text(const int id)
-{
-	texts[id] = Text();
-}
-
-// Removes text from the world based on text; gets ID automatically
-void World::Remove_Text(const Text& text)
-{
-	texts[text.ID] = Text();
-}
-
-
-// Add text to the world to be rendered, returns no handle to the text
 int World::Add_Animation(const Animation& animation)
 {
 	animations.push_back(animation);
@@ -453,12 +419,6 @@ int World::Number_Of_2D_Objects(void)
 	return (objects_2d.size());
 }
 
-
-// Returns the number of texts in the world, simply texts.size()
-int World::Number_Of_Texts(void)
-{
-	return (texts.size());
-}
 
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 int World::Collide(const Object& with, const float add_x, const float add_y, const float add_z)

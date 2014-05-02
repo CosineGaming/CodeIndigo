@@ -5,7 +5,6 @@
 #include "Camera.h"
 #include "Lighting.h"
 #include "Object.h"
-#include "Text.h"
 
 #include <vector>
 
@@ -78,15 +77,6 @@ public:
 	// Removes a 2D object from the world based on object; gets ID automatically
 	void Remove_2D_Object(const Object& object);
 
-	// Add text to the world to be rendered, returns no handle to the text
-	int Add_Text(const Text& text);
-	// Gets text based on an index. DO NOT attempt to store the reference after a push_back. Ever.
-	Text& Get_Text(const int id) const;
-	// Removes text from the world based on an object ID
-	void Remove_Text(const int id);
-	// Removes text from the world based on text; gets ID automatically
-	void Remove_Text(const Text& text);
-
 	// Add animation along with its nested animations to the world to be rendered, returns no handle to the text
 	int Add_Animation(const Animation& animation);
 	// Removes the animation (and nested ones) from the world based on an object ID
@@ -131,7 +121,6 @@ private:
 	std::vector<Object> objects;
 	std::vector<Object> objects_front;
 	std::vector<Object> objects_2d;
-	std::vector<Text> texts;
 	std::vector<Animation> animations;
 
 	// A skybox is a box which is always in the back, textured to look like the game background

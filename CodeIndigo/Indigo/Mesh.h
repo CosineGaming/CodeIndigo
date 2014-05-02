@@ -16,7 +16,7 @@ public:
 	// Copy a mesh
 	Mesh(const Mesh& mesh);
 	// Create a new mesh by loading it from an obj file
-	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec3& color = glm::vec3(1,1,1));
+	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec4& color = glm::vec4(1,1,1,1));
 	// Specialized constructor for creating text
 	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.bmp");
 	// Destroy the mesh
@@ -67,8 +67,8 @@ public:
 	void Add(const std::vector <glm::vec3>& vertices);
 
 	// The color for the whole mesh, not one per vertex. RGB. (No alpha. If you want that, use Textures.)
-	glm::vec3 Color;
-	// The shininess of the mesh, actually the size of specular highlights (higher is smaller)
+	glm::vec4 Color;
+	// The shininess of the mesh, actually the size of specular highlights. Higher is smaller highlights is shinier
 	float Shine;
 
 	// The actual data is stored on the GPU. Here's the index for gathering it.

@@ -42,6 +42,9 @@ public:
 	// Changes the relative hitbox for preliminary collision, set to 0 to make it uncollidable
 	void Set_Hitbox(const glm::vec3& least=glm::vec3(0,0,0), const glm::vec3& most=glm::vec3(0,0,0));
 
+	// Add a custom argument to send to the shader for this object.
+	void Shader_Argument(char * argument, float value);
+
 	// Check if it's been fully initialized
 	int Is_Blank;
 	// An ID used for accessing and deleting the object
@@ -58,6 +61,9 @@ public:
 	bool World_Collide;
 	// Data for the user to define for whatever purpose.
 	std::vector<float> User_Data;
+	// Custom data can be send to the shaders!
+	std::vector<char *> Shader_Argument_Names;
+	std::vector<float> Shader_Arguments;
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y;

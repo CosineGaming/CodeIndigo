@@ -49,6 +49,8 @@ namespace Indigo
 	inline float Elapsed();
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
+	// Get the letter as if the key was pressed with shift. Useful for Key Callbacks / checking
+	char Get_Shift_Character(const char bottom);
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void);
 
@@ -60,13 +62,11 @@ namespace Indigo
 	extern unsigned int VAO;
 
 	// Stores the function to call when a key is pressed
-	extern void(*Key_Pressed_Function)(unsigned char key, int x, int y);
+	extern void(*Key_Pressed_Function)(int key);
 	// ... when a key is released
-	extern void(*Key_Released_Function)(unsigned char key, int x, int y);
+	extern void(*Key_Released_Function)(int key);
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
-	// ... when the mouse is pressed or released. Given in Window Coordinates
-	extern void(*Mouse_Raw_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is moved
 	extern void(*Mouse_Moved_Function)(int x, int y);
 	// ... when the mouse is moved, given relative to the center
@@ -92,7 +92,8 @@ namespace Indigo
 	extern bool Left_Mouse;
 	extern bool Right_Mouse;
 	extern bool Middle_Mouse;
-	extern glm::vec3 Mouse_Position;
+	extern glm::vec2 Mouse_Position;
+	extern glm::vec2 Mouse_Position_Screen;
 
 	// Stores the width of the screen
 	extern int Screen_Width;

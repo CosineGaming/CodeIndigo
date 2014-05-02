@@ -57,6 +57,7 @@ namespace Indigo
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
+		glEnable(GL_DITHER);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//glEnable(GL_TEXTURE_2D);
@@ -128,11 +129,11 @@ namespace Indigo
 	// Acts for Keys which act once, and stores for multi-acting Keys
 	void Key_Action(GLFWwindow * window, int key, int scancode, int action, int modifiers)
 	{
-		// Convert uppercases to lowercase
-		if (key >= 65 && key <= 90)
+		if (key >= 'A' && key <= 'Z')
 		{
-			key += 32;
+			key += 'a' - 'A';
 		}
+
 		Shift = (modifiers & GLFW_MOD_SHIFT) != 0;
 		Control = (modifiers & GLFW_MOD_CONTROL) != 0;
 		Alt = (modifiers & GLFW_MOD_ALT) != 0;
@@ -141,7 +142,7 @@ namespace Indigo
 		{
 			if (Key_Pressed_Function)
 			{
-				Key_Pressed_Function(key, Mouse_Position.x, Mouse_Position.y);
+				Key_Pressed_Function(key);
 			}
 			Keys[key] = true;
 			Keys_Pressed[key] = true;
@@ -150,7 +151,7 @@ namespace Indigo
 		{
 			if (Key_Released_Function)
 			{
-				Key_Released_Function(key, Mouse_Position.x, Mouse_Position.y);
+				Key_Released_Function(key);
 			}
 			Keys[key] = false;
 		}
@@ -185,12 +186,7 @@ namespace Indigo
 		}
 		if (Mouse_Button_Function)
 		{
-			Mouse_Button_Function(button, state, (Mouse_Position.x - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height - 1,
-				-1 * (Mouse_Position.y * 2.0 / Screen_Height - 1));
-		}
-		if (Mouse_Raw_Button_Function)
-		{
-			Mouse_Raw_Button_Function(button, state, Mouse_Position.x, Mouse_Position.y);
+			Mouse_Button_Function(button, state, Mouse_Position.x, Mouse_Position.y);
 		}
 		return;
 	}
@@ -198,9 +194,12 @@ namespace Indigo
 	// Acts for when the mouse is moved
 	void Mouse_Moved(GLFWwindow * window, double x, double y)
 	{
+		Mouse_Position_Screen.x = x;
+		Mouse_Position_Screen.y = y;
+		Mouse_Position.x = (x - (Screen_Width - Screen_Height) / 2) * 2.0 / Screen_Height - 1;
+		Mouse_Position.y = -1 * (y * 2.0 / Screen_Height - 1);
 		if (Relative_Mouse_Moved_Function)
 		{
-			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			static int last_x = 0;
 			static int last_y = 0;
 			Relative_Mouse_Moved_Function(x - last_x, y - last_y);
@@ -262,10 +261,12 @@ namespace Indigo
 
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
 	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	void FPS_Mouse(bool enable, Object * player, float sensitivity)
+	void FPS_Mouse(Object * player, float sensitivity)
 	{
+		static bool enable = true;
 		if (enable)
 		{
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			FPS_Mouse_Callback(0, 0, player, sensitivity);
 			Relative_Mouse_Moved_Function = FPS_Mouse_Function;
 		}
@@ -274,6 +275,8 @@ namespace Indigo
 			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			Relative_Mouse_Moved_Function = nullptr;
 		}
+		enable = !enable;
+		return;
 	}
 
 	// Acts for when an error is encountered
@@ -373,16 +376,13 @@ namespace Indigo
 
 
 	// Stores the function to call when a key is pressed
-	void(*Key_Pressed_Function)(unsigned char key, int x, int y);
+	void(*Key_Pressed_Function)(int key);
 
 	// ... when a key is released
-	void(*Key_Released_Function)(unsigned char key, int x, int y);
+	void(*Key_Released_Function)(int key);
 
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	void(*Mouse_Button_Function)(int button, int state, float x, float y);
-
-	// ... when the mouse is pressed or released. Given in Window Coordinates
-	void(*Mouse_Raw_Button_Function)(int button, int state, float x, float y);
 
 	// ... when the mouse is moved
 	void(*Mouse_Moved_Function)(int x, int y);
@@ -421,7 +421,9 @@ namespace Indigo
 
 	bool Middle_Mouse = false;
 
-	glm::vec3 Mouse_Position = glm::vec3(0, 0, 0);
+	glm::vec2 Mouse_Position = glm::vec2(0, 0);
+
+	glm::vec2 Mouse_Position_Screen = glm::vec2(0, 0);
 
 
 	// The index for the VAO thingy, not probably important.

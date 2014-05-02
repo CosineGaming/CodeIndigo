@@ -1,88 +1,223 @@
 #include "Indigo/IndigoEngine.h"
 #include <iostream>
+#include <string>
 
-Object player = Object(0, 0.75, 0);
 
-char * fps = new char[4];
+std::vector<char *> models;
+std::vector<char *> textures;
 
-void run(float time)
+bool Typing;
+
+void Fade_Text(float time, Object& self)
 {
-	if (Indigo::Pressed('`'))
+	self.Data.Color.a -= 0.0002 * time;
+	if (self.Data.Color.a < 0)
 	{
-		Indigo::Close();
+		Indigo::Current_World.Remove_2D_Object(self);
 	}
-	if (Indigo::Keys['w'])
-	{
-		player.Move(0.02 * time);
-	}
-	if (Indigo::Keys['s'])
-	{
-		player.Move(-0.02 * time);
-	}
-	if (Indigo::Keys['a'])
-	{
-		player.Move(0, -0.02 * time);
-	}
-	if (Indigo::Keys['d'])
-	{
-		player.Move(0, 0.02 * time);
-	}
-	Indigo::Current_World.View.Place(player.X, player.Y + 0.75, player.Z);
-	Indigo::Current_World.View.Eye = player.Facing;
 }
 
-void strike(float time, Object& hand)
+void GUI(float time)
 {
-	static int countdown = 0;
-	static float direction = 0;
-	if (Indigo::Left_Mouse && !direction)
+	static float total_speed = 0.005;
+	static bool lighting_enabled = false;
+	const float speed = total_speed * time;
+	if (!Typing)
 	{
-		countdown = 80;
-		direction = 1;
-	}
-	if (countdown > 0)
-	{
-		hand.Facing.Add_Direction(0, -0.25 * direction * time);
-		countdown -= time;
-	}
-	else
-	{
-		if (direction == 1)
+		if (Indigo::Keys['w'])
 		{
-			direction = -1;
-			countdown = 80;
+			Indigo::Current_World.View.Move(speed);
 		}
-		else if (direction == -1)
+		if (Indigo::Keys['s'])
 		{
-			direction = 0;
-			countdown = 0;
-			hand.Facing.Set_X_Angle(50);
+			Indigo::Current_World.View.Move(-speed);
+		}
+		if (Indigo::Keys['a'])
+		{
+			Indigo::Current_World.View.Move(0, -speed);
+		}
+		if (Indigo::Keys['d'])
+		{
+			Indigo::Current_World.View.Move(0, speed);
+		}
+		if (Indigo::Keys['e'])
+		{
+			Indigo::Current_World.View.Move(0, 0, speed);
+		}
+		if (Indigo::Keys['q'])
+		{
+			Indigo::Current_World.View.Move(0, 0, -speed);
+		}
+		if (Indigo::Keys['2'])
+		{
+			total_speed += 0.001 * total_speed * time;
+		}
+		if (Indigo::Keys['1'])
+		{
+			total_speed -= 0.001 * total_speed * time;
 		}
 	}
 }
 
-void load(float time)
+void Mouse_Interact(int x, int y)
 {
-	srand(time);
-	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/Crossing.obj")));
-	Indigo::Current_World.Add_Object(Object(1, 0, 1, Mesh("C:/Users/Judah/Documents/Frost/human.obj", "C:/Users/Judah/Documents/Frost/human.bmp")));
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
-	Indigo::Current_World.Add_Object(Object(100, -1.5, 0, Mesh("C:/Users/Judah/Documents/Frost/Crossing.obj", "C:/Users/Judah/Documents/Frost/Crossing.bmp")));
-	Indigo::Current_World.Add_Object(Object(30, 15, 9, Mesh("C:/Users/Judah/Documents/Frost/Arm.obj", "C:/Users/Judah/Documents/Frost/Arm.bmp")));
-	Indigo::Current_World.Add_Front_Object(Object(-0.4, -0.16, 0.15, Mesh("C:/Users/Judah/Documents/Frost/Arm.obj", "C:/Users/Judah/Documents/Frost/Arm.bmp"), strike, Direction(1, 50, 20)));
-	Indigo::FPS_Mouse(true, &player);
-	//Indigo::Current_World.Add_Text(Text(-1.0, 0.8, fps, Indigo::White_Color));
-	//Indigo::Current_World.Light_Setup.Add_Light(0.0, 10.0, 0.0);
-	Indigo::Update_Function = run;
-	std::cout << "Done loading." << std::endl;
+	//
+}
+
+void Mouse_Look(int x, int y)
+{
+	if (Indigo::Left_Mouse)
+	{
+		Indigo::Current_World.View.Eye.Add_Direction(0.0, x*0.2, y*-0.2);
+		if (Indigo::Current_World.View.Eye.Get_Y_Angle() > 90 && Indigo::Current_World.View.Eye.Get_Y_Angle() < 270)
+		{
+			Indigo::Current_World.View.Up.Set_Y(-1.0);
+		}
+		else
+		{
+			Indigo::Current_World.View.Up.Set_Y(1.0);
+		}
+	}
+}
+
+void Key_Pressed(int key)
+{
+	static int space_menu = -1;
+	static bool texture_yet = false;
+	static float menu_x = 0;
+	static float menu_y = 0;
+	static std::string model = "";
+	static std::string texture = "";
+	if (space_menu != -1 && (key == ' ' || (key >= '-' && key <= ';') || (key >= 'a' && key <= 'z')))
+	{
+		if (key == ';')
+		{
+			key = ':';
+		}
+		if (key >= 'a' && key <= 'z')
+		{
+			key += 'A' - 'a';
+		}
+		if (texture_yet)
+		{
+			texture += key;
+		}
+		else
+		{
+			model += key;
+		}
+		Indigo::Current_World.Remove_2D_Object(space_menu);
+		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
+		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+	}
+	if (key == GLFW_KEY_BACKSPACE)
+	{
+		if (texture_yet)
+		{
+			if (texture.length())
+			{
+				texture.pop_back();
+			}
+		}
+		else
+		{
+			if (model.length())
+			{
+				model.pop_back();
+			}
+			texture = "";
+		}
+		Indigo::Current_World.Remove_2D_Object(space_menu);
+		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
+		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+	}
+	if (key == ' ' && space_menu == -1)
+	{
+		menu_x = Indigo::Mouse_Position.x;
+		menu_y = Indigo::Mouse_Position.y;
+		texture_yet = false;
+		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
+		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+		Typing = true;
+		return;
+	}
+	if (key == GLFW_KEY_ENTER)
+	{
+		if (texture_yet)
+		{
+			Mesh add = Mesh(model.c_str(), texture.length() ? texture.c_str() : nullptr);
+			float up = 0.035;
+			if (add.Size() && (!add.Texture_ID == 0 && texture.length()))
+			{
+				Indigo::Current_World.Add_Object(Object(0, 0, 0, add));
+				Indigo::Current_World.Remove_2D_Object(space_menu);
+				space_menu = -1;
+			}
+			else
+			{
+				if (add.Texture_ID == 0 && texture.length())
+				{
+					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find BMP Texture.", 0.035), Fade_Text));
+					up += 0.035;
+				}
+				if (!add.Size())
+				{
+					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find OBJ.", 0.035), Fade_Text));
+					texture_yet = false;
+					Indigo::Current_World.Remove_2D_Object(space_menu);
+					std::string display = "Model:\n" + model + " ";
+					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+				}
+			}
+		}
+		else
+		{
+			if (!model.length())
+			{
+				Indigo::Current_World.Remove_2D_Object(space_menu);
+				space_menu = -1;
+				Typing = false;
+			}
+			else
+			{
+				texture_yet = true;
+				if (texture == "")
+				{
+					texture = model.substr(0, model.length() - 4) + ".bmp";
+				}
+				Indigo::Current_World.Remove_2D_Object(space_menu);
+				std::string display = "Texture:\n" + texture + " ";
+				space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			}
+		}
+	}
+	if (key == GLFW_KEY_ESCAPE)
+	{
+		if (texture_yet)
+		{
+			texture_yet = false;
+			Indigo::Current_World.Remove_2D_Object(space_menu);
+			std::string display = "Texture:\n" + texture + " ";
+			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+		}
+		else
+		{
+			Indigo::Current_World.Remove_2D_Object(space_menu);
+			space_menu = -1;
+			Typing = false;
+		}
+	}
 }
 
 int main()
 {
-	Indigo::Initialize("Indigo Engine Test", glm::vec3(0,0.192,0.314), 1366, 768, 60, false);
-	Indigo::Update_Function = load;
+	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1280, 720, 16, false);
+	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Default.vs", "Default.fs");
-	Indigo::Current_World.Light_Setup.Set_Ambient(0);
-	Indigo::Current_World.Light_Setup.Set_Light(0.0, -1.0, 0.0, true);
+	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
+	Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, true);
+	Indigo::Mouse_Moved_Function = Mouse_Interact;
+	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
+	Indigo::Key_Pressed_Function = Key_Pressed;
 	Indigo::Run();
 }

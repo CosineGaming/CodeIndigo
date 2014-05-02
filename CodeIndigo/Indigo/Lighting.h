@@ -31,6 +31,6 @@ private:
 	// The stored ambient value for update
 	float ambient;
 	// The power of the light -- how far it stretches
-	float intensity;
+	float light_power;
 
 };
