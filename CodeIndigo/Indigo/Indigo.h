@@ -37,7 +37,7 @@ namespace Indigo
 	void FPS_Mouse_Function(int x, int y);
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
 	// Then, use Indigo::Current_World.camera.facing = player.facing;
-	void FPS_Mouse(bool enable, Object * player = nullptr, float sensitivity = 0.2);
+	void FPS_Mouse(Object * player = nullptr, float sensitivity = 0.2);
 	// Acts for when an error is encountered
 	void Error_Found(int type, const char * message);
 	// Updates world
@@ -50,7 +50,7 @@ namespace Indigo
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
 	// Get the letter as if the key was pressed with shift. Useful for Key Callbacks / checking
-	char Get_Shift_Character(const char bottom);
+	char Get_Shifted_Character(const char key);
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void);
 

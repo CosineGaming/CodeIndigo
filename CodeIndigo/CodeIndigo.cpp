@@ -3,8 +3,9 @@
 #include <string>
 
 
-std::vector<char *> models;
-std::vector<char *> textures;
+std::vector<std::string> models;
+std::vector<std::string> textures;
+std::vector<glm::vec3> coordinates;
 
 bool Typing;
 
@@ -21,9 +22,9 @@ void GUI(float time)
 {
 	static float total_speed = 0.005;
 	static bool lighting_enabled = false;
-	const float speed = total_speed * time;
 	if (!Typing)
 	{
+		const float speed = total_speed * time;
 		if (Indigo::Keys['w'])
 		{
 			Indigo::Current_World.View.Move(speed);
@@ -88,130 +89,151 @@ void Key_Pressed(int key)
 	static float menu_y = 0;
 	static std::string model = "";
 	static std::string texture = "";
-	if (space_menu != -1 && (key == ' ' || (key >= '-' && key <= ';') || (key >= 'a' && key <= 'z')))
+	if (space_menu != -1) // Typing in the Model Adder
 	{
-		if (key == ';')
+		if (key == GLFW_KEY_BACKSPACE)
 		{
-			key = ':';
-		}
-		if (key >= 'a' && key <= 'z')
-		{
-			key += 'A' - 'a';
-		}
-		if (texture_yet)
-		{
-			texture += key;
-		}
-		else
-		{
-			model += key;
-		}
-		Indigo::Current_World.Remove_2D_Object(space_menu);
-		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
-		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
-	}
-	if (key == GLFW_KEY_BACKSPACE)
-	{
-		if (texture_yet)
-		{
-			if (texture.length())
+			if (texture_yet)
 			{
-				texture.pop_back();
-			}
-		}
-		else
-		{
-			if (model.length())
-			{
-				model.pop_back();
-			}
-			texture = "";
-		}
-		Indigo::Current_World.Remove_2D_Object(space_menu);
-		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
-		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
-	}
-	if (key == ' ' && space_menu == -1)
-	{
-		menu_x = Indigo::Mouse_Position.x;
-		menu_y = Indigo::Mouse_Position.y;
-		texture_yet = false;
-		std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
-		space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
-		Typing = true;
-		return;
-	}
-	if (key == GLFW_KEY_ENTER)
-	{
-		if (texture_yet)
-		{
-			Mesh add = Mesh(model.c_str(), texture.length() ? texture.c_str() : nullptr);
-			float up = 0.035;
-			if (add.Size() && (!add.Texture_ID == 0 && texture.length()))
-			{
-				Indigo::Current_World.Add_Object(Object(0, 0, 0, add));
-				Indigo::Current_World.Remove_2D_Object(space_menu);
-				space_menu = -1;
+				if (texture.length())
+				{
+					texture.pop_back();
+				}
 			}
 			else
 			{
-				if (add.Texture_ID == 0 && texture.length())
+				if (model.length())
 				{
-					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find BMP Texture.", 0.035), Fade_Text));
-					up += 0.035;
+					model.pop_back();
 				}
-				if (!add.Size())
+				texture = "";
+			}
+			Indigo::Current_World.Remove_2D_Object(space_menu);
+			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
+			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+		}
+		else if (key == GLFW_KEY_ENTER)
+		{
+			if (texture_yet)
+			{
+				Mesh add = Mesh(model.c_str(), texture.length() ? texture.c_str() : nullptr);
+				float up = 0.035;
+				if (add.Size() && !(add.Texture_ID == 0 && texture.length()))
 				{
-					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find OBJ.", 0.035), Fade_Text));
-					texture_yet = false;
+					models.push_back(model);
+					textures.push_back(texture);
+					glm::vec3 position = glm::vec3(Indigo::Current_World.View.X, Indigo::Current_World.View.Y, Indigo::Current_World.View.Z);
+					coordinates.push_back(position);
+					Indigo::Current_World.Add_Object(Object(position.x, position.y, position.z, add));
 					Indigo::Current_World.Remove_2D_Object(space_menu);
-					std::string display = "Model:\n" + model + " ";
+					space_menu = -1;
+					Typing = false;
+				}
+				else
+				{
+					if (add.Texture_ID == 0 && texture.length())
+					{
+						Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find BMP Texture.", 0.035), Fade_Text));
+						up += 0.035;
+					}
+					if (!add.Size())
+					{
+						Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find OBJ.", 0.035), Fade_Text));
+						texture_yet = false;
+						Indigo::Current_World.Remove_2D_Object(space_menu);
+						std::string display = "Model:\n" + model + " ";
+						space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+					}
+				}
+			}
+			else
+			{
+				if (!model.length())
+				{
+					Indigo::Current_World.Remove_2D_Object(space_menu);
+					space_menu = -1;
+					Typing = false;
+				}
+				else
+				{
+					texture_yet = true;
+					if (texture == "")
+					{
+						texture = model.substr(0, model.length() - 4) + ".bmp";
+					}
+					Indigo::Current_World.Remove_2D_Object(space_menu);
+					std::string display = "Texture:\n" + texture + " ";
 					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 				}
 			}
 		}
-		else
+		else if (key == GLFW_KEY_ESCAPE)
 		{
-			if (!model.length())
+			if (texture_yet)
+			{
+				texture_yet = false;
+				Indigo::Current_World.Remove_2D_Object(space_menu);
+				std::string display = "Texture:\n" + texture + " ";
+				space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			}
+			else
 			{
 				Indigo::Current_World.Remove_2D_Object(space_menu);
 				space_menu = -1;
 				Typing = false;
 			}
+		}
+		else if (key != GLFW_KEY_LEFT_SHIFT && key != GLFW_KEY_RIGHT_SHIFT && key != GLFW_KEY_LEFT_CONTROL && key != GLFW_KEY_RIGHT_CONTROL && key != GLFW_KEY_LEFT_ALT && key != GLFW_KEY_RIGHT_ALT)
+		{
+			if (Indigo::Shift)
+			{
+				key = Indigo::Get_Shifted_Character(key);
+			}
+			if (texture_yet)
+			{
+				texture += key;
+			}
 			else
 			{
-				texture_yet = true;
-				if (texture == "")
-				{
-					texture = model.substr(0, model.length() - 4) + ".bmp";
-				}
-				Indigo::Current_World.Remove_2D_Object(space_menu);
-				std::string display = "Texture:\n" + texture + " ";
-				space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+				model += key;
 			}
-		}
-	}
-	if (key == GLFW_KEY_ESCAPE)
-	{
-		if (texture_yet)
-		{
-			texture_yet = false;
 			Indigo::Current_World.Remove_2D_Object(space_menu);
-			std::string display = "Texture:\n" + texture + " ";
+			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 		}
-		else
+	}
+	else
+	{
+		if (key == ' ')
 		{
-			Indigo::Current_World.Remove_2D_Object(space_menu);
-			space_menu = -1;
-			Typing = false;
+			menu_x = Indigo::Mouse_Position.x;
+			menu_y = Indigo::Mouse_Position.y;
+			texture_yet = false;
+			std::string display = "Model:\n" + model + " ";
+			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Typing = true;
+			return;
+		}
+		if (key == GLFW_KEY_TAB)
+		{
+			for (int i = 0; i < models.size(); ++i)
+			{
+				if (textures[i][0] != '\0')
+				{
+					std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
+				}
+				else
+				{
+					std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
+				}
+			}
 		}
 	}
 }
 
 int main()
 {
-	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1280, 720, 16, false);
+	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1280, 720, 24, false);
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Default.vs", "Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);

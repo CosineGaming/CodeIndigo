@@ -16,9 +16,9 @@ public:
 	// Copy a mesh
 	Mesh(const Mesh& mesh);
 	// Create a new mesh by loading it from an obj file
-	Mesh(const char * filename, const char * texture=nullptr, const float shine = 60.0, const glm::vec4& color = glm::vec4(1,1,1,1));
+	Mesh(const char * filename, const char * texture = nullptr, const float shine = 60.0, const glm::vec4& color = glm::vec4(1, 1, 1, 1));
 	// Specialized constructor for creating text
-	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.bmp");
+	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.bmp", const glm::vec4& color = glm::vec4(1, 1, 1, 1));
 	// Destroy the mesh
 	~Mesh(void);
 

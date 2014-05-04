@@ -19,9 +19,13 @@ World::World(void)
 	objects_front = std::vector<Object>();
 	objects_2d = std::vector<Object>();
 	animations = std::vector<Animation>();
+	skybox = Object();
+	Update_Function = nullptr;
 	Light_Setup = Lighting();
 	View = Camera();
-	skybox = Object();
+	Matrix_Handle = 0;
+	View_Matrix = 0;
+	Model_Matrix = 0;
 	Shader_Index = 0;
 	return;
 }
@@ -34,9 +38,13 @@ World::World(const World& world)
 	objects_front = world.objects_front;
 	objects_2d = world.objects_2d;
 	animations = world.animations;
+	skybox = world.skybox;
+	Update_Function = world.Update_Function;
 	Light_Setup = world.Light_Setup;
 	View = world.View;
-	skybox = world.skybox;
+	Matrix_Handle = world.Matrix_Handle;
+	View_Matrix = world.View_Matrix;
+	Model_Matrix = world.Model_Matrix;
 	Shader_Index = world.Shader_Index;
 	return;
 }

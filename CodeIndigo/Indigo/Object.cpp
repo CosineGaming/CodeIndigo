@@ -29,8 +29,11 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 	Update_Function = update_function;
 	Render_Function = nullptr;
 	Facing = towards;
+	Scale = glm::vec3(1, 1, 1);
 	World_Collide = world_collide;
 	User_Data = std::vector<float>();
+	Shader_Argument_Names = std::vector<char *>();
+	Shader_Arguments = std::vector<float>();
 	ID = -1;
 	return;
 }
@@ -44,9 +47,12 @@ Object::Object(const Object& object)
 	Update_Function = object.Update_Function;
 	Render_Function = object.Render_Function;
 	Facing = object.Facing;
+	Scale = object.Scale;
 	World_Collide = object.World_Collide;
 	Is_Blank = object.Is_Blank;
 	User_Data = object.User_Data;
+	Shader_Argument_Names = object.Shader_Argument_Names;
+	Shader_Arguments = object.Shader_Arguments;
 	ID = object.ID;
 	return;
 }
@@ -87,6 +93,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
 	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	modeling = glm::scale(modeling, Scale);
 	glUniformMatrix4fv(Indigo::Current_World.Model_Matrix, 1, GL_FALSE, &modeling[0][0]);
 	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
@@ -249,6 +256,7 @@ bool Object::Collide(const glm::vec3& position, const Direction& direction) cons
 bool Object::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z) const
 {
 	//return (Direction(X, Y, Z).Distance(Direction::Coordinates(vertex.x + add_x, vertex.y + add_y, vertex.z + add_z)).Get_Distance() < Data.Hitbox);
+	return false;
 }
 
 

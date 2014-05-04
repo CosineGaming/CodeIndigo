@@ -57,6 +57,8 @@ public:
 	Mesh Data;
 	// The Direction the object is facing. Rotates in rendering!
 	Direction Facing;
+	// The scale of the object, 1, 1, 1, normally. XYZ.
+	glm::vec3 Scale;
 	// Whether or not to collide when searching through World::Collide
 	bool World_Collide;
 	// Data for the user to define for whatever purpose.

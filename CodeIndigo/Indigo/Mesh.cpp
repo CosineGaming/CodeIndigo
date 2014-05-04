@@ -137,6 +137,10 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 						{
 							texture_coordinates.push_back(temp_textures[atoi(values.c_str()) - 1]);
 						}
+						else
+						{
+							texture_coordinates.push_back(glm::vec2(0, 0));
+						}
 						// Vertex Normal
 						values = values.substr(values.find('/') + 1);
 						if (point == 2 && values[0] != ' ')
@@ -151,6 +155,11 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 								flat_normals.push_back(Find_Flat_Normal(Size() - 1));
 							}
 						}
+					}
+					else
+					{
+						texture_coordinates.push_back(glm::vec2(0, 0));
+						flat_normals.push_back(Find_Flat_Normal(Size() - 1));
 					}
 					// Move on to next point
 					values = values.substr(values.find(' ') + 1);
@@ -179,9 +188,10 @@ Mesh::~Mesh(void)
 
 
 // Specialized constructor for creating text
-Mesh Mesh::Text(const char * text, const float size, const char * font)
+Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color)
 {
 	Mesh mesh;
+	//mesh.Color = color;
 	float bottom = 0;
 	float top = size;
 	float left = 0;
@@ -485,11 +495,12 @@ void Mesh::Texture(const char * filename)
 
 	glGenTextures(1, &Texture_ID);
 	glBindTexture(GL_TEXTURE_2D, Texture_ID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	delete [] data;
 
 	return;

@@ -351,6 +351,57 @@ namespace Indigo
 	}
 
 
+	// Get the letter as if the key was pressed with shift. Useful for Key Callbacks / checking
+	char Get_Shifted_Character(const char key)
+	{
+		if (key == '`')
+			return '~';
+		if (key == '1')
+			return '!';
+		if (key == '2')
+			return '@';
+		if (key == '3')
+			return '#';
+		if (key == '4')
+			return '$';
+		if (key == '5')
+			return '%';
+		if (key == '6')
+			return '^';
+		if (key == '7')
+			return '&';
+		if (key == '8')
+			return '^';
+		if (key == '9')
+			return '(';
+		if (key == '0')
+			return ')';
+		if (key == '-')
+			return '_';
+		if (key == '=')
+			return '+';
+		if (key >= 'a' && key <= 'z')
+			return key + 'A' - 'a';
+		if (key == '[')
+			return '{';
+		if (key == ']')
+			return '}';
+		if (key == '\\')
+			return '|';
+		if (key == ';')
+			return ':';
+		if (key == '\'')
+			return '"';
+		if (key == ',')
+			return '<';
+		if (key == '.')
+			return '>';
+		if (key == '/')
+			return '?';
+		return key;
+	}
+
+
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void)
 	{
