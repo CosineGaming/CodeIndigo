@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <set>
 #include "GLFW/glfw3.h"
 
 
@@ -20,11 +21,6 @@ Mesh::Mesh(void)
 {
 	Hitbox[0] = glm::vec3(0, 0, 0);
 	Hitbox[1] = glm::vec3(0, 0, 0);
-	vertices = std::vector<glm::vec3>();
-	elements = std::vector<unsigned short>();
-	flat_normals = std::vector<glm::vec3>();
-	smooth_normals = std::vector<glm::vec3>();
-	texture_coordinates = std::vector<glm::vec2>();
 	Color = glm::vec4(1,1,1,1);
 	Shine = 0;
 	Vertices_ID = 0;
@@ -38,11 +34,6 @@ Mesh::Mesh(void)
 // Copy a mesh
 Mesh::Mesh(const Mesh& mesh)
 {
-	vertices = mesh.vertices;
-	elements = mesh.elements;
-	flat_normals = mesh.flat_normals;
-	smooth_normals = mesh.smooth_normals;
-	texture_coordinates = mesh.texture_coordinates;
 	Hitbox[0] = mesh.Hitbox[0];
 	Hitbox[1] = mesh.Hitbox[1];
 	Color = mesh.Color;
@@ -63,11 +54,6 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 
 	Hitbox[0] = glm::vec3(0, 0,0);
 	Hitbox[1] = glm::vec3(0, 0,0);
-	vertices = std::vector<glm::vec3>();
-	elements = std::vector<unsigned short>();
-	flat_normals = std::vector<glm::vec3>();
-	smooth_normals = std::vector<glm::vec3>();
-	texture_coordinates = std::vector<glm::vec2>();
 	Color = color;
 	Shine = shine;
 	Vertices_ID = 0;
@@ -86,6 +72,9 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		std::vector<glm::vec3> temp_vertices;
 		std::vector<glm::vec2> temp_textures;
 		std::vector<glm::vec3> temp_normals;
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec2> textures;
+		std::vector<glm::vec3> normals;
 		while (std::getline(file, line))
 		{
 			if (line[0] == 'v' && line[1] == ' ')
@@ -135,11 +124,11 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 						values = values.substr(texturenormal);
 						if (values[0] != '/')
 						{
-							texture_coordinates.push_back(temp_textures[atoi(values.c_str()) - 1]);
+							textures.push_back(temp_textures[atoi(values.c_str()) - 1]);
 						}
 						else
 						{
-							texture_coordinates.push_back(glm::vec2(0, 0));
+							textures.push_back(glm::vec2(0, 0));
 						}
 						// Vertex Normal
 						values = values.substr(values.find('/') + 1);
@@ -148,18 +137,18 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 							int place = atoi(values.c_str()) - 1;
 							if (temp_normals.size() > place)
 							{
-								flat_normals.push_back(temp_normals[place]);
+								normals.push_back(temp_normals[place]);
 							}
 							else
 							{
-								flat_normals.push_back(Find_Flat_Normal(Size() - 1));
+								normals.push_back(Find_Flat_Normal(vertices[point - 2], vertices[point - 1], vertices[point]));
 							}
 						}
 					}
 					else
 					{
-						texture_coordinates.push_back(glm::vec2(0, 0));
-						flat_normals.push_back(Find_Flat_Normal(Size() - 1));
+						textures.push_back(glm::vec2(0, 0));
+						normals.push_back(Find_Flat_Normal(vertices[point - 2], vertices[point - 1], vertices[point]));
 					}
 					// Move on to next point
 					values = values.substr(values.find(' ') + 1);
@@ -168,12 +157,9 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		}
 		file.close();
 
-		if (texture)
-		{
-			Texture(texture);
-		}
+		Texture(texture);
 
-		Initialize();
+		Initialize(vertices, textures, normals);
 
 	}
 	return;
@@ -203,7 +189,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		int letter = check_letter - 32;
 		float y = 1 - (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
-		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
+		/*mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
 		mesh.vertices.push_back(glm::vec3(right, bottom, 0)); // BR
 		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
 		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
@@ -226,7 +212,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
 		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
 		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
+		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));*/
 
 		left += size;
 		right += size;
@@ -240,41 +226,91 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 
 	}
 	mesh.Texture(font);
-	mesh.Initialize();
+	//mesh.Initialize();
 	return mesh;
 }
 
 
-struct Vertex_And_Texture_Coordinate
+// Used by Initialize's maps
+struct Vertex_Texture_Normal
 {
 	glm::vec3 vertex;
-	glm::vec2 texture_coordinate;
-	bool operator< (const Vertex_And_Texture_Coordinate& compare) const
+	glm::vec2 texture;
+	glm::vec3 normal;
+	bool operator< (const Vertex_Texture_Normal& compare) const
 	{
-		return memcmp(this, &compare, sizeof(Vertex_And_Texture_Coordinate)) > 0;
+		return memcmp(this, &compare, sizeof(Vertex_Texture_Normal)) > 0;
+	}
+};
+
+
+// Used by Initialize's maps
+struct Vertex_Normal
+{
+	glm::vec3 vertex;
+	glm::vec3 normal;
+	bool operator< (const Vertex_Normal& compare) const
+	{
+		return memcmp(this, &compare, sizeof(Vertex_Normal)) > 0;
+	}
+};
+
+
+struct Vertex_Compare
+{
+	glm::vec3 data;
+	bool operator< (const Vertex_Compare& compare) const
+	{
+		return memcmp(this, &compare, sizeof(Vertex_Compare)) > 0;
 	}
 };
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Initialize(void)
+void Mesh::Initialize(const std::vector<glm::vec3>& temp_vertices, const std::vector<glm::vec2>& temp_texture_coordinates, const std::vector<glm::vec3>& temp_normals)
 {
 
-	smooth_normals = std::vector<glm::vec3>();
+	// Smooth the normals
+	std::vector<glm::vec3> smooth_normals;
+	std::vector<unsigned short> count;
+	std::map<Vertex_Compare, unsigned short> vertex_to_normal;
+	for (int normal = 0; normal < temp_normals.size(); ++normal)
+	{
+		std::map<Vertex_Compare, unsigned short>::iterator location = vertex_to_normal.find({ temp_normals[normal] });
+		if (location == vertex_to_normal.end())
+		{
+			smooth_normals.push_back(temp_normals[normal/3]);
+			count.push_back(1);
+			vertex_to_normal[{temp_vertices[normal]}] = normal;
+		}
+		else
+		{
+			smooth_normals[location->second] += temp_normals[normal];
+			count[location->second]++;
+		}
+	}
+	for (int normal = 0; normal < smooth_normals.size(); ++normal)
+	{
+		smooth_normals[normal] /= count[normal];
+	}
 
-	std::vector<glm::vec3> positions = std::vector<glm::vec3>();
-	std::vector<glm::vec2> coordinates = std::vector<glm::vec2>();
-	std::map<Vertex_And_Texture_Coordinate, unsigned short> vertex_to_index;
-	for (int point = 0; point < vertices.size(); ++point)
+	// Index for the VBO!
+	std::vector<glm::vec3> vertices = std::vector<glm::vec3>();
+	std::vector<glm::vec2> texture_coordinates = std::vector<glm::vec2>();
+	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
+	std::vector<unsigned short> elements = std::vector<unsigned short>();
+	std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
+	for (int point = 0; point < temp_vertices.size(); ++point)
 	{
 		unsigned short index = 0;
-		Vertex_And_Texture_Coordinate together = { vertices[point], texture_coordinates[point] };
-		std::map<Vertex_And_Texture_Coordinate, unsigned short>::iterator location = vertex_to_index.find(together);
+		Vertex_Texture_Normal together = { temp_vertices[point], temp_texture_coordinates[point], smooth_normals[point] };
+		std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
 		if (location == vertex_to_index.end())
 		{
-			positions.push_back(vertices[point]);
-			coordinates.push_back(texture_coordinates[point]);
-			unsigned short index = positions.size() - 1;
+			vertices.push_back(temp_vertices[point]);
+			texture_coordinates.push_back(temp_texture_coordinates[point]);
+			normals.push_back(smooth_normals[point]);
+			unsigned short index = vertices.size() - 1;
 			elements.push_back(index);
 			vertex_to_index[together] = index;
 		}
@@ -283,48 +319,15 @@ void Mesh::Initialize(void)
 			elements.push_back(location->second);
 		}
 	}
-	smooth_normals = std::vector<glm::vec3>();
-	glm::vec3 * temp_normals = new glm::vec3[positions.size()];
-	int * temp_amounts = new int[positions.size()];
-	for (int point = 0; point < positions.size(); ++point)
-	{
-		temp_normals[point] = glm::vec3(0, 0, 0);
-		temp_amounts[point] = 0;
-	}
-	for (int point = 0; point < elements.size(); ++point)
-	{
-		temp_normals[elements[point]] += Flat_Normal(point);
-		temp_amounts[elements[point]]++;
-	}
-	for (int point = 0; point < positions.size(); ++point)
-	{
-		if (temp_amounts[point] != 0)
-		{
-			temp_normals[point] /= temp_amounts[point];
-			smooth_normals.push_back(temp_normals[point]);
-		}
-		else
-		{
-			// Incorrectly ==ed, pick a fairly random but hopefully related normal
-			std::cout << "Compen! Compensation! Ba-dum... Dum!" << std::endl;
-			smooth_normals.push_back(Flat_Normal(point * 3));
-		}
-	}
-	delete[] temp_normals;
-	delete[] temp_amounts;
-	temp_normals = nullptr;
-	temp_amounts = nullptr;
 
-	texture_coordinates = coordinates;
-	vertices = positions;
-
+	// Let's do it! It's ready! Let's send it to the GPU!
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);
-	glBufferData(GL_ARRAY_BUFFER, smooth_normals.size() * sizeof(glm::vec3), &smooth_normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &UV_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
@@ -334,96 +337,22 @@ void Mesh::Initialize(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 
+	// Oh, yeah, we actually need to render this. How big was this model, again?
 	number_elements = elements.size();
-
-	// No need for RAM to hold it anymore, it's in VRAM! * Flush of relief as the RAM is released *
-	vertices = std::vector<glm::vec3>();
-	elements = std::vector<unsigned short>();
-	flat_normals = std::vector<glm::vec3>();
-	smooth_normals = std::vector<glm::vec3>();
-	texture_coordinates = std::vector<glm::vec2>();
+	std::cout << vertices.size() / elements.size() << "% of original size.\n";
 
 	return;
 }
 
 
-// Allows [] to get a vertex like an array
-const glm::vec3& Mesh::operator[](const int index) const
-{
-	return (Get_Vertex(index));
-}
-
-
-// Allows += to add a mesh to the end
-Mesh& Mesh::operator+=(const Mesh& mesh)
-{
-	Add(mesh);
-	return (*this);
-}
-
-
-// Allows += to add a vector of vertices to the end
-Mesh& Mesh::operator+=(const std::vector <glm::vec3>& add_vertices)
-{
-	Add(add_vertices);
-	return (*this);
-}
-
-
-// Allows + to add a vertex to the end
-Mesh Mesh::operator+(const glm::vec3& vertex) const
-{
-	Mesh copy = *this;
-	copy.Add(vertex);
-	return (copy);
-}
-
-
-// Allows + to add a mesh to the end
-Mesh Mesh::operator+(const Mesh& mesh) const
-{
-	Mesh copy = *this;
-	copy += mesh;
-	return (copy);
-}
-
-
-// Gets a vertex by its index
-const glm::vec3& Mesh::Get_Vertex(const int index) const
-{
-	return (vertices[index]);
-}
-
-
-// Gets a vertex that can be modified
-glm::vec3& Mesh::Edit_Vertex(const int index)
-{
-	return (vertices[index]);
-}
-
-
 // Finds one flat normal. Assumes index is end of group.
-glm::vec3 Mesh::Find_Flat_Normal(const int index) const
+glm::vec3 Mesh::Find_Flat_Normal(const glm::vec3& one, const glm::vec3& two, const glm::vec3& three) const
 {
-	Direction normal = Direction(Get_Vertex(index - 1)).Distance(Direction(Get_Vertex(index - 2)));
-	Direction with = Direction(Get_Vertex(index)).Distance(Direction(Get_Vertex(index - 2)));
+	Direction normal = Direction(two).Distance(Direction(one));
+	Direction with = Direction(three).Distance(Direction(one));
 	normal = normal.Cross(with);
 	normal.Normalize();
 	return normal.To_Vertex();
-}
-
-
-// Get the normal for a specific vertex by face
-glm::vec3 Mesh::Flat_Normal(const int index) const
-{
-	return flat_normals[index / 3];
-}
-
-
-// Get the smoother per-vertex normal for a vertex; calculate if needed
-glm::vec3 Mesh::Smooth_Normal(const int index) const
-{
-	return glm::vec3(smooth_normals[elements[index]]);
 }
 
 
@@ -460,33 +389,48 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 // Texture the entire mesh with one file
 void Mesh::Texture(const char * filename)
 {
-	std::ifstream file(filename, std::ios::binary);
-	if (!file)
+	char * data;
+	int width;
+	int height;
+	if (!filename)
 	{
-		std::cout << "Cannot find file " << filename << " aborting texture loading." << std::endl;
-		return;
+		data = new char[3];
+		data[0] = 255;
+		data[1] = 255;
+		data[2] = 255;
+		width = 1;
+		height = 1;
 	}
-	char header[54];
-	file.read(header, 54);
-	if (header[0] != 'B' || header[1] != 'M')
+	else
 	{
-		std::cout << "Incorrectly configured or corrupted datafile " << filename << ". Aborting." << std::endl;
+		std::ifstream file(filename, std::ios::binary);
+		if (!file)
+		{
+			std::cout << "Cannot find file " << filename << " aborting texture loading." << std::endl;
+			return;
+		}
+		char header[54];
+		file.read(header, 54);
+		if (header[0] != 'B' || header[1] != 'M')
+		{
+			std::cout << "Incorrectly configured or corrupted datafile " << filename << ". Aborting." << std::endl;
+		}
+		int start = *(int*) &(header[0x0A]);
+		int size = *(int*) &(header[0x22]);
+		width = *(int*) &(header[0x12]);
+		height = *(int*) &(header[0x16]);
+		if (size == 0)
+		{
+			size = width*height * 3;
+		}
+		if (start == 0)
+		{
+			start = 54;
+		}
+		data = new char[size];
+		file.read(data, size);
+		file.close();
 	}
-	int start = *(int*) &(header[0x0A]);
-	int size = *(int*) &(header[0x22]);
-	int width = *(int*) &(header[0x12]);
-	int height = *(int*) &(header[0x16]);
-	if (size == 0)
-	{
-		size = width*height * 3;
-	}
-	if (start == 0)
-	{
-		start = 54;
-	}
-	char * data = new char[size];
-	file.read(data, size);
-	file.close();
 
 	if (Texture_ID != 0)
 	{
@@ -518,102 +462,5 @@ glm::vec2 Mesh::Auto_Texture_Coordinate(const int index) const
 // Get the number of elements in the mesh
 int Mesh::Size(void) const
 {
-	if (number_elements == 0)
-	{
-		if (elements.size())
-		{
-			return elements.size();
-		}
-		else
-		{
-			return vertices.size();
-		}
-	}
-	else
-	{
-		return number_elements;
-	}
-}
-
-
-// Number of actual different vertices defined
-int Mesh::Vertex_Data_Amount(void) const
-{
-	return (vertices.size());
-}
-
-
-void Mesh::Add(const glm::vec3& vertex)
-{
-	// Checks if this vertex has been mentioned before
-	bool duplicate = false;
-	for (int check = 0; check<Vertex_Data_Amount(); ++check)
-	{
-		if (vertex == Get_Vertex(check))
-		{
-			elements.push_back(check);
-			duplicate = true;
-		}
-	}
-	// Add a new vertex to the end of the mesh if not a duplicate
-	if (!duplicate)
-	{
-		vertices.push_back(vertex);
-		texture_coordinates.push_back(glm::vec2(-1, -1));
-		elements.push_back(Vertex_Data_Amount() - 1);
-		// Update the hitbox with this new info
-		Update_Hitbox(vertex);
-	}
-	// Calculate the light normal if this ends a face
-	int point = Size() - 1;
-	if (point % 3 == 2)
-	{
-		flat_normals.push_back(Find_Flat_Normal(point));
-	}
-	return;
-}
-
-
-// Add new vertices to the end of the mesh
-void Mesh::Add(const Mesh& mesh)
-{
-	for (int i = 0; i < mesh.vertices.size(); ++i)
-	{
-		vertices.push_back(mesh.vertices[i]);
-	}
-	for (int i = 0; i < mesh.flat_normals.size(); ++i)
-	{
-		vertices.push_back(mesh.flat_normals[i]);
-	}
-	for (int i = 0; i < mesh.smooth_normals.size(); ++i)
-	{
-		vertices.push_back(mesh.smooth_normals[i]);
-	}
-	if (mesh.texture_coordinates.size() != 0)
-	{
-		while (texture_coordinates.size()<Size())
-		{
-			texture_coordinates.push_back(glm::vec2(-1, -1));
-		}
-		for (int i = 0; i < mesh.texture_coordinates.size(); ++i)
-		{
-			texture_coordinates.push_back(mesh.texture_coordinates[i]);
-		}
-	}
-	for (int i = 0; i < mesh.Size(); ++i)
-	{
-		elements.push_back(mesh.elements[i] + Vertex_Data_Amount());
-	}
-	return;
-}
-
-
-// Add new vertices to the end of the mesh
-void Mesh::Add(const std::vector <glm::vec3>& add_vertices)
-{
-	for (std::size_t point = 0; point < add_vertices.size(); ++point)
-	{
-		Add(add_vertices[point]);
-	}
-	return;
+	return number_elements;
 }

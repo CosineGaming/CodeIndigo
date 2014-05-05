@@ -14,8 +14,6 @@ public:
 
 	// Create a new float animation to be animated each frame given a pointer, a final value, and a number of frames
 	Animation(float * original=nullptr, float finished=0, int milliseconds=-1);
-	// Construct an animation based on tweening a shape
-	Animation(Mesh * original, Mesh finished, int frames);
 	// Construct an animation for tweening position of an object
 	Animation(Object * original, float x, float y, float z, int frames);
 	// Destroy an animation and remove it from the update list
