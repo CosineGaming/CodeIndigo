@@ -177,42 +177,41 @@ Mesh::~Mesh(void)
 Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color)
 {
 	Mesh mesh;
-	//mesh.Color = color;
+	mesh.Color = color;
 	float bottom = 0;
 	float top = size;
 	float left = 0;
 	float right = size;
 	int i = 0;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
 	for (char check_letter = text[0]; check_letter != '\0'; check_letter = text[++i])
 	{
 
 		int letter = check_letter - 32;
 		float y = 1 - (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
-		/*mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
-		mesh.vertices.push_back(glm::vec3(right, bottom, 0)); // BR
-		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
-		mesh.vertices.push_back(glm::vec3(left, bottom, 0)); // BL
-		mesh.vertices.push_back(glm::vec3(right, top, 0)); // TR
-		mesh.vertices.push_back(glm::vec3(left, top, 0)); // TL
+		vertices.push_back(glm::vec3(left, bottom, 0)); // BL
+		vertices.push_back(glm::vec3(right, bottom, 0)); // BR
+		vertices.push_back(glm::vec3(right, top, 0)); // TR
+		vertices.push_back(glm::vec3(left, bottom, 0)); // BL
+		vertices.push_back(glm::vec3(right, top, 0)); // TR
+		vertices.push_back(glm::vec3(left, top, 0)); // TL
 
 		float tex_l = x;
 		float tex_r = x + 0.0625;
 		float tex_t = y;
 		float tex_b = y - 0.0625;
-		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_b)); // BL
-		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_b)); // BR
-		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_t)); // TR
-		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_b)); // BL
-		mesh.texture_coordinates.push_back(glm::vec2(tex_r, tex_t)); // TR
-		mesh.texture_coordinates.push_back(glm::vec2(tex_l, tex_t)); // TL
+		uvs.push_back(glm::vec2(tex_l, tex_b)); // BL
+		uvs.push_back(glm::vec2(tex_r, tex_b)); // BR
+		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
+		uvs.push_back(glm::vec2(tex_l, tex_b)); // BL
+		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
+		uvs.push_back(glm::vec2(tex_l, tex_t)); // TL
 
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));
-		mesh.flat_normals.push_back(glm::vec3(0, 0, 1));*/
+		normals.push_back(glm::vec3(0, 0, 1));
+		normals.push_back(glm::vec3(0, 0, 1));
 
 		left += size;
 		right += size;
@@ -225,6 +224,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		}
 
 	}
+	mesh.Initialize(vertices, uvs, normals);
 	mesh.Texture(font);
 	//mesh.Initialize();
 	return mesh;
@@ -271,8 +271,8 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 {
 
 	// Smooth the normals
+	std::vector<unsigned short> normal_indices;
 	std::vector<glm::vec3> vertex_normals;
-	std::vector<unsigned char> count;
 	std::map<Vertex_Compare, unsigned short> vertex_to_normal;
 	std::cout << normals.size() << ", " << vertices.size() << std::endl;
 	for (int vertex = 0; vertex < vertices.size(); ++vertex)
@@ -281,25 +281,20 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 		if (location == vertex_to_normal.end())
 		{
 			vertex_normals.push_back(normals[vertex / 3]);
-			count.push_back(1);
 			vertex_to_normal[{vertices[vertex]}] = vertex_normals.size() - 1;
+			normal_indices.push_back(vertex_normals.size() - 1);
 		}
 		else
 		{
-			std::cout << location->second << std::endl;
 			vertex_normals[location->second] += normals[vertex / 3];
-			count[location->second]++;
+			normal_indices.push_back(location->second);
 		}
 	}
 	for (int normal = 0; normal < vertex_normals.size(); ++normal)
 	{
-		vertex_normals[normal] /= count[normal];
 		vertex_normals[normal] = glm::normalize(vertex_normals[normal]);
-		if (rand() % 100 == 0)
-		{
-			std::cout << Direction(vertex_normals[normal]).Get_Distance() << std::endl;
-		}
 	}
+	std::cout << vertex_normals.size() << std::endl;
 
 	// Index for the VBO!
 	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
@@ -316,17 +311,16 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 		{
 			final_vertices.push_back(vertices[point]);
 			final_uvs.push_back(uvs[point]);
-			final_normals.push_back(vertex_normals[point]);
+			final_normals.push_back(vertex_normals[normal_indices[point]]);
 			unsigned short index = final_vertices.size() - 1;
 			elements.push_back(index);
-			vertex_to_index[together] = index; 
+			vertex_to_index[together] = index;
 		}
 		else
 		{
 			elements.push_back(location->second);
 		}
 	}
-	std::cout << final_vertices[311].x << ", " << final_vertices[311].y << ", " << final_vertices[311].z << "| " << final_uvs[311].x << ", " << final_uvs[311].y << "| " << final_normals[311].x << ", " << final_normals[311].y << ", " << final_normals[311].z << "| " << elements[311] << std::endl;
 	std::cout << final_vertices.size() << ", " << final_uvs.size() << ", " << elements.size() << std::endl;
 
 	// Let's do it! It's ready! Let's send it to the GPU!
