@@ -26,7 +26,7 @@ Mesh::Mesh(void)
 	Vertices_ID = 0;
 	Elements_ID = 0;
 	Texture_ID = 0;
-	number_elements = 0;
+	Size = 0;
 	return;
 }
 
@@ -43,7 +43,7 @@ Mesh::Mesh(const Mesh& mesh)
 	Normals_ID = mesh.Normals_ID;
 	Texture_ID = mesh.Texture_ID;
 	UV_ID = mesh.UV_ID;
-	number_elements = mesh.number_elements;
+	Size = mesh.Size;
 	return;
 }
 
@@ -59,7 +59,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	Vertices_ID = 0;
 	Elements_ID = 0;
 	Texture_ID = 0;
-	number_elements = 0;
+	Size = 0;
 
 	std::ifstream file(filename, std::ios::in);
 	if (!file)
@@ -141,14 +141,14 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 							}
 							else
 							{
-								normals.push_back(Find_Flat_Normal(vertices[point - 2], vertices[point - 1], vertices[point]));
+								normals.push_back(glm::cross(vertices[point - 1] - vertices[point - 2], vertices[point] - vertices[point - 2]));
 							}
 						}
 					}
 					else
 					{
 						textures.push_back(glm::vec2(0, 0));
-						normals.push_back(Find_Flat_Normal(vertices[point - 2], vertices[point - 1], vertices[point]));
+						normals.push_back(glm::cross(vertices[point - 1] - vertices[point - 2], vertices[point] - vertices[point - 2]));
 					}
 					// Move on to next point
 					values = values.substr(values.find(' ') + 1);
@@ -258,7 +258,7 @@ struct Vertex_Normal
 
 struct Vertex_Compare
 {
-	glm::vec3 data;
+	glm::vec3 vertex;
 	bool operator< (const Vertex_Compare& compare) const
 	{
 		return memcmp(this, &compare, sizeof(Vertex_Compare)) > 0;
@@ -267,92 +267,90 @@ struct Vertex_Compare
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Initialize(const std::vector<glm::vec3>& temp_vertices, const std::vector<glm::vec2>& temp_texture_coordinates, const std::vector<glm::vec3>& temp_normals)
+void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals)
 {
 
 	// Smooth the normals
-	std::vector<glm::vec3> smooth_normals;
-	std::vector<unsigned short> count;
+	std::vector<glm::vec3> vertex_normals;
+	std::vector<unsigned char> count;
 	std::map<Vertex_Compare, unsigned short> vertex_to_normal;
-	for (int normal = 0; normal < temp_normals.size(); ++normal)
+	std::cout << normals.size() << ", " << vertices.size() << std::endl;
+	for (int vertex = 0; vertex < vertices.size(); ++vertex)
 	{
-		std::map<Vertex_Compare, unsigned short>::iterator location = vertex_to_normal.find({ temp_normals[normal] });
+		std::map<Vertex_Compare, unsigned short>::iterator location = vertex_to_normal.find({ vertices[vertex] });
 		if (location == vertex_to_normal.end())
 		{
-			smooth_normals.push_back(temp_normals[normal/3]);
+			vertex_normals.push_back(normals[vertex / 3]);
 			count.push_back(1);
-			vertex_to_normal[{temp_vertices[normal]}] = normal;
+			vertex_to_normal[{vertices[vertex]}] = vertex_normals.size() - 1;
 		}
 		else
 		{
-			smooth_normals[location->second] += temp_normals[normal];
+			std::cout << location->second << std::endl;
+			vertex_normals[location->second] += normals[vertex / 3];
 			count[location->second]++;
 		}
 	}
-	for (int normal = 0; normal < smooth_normals.size(); ++normal)
+	for (int normal = 0; normal < vertex_normals.size(); ++normal)
 	{
-		smooth_normals[normal] /= count[normal];
+		vertex_normals[normal] /= count[normal];
+		vertex_normals[normal] = glm::normalize(vertex_normals[normal]);
+		if (rand() % 100 == 0)
+		{
+			std::cout << Direction(vertex_normals[normal]).Get_Distance() << std::endl;
+		}
 	}
 
 	// Index for the VBO!
-	std::vector<glm::vec3> vertices = std::vector<glm::vec3>();
-	std::vector<glm::vec2> texture_coordinates = std::vector<glm::vec2>();
-	std::vector<glm::vec3> normals = std::vector<glm::vec3>();
+	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
+	std::vector<glm::vec2> final_uvs = std::vector<glm::vec2>();
+	std::vector<glm::vec3> final_normals = std::vector<glm::vec3>();
 	std::vector<unsigned short> elements = std::vector<unsigned short>();
 	std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
-	for (int point = 0; point < temp_vertices.size(); ++point)
+	for (int point = 0; point < vertices.size(); ++point)
 	{
 		unsigned short index = 0;
-		Vertex_Texture_Normal together = { temp_vertices[point], temp_texture_coordinates[point], smooth_normals[point] };
+		Vertex_Texture_Normal together = { vertices[point], uvs[point], vertex_normals[point] };
 		std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
 		if (location == vertex_to_index.end())
 		{
-			vertices.push_back(temp_vertices[point]);
-			texture_coordinates.push_back(temp_texture_coordinates[point]);
-			normals.push_back(smooth_normals[point]);
-			unsigned short index = vertices.size() - 1;
+			final_vertices.push_back(vertices[point]);
+			final_uvs.push_back(uvs[point]);
+			final_normals.push_back(vertex_normals[point]);
+			unsigned short index = final_vertices.size() - 1;
 			elements.push_back(index);
-			vertex_to_index[together] = index;
+			vertex_to_index[together] = index; 
 		}
 		else
 		{
 			elements.push_back(location->second);
 		}
 	}
+	std::cout << final_vertices[311].x << ", " << final_vertices[311].y << ", " << final_vertices[311].z << "| " << final_uvs[311].x << ", " << final_uvs[311].y << "| " << final_normals[311].x << ", " << final_normals[311].y << ", " << final_normals[311].z << "| " << elements[311] << std::endl;
+	std::cout << final_vertices.size() << ", " << final_uvs.size() << ", " << elements.size() << std::endl;
 
 	// Let's do it! It's ready! Let's send it to the GPU!
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, final_vertices.size() * sizeof(glm::vec3), &final_vertices[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, final_normals.size() * sizeof(glm::vec3), &final_normals[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &UV_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
-	glBufferData(GL_ARRAY_BUFFER, texture_coordinates.size() * sizeof(glm::vec2), &texture_coordinates[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, final_uvs.size() * sizeof(glm::vec2), &final_uvs[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Elements_ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), &elements[0], GL_STATIC_DRAW);
 
 	// Oh, yeah, we actually need to render this. How big was this model, again?
-	number_elements = elements.size();
-	std::cout << vertices.size() / elements.size() << "% of original size.\n";
+	Size = elements.size();
+	std::cout << (final_vertices.size() * 4 + elements.size() * 1) * 100 / (elements.size() * 4) << "% of original size.\n";
 
 	return;
-}
-
-
-// Finds one flat normal. Assumes index is end of group.
-glm::vec3 Mesh::Find_Flat_Normal(const glm::vec3& one, const glm::vec3& two, const glm::vec3& three) const
-{
-	Direction normal = Direction(two).Distance(Direction(one));
-	Direction with = Direction(three).Distance(Direction(one));
-	normal = normal.Cross(with);
-	normal.Normalize();
-	return normal.To_Vertex();
 }
 
 
@@ -448,19 +446,4 @@ void Mesh::Texture(const char * filename)
 	delete [] data;
 
 	return;
-}
-
-
-// Get the coordinates of the texture, as a vertex with X and Y (and Z omitted) for a vertex
-glm::vec2 Mesh::Auto_Texture_Coordinate(const int index) const
-{
-	return (glm::vec2(index % 3 != 0, index % 3 < 2));
-}
-
-
-
-// Get the number of elements in the mesh
-int Mesh::Size(void) const
-{
-	return number_elements;
 }

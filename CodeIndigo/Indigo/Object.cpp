@@ -21,7 +21,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 {
 	Place(x, y, z);
 	Data = mesh;
-	Is_Blank = mesh.Size() == 0;
+	Is_Blank = mesh.Size == 0;
 	if (!Is_Blank)
 	{
 		//Data.Initialize();
@@ -141,7 +141,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 
 	// Draw!
-	glDrawElements(GL_TRIANGLES, Data.Size(), GL_UNSIGNED_SHORT, (void*) 0);
+	glDrawElements(GL_TRIANGLES, Data.Size, GL_UNSIGNED_SHORT, (void*) 0);
 
 	// Finished
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));

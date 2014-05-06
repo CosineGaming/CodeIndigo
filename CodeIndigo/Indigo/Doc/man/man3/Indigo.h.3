@@ -1,0 +1,113 @@
+.TH "Indigo.h" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Indigo.h \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'World\&.h'\fP
+.br
+\fC#include 'Animation\&.h'\fP
+.br
+\fC#include <iostream>\fP
+.br
+\fC#include 'GLFW/glfw3\&.h'\fP
+.br
+
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBIndigo\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBIndigo::Initialize\fP (const char *window_name, glm::vec3 background, const int window_width, const int window_height, const int max_framerate, const bool fullscreen)"
+.br
+.ti -1c
+.RI "int \fBIndigo::Run\fP (void)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Close\fP (void)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Reshape\fP (GLFWwindow *window, int width, int height)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Key_Action\fP (GLFWwindow *window, int key, int scancode, int action, int modifiers)"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Pressed\fP (unsigned char key)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Mouse_Button\fP (GLFWwindow *window, int button, int state, int modifiers)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Mouse_Moved\fP (GLFWwindow *window, double x, double y)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse_Callback\fP (int x, int y, \fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse_Function\fP (int x, int y)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse\fP (\fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Error_Found\fP (int type, const char *message)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Update\fP (const float time)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Render\fP (void)"
+.br
+.ti -1c
+.RI "float \fBIndigo::Elapsed\fP ()"
+.br
+.ti -1c
+.RI "float \fBIndigo::Fast_Float\fP (const char *stream, int *output, const int start)"
+.br
+.ti -1c
+.RI "char \fBIndigo::Get_Shifted_Character\fP (const char key)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Error_Dump\fP (void)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "glm::vec3 \fBIndigo::White_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Black_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Sky_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Red_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Green_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Blue_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Light_Blue_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Orange_Color\fP"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

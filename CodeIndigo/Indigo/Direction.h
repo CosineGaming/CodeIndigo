@@ -18,7 +18,7 @@ public:
 	// Construct a new direction based off of x, y, and z
 	static Direction Coordinates(const float x, const float y, const float z);
 	// Construct a new direction from a Vertex
-	Direction(const glm::vec3 vertex);
+	Direction(const glm::vec3& vertex);
 	// Destroy a direction
 	~Direction(void);
 	// Make the distance 1

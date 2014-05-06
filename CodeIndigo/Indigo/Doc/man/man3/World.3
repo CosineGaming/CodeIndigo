@@ -1,0 +1,208 @@
+.TH "World" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+World \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <World\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBWorld\fP (void)"
+.br
+.ti -1c
+.RI "\fBWorld\fP (const \fBWorld\fP &world)"
+.br
+.ti -1c
+.RI "\fB~World\fP (void)"
+.br
+.ti -1c
+.RI "void \fBUpdate\fP (const float time)"
+.br
+.ti -1c
+.RI "void \fBRender\fP (void) const "
+.br
+.ti -1c
+.RI "void \fBShader\fP (const char *vertex, const char *fragment)"
+.br
+.ti -1c
+.RI "int \fBShader_Location\fP (const char *name, const bool uniform=false)"
+.br
+.ti -1c
+.RI "void \fBAdd_Skybox\fP (const char *texture)"
+.br
+.ti -1c
+.RI "int \fBAdd_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "\fBObject\fP & \fBGet_Object\fP (const int id) const "
+.br
+.ti -1c
+.RI "void \fBRemove_Object\fP (const int id)"
+.br
+.ti -1c
+.RI "void \fBRemove_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "int \fBAdd_Front_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "\fBObject\fP & \fBGet_Front_Object\fP (const int id) const "
+.br
+.ti -1c
+.RI "void \fBRemove_Front_Object\fP (const int id)"
+.br
+.ti -1c
+.RI "void \fBRemove_Front_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "int \fBAdd_2D_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "\fBObject\fP & \fBGet_2D_Object\fP (const int id) const "
+.br
+.ti -1c
+.RI "void \fBRemove_2D_Object\fP (const int id)"
+.br
+.ti -1c
+.RI "void \fBRemove_2D_Object\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "int \fBAdd_Animation\fP (const \fBAnimation\fP &animation)"
+.br
+.ti -1c
+.RI "void \fBRemove_Animation\fP (const int id)"
+.br
+.ti -1c
+.RI "void \fBRemove_Animation\fP (const \fBAnimation\fP &animation)"
+.br
+.ti -1c
+.RI "int \fBNumber_Of_Objects\fP (void)"
+.br
+.ti -1c
+.RI "int \fBNumber_Of_2D_Objects\fP (void)"
+.br
+.ti -1c
+.RI "int \fBNumber_Of_Texts\fP (void)"
+.br
+.ti -1c
+.RI "int \fBCollide\fP (const \fBObject\fP &object, const float add_x=0, const float add_y=0, const float add_z=0)"
+.br
+.ti -1c
+.RI "int \fBCollide\fP (const glm::vec3 &position, const \fBDirection\fP &direction)"
+.br
+.ti -1c
+.RI "int \fBCollide\fP (const glm::vec3 &vertex, const float add_x=0, const float add_y=0, const float add_z=0)"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "void(* \fBUpdate_Function\fP )(const float time)"
+.br
+.ti -1c
+.RI "\fBLighting\fP \fBLight_Setup\fP"
+.br
+.ti -1c
+.RI "\fBCamera\fP \fBView\fP"
+.br
+.ti -1c
+.RI "unsigned int \fBMatrix_Handle\fP"
+.br
+.ti -1c
+.RI "unsigned int \fBView_Matrix\fP"
+.br
+.ti -1c
+.RI "unsigned int \fBModel_Matrix\fP"
+.br
+.ti -1c
+.RI "unsigned int \fBShader_Index\fP"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "World::World (void)"
+
+.SS "World::World (const \fBWorld\fP &world)"
+
+.SS "World::~World (void)"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "int World::Add_2D_Object (const \fBObject\fP &object)"
+
+.SS "int World::Add_Animation (const \fBAnimation\fP &animation)"
+
+.SS "int World::Add_Front_Object (const \fBObject\fP &object)"
+
+.SS "int World::Add_Object (const \fBObject\fP &object)"
+
+.SS "void World::Add_Skybox (const char *texture)"
+
+.SS "int World::Collide (const \fBObject\fP &object, const floatadd_x = \fC0\fP, const floatadd_y = \fC0\fP, const floatadd_z = \fC0\fP)"
+
+.SS "int World::Collide (const glm::vec3 &position, const \fBDirection\fP &direction)"
+
+.SS "int World::Collide (const glm::vec3 &vertex, const floatadd_x = \fC0\fP, const floatadd_y = \fC0\fP, const floatadd_z = \fC0\fP)"
+
+.SS "\fBObject\fP & World::Get_2D_Object (const intid) const"
+
+.SS "\fBObject\fP & World::Get_Front_Object (const intid) const"
+
+.SS "\fBObject\fP & World::Get_Object (const intid) const"
+
+.SS "int World::Number_Of_2D_Objects (void)"
+
+.SS "int World::Number_Of_Objects (void)"
+
+.SS "int World::Number_Of_Texts (void)"
+
+.SS "void World::Remove_2D_Object (const intid)"
+
+.SS "void World::Remove_2D_Object (const \fBObject\fP &object)"
+
+.SS "void World::Remove_Animation (const intid)"
+
+.SS "void World::Remove_Animation (const \fBAnimation\fP &animation)"
+
+.SS "void World::Remove_Front_Object (const intid)"
+
+.SS "void World::Remove_Front_Object (const \fBObject\fP &object)"
+
+.SS "void World::Remove_Object (const intid)"
+
+.SS "void World::Remove_Object (const \fBObject\fP &object)"
+
+.SS "void World::Render (void) const"
+
+.SS "void World::Shader (const char *vertex, const char *fragment)"
+
+.SS "int World::Shader_Location (const char *name, const booluniform = \fCfalse\fP)"
+
+.SS "void World::Update (const floattime)"
+
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBLighting\fP World::Light_Setup"
+
+.SS "unsigned int World::Matrix_Handle"
+
+.SS "unsigned int World::Model_Matrix"
+
+.SS "unsigned int World::Shader_Index"
+
+.SS "void(* World::Update_Function)(const float time)"
+
+.SS "\fBCamera\fP World::View"
+
+.SS "unsigned int World::View_Matrix"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

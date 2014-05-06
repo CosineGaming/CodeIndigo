@@ -1,0 +1,158 @@
+.TH "Object" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Object \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <Object\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBObject\fP (const float x=0\&.0, const float y=0\&.0, const float z=0\&.0, const \fBMesh\fP &mesh=\fBMesh\fP(), void(*update_function)(const float time, \fBObject\fP &self)=nullptr, const \fBDirection\fP &towards=\fBDirection\fP(1, 0, 0), const bool world_collide=true)"
+.br
+.ti -1c
+.RI "\fBObject\fP (const \fBObject\fP &object)"
+.br
+.ti -1c
+.RI "\fB~Object\fP (void)"
+.br
+.ti -1c
+.RI "void \fBUpdate\fP (const float time)"
+.br
+.ti -1c
+.RI "void \fBRender\fP (const glm::mat4 &projection, const glm::mat4 &view, const bool lighting=true) const "
+.br
+.ti -1c
+.RI "void \fBPlace\fP (const float x, const float y=0\&.0, const float z=0\&.0)"
+.br
+.ti -1c
+.RI "void \fBMove\fP (const float forward, const float side=0\&.0, const float up=0\&.0)"
+.br
+.ti -1c
+.RI "bool \fBCollide\fP (const \fBObject\fP &object, const float add_x=0, const float add_y=0, const float add_z=0) const "
+.br
+.ti -1c
+.RI "bool \fBCollide\fP (const glm::vec3 &position, const \fBDirection\fP &direction) const "
+.br
+.ti -1c
+.RI "bool \fBCollide\fP (const glm::vec3 &vertex, const float add_x=0, const float add_y=0, const float add_z=0) const "
+.br
+.ti -1c
+.RI "void \fBSet_Hitbox\fP (const glm::vec3 &least=glm::vec3(0, 0, 0), const glm::vec3 &most=glm::vec3(0, 0, 0))"
+.br
+.ti -1c
+.RI "void \fBShader_Argument\fP (char *argument, float value)"
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "int \fBIs_Blank\fP"
+.br
+.ti -1c
+.RI "int \fBID\fP"
+.br
+.ti -1c
+.RI "void(* \fBUpdate_Function\fP )(const float time, \fBObject\fP &self)"
+.br
+.ti -1c
+.RI "void(* \fBRender_Function\fP )(void)"
+.br
+.ti -1c
+.RI "\fBMesh\fP \fBData\fP"
+.br
+.ti -1c
+.RI "\fBDirection\fP \fBFacing\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBScale\fP"
+.br
+.ti -1c
+.RI "bool \fBWorld_Collide\fP"
+.br
+.ti -1c
+.RI "std::vector< float > \fBUser_Data\fP"
+.br
+.ti -1c
+.RI "std::vector< char * > \fBShader_Argument_Names\fP"
+.br
+.ti -1c
+.RI "std::vector< float > \fBShader_Arguments\fP"
+.br
+.ti -1c
+.RI "float \fBX\fP"
+.br
+.ti -1c
+.RI "float \fBY\fP"
+.br
+.ti -1c
+.RI "float \fBZ\fP"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "Object::Object (const floatx = \fC0\&.0\fP, const floaty = \fC0\&.0\fP, const floatz = \fC0\&.0\fP, const \fBMesh\fP &mesh = \fC\fBMesh\fP()\fP, void(*)(const float time, \fBObject\fP &self)update_function = \fCnullptr\fP, const \fBDirection\fP &towards = \fC\fBDirection\fP(1, 0, 0)\fP, const boolworld_collide = \fCtrue\fP)"
+
+.SS "Object::Object (const \fBObject\fP &object)"
+
+.SS "Object::~Object (void)"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "bool Object::Collide (const \fBObject\fP &object, const floatadd_x = \fC0\fP, const floatadd_y = \fC0\fP, const floatadd_z = \fC0\fP) const"
+
+.SS "bool Object::Collide (const glm::vec3 &position, const \fBDirection\fP &direction) const"
+
+.SS "bool Object::Collide (const glm::vec3 &vertex, const floatadd_x = \fC0\fP, const floatadd_y = \fC0\fP, const floatadd_z = \fC0\fP) const"
+
+.SS "void Object::Move (const floatforward, const floatside = \fC0\&.0\fP, const floatup = \fC0\&.0\fP)"
+
+.SS "void Object::Place (const floatx, const floaty = \fC0\&.0\fP, const floatz = \fC0\&.0\fP)"
+
+.SS "void Object::Render (const glm::mat4 &projection, const glm::mat4 &view, const boollighting = \fCtrue\fP) const"
+
+.SS "void Object::Set_Hitbox (const glm::vec3 &least = \fCglm::vec3(0,0,0)\fP, const glm::vec3 &most = \fCglm::vec3(0,0,0)\fP)"
+
+.SS "void Object::Shader_Argument (char *argument, floatvalue)"
+
+.SS "void Object::Update (const floattime)"
+
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBMesh\fP Object::Data"
+
+.SS "\fBDirection\fP Object::Facing"
+
+.SS "int Object::ID"
+
+.SS "int Object::Is_Blank"
+
+.SS "void(* Object::Render_Function)(void)"
+
+.SS "glm::vec3 Object::Scale"
+
+.SS "std::vector<char *> Object::Shader_Argument_Names"
+
+.SS "std::vector<float> Object::Shader_Arguments"
+
+.SS "void(* Object::Update_Function)(const float time, \fBObject\fP &self)"
+
+.SS "std::vector<float> Object::User_Data"
+
+.SS "bool Object::World_Collide"
+
+.SS "float Object::X"
+
+.SS "float Object::Y"
+
+.SS "float Object::Z"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

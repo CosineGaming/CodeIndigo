@@ -1,0 +1,323 @@
+.TH "Indigo" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Indigo \- 
+.SH SYNOPSIS
+.br
+.PP
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBInitialize\fP (const char *window_name, glm::vec3 background, const int window_width, const int window_height, const int max_framerate, const bool fullscreen)"
+.br
+.ti -1c
+.RI "int \fBRun\fP (void)"
+.br
+.ti -1c
+.RI "void \fBClose\fP (void)"
+.br
+.ti -1c
+.RI "void \fBReshape\fP (GLFWwindow *window, int width, int height)"
+.br
+.ti -1c
+.RI "void \fBKey_Action\fP (GLFWwindow *window, int key, int scancode, int action, int modifiers)"
+.br
+.ti -1c
+.RI "bool \fBPressed\fP (unsigned char key)"
+.br
+.ti -1c
+.RI "void \fBMouse_Button\fP (GLFWwindow *window, int button, int state, int modifiers)"
+.br
+.ti -1c
+.RI "void \fBMouse_Moved\fP (GLFWwindow *window, double x, double y)"
+.br
+.ti -1c
+.RI "void \fBFPS_Mouse_Callback\fP (int x, int y, \fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBFPS_Mouse_Function\fP (int x, int y)"
+.br
+.ti -1c
+.RI "void \fBFPS_Mouse\fP (\fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBError_Found\fP (int type, const char *message)"
+.br
+.ti -1c
+.RI "void \fBUpdate\fP (const float time)"
+.br
+.ti -1c
+.RI "void \fBRender\fP (void)"
+.br
+.ti -1c
+.RI "float \fBElapsed\fP ()"
+.br
+.ti -1c
+.RI "float \fBFast_Float\fP (const char *stream, int *output, const int start)"
+.br
+.ti -1c
+.RI "char \fBGet_Shifted_Character\fP (const char key)"
+.br
+.ti -1c
+.RI "void \fBError_Dump\fP (void)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBWhite_Color\fP (1\&.0, 1\&.0, 1\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBBlack_Color\fP (0\&.0, 0\&.0, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBSky_Color\fP (0\&.5, 0\&.8, 1\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBRed_Color\fP (0\&.4, 0\&.0, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBGreen_Color\fP (0\&.0, 0\&.8, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBBlue_Color\fP (0\&.0, 0\&.0, 0\&.6)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBLight_Blue_Color\fP (0\&.4, 0\&.7, 0\&.9)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBOrange_Color\fP (1\&.0, 0\&.4, 0\&.0)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBWorld\fP \fBCurrent_World\fP"
+.br
+.ti -1c
+.RI "GLFWwindow * \fBWindow\fP = nullptr"
+.br
+.ti -1c
+.RI "void(* \fBKey_Pressed_Function\fP )(int key)"
+.br
+.ti -1c
+.RI "void(* \fBKey_Released_Function\fP )(int key)"
+.br
+.ti -1c
+.RI "void(* \fBMouse_Button_Function\fP )(int button, int state, float x, float y)"
+.br
+.ti -1c
+.RI "void(* \fBMouse_Moved_Function\fP )(int x, int y)"
+.br
+.ti -1c
+.RI "void(* \fBRelative_Mouse_Moved_Function\fP )(int x, int y)"
+.br
+.ti -1c
+.RI "void(* \fBUpdate_Function\fP )(float time)"
+.br
+.ti -1c
+.RI "void(* \fBRender_Function\fP )(void)"
+.br
+.ti -1c
+.RI "void(* \fBError_Function\fP )(int type, const char *message)"
+.br
+.ti -1c
+.RI "bool \fBKeys\fP [512]"
+.br
+.ti -1c
+.RI "bool \fBKeys_Pressed\fP [512]"
+.br
+.ti -1c
+.RI "bool \fBShift\fP"
+.br
+.ti -1c
+.RI "bool \fBControl\fP"
+.br
+.ti -1c
+.RI "bool \fBAlt\fP"
+.br
+.ti -1c
+.RI "bool \fBLeft_Mouse\fP = false"
+.br
+.ti -1c
+.RI "bool \fBRight_Mouse\fP = false"
+.br
+.ti -1c
+.RI "bool \fBMiddle_Mouse\fP = false"
+.br
+.ti -1c
+.RI "glm::vec2 \fBMouse_Position\fP = glm::vec2(0, 0)"
+.br
+.ti -1c
+.RI "glm::vec2 \fBMouse_Position_Screen\fP = glm::vec2(0, 0)"
+.br
+.ti -1c
+.RI "unsigned int \fBVAO\fP"
+.br
+.ti -1c
+.RI "int \fBScreen_Width\fP = 0"
+.br
+.ti -1c
+.RI "int \fBScreen_Height\fP = 0"
+.br
+.ti -1c
+.RI "float \fBAspect_Ratio\fP = 1"
+.br
+.ti -1c
+.RI "float \fBFrame_Length_Minimum\fP = 0"
+.br
+.ti -1c
+.RI "int \fBActual_FPS\fP = 60"
+.br
+.ti -1c
+.RI "glm::vec3 \fBWhite_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBBlack_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBSky_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBRed_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBGreen_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBBlue_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBLight_Blue_Color\fP"
+.br
+.ti -1c
+.RI "glm::vec3 \fBOrange_Color\fP"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "glm::vec3 Indigo::Black_Color (0\&.0, 0\&.0, 0\&.0)"
+
+.SS "glm::vec3 Indigo::Blue_Color (0\&.0, 0\&.0, 0\&.6)"
+
+.SS "void Indigo::Close (void)"
+
+.SS "float Indigo::Elapsed ()\fC [inline]\fP"
+
+.SS "void Indigo::Error_Dump (void)"
+
+.SS "void Indigo::Error_Found (inttype, const char *message)"
+
+.SS "float Indigo::Fast_Float (const char *stream, int *output, const intstart)"
+
+.SS "void Indigo::FPS_Mouse (\fBObject\fP *player, floatsensitivity)"
+
+.SS "void Indigo::FPS_Mouse_Callback (intx, inty, \fBObject\fP *player, floatsensitivity)"
+
+.SS "void Indigo::FPS_Mouse_Function (intx, inty)"
+
+.SS "char Indigo::Get_Shifted_Character (const charkey)"
+
+.SS "glm::vec3 Indigo::Green_Color (0\&.0, 0\&.8, 0\&.0)"
+
+.SS "void Indigo::Initialize (const char *window_name, glm::vec3background, const intwindow_width, const intwindow_height, const intmax_framerate, const boolfullscreen)"
+
+.SS "void Indigo::Key_Action (GLFWwindow *window, intkey, intscancode, intaction, intmodifiers)"
+
+.SS "glm::vec3 Indigo::Light_Blue_Color (0\&.4, 0\&.7, 0\&.9)"
+
+.SS "void Indigo::Mouse_Button (GLFWwindow *window, intbutton, intstate, intmodifiers)"
+
+.SS "void Indigo::Mouse_Moved (GLFWwindow *window, doublex, doubley)"
+
+.SS "glm::vec3 Indigo::Orange_Color (1\&.0, 0\&.4, 0\&.0)"
+
+.SS "bool Indigo::Pressed (unsigned charkey)"
+
+.SS "glm::vec3 Indigo::Red_Color (0\&.4, 0\&.0, 0\&.0)"
+
+.SS "void Indigo::Render (void)"
+
+.SS "void Indigo::Reshape (GLFWwindow *window, intwidth, intheight)"
+
+.SS "int Indigo::Run (void)"
+
+.SS "glm::vec3 Indigo::Sky_Color (0\&.5, 0\&.8, 1\&.0)"
+
+.SS "void Indigo::Update (const floattime)"
+
+.SS "glm::vec3 Indigo::White_Color (1\&.0, 1\&.0, 1\&.0)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "int Indigo::Actual_FPS = 60"
+
+.SS "bool Indigo::Alt"
+
+.SS "float Indigo::Aspect_Ratio = 1"
+
+.SS "glm::vec3 Indigo::Black_Color"
+
+.SS "glm::vec3 Indigo::Blue_Color"
+
+.SS "bool Indigo::Control"
+
+.SS "\fBWorld\fP Indigo::Current_World"
+
+.SS "void(* Indigo::Error_Function)(int type, const char *message)"
+
+.SS "float Indigo::Frame_Length_Minimum = 0"
+
+.SS "glm::vec3 Indigo::Green_Color"
+
+.SS "void(* Indigo::Key_Pressed_Function)(int key)"
+
+.SS "void(* Indigo::Key_Released_Function)(int key)"
+
+.SS "bool Indigo::Keys"
+
+.SS "bool Indigo::Keys_Pressed"
+
+.SS "bool Indigo::Left_Mouse = false"
+
+.SS "glm::vec3 Indigo::Light_Blue_Color"
+
+.SS "bool Indigo::Middle_Mouse = false"
+
+.SS "void(* Indigo::Mouse_Button_Function)(int button, int state, float x, float y)"
+
+.SS "void(* Indigo::Mouse_Moved_Function)(int x, int y)"
+
+.SS "glm::vec2 Indigo::Mouse_Position = glm::vec2(0, 0)"
+
+.SS "glm::vec2 Indigo::Mouse_Position_Screen = glm::vec2(0, 0)"
+
+.SS "glm::vec3 Indigo::Orange_Color"
+
+.SS "glm::vec3 Indigo::Red_Color"
+
+.SS "void(* Indigo::Relative_Mouse_Moved_Function)(int x, int y)"
+
+.SS "void(* Indigo::Render_Function)(void)"
+
+.SS "bool Indigo::Right_Mouse = false"
+
+.SS "int Indigo::Screen_Height = 0"
+
+.SS "int Indigo::Screen_Width = 0"
+
+.SS "bool Indigo::Shift"
+
+.SS "glm::vec3 Indigo::Sky_Color"
+
+.SS "void(* Indigo::Update_Function)(float time)"
+
+.SS "unsigned int Indigo::VAO"
+
+.SS "glm::vec3 Indigo::White_Color"
+
+.SS "GLFWwindow * Indigo::Window = nullptr"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

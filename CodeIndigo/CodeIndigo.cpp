@@ -118,7 +118,7 @@ void Key_Pressed(int key)
 			{
 				Mesh add = Mesh(model.c_str(), texture.length() ? texture.c_str() : nullptr);
 				float up = 0.035;
-				if (add.Size() && !(add.Texture_ID == 0 && texture.length()))
+				if (add.Size && !(add.Texture_ID == 0 && texture.length()))
 				{
 					models.push_back(model);
 					textures.push_back(texture);
@@ -136,7 +136,7 @@ void Key_Pressed(int key)
 						Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find BMP Texture.", 0.035), Fade_Text));
 						up += 0.035;
 					}
-					if (!add.Size())
+					if (!add.Size)
 					{
 						Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find OBJ.", 0.035), Fade_Text));
 						texture_yet = false;
@@ -241,5 +241,6 @@ int main()
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
+	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
 	Indigo::Run();
 }

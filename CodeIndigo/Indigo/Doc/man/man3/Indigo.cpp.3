@@ -1,0 +1,187 @@
+.TH "Indigo.cpp" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Indigo.cpp \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'GL/glew\&.h'\fP
+.br
+\fC#include 'Indigo\&.h'\fP
+.br
+
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBIndigo\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBIndigo::Initialize\fP (const char *window_name, glm::vec3 background, const int window_width, const int window_height, const int max_framerate, const bool fullscreen)"
+.br
+.ti -1c
+.RI "int \fBIndigo::Run\fP (void)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Close\fP (void)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Reshape\fP (GLFWwindow *window, int width, int height)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Key_Action\fP (GLFWwindow *window, int key, int scancode, int action, int modifiers)"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Pressed\fP (unsigned char key)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Mouse_Button\fP (GLFWwindow *window, int button, int state, int modifiers)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Mouse_Moved\fP (GLFWwindow *window, double x, double y)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse_Callback\fP (int x, int y, \fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse_Function\fP (int x, int y)"
+.br
+.ti -1c
+.RI "void \fBIndigo::FPS_Mouse\fP (\fBObject\fP *player, float sensitivity)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Error_Found\fP (int type, const char *message)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Update\fP (const float time)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Render\fP (void)"
+.br
+.ti -1c
+.RI "float \fBIndigo::Elapsed\fP ()"
+.br
+.ti -1c
+.RI "float \fBIndigo::Fast_Float\fP (const char *stream, int *output, const int start)"
+.br
+.ti -1c
+.RI "char \fBIndigo::Get_Shifted_Character\fP (const char key)"
+.br
+.ti -1c
+.RI "void \fBIndigo::Error_Dump\fP (void)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::White_Color\fP (1\&.0, 1\&.0, 1\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Black_Color\fP (0\&.0, 0\&.0, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Sky_Color\fP (0\&.5, 0\&.8, 1\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Red_Color\fP (0\&.4, 0\&.0, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Green_Color\fP (0\&.0, 0\&.8, 0\&.0)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Blue_Color\fP (0\&.0, 0\&.0, 0\&.6)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Light_Blue_Color\fP (0\&.4, 0\&.7, 0\&.9)"
+.br
+.ti -1c
+.RI "glm::vec3 \fBIndigo::Orange_Color\fP (1\&.0, 0\&.4, 0\&.0)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBWorld\fP \fBIndigo::Current_World\fP"
+.br
+.ti -1c
+.RI "GLFWwindow * \fBIndigo::Window\fP = nullptr"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Key_Pressed_Function\fP )(int key)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Key_Released_Function\fP )(int key)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Mouse_Button_Function\fP )(int button, int state, float x, float y)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Mouse_Moved_Function\fP )(int x, int y)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Relative_Mouse_Moved_Function\fP )(int x, int y)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Update_Function\fP )(float time)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Render_Function\fP )(void)"
+.br
+.ti -1c
+.RI "void(* \fBIndigo::Error_Function\fP )(int type, const char *message)"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Keys\fP [512]"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Keys_Pressed\fP [512]"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Shift\fP"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Control\fP"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Alt\fP"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Left_Mouse\fP = false"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Right_Mouse\fP = false"
+.br
+.ti -1c
+.RI "bool \fBIndigo::Middle_Mouse\fP = false"
+.br
+.ti -1c
+.RI "glm::vec2 \fBIndigo::Mouse_Position\fP = glm::vec2(0, 0)"
+.br
+.ti -1c
+.RI "glm::vec2 \fBIndigo::Mouse_Position_Screen\fP = glm::vec2(0, 0)"
+.br
+.ti -1c
+.RI "unsigned int \fBIndigo::VAO\fP"
+.br
+.ti -1c
+.RI "int \fBIndigo::Screen_Width\fP = 0"
+.br
+.ti -1c
+.RI "int \fBIndigo::Screen_Height\fP = 0"
+.br
+.ti -1c
+.RI "float \fBIndigo::Aspect_Ratio\fP = 1"
+.br
+.ti -1c
+.RI "float \fBIndigo::Frame_Length_Minimum\fP = 0"
+.br
+.ti -1c
+.RI "int \fBIndigo::Actual_FPS\fP = 60"
+.br
+.in -1c
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

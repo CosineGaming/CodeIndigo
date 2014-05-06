@@ -1,0 +1,128 @@
+.TH "Camera" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Camera \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <Camera\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBCamera\fP (const float x=0\&.0, const float y=0\&.0, const float z=0\&.0, const \fBDirection\fP looking=\fBDirection\fP(1\&.0), const \fBDirection\fP above=\fBDirection\fP(1\&.0, 0\&.0, 90\&.0), const int field_of_view_x=90)"
+.br
+.ti -1c
+.RI "\fBCamera\fP (const \fBCamera\fP &camera)"
+.br
+.ti -1c
+.RI "\fB~Camera\fP (void)"
+.br
+.ti -1c
+.RI "void \fBPlace\fP (const float x, const float y, const float z)"
+.br
+.ti -1c
+.RI "void \fBMove\fP (const float foward, const float side=0\&.0, const float up=0\&.0)"
+.br
+.ti -1c
+.RI "void \fBLook_At\fP (const \fBDirection\fP &direction)"
+.br
+.ti -1c
+.RI "void \fBLook_At\fP (const float x, const float y, const float z)"
+.br
+.ti -1c
+.RI "void \fBLook_Towards\fP (const \fBDirection\fP &direction)"
+.br
+.ti -1c
+.RI "void \fBLook_Towards\fP (const float x, const float y, const float z)"
+.br
+.ti -1c
+.RI "void \fBWatch\fP (const \fBObject\fP &object, const \fBDirection\fP &direction)"
+.br
+.ti -1c
+.RI "glm::mat4 \fBProject\fP (void) const "
+.br
+.ti -1c
+.RI "glm::mat4 \fBProject_2D\fP (void) const "
+.br
+.ti -1c
+.RI "glm::mat4 \fBLook\fP (void) const "
+.br
+.ti -1c
+.RI "glm::mat4 \fBLook_In_Place\fP (void) const "
+.br
+.in -1c
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBDirection\fP \fBUp\fP"
+.br
+.ti -1c
+.RI "float \fBX\fP"
+.br
+.ti -1c
+.RI "float \fBY\fP"
+.br
+.ti -1c
+.RI "float \fBZ\fP"
+.br
+.ti -1c
+.RI "\fBDirection\fP \fBEye\fP"
+.br
+.ti -1c
+.RI "int \fBField_Of_View\fP"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "Camera::Camera (const floatx = \fC0\&.0\fP, const floaty = \fC0\&.0\fP, const floatz = \fC0\&.0\fP, const \fBDirection\fPlooking = \fC\fBDirection\fP(1\&.0)\fP, const \fBDirection\fPabove = \fC\fBDirection\fP(1\&.0, 0\&.0, 90\&.0)\fP, const intfield_of_view_x = \fC90\fP)"
+
+.SS "Camera::Camera (const \fBCamera\fP &camera)"
+
+.SS "Camera::~Camera (void)"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "glm::mat4 Camera::Look (void) const"
+
+.SS "void Camera::Look_At (const \fBDirection\fP &direction)"
+
+.SS "void Camera::Look_At (const floatx, const floaty, const floatz)"
+
+.SS "glm::mat4 Camera::Look_In_Place (void) const"
+
+.SS "void Camera::Look_Towards (const \fBDirection\fP &direction)"
+
+.SS "void Camera::Look_Towards (const floatx, const floaty, const floatz)"
+
+.SS "void Camera::Move (const floatfoward, const floatside = \fC0\&.0\fP, const floatup = \fC0\&.0\fP)"
+
+.SS "void Camera::Place (const floatx, const floaty, const floatz)"
+
+.SS "glm::mat4 Camera::Project (void) const"
+
+.SS "glm::mat4 Camera::Project_2D (void) const"
+
+.SS "void Camera::Watch (const \fBObject\fP &object, const \fBDirection\fP &direction)"
+
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBDirection\fP Camera::Eye"
+
+.SS "int Camera::Field_Of_View"
+
+.SS "\fBDirection\fP Camera::Up"
+
+.SS "float Camera::X"
+
+.SS "float Camera::Y"
+
+.SS "float Camera::Z"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.

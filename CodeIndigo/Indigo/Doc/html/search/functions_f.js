@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['set_5fambient',['Set_Ambient',['../class_lighting.html#aa1668003813e0da5b49128fd0294eef0',1,'Lighting']]],
+  ['set_5fcoordinates',['Set_Coordinates',['../class_direction.html#affd09204c54da8d7e0663a79e26ef56b',1,'Direction']]],
+  ['set_5fdirection',['Set_Direction',['../class_direction.html#a8d2a699443886cbddd8982c5bb3f1508',1,'Direction']]],
+  ['set_5fdistance',['Set_Distance',['../class_direction.html#add0252cc944795cc44a20570574e5aba',1,'Direction']]],
+  ['set_5fhitbox',['Set_Hitbox',['../class_object.html#a83b5200cac9dad6e53649f21063573c0',1,'Object']]],
+  ['set_5flight',['Set_Light',['../class_lighting.html#a4f2dff12e8d3c5889c21142a4ec76a0c',1,'Lighting']]],
+  ['set_5fx',['Set_X',['../class_direction.html#ae706339ef69c62c9b33aed86474566ae',1,'Direction']]],
+  ['set_5fx_5fangle',['Set_X_Angle',['../class_direction.html#af00d6b70cc0b68cfbbb163be36dd5a1a',1,'Direction']]],
+  ['set_5fy',['Set_Y',['../class_direction.html#a05800383ede27db5fd0682dd9105f9ab',1,'Direction']]],
+  ['set_5fy_5fangle',['Set_Y_Angle',['../class_direction.html#a6d4c8b35559eb06bfffa780e7dc63b3a',1,'Direction']]],
+  ['set_5fz',['Set_Z',['../class_direction.html#acccb4576e525563a25176d5f7eaf1d24',1,'Direction']]],
+  ['shader',['Shader',['../class_world.html#a02aa6afff5be51051100eacf4fe87247',1,'World']]],
+  ['shader_5fargument',['Shader_Argument',['../class_object.html#a8c8186e1fc204d899c2aee33f4ca6cfe',1,'Object']]],
+  ['shader_5flocation',['Shader_Location',['../class_world.html#a3d913576d5936784269a8322770eef84',1,'World']]],
+  ['size',['Size',['../class_mesh.html#ad617fc1039d45d7b2183ce8694ed9965',1,'Mesh']]],
+  ['sky_5fcolor',['Sky_Color',['../namespace_indigo.html#a14f1b868d54e4dd978d0a1662aa483c4',1,'Indigo']]]
+];

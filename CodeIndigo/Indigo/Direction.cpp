@@ -23,7 +23,7 @@ Direction Direction::Coordinates(const float x, const float y, const float z)
 
 
 // Construct a new direction from a Vertex
-Direction::Direction(const glm::vec3 vertex)
+Direction::Direction(const glm::vec3& vertex)
 {
 	Set_Coordinates(vertex.x, vertex.y, vertex.z);
 }

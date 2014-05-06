@@ -1,0 +1,156 @@
+.TH "Direction" 3 "Mon May 5 2014" "Version 200" "Indigo Engine" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Direction \- 
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <Direction\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBDirection\fP (const float in_distance=1\&.0, const float in_angle_x=0\&.0, const float in_angle_y=0\&.0)"
+.br
+.ti -1c
+.RI "\fBDirection\fP (const glm::vec3 vertex)"
+.br
+.ti -1c
+.RI "\fB~Direction\fP (void)"
+.br
+.ti -1c
+.RI "void \fBNormalize\fP (const float unit=1\&.0)"
+.br
+.ti -1c
+.RI "float \fBDot\fP (const \fBDirection\fP &direction) const "
+.br
+.ti -1c
+.RI "\fBDirection\fP \fBCross\fP (const \fBDirection\fP &direction) const "
+.br
+.ti -1c
+.RI "float \fBAngle_Distance\fP (const \fBDirection\fP &direction) const "
+.br
+.ti -1c
+.RI "float \fBGet_X\fP (void) const "
+.br
+.ti -1c
+.RI "float \fBGet_Y\fP (void) const "
+.br
+.ti -1c
+.RI "float \fBGet_Z\fP (void) const "
+.br
+.ti -1c
+.RI "float \fBGet_Distance\fP (void) const "
+.br
+.ti -1c
+.RI "float \fBGet_X_Angle\fP (void) const "
+.br
+.ti -1c
+.RI "float \fBGet_Y_Angle\fP (void) const "
+.br
+.ti -1c
+.RI "void \fBSet_X\fP (const float x)"
+.br
+.ti -1c
+.RI "void \fBSet_Y\fP (const float y)"
+.br
+.ti -1c
+.RI "void \fBSet_Z\fP (const float z)"
+.br
+.ti -1c
+.RI "void \fBSet_Distance\fP (const float in_distance)"
+.br
+.ti -1c
+.RI "void \fBSet_X_Angle\fP (const float in_angle_x)"
+.br
+.ti -1c
+.RI "void \fBSet_Y_Angle\fP (const float in_angle_y)"
+.br
+.ti -1c
+.RI "void \fBSet_Coordinates\fP (const float x, const float y, const float z)"
+.br
+.ti -1c
+.RI "void \fBAdd_Coordinates\fP (const float x, const float y=0\&.0, const float z=0\&.0)"
+.br
+.ti -1c
+.RI "void \fBSet_Direction\fP (const float in_distance, const float in_angle_x, const float in_angle_y)"
+.br
+.ti -1c
+.RI "void \fBAdd_Direction\fP (const float in_distance, const float in_angle_x=0\&.0, const float in_angle_y=0\&.0)"
+.br
+.ti -1c
+.RI "\fBDirection\fP \fBDistance\fP (const \fBDirection\fP &to) const "
+.br
+.ti -1c
+.RI "glm::vec3 \fBTo_Vertex\fP (void) const "
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBDirection\fP \fBCoordinates\fP (const float x, const float y, const float z)"
+.br
+.in -1c
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "Direction::Direction (const floatin_distance = \fC1\&.0\fP, const floatin_angle_x = \fC0\&.0\fP, const floatin_angle_y = \fC0\&.0\fP)"
+
+.SS "Direction::Direction (const glm::vec3vertex)"
+
+.SS "Direction::~Direction (void)"
+
+.SH "Member Function Documentation"
+.PP 
+.SS "void Direction::Add_Coordinates (const floatx, const floaty = \fC0\&.0\fP, const floatz = \fC0\&.0\fP)"
+
+.SS "void Direction::Add_Direction (const floatin_distance, const floatin_angle_x = \fC0\&.0\fP, const floatin_angle_y = \fC0\&.0\fP)"
+
+.SS "float Direction::Angle_Distance (const \fBDirection\fP &direction) const"
+
+.SS "\fBDirection\fP Direction::Coordinates (const floatx, const floaty, const floatz)\fC [static]\fP"
+
+.SS "\fBDirection\fP Direction::Cross (const \fBDirection\fP &direction) const"
+
+.SS "\fBDirection\fP Direction::Distance (const \fBDirection\fP &to) const"
+
+.SS "float Direction::Dot (const \fBDirection\fP &direction) const"
+
+.SS "float Direction::Get_Distance (void) const"
+
+.SS "float Direction::Get_X (void) const"
+
+.SS "float Direction::Get_X_Angle (void) const"
+
+.SS "float Direction::Get_Y (void) const"
+
+.SS "float Direction::Get_Y_Angle (void) const"
+
+.SS "float Direction::Get_Z (void) const"
+
+.SS "void Direction::Normalize (const floatunit = \fC1\&.0\fP)"
+
+.SS "void Direction::Set_Coordinates (const floatx, const floaty, const floatz)"
+
+.SS "void Direction::Set_Direction (const floatin_distance, const floatin_angle_x, const floatin_angle_y)"
+
+.SS "void Direction::Set_Distance (const floatin_distance)"
+
+.SS "void Direction::Set_X (const floatx)"
+
+.SS "void Direction::Set_X_Angle (const floatin_angle_x)"
+
+.SS "void Direction::Set_Y (const floaty)"
+
+.SS "void Direction::Set_Y_Angle (const floatin_angle_y)"
+
+.SS "void Direction::Set_Z (const floatz)"
+
+.SS "glm::vec3 Direction::To_Vertex (void) const"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Indigo Engine from the source code\&.
