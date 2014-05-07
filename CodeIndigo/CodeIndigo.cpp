@@ -1,5 +1,6 @@
 #include "Indigo/IndigoEngine.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 
 
@@ -81,38 +82,42 @@ void Mouse_Look(int x, int y)
 	}
 }
 
+bool Text_Edit(int key, std::string& output)
+{
+	if (key == GLFW_KEY_BACKSPACE)
+	{
+		if (output.length())
+		{
+			output.pop_back();
+			return true;
+		}
+	}
+	else if (key != GLFW_KEY_LEFT_SHIFT && key != GLFW_KEY_RIGHT_SHIFT && key != GLFW_KEY_LEFT_CONTROL && key != GLFW_KEY_RIGHT_CONTROL && key != GLFW_KEY_LEFT_ALT && key != GLFW_KEY_RIGHT_ALT)
+	{
+		if (Indigo::Shift)
+		{
+			key = Indigo::Get_Shifted_Character(key);
+		}
+		output += key;
+		return true;
+	}
+	return false;
+}
+
 void Key_Pressed(int key)
 {
 	static int space_menu = -1;
+	static int save_menu = -1;
 	static bool texture_yet = false;
 	static float menu_x = 0;
 	static float menu_y = 0;
+	static std::string save_location = "";
 	static std::string model = "";
 	static std::string texture = "";
 	if (space_menu != -1) // Typing in the Model Adder
 	{
-		if (key == GLFW_KEY_BACKSPACE)
-		{
-			if (texture_yet)
-			{
-				if (texture.length())
-				{
-					texture.pop_back();
-				}
-			}
-			else
-			{
-				if (model.length())
-				{
-					model.pop_back();
-				}
-				texture = "";
-			}
-			Indigo::Current_World.Remove_2D_Object(space_menu);
-			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
-			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
-		}
-		else if (key == GLFW_KEY_ENTER)
+		bool changed = false;
+		if (key == GLFW_KEY_ENTER)
 		{
 			if (texture_yet)
 			{
@@ -140,9 +145,7 @@ void Key_Pressed(int key)
 					{
 						Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + up, 0, Mesh::Text("Couldn't find OBJ.", 0.035), Fade_Text));
 						texture_yet = false;
-						Indigo::Current_World.Remove_2D_Object(space_menu);
-						std::string display = "Model:\n" + model + " ";
-						space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+						changed = true;
 					}
 				}
 			}
@@ -161,9 +164,7 @@ void Key_Pressed(int key)
 					{
 						texture = model.substr(0, model.length() - 4) + ".bmp";
 					}
-					Indigo::Current_World.Remove_2D_Object(space_menu);
-					std::string display = "Texture:\n" + texture + " ";
-					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+					changed = true;
 				}
 			}
 		}
@@ -172,9 +173,7 @@ void Key_Pressed(int key)
 			if (texture_yet)
 			{
 				texture_yet = false;
-				Indigo::Current_World.Remove_2D_Object(space_menu);
-				std::string display = "Texture:\n" + texture + " ";
-				space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+				changed = true;
 			}
 			else
 			{
@@ -183,20 +182,19 @@ void Key_Pressed(int key)
 				Typing = false;
 			}
 		}
-		else if (key != GLFW_KEY_LEFT_SHIFT && key != GLFW_KEY_RIGHT_SHIFT && key != GLFW_KEY_LEFT_CONTROL && key != GLFW_KEY_RIGHT_CONTROL && key != GLFW_KEY_LEFT_ALT && key != GLFW_KEY_RIGHT_ALT)
+		if (!changed)
 		{
-			if (Indigo::Shift)
-			{
-				key = Indigo::Get_Shifted_Character(key);
-			}
 			if (texture_yet)
 			{
-				texture += key;
+				changed = Text_Edit(key, texture);
 			}
 			else
 			{
-				model += key;
+				changed = Text_Edit(key, model);
 			}
+		}
+		if (changed)
+		{
 			Indigo::Current_World.Remove_2D_Object(space_menu);
 			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
@@ -216,15 +214,24 @@ void Key_Pressed(int key)
 		}
 		if (key == GLFW_KEY_TAB)
 		{
-			for (int i = 0; i < models.size(); ++i)
+			if (save_menu == -1)
 			{
-				if (textures[i][0] != '\0')
+				std::string display = "Save here:\n ";
+				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			}
+			else
+			{
+				std::ofstream file(save_location, std::ios::out);
+				for (int i = 0; i < models.size(); ++i)
 				{
-					std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
-				}
-				else
-				{
-					std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
+					if (textures[i][0] != '\0')
+					{
+						std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
+					}
+					else
+					{
+						std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
+					}
 				}
 			}
 		}
@@ -241,6 +248,6 @@ int main()
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
+	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
 	Indigo::Run();
 }

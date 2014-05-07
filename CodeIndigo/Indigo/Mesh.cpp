@@ -274,7 +274,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	std::vector<unsigned short> normal_indices;
 	std::vector<glm::vec3> vertex_normals;
 	std::map<Vertex_Compare, unsigned short> vertex_to_normal;
-	std::cout << normals.size() << ", " << vertices.size() << std::endl;
 	for (int vertex = 0; vertex < vertices.size(); ++vertex)
 	{
 		std::map<Vertex_Compare, unsigned short>::iterator location = vertex_to_normal.find({ vertices[vertex] });
@@ -294,7 +293,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	{
 		vertex_normals[normal] = glm::normalize(vertex_normals[normal]);
 	}
-	std::cout << vertex_normals.size() << std::endl;
 
 	// Index for the VBO!
 	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
@@ -305,7 +303,7 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	for (int point = 0; point < vertices.size(); ++point)
 	{
 		unsigned short index = 0;
-		Vertex_Texture_Normal together = { vertices[point], uvs[point], vertex_normals[point] };
+		Vertex_Texture_Normal together = { vertices[point], uvs[point], vertex_normals[normal_indices[point]] };
 		std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
 		if (location == vertex_to_index.end())
 		{
@@ -321,7 +319,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 			elements.push_back(location->second);
 		}
 	}
-	std::cout << final_vertices.size() << ", " << final_uvs.size() << ", " << elements.size() << std::endl;
 
 	// Let's do it! It's ready! Let's send it to the GPU!
 	glGenBuffers(1, &Vertices_ID);
@@ -342,7 +339,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 
 	// Oh, yeah, we actually need to render this. How big was this model, again?
 	Size = elements.size();
-	std::cout << (final_vertices.size() * 4 + elements.size() * 1) * 100 / (elements.size() * 4) << "% of original size.\n";
 
 	return;
 }

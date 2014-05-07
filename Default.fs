@@ -24,7 +24,7 @@ void main()
 		{
 			gl_FragColor = vec4(vec3(F_Ambient, F_Ambient, F_Ambient) * color, F_Color.a);
 		}
-		else if (true)
+		else
 		{
 			float light_distance_squared = F_To_Light.x * F_To_Light.x + F_To_Light.y * F_To_Light.y + F_To_Light.z * F_To_Light.z;
 			float cosine_theta = abs(dot(F_Normal, normalize(F_To_Light.xyz)));
@@ -38,10 +38,6 @@ void main()
 				+ (F_To_Light.w == 1 ? F_Light_Color * F_Light_Power * pow(cosine_alpha, F_Shininess) / light_distance_squared : F_Light_Color * pow(cosine_alpha, F_Shininess))
 				// Alpha
 				, F_Color.a);
-		}
-		else
-		{
-			gl_FragColor = vec4(color, F_Color.a);
 		}
 	}
 	else

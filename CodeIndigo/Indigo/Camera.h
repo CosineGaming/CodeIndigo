@@ -16,7 +16,7 @@ public:
 
 	// Create a new camera by a position and a direction
 	Camera(const float x = 0.0, const float y = 0.0, const float z = 0.0,
-		const Direction looking=Direction(1.0),
+		const Direction looking=Direction(1.0), const float near = 0.2, const float far = 1000.0,
 		const Direction above = Direction(1.0, 0.0, 90.0), const int field_of_view_x = 90);
 	// Create a camera based off another
 	Camera(const Camera& camera);
@@ -54,6 +54,10 @@ public:
 	float X;
 	float Y;
 	float Z;
+	// Data can't be closer than this
+	float Near;
+	// Data can't go farther than this
+	float Far;
 	// The way the camera is looking
 	Direction Eye;
 	// The angle of the field of view on the x axis

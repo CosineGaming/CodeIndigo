@@ -12,10 +12,12 @@
 
 
 // Create a new camera by a position and a direction
-Camera::Camera(const float x, const float y, const float z, const Direction looking, const Direction above, const int field_of_view_x)
+Camera::Camera(const float x, const float y, const float z, const Direction looking, const float near, const float far, const Direction above, const int field_of_view_x)
 {
 	Place(x, y, z);
 	Eye = looking;
+	Near = near;
+	Far = far;
 	Up = above;
 	Field_Of_View = field_of_view_x;
 	return;
@@ -27,7 +29,10 @@ Camera::Camera(const Camera& camera)
 {
 	Place(camera.X, camera.Y, camera.Z);
 	Look_At(camera.Eye);
+	Near = camera.Near;
+	Far = camera.Far;
 	Up = camera.Up;
+	Field_Of_View = camera.Field_Of_View;
 	return;
 }
 
@@ -118,7 +123,7 @@ void Camera::Watch(const Object& object, const Direction& relative_camera_positi
 // Set up the projection matrix for this frame
 glm::mat4 Camera::Project(void) const
 {
-	return glm::perspective(Field_Of_View / Indigo::Aspect_Ratio, (float) Indigo::Aspect_Ratio, (float)0.01, (float)500.0);
+	return glm::perspective(Field_Of_View / Indigo::Aspect_Ratio, Indigo::Aspect_Ratio, Near, Far);
 }
 
 
