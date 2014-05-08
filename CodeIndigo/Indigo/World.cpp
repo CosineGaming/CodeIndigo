@@ -214,10 +214,6 @@ void World::Shader(const char * vertex, const char * fragment)
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
 
-	Matrix_Handle = glGetUniformLocation(Shader_Index, "MVP");
-	View_Matrix = glGetUniformLocation(Shader_Index, "V");
-	Model_Matrix = glGetUniformLocation(Shader_Index, "M");
-
 	return;
 
 }

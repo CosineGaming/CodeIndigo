@@ -94,10 +94,10 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
 	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
 	modeling = glm::scale(modeling, Scale);
-	glUniformMatrix4fv(Indigo::Current_World.Model_Matrix, 1, GL_FALSE, &modeling[0][0]);
-	glUniformMatrix4fv(Indigo::Current_World.View_Matrix, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_Model", true), 1, GL_FALSE, &modeling[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_View", true), 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
-	glUniformMatrix4fv(Indigo::Current_World.Matrix_Handle, 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_All", true), 1, GL_FALSE, &mvp[0][0]);
 
 	// Custom data
 	for (int i = 0; i < Shader_Argument_Names.size(); ++i)
@@ -120,21 +120,21 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Light_Enabled", true), lighting);
 
 	// Vertices
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Texture UVs
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("UV"));
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Light normals
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("Normal"));
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Indices
@@ -144,9 +144,9 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glDrawElements(GL_TRIANGLES, Data.Size, GL_UNSIGNED_SHORT, (void*) 0);
 
 	// Finished
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("Position"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("UV"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("Normal"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
 
 	return;
 }

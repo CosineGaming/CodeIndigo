@@ -1,24 +1,117 @@
 #include "Indigo/IndigoEngine.h"
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <string>
 
 
-struct Model_Texture
+struct Mesh_Texture
 {
-	std::string model;
-	std::string texture;
-	bool operator<(const Model_Texture& compare)
+	const char * mesh;
+	const char * texture;
+	bool operator<(const Mesh_Texture& compare) const
 	{
-		return memcmp(this, &compare, sizeof(Model_Texture))
+		return memcmp(this, &compare, sizeof(Mesh_Texture)) > 0;
 	}
 };
 
-std::vector<std::string> models;
-std::vector<std::string> textures;
-std::vector<glm::vec3> coordinates;
+std::map<Mesh_Texture, unsigned short> model_to_index;
+std::vector<Mesh_Texture> models;
+std::vector<unsigned short> instances;
+std::vector<glm::vec3> positions;
 
 bool Typing;
+
+bool Load(const char * filename)
+{
+	/* File Format:
+	mesh|texture
+	> // For as many times as you like
+	instance|x|y|z
+	*/
+	std::ifstream file(filename);
+	if (!file)
+	{
+		return false;
+	}
+	std::string line;
+	bool past_marker;
+	std::vector<Mesh> meshes;
+	while (std::getline(file, line))
+	{
+		if (!past_marker)
+		{
+			if (line[0] == '>')
+			{
+				past_marker = true;
+			}
+			else
+			{
+				int separation = line.find('|');
+				std::string mesh = line.substr(0, separation);
+				std::string texture = line.substr(separation+1);
+				Mesh_Texture model = { mesh.c_str(), texture.c_str() };
+				meshes.push_back(Mesh(model.mesh, model.texture));
+				models.push_back(model);
+				model_to_index[model] = models.size() - 1;
+			}
+		}
+		else
+		{
+			unsigned short index = atoi(line.c_str());
+			float x = Indigo::Fast_Float(line.c_str());
+			line = line.substr(line.find('|') + 1);
+			float y = Indigo::Fast_Float(line.c_str());
+			line = line.substr(line.find('|') + 1);
+			float z = Indigo::Fast_Float(line.c_str());
+			instances.push_back(index);
+			positions.push_back(glm::vec3(x, y, z));
+			Indigo::Current_World.Add_Object(Object(x, y, z, meshes[index]));
+		}
+	}
+}
+
+bool Save(const char * filename)
+{
+	/* File Format:
+	mesh|texture
+	> // For as many times as you like
+	instance|x|y|z
+	*/
+	std::ofstream file(filename);
+	if (!file)
+	{
+		return false;
+	}
+	for (int i = 0; i < models.size(); ++i)
+	{
+		file << std::string(models[i].mesh) << "|" << std::string(models[i].texture) << std::endl;
+	}
+	file << ">>>>>>>" << std::endl;
+	for (int i = 0; i < instances.size(); ++i)
+	{
+		file << instances[i] << "|" << positions[i].x << "|" << positions[i].y << "|" << positions[i].z << std::endl;
+	}
+	return true;
+}
+
+void Add_Object_To_World_Save(glm::vec3 position, const char * mesh, const char * texture)
+{
+	unsigned short index = 0;
+	Mesh_Texture together = { mesh, texture };
+	std::map<Mesh_Texture, unsigned short>::iterator location = model_to_index.find(together);
+	if (location == model_to_index.end())
+	{
+		models.push_back(together);
+		unsigned short index = models.size() - 1;
+		instances.push_back(index);
+		model_to_index[together] = index;
+	}
+	else
+	{
+		instances.push_back(location->second);
+	}
+}
 
 void Fade_Text(float time, Object& self)
 {
@@ -31,17 +124,6 @@ void Fade_Text(float time, Object& self)
 
 void GUI(float time)
 {
-	static unsigned short frames = 0;
-	static unsigned short begin = 0;
-	if (frames == 2)
-	{
-		begin = Indigo::Elapsed();
-	}
-	if (frames == 62)
-	{
-		std::cout << (Indigo::Elapsed() - begin) / 60.0 << std::endl;
-	}
-	frames++;
 	static float total_speed = 0.005;
 	static bool lighting_enabled = false;
 	if (!Typing)
@@ -133,7 +215,7 @@ void Key_Pressed(int key)
 	static float menu_x = 0;
 	static float menu_y = 0;
 	static std::string save_location = "";
-	static std::string model = "";
+	static std::string mesh = "";
 	static std::string texture = "";
 	if (space_menu != -1)
 	{
@@ -142,14 +224,12 @@ void Key_Pressed(int key)
 		{
 			if (texture_yet)
 			{
-				Mesh add = Mesh(model.c_str(), texture.length() ? texture.c_str() : nullptr);
+				Mesh add = Mesh(mesh.c_str(), texture.length() ? texture.c_str() : nullptr);
 				float up = 0.035;
 				if (add.Size && !(add.Texture_ID == 0 && texture.length()))
 				{
-					models.push_back(model);
-					textures.push_back(texture);
 					glm::vec3 position = glm::vec3(Indigo::Current_World.View.X, Indigo::Current_World.View.Y, Indigo::Current_World.View.Z);
-					coordinates.push_back(position);
+					Add_Object_To_World_Save(position, mesh.c_str(), texture.c_str());
 					Indigo::Current_World.Add_Object(Object(position.x, position.y, position.z, add));
 					Indigo::Current_World.Remove_2D_Object(space_menu);
 					space_menu = -1;
@@ -172,7 +252,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				if (!model.length())
+				if (!mesh.length())
 				{
 					Indigo::Current_World.Remove_2D_Object(space_menu);
 					space_menu = -1;
@@ -183,7 +263,7 @@ void Key_Pressed(int key)
 					texture_yet = true;
 					if (texture == "")
 					{
-						texture = model.substr(0, model.length() - 4) + ".bmp";
+						texture = mesh.substr(0, mesh.length() - 4) + ".bmp";
 					}
 					changed = true;
 				}
@@ -202,7 +282,7 @@ void Key_Pressed(int key)
 				space_menu = -1;
 				Typing = false;
 			}
-			model = "";
+			mesh = "";
 			texture = "";
 		}
 		else
@@ -213,7 +293,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				changed = Text_Edit(key, model);
+				changed = Text_Edit(key, mesh);
 			}
 		}
 		if (key == GLFW_KEY_BACKSPACE)
@@ -226,7 +306,7 @@ void Key_Pressed(int key)
 		if (changed)
 		{
 			Indigo::Current_World.Remove_2D_Object(space_menu);
-			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
+			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + mesh)) + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 		}
 	}
@@ -235,18 +315,7 @@ void Key_Pressed(int key)
 		if (key == GLFW_KEY_ENTER)
 		{
 			std::cout << save_location << std::endl;
-			std::ofstream file(save_location);
-			for (int i = 0; i < models.size(); ++i)
-			{
-				if (textures[i][0] != '\0')
-				{
-					file << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
-				}
-				else
-				{
-					file << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
-				}
-			}
+			Save(save_location.c_str());
 			Indigo::Current_World.Remove_2D_Object(save_menu);
 			save_menu = -1;
 			Typing = false;
@@ -272,7 +341,7 @@ void Key_Pressed(int key)
 			menu_x = Indigo::Mouse_Position.x;
 			menu_y = Indigo::Mouse_Position.y;
 			texture_yet = false;
-			std::string display = "Model:\n" + model + " ";
+			std::string display = "Model:\n" + mesh + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 			Typing = true;
 		}
@@ -280,7 +349,7 @@ void Key_Pressed(int key)
 		{
 			menu_x = Indigo::Mouse_Position.x;
 			menu_y = Indigo::Mouse_Position.y;
-			std::string display = "Save here:\n" + save_location + " ";
+			std::string display = "Save Here:\n" + save_location + " ";
 			save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 			Typing = true;
 		}
@@ -297,6 +366,6 @@ int main()
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
-#include "WorldSave.ws"
+//#include "WorldSave.ws"
 	Indigo::Run();
 }

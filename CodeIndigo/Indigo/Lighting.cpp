@@ -59,5 +59,5 @@ void Lighting::Update_Lights(void) const
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Ambient", true), ambient);
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Light_Power", true), light_power);
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Light_Color", true), color[0], color[1], color[2]);
-	glUniform4f(Indigo::Current_World.Shader_Location("Light", true), position[0], position[1], position[2], position[3]);
+	glUniform4f(Indigo::Current_World.Shader_Location("V_Light", true), position[0], position[1], position[2], position[3]);
 }
