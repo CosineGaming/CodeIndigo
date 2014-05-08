@@ -4,6 +4,16 @@
 #include <string>
 
 
+struct Model_Texture
+{
+	std::string model;
+	std::string texture;
+	bool operator<(const Model_Texture& compare)
+	{
+		return memcmp(this, &compare, sizeof(Model_Texture))
+	}
+};
+
 std::vector<std::string> models;
 std::vector<std::string> textures;
 std::vector<glm::vec3> coordinates;
@@ -21,6 +31,17 @@ void Fade_Text(float time, Object& self)
 
 void GUI(float time)
 {
+	static unsigned short frames = 0;
+	static unsigned short begin = 0;
+	if (frames == 2)
+	{
+		begin = Indigo::Elapsed();
+	}
+	if (frames == 62)
+	{
+		std::cout << (Indigo::Elapsed() - begin) / 60.0 << std::endl;
+	}
+	frames++;
 	static float total_speed = 0.005;
 	static bool lighting_enabled = false;
 	if (!Typing)
@@ -114,7 +135,7 @@ void Key_Pressed(int key)
 	static std::string save_location = "";
 	static std::string model = "";
 	static std::string texture = "";
-	if (space_menu != -1) // Typing in the Model Adder
+	if (space_menu != -1)
 	{
 		bool changed = false;
 		if (key == GLFW_KEY_ENTER)
@@ -181,8 +202,10 @@ void Key_Pressed(int key)
 				space_menu = -1;
 				Typing = false;
 			}
+			model = "";
+			texture = "";
 		}
-		if (!changed)
+		else
 		{
 			if (texture_yet)
 			{
@@ -193,11 +216,53 @@ void Key_Pressed(int key)
 				changed = Text_Edit(key, model);
 			}
 		}
+		if (key == GLFW_KEY_BACKSPACE)
+		{
+			if (!texture_yet)
+			{
+				texture = "";
+			}
+		}
 		if (changed)
 		{
 			Indigo::Current_World.Remove_2D_Object(space_menu);
 			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + model)) + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+		}
+	}
+	else if (save_menu != -1)
+	{
+		if (key == GLFW_KEY_ENTER)
+		{
+			std::cout << save_location << std::endl;
+			std::ofstream file(save_location);
+			for (int i = 0; i < models.size(); ++i)
+			{
+				if (textures[i][0] != '\0')
+				{
+					file << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
+				}
+				else
+				{
+					file << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
+				}
+			}
+			Indigo::Current_World.Remove_2D_Object(save_menu);
+			save_menu = -1;
+			Typing = false;
+		}
+		else if (key == GLFW_KEY_ESCAPE)
+		{
+			Indigo::Current_World.Remove_2D_Object(save_menu);
+			save_menu = -1;
+			Typing = false;
+			save_location = "";
+		}
+		else if (Text_Edit(key, save_location))
+		{
+			Indigo::Current_World.Remove_2D_Object(save_menu);
+			std::string display = "Save Here:\n" + save_location + " ";
+			save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 		}
 	}
 	else
@@ -210,30 +275,14 @@ void Key_Pressed(int key)
 			std::string display = "Model:\n" + model + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 			Typing = true;
-			return;
 		}
-		if (key == GLFW_KEY_TAB)
+		if (Indigo::Control && key == 's')
 		{
-			if (save_menu == -1)
-			{
-				std::string display = "Save here:\n ";
-				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
-			}
-			else
-			{
-				std::ofstream file(save_location, std::ios::out);
-				for (int i = 0; i < models.size(); ++i)
-				{
-					if (textures[i][0] != '\0')
-					{
-						std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\", \"" << textures[i] << "\")));" << std::endl;
-					}
-					else
-					{
-						std::cout << "Indigo::Current_World.Add_Object(Object(" << coordinates[i].x << ", " << coordinates[i].y << ", " << coordinates[i].z << ", " << "Mesh(\"" << models[i] << "\")));" << std::endl;
-					}
-				}
-			}
+			menu_x = Indigo::Mouse_Position.x;
+			menu_y = Indigo::Mouse_Position.y;
+			std::string display = "Save here:\n" + save_location + " ";
+			save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Typing = true;
 		}
 	}
 }
@@ -248,6 +297,6 @@ int main()
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
-	//Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.bmp")));
+#include "WorldSave.ws"
 	Indigo::Run();
 }

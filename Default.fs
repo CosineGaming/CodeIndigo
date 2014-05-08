@@ -27,8 +27,17 @@ void main()
 		else
 		{
 			float light_distance_squared = F_To_Light.x * F_To_Light.x + F_To_Light.y * F_To_Light.y + F_To_Light.z * F_To_Light.z;
-			float cosine_theta = abs(dot(F_Normal, normalize(F_To_Light.xyz)));
-			float cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, F_Normal)), 0, 1);
+			float cosine_alpha;
+			float cosine_theta = dot(F_Normal, normalize(F_To_Light.xyz));
+			if (cosine_theta < 0 || cosine_theta > 1)
+			{
+				cosine_theta = dot(-1 * F_Normal, normalize(F_To_Light.xyz));
+				cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, -1 * F_Normal)), 0,1);
+			}
+			else
+			{
+				cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, F_Normal)), 0,1);
+			}
 			gl_FragColor = vec4(
 				// Ambient
 				vec3(F_Ambient, F_Ambient, F_Ambient) * color
@@ -44,5 +53,5 @@ void main()
 	{
 		gl_FragColor = vec4(color, F_Color.a);
 	}
-	//gl_FragColor = vec4(color, 1);
+	gl_FragColor = vec4(color, 1);
 }
