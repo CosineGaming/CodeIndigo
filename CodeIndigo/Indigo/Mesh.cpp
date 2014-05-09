@@ -83,7 +83,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				const char * stream = line.c_str();
 				glm::vec3 option;
 				int next;
-				option.x = Indigo::Fast_Float(stream, &next, 0);
+				option.x = Indigo::Fast_Float(stream, &next);
 				option.y = Indigo::Fast_Float(stream, &next, next);
 				option.z = Indigo::Fast_Float(stream, nullptr, next);
 				temp_vertices.push_back(option);
@@ -94,7 +94,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				const char * stream = line.c_str();
 				glm::vec2 option;
 				int next;
-				option.x = Indigo::Fast_Float(stream, &next, 0);
+				option.x = Indigo::Fast_Float(stream, &next);
 				option.y = Indigo::Fast_Float(stream, nullptr, next);
 				temp_textures.push_back(option);
 			}
@@ -104,7 +104,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				const char * stream = line.c_str();
 				glm::vec3 normal;
 				int next;
-				normal.x = Indigo::Fast_Float(stream, &next, 0);
+				normal.x = Indigo::Fast_Float(stream, &next);
 				normal.y = Indigo::Fast_Float(stream, &next, next);
 				normal.z = Indigo::Fast_Float(stream, nullptr, next);
 				temp_normals.push_back(normal);

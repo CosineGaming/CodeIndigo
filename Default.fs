@@ -17,7 +17,15 @@ uniform int F_Light_Enabled;
 
 void main()
 {
-	vec3 color = F_Color.rgb * texture2D(F_Sampler, F_UV).rgb;
+	vec3 start = texture2D(F_Sampler, F_UV).rgb;
+	vec2 next = F_UV + vec2(pow(1.01, length(F_To_Camera)) - 1, pow(1.01, length(F_To_Camera)) - 1);
+	start += texture2D(F_Sampler, next).rgb;
+	for (int i = 0; i < 3; ++i)
+	{
+		next += vec2((pow(2, length(F_To_Camera)) - 1) * 0.00001, pow(1.01, length(F_To_Camera)) - 1);
+		start += texture2D(F_Sampler, next).rgb;
+	}
+	vec3 color = F_Color.xyz * start / 5;
 	if (F_Light_Enabled == 1)
 	{
 		if (F_Light_Power == 0)
@@ -53,5 +61,4 @@ void main()
 	{
 		gl_FragColor = vec4(color, F_Color.a);
 	}
-	gl_FragColor = vec4(color, 1);
 }

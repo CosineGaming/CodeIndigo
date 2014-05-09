@@ -334,6 +334,15 @@ namespace Indigo
 		{
 			result = result * 10 + (stream[i] - '0');
 		}
+		if (stream[i] != '.')
+		{
+			result *= negative;
+			if (output)
+			{
+				*output = i;
+			}
+			return result;
+		}
 		++i;
 		float precision = 0.1;
 		for (; stream[i] >= '0' && stream[i] <= '9'; ++i)
@@ -341,7 +350,6 @@ namespace Indigo
 			result += precision * (stream[i] - '0');
 			precision *= 0.1;
 		}
-		++i;
 		result *= negative;
 		if (output)
 		{
