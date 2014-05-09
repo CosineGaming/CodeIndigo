@@ -17,17 +17,7 @@ uniform int F_Light_Enabled;
 
 void main()
 {
-	vec3 start = texture2D(F_Sampler, F_UV).rgb;
-	float offset = length(F_To_Camera)*length(F_To_Camera) / 524288l;
-	vec2 full_offset = vec2(offset, offset);
-	vec2 next = F_UV + full_offset;
-	start += texture2D(F_Sampler, next).rgb;
-	for (int i = 0; i < 3; ++i)
-	{
-		next += full_offset;
-		start += texture2D(F_Sampler, next).rgb;
-	}
-	vec3 color = F_Color.xyz * start / 5;
+	vec3 color = F_Color.xyz * texture2D(F_Sampler, F_UV).rgb;
 	if (F_Light_Enabled == 1)
 	{
 		if (F_Light_Power == 0)

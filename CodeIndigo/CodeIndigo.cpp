@@ -299,7 +299,18 @@ void Key_Pressed(int key)
 		{
 			if ((texture_yet ? texture : mesh).length() != 0)
 			{
-				texture_yet ? texture : mesh = "";
+				if (texture_yet)
+				{
+					texture = "";
+					Indigo::Current_World.Remove_2D_Object(space_menu);
+					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(("Texture:\n "), 0.035)));
+				}
+				else
+				{
+					mesh = "";
+					Indigo::Current_World.Remove_2D_Object(space_menu);
+					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(("Mesh:\n "), 0.035)));
+				}
 			}
 			else
 			{
@@ -330,7 +341,7 @@ void Key_Pressed(int key)
 		if (changed)
 		{
 			Indigo::Current_World.Remove_2D_Object(space_menu);
-			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Model:\n" + mesh)) + " ";
+			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Mesh:\n" + mesh)) + " ";
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 		}
 	}
@@ -354,13 +365,14 @@ void Key_Pressed(int key)
 			if (save_location.length() != 0)
 			{
 				save_location = "";
+				Indigo::Current_World.Remove_2D_Object(save_menu);
+				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text("Save Here:\n ", 0.035)));
 			}
 			else
 			{
 				Indigo::Current_World.Remove_2D_Object(save_menu);
 				save_menu = -1;
 				Typing = false;
-				save_location = "";
 			}
 		}
 		else if (Text_Edit(key, save_location))
@@ -390,6 +402,8 @@ void Key_Pressed(int key)
 			if (save_location.length() != 0)
 			{
 				save_location = "";
+				Indigo::Current_World.Remove_2D_Object(open_menu);
+				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text("Open From:\n ", 0.035)));
 			}
 			else
 			{
@@ -531,7 +545,7 @@ int main()
 {
 	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1280, 720, 24, false);
 	Indigo::Update_Function = GUI;
-	Indigo::Current_World.Shader("Default.vs", "Default.fs");
+	Indigo::Current_World.Shader("CodeIndigo/Indigo/Shaders/Default.vs", "CodeIndigo/Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
 	Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, true);
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
