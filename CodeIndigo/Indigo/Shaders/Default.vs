@@ -11,6 +11,7 @@ uniform mat4 M_View;
 uniform vec4 V_Light;
 
 // Automatic: varying vec3 gl_Position
+varying vec3 F_Position;
 varying vec2 F_UV;
 varying vec3 F_Normal;
 varying vec3 F_To_Camera;
@@ -20,6 +21,7 @@ varying vec3 F_Distance_To_Light;
 void main()
 {
 	gl_Position = M_All * vec4(V_Position, 1);
+	F_Position = (M_Model * vec4(V_Position, 1)).xyz;
 	F_UV = V_UV;
 	F_Normal = (M_View*M_Model*vec4(V_Normal, 0)).xyz;
 	F_To_Camera = -1 * (M_View*M_Model*vec4(V_Position, 1)).xyz;

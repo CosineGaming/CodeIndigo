@@ -15,6 +15,8 @@ struct Mesh_Texture
 	}
 };
 
+World restore;
+
 std::map<Mesh_Texture, unsigned short> model_to_index;
 std::vector<Mesh_Texture> models;
 std::vector<unsigned short> instances;
@@ -574,11 +576,7 @@ void Key_Pressed(int key)
 				models = std::vector<Mesh_Texture>();
 				instances = std::vector<unsigned short>();
 				positions = std::vector<glm::vec3>();
-				Indigo::Current_World = World();
-				Indigo::Current_World.Shader("Default.vs", "Default.fs");
-				Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-				Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, true);
-				Indigo::Current_World.View.Place(0, 0, 0);
+				Indigo::Current_World = restore;
 			}
 		}
 	}
@@ -594,5 +592,6 @@ int main()
 	Indigo::Mouse_Moved_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
+	restore = Indigo::Current_World;
 	Indigo::Run();
 }
