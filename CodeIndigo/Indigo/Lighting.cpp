@@ -13,7 +13,7 @@ Lighting::Lighting(void)
 {
 	position = glm::vec4(0, 0, 0, 0);
 	color = glm::vec3(0, 0, 0);
-	ambient = 0.075;
+	ambient = 0; // .075;
 	light_power = 0;
 	return;
 }

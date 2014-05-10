@@ -615,7 +615,7 @@
 //
 //	Indigo::Initialize("Ludum Dare 29", Indigo::Sky_Color);
 //	Indigo::Update_Function = Load;
-//	Indigo::FPS_Mouse(true, &Player);
+//	Indigo::FPS_Mouse(&Player);
 //	Indigo::Mouse_Button_Function = Start;
 //
 //	Player = Object(0, 0.75, 0);
@@ -626,12 +626,12 @@
 //	Gravity_Velocity = 0;
 //
 //	Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh("Meshes/Rectangle.obj", "Textures/Title.bmp")));
-//	Indigo::Current_World.Shader("Default.vs", "Default.fs");
+//	Indigo::Current_World.Shader("CodeIndigo/Indigo/Shaders/Default.vs", "CodeIndigo/Indigo/Shaders/Default.fs");
 //	Indigo::Current_World.Light_Setup.Set_Light(0, 0, 0);
 //
-//	Game.Shader("Experiment.vs", "Experiment.fs");
+//	Game.Shader("CodeIndigo/Indigo/Shaders/Experiment.vs", "CodeIndigo/Indigo/Shaders/Experiment.fs");
 //	Alternative_Shader = Game.Shader_Index;
-//	Game.Shader("Default.vs", "Default.fs");
+//	Game.Shader("CodeIndigo/Indigo/Shaders/Default.vs", "CodeIndigo/Indigo/Shaders/Default.fs");
 //	Normal_Shader = Game.Shader_Index;
 //	Direction light_direction = Direction(1, 45, -45);
 //	Game.Light_Setup.Set_Light(light_direction.Get_X(), light_direction.Get_Y(), light_direction.Get_Z(), true);

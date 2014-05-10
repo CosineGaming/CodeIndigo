@@ -26,25 +26,21 @@ void main()
 		}
 		else
 		{
-			float light_distance_squared = F_To_Light.x * F_To_Light.x + F_To_Light.y * F_To_Light.y + F_To_Light.z * F_To_Light.z;
-			float cosine_alpha;
-			float cosine_theta = dot(F_Normal, normalize(F_To_Light.xyz));
-			if (cosine_theta < 0 || cosine_theta > 1)
+			vec3 final_normal = normalize(F_Normal);
+			if (!gl_FrontFacing)
 			{
-				cosine_theta = dot(-1 * F_Normal, normalize(F_To_Light.xyz));
-				cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, -1 * F_Normal)), 0,1);
+				final_normal *= -1;
 			}
-			else
-			{
-				cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, F_Normal)), 0,1);
-			}
+			float cosine_theta = clamp(dot(final_normal, normalize(F_To_Light.xyz)), 0,1);
+			float cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(-1 * F_To_Light.xyz, final_normal)), 0,1);
+			float light_distance_squared = dot(F_To_Light.xyz, F_To_Light.xyz);
 			gl_FragColor = vec4(
 				// Ambient
 				vec3(F_Ambient, F_Ambient, F_Ambient) * color
 				// Diffuse
-				+ (F_To_Light.w == 1 ? F_Light_Color * color * F_Light_Power * cosine_theta / light_distance_squared : F_Light_Color * color * cosine_theta)
+				+ (F_To_Light.w == 1 ? (F_Light_Color * color * cosine_theta * clamp(F_Light_Power / light_distance_squared, 0,1)) : (F_Light_Color * color * cosine_theta))
 				// Specular
-				+ (F_To_Light.w == 1 ? F_Light_Color * F_Light_Power * pow(cosine_alpha, F_Shininess) / light_distance_squared : F_Light_Color * pow(cosine_alpha, F_Shininess))
+				//+ (F_To_Light.w == 1 ? F_Light_Color * pow(cosine_alpha, F_Shininess) * F_Light_Power / light_distance_squared : F_Light_Color * pow(cosine_alpha, F_Shininess))
 				// Alpha
 				, F_Color.a);
 		}

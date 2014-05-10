@@ -289,10 +289,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 			normal_indices.push_back(location->second);
 		}
 	}
-	for (int normal = 0; normal < vertex_normals.size(); ++normal)
-	{
-		vertex_normals[normal] = glm::normalize(vertex_normals[normal]);
-	}
 
 	// Index for the VBO!
 	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
