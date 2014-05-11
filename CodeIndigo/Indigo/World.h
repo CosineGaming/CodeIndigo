@@ -54,8 +54,6 @@ public:
 	Object& Get_Object(const int id) const;
 	// Removes an object from the world based on an object ID
 	void Remove_Object(const int id);
-	// Removes an object from the world based on object; gets ID automatically
-	void Remove_Object(const Object& object);
 
 	// Adds a front object to the world to be rendered and updated, returns an object ID.
 	// A front object is 3D, but doesn't get covered up by normal 3D objects. (Drawn in order of added)
@@ -65,8 +63,6 @@ public:
 	Object& Get_Front_Object(const int id) const;
 	// Removes a front object from the world based on an object ID
 	void Remove_Front_Object(const int id);
-	// Removes a front object from the world based on object; gets ID automatically
-	void Remove_Front_Object(const Object& object);
 
 	// Adds a 2D object to the world to be rendered and updated, returns an object ID
 	int Add_2D_Object(const Object& object);
@@ -74,29 +70,25 @@ public:
 	Object& Get_2D_Object(const int id) const;
 	// Removes a 2D object from the world based on an object ID
 	void Remove_2D_Object(const int id);
-	// Removes a 2D object from the world based on object; gets ID automatically
-	void Remove_2D_Object(const Object& object);
 
 	// Add animation along with its nested animations to the world to be rendered, returns no handle to the text
 	int Add_Animation(const Animation& animation);
 	// Removes the animation (and nested ones) from the world based on an object ID
 	void Remove_Animation(const int id);
-	// Removes animation from the world based on animation itself; gets ID automatically
-	void Remove_Animation(const Animation& animation);
 
 	// Returns the number of objects in the world, simply objects.size()
-	int Number_Of_Objects(void);
+	int Number_Of_Objects(void) const;
 	// Returns the number of 2d objects in the world, simply objects_2d.size()
-	int Number_Of_2D_Objects(void);
+	int Number_Of_2D_Objects(void) const;
 	// Returns the number of texts in the world, simply texts.size()
-	int Number_Of_Texts(void);
+	int Number_Of_Texts(void) const;
 
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
-	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0);
+	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 	// Checks whether any object will ever be intersected by a direction
-	int Collide(const glm::vec3& position, const Direction& direction);
+	int Collide(const glm::vec2& position = glm::vec2(0, 0), const glm::mat4& camera_position = glm::mat4(0)) const;
 	// Checks whether a vertex is within any object
-	int Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0);
+	int Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time);

@@ -185,69 +185,124 @@ void Object::Move(const float forward, const float side, const float up)
 // Checks whether this object collides with another object
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
-	//return (Direction::Coordinates(X,Y,Z).Distance(Direction::Coordinates(object.X + add_x, object.Y + add_y, object.Z + add_z)).Get_Distance() < Data.Hitbox + object.Data.Hitbox);
-	return (X + add_x + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
+	return (
+		// Collides in some way
+		   X + add_x + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
 		&& X + add_x + Data.Hitbox[1].x > object.X + object.Data.Hitbox[0].x
 		&& Y + add_y + Data.Hitbox[0].y < object.Y + object.Data.Hitbox[1].y
 		&& Y + add_y + Data.Hitbox[1].y > object.Y + object.Data.Hitbox[0].y
 		&& Z + add_z + Data.Hitbox[0].z < object.Z + object.Data.Hitbox[1].z
-		&& Z + add_z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z);
+		&& Z + add_z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z
+		// Not fully contained in object
+		&& !(
+		   X + add_x + Data.Hitbox[0].x > object.X + object.Data.Hitbox[0].x
+		&& X + add_x + Data.Hitbox[1].x < object.X + object.Data.Hitbox[1].x
+		&& Y + add_y + Data.Hitbox[0].y > object.Y + object.Data.Hitbox[0].y
+		&& Y + add_y + Data.Hitbox[1].y < object.Y + object.Data.Hitbox[1].y
+		&& Z + add_z + Data.Hitbox[0].z > object.Z + object.Data.Hitbox[0].z
+		&& Z + add_z + Data.Hitbox[1].z < object.Z + object.Data.Hitbox[1].z
+		// Object not fully contained in this
+		) && !(
+		   object.X + object.Data.Hitbox[0].x > X + add_x + Data.Hitbox[0].x
+		&& object.X + object.Data.Hitbox[1].x < X + add_x + Data.Hitbox[1].x
+		&& object.Y + object.Data.Hitbox[0].y > Y + add_y + Data.Hitbox[0].y
+		&& object.Y + object.Data.Hitbox[1].y < Y + add_y + Data.Hitbox[1].y
+		&& object.Z + object.Data.Hitbox[0].z > Z + add_z + Data.Hitbox[0].z
+		&& object.Z + object.Data.Hitbox[1].z < Z + add_z + Data.Hitbox[1].z
+		)
+		);
 }
 
 
-// Checks whether this object will ever be intersected by a direction
-bool Object::Collide(const glm::vec3& position, const Direction& direction) const
+// Checks whether this object was clicked on at world coord (x, y)
+// Also can be used for collide with ray by setting camera_position to Camera.Place(start) Camera.Look_Towards(direction);
+// Returns -1 if nothing's found, or the distance from the camera if something is.
+float Object::Collide(const glm::vec2& position, const glm::mat4& camera_position) const
 {
 
-	/*glm::vec3 * hitbox = const_cast<glm::vec3 *>(Data.Hitbox);
+	// Construct actual hitbox for this
+	glm::vec3 hitbox[8];
+	// Every possible combination of 2 is like counting in binary
+	hitbox[0] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[0].y, Data.Hitbox[0].z);
+	hitbox[1] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[0].y, Data.Hitbox[1].z);
+	hitbox[2] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[1].y, Data.Hitbox[0].z);
+	hitbox[3] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[1].y, Data.Hitbox[1].z);
+	hitbox[4] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[0].y, Data.Hitbox[0].z);
+	hitbox[5] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[0].y, Data.Hitbox[1].z);
+	hitbox[6] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[1].y, Data.Hitbox[0].z);
+	hitbox[7] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[1].y, Data.Hitbox[1].z);
 
-	if (position.Get_Z() < Data.Hitbox[0].Z)
+	// Find the matrix to project the hitbox to gather a new AABB in 2d camera space
+	glm::mat4 MVP = camera_position;
+	glm::mat4 modeling = glm::mat4(1);
+	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
+	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
+	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	modeling = glm::scale(modeling, Scale);
+	if (MVP == glm::mat4(0))
 	{
-
-		hitbox[0].X = Data.Hitbox[1].X;
-
-		hitbox[1].X = Data.Hitbox[0].X;
-		if (position.Get_X() > Data.Hitbox[0].X)
-			hitbox[1].Z = Data.Hitbox[0].Z;
-
+		MVP = Indigo::Current_World.View.Project() * Indigo::Current_World.View.Look() * modeling;
+	}
+	else
+	{
+		MVP *= modeling;
 	}
 
-	if (position.Get_X() > Data.Hitbox[1].X)
+	// Project and find the min/max. Start with values we know won't screw it up because they're in hitbox.
+	// 2d projection, except the min z is for return and to check wither it's in front.
+	glm::vec3 min = glm::vec3(0, 0, 0);
+	glm::vec2 max = glm::vec2(0, 0);
+	for (int i = 0; i < 8; ++i)
 	{
-
-		hitbox[0].X = Data.Hitbox[1].X;
-		hitbox[0].Z = Data.Hitbox[1].Z;
-
-		hitbox[1].X = Data.Hitbox[0].X;
-		hitbox[1].Z = Data.Hitbox[0].Z;
-		if (position.Get_Z() > Data.Hitbox[0].Z)
-			hitbox[1].X = Data.Hitbox[1].X;
-
+		glm::vec4 projected = MVP * glm::vec4(hitbox[i], 1);
+		projected /= projected.w;
+		// OpenGL needs things normalized to a cube. Indigo's standards are to keep things a rectangle to preserve aspect ratio. Standards must agree. Here we convert OpenGL standards to Indigo standards.
+		projected.x *= Indigo::Aspect_Ratio;
+		if (i == 0)
+		{
+			min.x = projected.x;
+			min.y = projected.y;
+			min.z = projected.z;
+			max.x = projected.x;
+			max.y = projected.y;
+		}
+		else
+		{
+			if (projected.x < min.x)
+			{
+				min.x = projected.x;
+			}
+			if (projected.x > max.x)
+			{
+				max.x = projected.x;
+			}
+			if (projected.y < min.y)
+			{
+				min.y = projected.y;
+			}
+			if (projected.y > max.y)
+			{
+				max.y = projected.y;
+			}
+			if (projected.z < min.z)
+			{
+				min.z = projected.z;
+			}
+		}
 	}
 
-	if (position.Get_Z() > Data.Hitbox[1].Z
-		&& position.Get_X() > Data.Hitbox[0].X)
+	// Now we're ready! Easy operation with an AABB
+	// < 0 is not a collision, since nothing on the screen would be behind the camera
+	bool success = (min.z < 1 && min.x < position.x && max.x > position.x
+		&& min.y < position.y && max.y > position.y && min.x);
+	if (success)
 	{
-
-		hitbox[0].X = Data.Hitbox[0].X;
-		hitbox[0].Z = Data.Hitbox[1].Z;
-
-		hitbox[1].X = Data.Hitbox[1].X;
-		hitbox[1].Z = Data.Hitbox[0].Z;
-		if (position.Get_X() < Data.Hitbox[1].X)
-			hitbox[1].Z = Data.Hitbox[1].Z;
-
+		return min.z;
 	}
-
-	Direction least = position.Distance(hitbox[0].To_Direction());
-	Direction most = position.Distance(hitbox[1].To_Direction());
-
-	return direction.Get_X_Angle() >= least.Get_X_Angle()
-		&& direction.Get_X_Angle() <= most.Get_X_Angle()
-		&& direction.Get_Y_Angle() >= least.Get_Y_Angle()
-		&& direction.Get_Y_Angle() <= most.Get_Y_Angle();*/
-
-	return false;
+	else
+	{
+		return 2;
+	}
 
 }
 

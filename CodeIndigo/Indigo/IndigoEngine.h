@@ -1,4 +1,5 @@
 // Include all files required for the Indigo Engine
+// Created by Christopher Phonis-Phine
 
 #include "GL/glew.h"
 

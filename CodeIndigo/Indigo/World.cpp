@@ -312,14 +312,7 @@ Object& World::Get_Object(const int id) const
 // Removes an object from the world based on an object ID
 void World::Remove_Object(const int id)
 {
-	objects[id] = Object();
-	return;
-}
-
-// Removes an object from the world based on object; gets ID automatically
-void World::Remove_Object(const Object& object)
-{
-	objects[object.ID] = Object();
+	objects.erase(objects.begin() + id);
 	return;
 }
 
@@ -344,14 +337,7 @@ Object& World::Get_Front_Object(const int id) const
 // Removes a front object from the world based on an object ID
 void World::Remove_Front_Object(const int id)
 {
-	objects_front[id] = Object();
-	return;
-}
-
-// Removes a front object from the world based on object; gets ID automatically
-void World::Remove_Front_Object(const Object& object)
-{
-	objects[object.ID] = Object();
+	objects_front.erase(objects_front.begin() + id);
 	return;
 }
 
@@ -374,14 +360,7 @@ Object& World::Get_2D_Object(const int id) const
 // Removes an object from the world based on an object ID
 void World::Remove_2D_Object(const int id)
 {
-	objects_2d[id] = Object();
-	return;
-}
-
-// Removes an object from the world based on object; gets ID automatically
-void World::Remove_2D_Object(const Object& object)
-{
-	objects_2d[object.ID] = Object();
+	objects_2d.erase(objects_2d.begin() + id);
 	return;
 }
 
@@ -398,34 +377,27 @@ int World::Add_Animation(const Animation& animation)
 // Removes text from the world based on an object ID
 void World::Remove_Animation(const int id)
 {
-	animations[id] = Animation();
-	return;
-}
-
-// Removes text from the world based on text; gets ID automatically
-void World::Remove_Animation(const Animation& animation)
-{
-	animations[animation.ID] = Animation();
+	animations.erase(animations.begin() + id);
 	return;
 }
 
 
 // Returns the number of objects in the world, simply objects.size()
-int World::Number_Of_Objects(void)
+int World::Number_Of_Objects(void) const
 {
 	return (objects.size());
 }
 
 
 // Returns the number of 2d objects in the world, simply objects_2d.size()
-int World::Number_Of_2D_Objects(void)
+int World::Number_Of_2D_Objects(void) const
 {
 	return (objects_2d.size());
 }
 
 
 // Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
-int World::Collide(const Object& with, const float add_x, const float add_y, const float add_z)
+int World::Collide(const Object& with, const float add_x, const float add_y, const float add_z) const
 {
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
@@ -443,21 +415,28 @@ int World::Collide(const Object& with, const float add_x, const float add_y, con
 
 
 // Checks whether any object will ever be intersected by a direction
-int World::Collide(const glm::vec3& position, const Direction& direction)
+int World::Collide(const glm::vec2& position, const glm::mat4& camera_position) const
 {
+	float least = 2;
+	int answer = -1;
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
-		if (objects[object].World_Collide && objects[object].Collide(position, direction))
+		if (objects[object].World_Collide)
 		{
-			return (object);
+			float result = objects[object].Collide(position, camera_position);
+			if (result < least)
+			{
+				least = result;
+				answer = object;
+			}
 		}
 	}
-	return (-1);
+	return (answer);
 }
 
 
 // Checks whether a vertex is within any object
-int World::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z)
+int World::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z) const
 {
 	for (std::size_t object = 0; object < objects.size(); ++object)
 	{

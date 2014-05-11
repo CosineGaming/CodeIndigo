@@ -17,7 +17,7 @@ public:
 	// Set ambient lighting for the scene for easier lighting
 	void Set_Ambient(float intensity);
 	// Set the light source
-	void Set_Light(float X, float Y, float Z, bool direction=false,
+	void Set_Light(float X, float Y, float Z, bool coordinate = true,
 		float power=60, glm::vec3 light_color=glm::vec3(1.0,1.0,1.0));
 	// Send the light to the shaders
 	void Update_Lights(void) const;

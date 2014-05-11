@@ -35,8 +35,10 @@ public:
 
 	// Checks whether this object collides with another object
 	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0) const;
-	// Checks whether this object will ever be intersected by a direction
-	bool Collide(const glm::vec3& position, const Direction& direction) const;
+	// Checks whether this object was clicked on at world coord (x, y)
+	// Also can be used for collide with ray by setting camera_position to Camera.Place(start) Camera.Look_Towards(direction);
+	// Returns 2 if nothing's found, or the distance from the camera if something is.
+	float Collide(const glm::vec2& position = glm::vec2(0, 0), const glm::mat4& camera_position = glm::mat4(0)) const;
 	// Checks whether this vertex is withing this object
 	bool Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 	// Changes the relative hitbox for preliminary collision, set to 0 to make it uncollidable
