@@ -117,7 +117,6 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 					// Vertex
 					vertices.push_back(temp_vertices[atoi(values.c_str()) - 1]);
 					// Vertex Texture
-					Update_Hitbox(vertices[vertices.size() - 1]);
 					int texturenormal = values.find('/') + 1;
 					if (texturenormal != std::string::npos)
 					{
@@ -306,6 +305,7 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 			final_vertices.push_back(vertices[point]);
 			final_uvs.push_back(uvs[point]);
 			final_normals.push_back(vertex_normals[normal_indices[point]]);
+			Update_Hitbox(vertices[point]);
 			unsigned short index = final_vertices.size() - 1;
 			elements.push_back(index);
 			vertex_to_index[together] = index;

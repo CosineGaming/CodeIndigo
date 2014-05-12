@@ -312,7 +312,7 @@ Object& World::Get_Object(const int id) const
 // Removes an object from the world based on an object ID
 void World::Remove_Object(const int id)
 {
-	objects.erase(objects.begin() + id);
+	objects[id] = Object();
 	return;
 }
 
@@ -337,7 +337,7 @@ Object& World::Get_Front_Object(const int id) const
 // Removes a front object from the world based on an object ID
 void World::Remove_Front_Object(const int id)
 {
-	objects_front.erase(objects_front.begin() + id);
+	objects_front[id] = Object();
 	return;
 }
 
@@ -360,7 +360,7 @@ Object& World::Get_2D_Object(const int id) const
 // Removes an object from the world based on an object ID
 void World::Remove_2D_Object(const int id)
 {
-	objects_2d.erase(objects_2d.begin() + id);
+	objects_2d[id] = Object();
 	return;
 }
 
@@ -377,7 +377,7 @@ int World::Add_Animation(const Animation& animation)
 // Removes text from the world based on an object ID
 void World::Remove_Animation(const int id)
 {
-	animations.erase(animations.begin() + id);
+	animations[id] = Animation();
 	return;
 }
 

@@ -28,6 +28,8 @@ std::vector<glm::vec3> positions;
 bool Typing;
 bool Snap;
 
+int Position_Marker = -1;
+
 bool Load(const char * filename)
 {
 	/* File Format:
@@ -154,14 +156,13 @@ void Add_Object_To_World_Save(glm::vec3& position, const std::string& mesh, cons
 		models.push_back(together);
 		unsigned short index = models.size() - 1;
 		instances.push_back(index);
-		positions.push_back(position);
 		model_to_index[together] = index;
 	}
 	else
 	{
 		instances.push_back(location->second);
-		positions.push_back(position);
 	}
+	positions.push_back(position);
 }
 
 void Fade_Text(float time, Object& self)
@@ -177,6 +178,10 @@ void GUI(float time)
 {
 	static float total_speed = 0.005;
 	static bool lighting_enabled = false;
+	if (Position_Marker == -1)
+	{
+		Position_Marker = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("")));
+	}
 	if (!Typing)
 	{
 		if (Indigo::Keys['2'])
@@ -212,30 +217,39 @@ void GUI(float time)
 		{
 			To_Move->Move(0, 0, -speed);
 		}
-		if (Indigo::Current_World.Collide(Motion) == -1)
-		{
-			Indigo::Current_World.View.Place(Motion.X, Motion.Y, Motion.Z);
-		}
+		Indigo::Current_World.Remove_2D_Object(Position_Marker);
+		std::string display = std::to_string(To_Move->X) + "  " + std::to_string(To_Move->Y) + "  " + std::to_string(To_Move->Z);
+		Position_Marker = Indigo::Current_World.Add_2D_Object(Object(-1.1, -0.9, 0, Mesh::Text(display.c_str(), 0.03)));
 	}
+	Indigo::Current_World.View.Place(Motion.X, Motion.Y, Motion.Z);
+	Indigo::Current_World.View.Eye = Motion.Facing;
 }
 
 void Mouse_Interact(int button, int state, float x, float y)
 {
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && state == GLFW_PRESS)
+	if (state == GLFW_PRESS)
 	{
-		if (To_Move != &Motion)
+		if (button == GLFW_MOUSE_BUTTON_RIGHT)
 		{
 			To_Move->Data.Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
-		}
-		int collide = Indigo::Current_World.Collide(Indigo::Mouse_Position);
-		if (collide != -1)
-		{
-			To_Move = &Indigo::Current_World.Get_Object(collide);
-			To_Move->Data.Color = glm::vec4(300.0, 100.0, 100.0, 1.0);
-		}
-		else
-		{
-			To_Move = &Motion;
+			int collide = Indigo::Current_World.Collide(Indigo::Mouse_Position);
+			if (collide != -1)
+			{
+				Object * clicked = &Indigo::Current_World.Get_Object(collide);
+				if (clicked != To_Move)
+				{
+					To_Move = clicked;
+					To_Move->Data.Color = glm::vec4(300.0, 10.0, 10.0, 1.0);
+				}
+				else
+				{
+					To_Move = &Motion;
+				}
+			}
+			else
+			{
+				To_Move = &Motion;
+			}
 		}
 	}
 }
@@ -245,7 +259,6 @@ void Mouse_Look(int x, int y)
 	if (Indigo::Left_Mouse)
 	{
 		Motion.Facing.Add_Direction(0.0, x*0.2, y*-0.2);
-		Indigo::Current_World.View.Eye = Motion.Facing;
 		if (Indigo::Current_World.View.Eye.Get_Y_Angle() > 90 && Indigo::Current_World.View.Eye.Get_Y_Angle() < 270)
 		{
 			Indigo::Current_World.View.Up.Set_Y(-1.0);
@@ -279,21 +292,39 @@ bool Text_Edit(int key, std::string& output)
 	return false;
 }
 
+void Print(int& handle, const float x, const float y, const std::string toprint)
+{
+	Indigo::Current_World.Remove_2D_Object(handle);
+	handle = Indigo::Current_World.Add_2D_Object(Object(x, y, 0, Mesh::Text(toprint.c_str(), 0.035)));
+}
+
 void Key_Pressed(int key)
 {
+
+	// Each menu that can be triggered by a key must have a handle
 	static int space_menu = -1;
 	static int save_menu = -1;
 	static int open_menu = -1;
 	static int position_menu = -1;
+	static int facing_menu = -1;
+
+	// Some menus have state variables that must be preserved
 	static int pos_part = 0;
 	static bool texture_yet = false;
 	static bool compile;
+
+	// Menus spawn near the mouse. Store where.
 	static float menu_x = 0;
 	static float menu_y = 0;
+
+	// Each menu gathers and acts on data
 	static std::string save_location = "";
 	static std::string position = "";
 	static std::string mesh = "";
 	static std::string texture = "";
+	static std::string facing = "";
+
+	// Space Menu adds Models to the World
 	if (space_menu != -1)
 	{
 		bool changed = false;
@@ -353,14 +384,12 @@ void Key_Pressed(int key)
 				if (texture_yet)
 				{
 					texture = "";
-					Indigo::Current_World.Remove_2D_Object(space_menu);
-					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(("Texture:\n "), 0.035)));
+					Print(space_menu, menu_x, menu_y, "Texture: \n");
 				}
 				else
 				{
 					mesh = "";
-					Indigo::Current_World.Remove_2D_Object(space_menu);
-					space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(("Mesh:\n "), 0.035)));
+					Print(space_menu, menu_x, menu_y, "Mesh: \n");
 				}
 			}
 			else
@@ -389,17 +418,17 @@ void Key_Pressed(int key)
 				changed = Text_Edit(key, mesh);
 			}
 		}
-		if (key == GLFW_KEY_BACKSPACE && !texture_yet)
-		{
-			texture = "";
-		}
 		if (changed)
 		{
-			Indigo::Current_World.Remove_2D_Object(space_menu);
-			std::string display = (texture_yet ? ("Texture:\n" + texture) : ("Mesh:\n" + mesh)) + " ";
-			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			if (!texture_yet)
+			{
+				texture = "";
+			}
+			Print(space_menu, menu_x, menu_y, (texture_yet ? ("Texture:\n" + texture) : ("Mesh:\n" + mesh)) + " ");
 		}
 	}
+
+	// Save Menu saves the current World
 	else if (save_menu != -1)
 	{
 		if (key == GLFW_KEY_ENTER)
@@ -429,8 +458,7 @@ void Key_Pressed(int key)
 			if (save_location.length() != 0)
 			{
 				save_location = "";
-				Indigo::Current_World.Remove_2D_Object(save_menu);
-				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text("Save Here:\n ", 0.035)));
+				Print(save_menu, menu_x, menu_y, "Save Here:\n ");
 			}
 			else
 			{
@@ -441,9 +469,7 @@ void Key_Pressed(int key)
 		}
 		else if (Text_Edit(key, save_location))
 		{
-			Indigo::Current_World.Remove_2D_Object(save_menu);
-			std::string display = "Save Here:\n" + save_location + " ";
-			save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Print(save_menu, menu_x, menu_y, "Save Here:\n" + save_location + " ");
 		}
 	}
 	else if (open_menu != -1)
@@ -466,8 +492,7 @@ void Key_Pressed(int key)
 			if (save_location.length() != 0)
 			{
 				save_location = "";
-				Indigo::Current_World.Remove_2D_Object(open_menu);
-				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text("Open From:\n ", 0.035)));
+				Print(open_menu, menu_x, menu_y, "Open From:\n ");
 			}
 			else
 			{
@@ -479,11 +504,11 @@ void Key_Pressed(int key)
 		}
 		else if (Text_Edit(key, save_location))
 		{
-			Indigo::Current_World.Remove_2D_Object(open_menu);
-			std::string display = "Open From:\n" + save_location + " ";
-			open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Print(open_menu, menu_x, menu_y, "Open From:\n" + save_location + " ");
 		}
 	}
+
+	// Position Menu changes the camera or the active object's position
 	else if (position_menu != -1)
 	{
 		bool changed = true;
@@ -549,14 +574,77 @@ void Key_Pressed(int key)
 				which = "Y:\n";
 			if (pos_part == 2)
 				which = "Z:\n";
-			std::string display = which + position + " ";
-			Indigo::Current_World.Remove_2D_Object(position_menu);
-			position_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Print(position_menu, menu_x, menu_y, which + position + " ");
 		}
 	}
+
+	// Facing Menu changes the camera or the active object's direction
+	else if (facing_menu != -1)
+	{
+		bool changed = true;
+		if (key == GLFW_KEY_ENTER)
+		{
+			if (facing.length() == 0)
+			{
+				facing = "0";
+			}
+			if (pos_part == 0)
+			{
+				To_Move->Facing.Set_X_Angle(Indigo::Fast_Float(facing.c_str()));
+				facing = std::to_string(To_Move->Facing.Get_Y_Angle());
+			}
+			if (pos_part == 1)
+			{
+				To_Move->Facing.Set_Y_Angle(Indigo::Fast_Float(facing.c_str()));
+				Indigo::Current_World.Remove_2D_Object(facing_menu);
+				facing_menu = -1;
+				Typing = false;
+				changed = false;
+			}
+			pos_part++;
+		}
+		else if (key == GLFW_KEY_ESCAPE)
+		{
+			if (facing.length() != 0)
+			{
+				facing = "";
+			}
+			else if (pos_part > 0)
+			{
+				pos_part--;
+			}
+			else
+			{
+				Indigo::Current_World.Remove_2D_Object(facing_menu);
+				facing_menu = -1;
+				Typing = false;
+				facing = "";
+				changed = false;
+			}
+		}
+		else if (Text_Edit(key, facing))
+		{
+			//
+		}
+		else
+		{
+			changed = false;
+		}
+		if (changed)
+		{
+			std::string which;
+			if (pos_part == 0)
+				which = "X Angle:\n";
+			if (pos_part == 1)
+				which = "Y Angle:\n";
+			Print(facing_menu, menu_x, menu_y, which + facing + " ");
+		}
+	}
+
+	// These keys add menus
 	else
 	{
-		if (key == ' ')
+		if (key == ' ' || (Indigo::Control && key == 'a')) // Space
 		{
 			menu_x = Indigo::Mouse_Position.x + 0.07;
 			menu_y = Indigo::Mouse_Position.y - 0.07;
@@ -565,7 +653,7 @@ void Key_Pressed(int key)
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 			Typing = true;
 		}
-		if (key == GLFW_KEY_TAB)
+		if (key == GLFW_KEY_TAB) // Position
 		{
 			menu_x = Indigo::Mouse_Position.x + 0.07;
 			menu_y = Indigo::Mouse_Position.y - 0.07;
@@ -575,9 +663,27 @@ void Key_Pressed(int key)
 			position_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 			Typing = true;
 		}
+		if (key == 'f') // Facing
+		{
+			menu_x = Indigo::Mouse_Position.x + 0.07;
+			menu_y = Indigo::Mouse_Position.y - 0.07;
+			pos_part = 0;
+			facing = std::to_string(To_Move->Facing.Get_X_Angle());
+			std::string display = "X Angle:\n" + facing + " ";
+			facing_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
+			Typing = true;
+		}
+		if (key == GLFW_KEY_BACKSPACE || key == GLFW_KEY_DELETE || key == 'x')
+		{
+			if (To_Move != &Motion)
+			{
+				Indigo::Current_World.Remove_Object(To_Move->ID);
+				To_Move = &Motion;
+			}
+		}
 		if (Indigo::Control)
 		{
-			if (key == 's')
+			if (key == 's') // Save
 			{
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
@@ -586,7 +692,7 @@ void Key_Pressed(int key)
 				Typing = true;
 				compile = Indigo::Shift;
 			}
-			if (key == 'o')
+			if (key == 'o') // Open (Save)
 			{
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
@@ -594,7 +700,7 @@ void Key_Pressed(int key)
 				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.035)));
 				Typing = true;
 			}
-			if (key == 'n')
+			if (key == 'n') // New
 			{
 				model_to_index = std::map<Mesh_Texture, unsigned short>();
 				models = std::vector<Mesh_Texture>();
@@ -612,7 +718,7 @@ int main()
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("CodeIndigo/Indigo/Shaders/Default.vs", "CodeIndigo/Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-	Indigo::Current_World.Light_Setup.Set_Light(0, 1, 0, false, 60, glm::vec3(0, 0, 1));
+	Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, false);
 	Indigo::Mouse_Button_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;

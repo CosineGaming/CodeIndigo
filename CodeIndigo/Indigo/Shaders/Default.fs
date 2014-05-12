@@ -28,6 +28,7 @@ void main()
 		{
 			float cosine_theta = clamp(dot(normalize(F_Normal), normalize(F_To_Light.xyz)), 0, 1);
 			float cosine_alpha = clamp(dot(normalize(F_To_Camera), reflect(normalize(-1 * F_To_Light.xyz), normalize(F_Normal))), 0, 1);
+			float camera_distance_squared = dot(F_To_Camera.xyz, F_To_Camera.xyz);
 			float distance_aspect = 1;
 			if (F_To_Light.w > 0.5)
 			{
@@ -41,6 +42,8 @@ void main()
 				+ F_Light_Color * color * cosine_theta * distance_aspect
 				// Specular
 				+ 0.25 * F_Light_Color * pow(cosine_alpha, F_Shininess) * distance_aspect
+				// Fog
+				+ (camera_distance_squared / 1000000) * vec3(1, 1, 1)
 				// Alpha
 				, F_Color.a);
 		}
