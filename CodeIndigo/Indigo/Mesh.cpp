@@ -6,13 +6,12 @@
 
 #include "Direction.h"
 #include "Indigo.h"
+#include "External/stb_image.c"
 
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <map>
-#include <set>
 #include "GLFW/glfw3.h"
 
 
@@ -27,6 +26,8 @@ Mesh::Mesh(void)
 	Elements_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
+	References = new unsigned int;
+	*References = 1;
 	return;
 }
 
@@ -44,6 +45,49 @@ Mesh::Mesh(const Mesh& mesh)
 	Texture_ID = mesh.Texture_ID;
 	UV_ID = mesh.UV_ID;
 	Size = mesh.Size;
+	References = mesh.References;
+	(*References) += 1; // Copied once
+	return;
+}
+
+
+// Assign a mesh. Resource management -- Needs to be wibbled and yall
+Mesh& Mesh::operator=(const Mesh& mesh)
+{
+	this->~Mesh(); // This one is dying, as much as it's sad to admit it.
+	Hitbox[0] = mesh.Hitbox[0];
+	Hitbox[1] = mesh.Hitbox[1];
+	Color = mesh.Color;
+	Shine = mesh.Shine;
+	Vertices_ID = mesh.Vertices_ID;
+	Elements_ID = mesh.Elements_ID;
+	Normals_ID = mesh.Normals_ID;
+	Texture_ID = mesh.Texture_ID;
+	UV_ID = mesh.UV_ID;
+	Size = mesh.Size;
+	References = mesh.References;
+	(*References) += 1; // Copied once
+	return *this;
+}
+
+
+// Destroy the mesh. Free the GPU resources if it's the last one.
+Mesh::~Mesh(void)
+{
+	(*References) -= 1; // Destroyed once
+	if ((*References) == 0)
+	{
+		// We're the last, lonely reference.
+		if (Size)
+		{
+			glDeleteBuffers(1, &Vertices_ID);
+			glDeleteBuffers(1, &Elements_ID);
+			glDeleteBuffers(1, &Normals_ID);
+			glDeleteBuffers(1, &UV_ID);
+			glDeleteBuffers(1, &Texture_ID);
+		}
+		delete References;
+	}
 	return;
 }
 
@@ -52,14 +96,16 @@ Mesh::Mesh(const Mesh& mesh)
 Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec4& color)
 {
 
-	Hitbox[0] = glm::vec3(0, 0,0);
-	Hitbox[1] = glm::vec3(0, 0,0);
+	Hitbox[0] = glm::vec3(0, 0, 0);
+	Hitbox[1] = glm::vec3(0, 0, 0);
 	Color = color;
 	Shine = shine;
 	Vertices_ID = 0;
 	Elements_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
+	References = new unsigned int;
+	*References = 1;
 
 	std::ifstream file(filename, std::ios::in);
 	if (!file)
@@ -95,7 +141,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 				glm::vec2 option;
 				int next;
 				option.x = Indigo::Fast_Float(stream, &next);
-				option.y = Indigo::Fast_Float(stream, nullptr, next);
+				option.y = 1 - Indigo::Fast_Float(stream, nullptr, next); // For some reason all UVs are Upside-Down!
 				temp_textures.push_back(option);
 			}
 			if (line[0] == 'v' && line[1] == 'n')
@@ -165,13 +211,6 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 }
 
 
-// Destroy the mesh
-Mesh::~Mesh(void)
-{
-	return;
-}
-
-
 // Specialized constructor for creating text
 Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color)
 {
@@ -189,7 +228,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 	{
 
 		int letter = check_letter - 32;
-		float y = 1 - (letter / 16) / 16.0; // The most 16s you can get
+		float y = (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
 		vertices.push_back(glm::vec3(left, bottom, 0)); // BL
 		vertices.push_back(glm::vec3(right, bottom, 0)); // BR
@@ -201,7 +240,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		float tex_l = x;
 		float tex_r = x + 0.0625;
 		float tex_t = y;
-		float tex_b = y - 0.0625;
+		float tex_b = y + 0.0625;
 		uvs.push_back(glm::vec2(tex_l, tex_b)); // BL
 		uvs.push_back(glm::vec2(tex_r, tex_b)); // BR
 		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
@@ -225,7 +264,6 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 	}
 	mesh.Initialize(vertices, uvs, normals);
 	mesh.Texture(font);
-	//mesh.Initialize();
 	return mesh;
 }
 
@@ -371,14 +409,15 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 
 
 // Texture the entire mesh with one file
-void Mesh::Texture(const char * filename)
+void Mesh::Texture(const char * filename, const bool allow_transparancy)
 {
-	char * data;
+	unsigned char * data;
 	int width;
 	int height;
+	int channels = 3;
 	if (!filename)
 	{
-		data = new char[3];
+		data = new unsigned char[3];
 		data[0] = 255;
 		data[1] = 255;
 		data[2] = 255;
@@ -387,33 +426,7 @@ void Mesh::Texture(const char * filename)
 	}
 	else
 	{
-		std::ifstream file(filename, std::ios::binary);
-		if (!file)
-		{
-			std::cout << "Cannot find file " << filename << " aborting texture loading." << std::endl;
-			return;
-		}
-		char header[54];
-		file.read(header, 54);
-		if (header[0] != 'B' || header[1] != 'M')
-		{
-			std::cout << "Incorrectly configured or corrupted datafile " << filename << ". Aborting." << std::endl;
-		}
-		int start = *(int*) &(header[0x0A]);
-		int size = *(int*) &(header[0x22]);
-		width = *(int*) &(header[0x12]);
-		height = *(int*) &(header[0x16]);
-		if (size == 0)
-		{
-			size = width*height * 3;
-		}
-		if (start == 0)
-		{
-			start = 54;
-		}
-		data = new char[size];
-		file.read(data, size);
-		file.close();
+		data = stbi_load(filename, &width, &height, &channels, 0);
 	}
 
 	if (Texture_ID != 0)
@@ -423,7 +436,7 @@ void Mesh::Texture(const char * filename)
 
 	glGenTextures(1, &Texture_ID);
 	glBindTexture(GL_TEXTURE_2D, Texture_ID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, allow_transparancy ? GL_RGBA8 : GL_RGB8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

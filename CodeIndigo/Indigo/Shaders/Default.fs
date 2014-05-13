@@ -17,7 +17,8 @@ uniform int F_Light_Enabled;
 
 void main()
 {
-	vec3 color = F_Color.rgb * texture2D(F_Sampler, F_UV).rgb;
+	vec4 pixel = texture2D(F_Sampler, F_UV);
+	vec3 color = F_Color.rgb * pixel.rgb;
 	if (F_Light_Enabled == 1)
 	{
 		if (F_Light_Power == 0)
@@ -45,11 +46,11 @@ void main()
 				// Fog
 				+ (camera_distance_squared / 1000000) * vec3(1, 1, 1)
 				// Alpha
-				, F_Color.a);
+				, F_Color.a * pixel.a);
 		}
 	}
 	else
 	{
-		gl_FragColor = vec4(color, F_Color.a);
+		gl_FragColor = vec4(color, F_Color.a * pixel.a);
 	}
 }
