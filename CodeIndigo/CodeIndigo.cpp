@@ -328,7 +328,7 @@ void Key_Pressed(int key)
 	if (space_menu != -1)
 	{
 		bool changed = false;
-		if (key == GLFW_KEY_ENTER)
+		if ((key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER))
 		{
 			if (texture_yet)
 			{
@@ -432,7 +432,7 @@ void Key_Pressed(int key)
 	// Save Menu saves the current World
 	else if (save_menu != -1)
 	{
-		if (key == GLFW_KEY_ENTER)
+		if ((key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER))
 		{
 			bool success;
 			if (compile)
@@ -475,7 +475,7 @@ void Key_Pressed(int key)
 	}
 	else if (open_menu != -1)
 	{
-		if (key == GLFW_KEY_ENTER)
+		if ((key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER))
 		{
 			if (Load(save_location.c_str()))
 			{
@@ -513,7 +513,7 @@ void Key_Pressed(int key)
 	else if (position_menu != -1)
 	{
 		bool changed = true;
-		if (key == GLFW_KEY_ENTER)
+		if ((key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER))
 		{
 			if (position.length() == 0)
 			{
@@ -583,7 +583,7 @@ void Key_Pressed(int key)
 	else if (facing_menu != -1)
 	{
 		bool changed = true;
-		if (key == GLFW_KEY_ENTER)
+		if ((key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER))
 		{
 			if (facing.length() == 0)
 			{
