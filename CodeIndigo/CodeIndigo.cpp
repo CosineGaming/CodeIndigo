@@ -332,6 +332,7 @@ void Key_Pressed(int key)
 		{
 			if (texture_yet)
 			{
+				Print(space_menu, menu_x, menu_y, "Loading...");
 				Mesh add = Mesh(mesh.c_str(), texture.length() ? texture.c_str() : nullptr);
 				float up = 0.05;
 				if (add.Size && !(add.Texture_ID == 0 && texture.length()))
