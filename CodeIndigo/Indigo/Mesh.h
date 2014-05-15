@@ -22,7 +22,7 @@ public:
 	// Create a new mesh by loading it from an obj file
 	Mesh(const char * filename, const char * texture = nullptr, const float shine = 60.0, const glm::vec4& color = glm::vec4(1, 1, 1, 1));
 	// Specialized constructor for creating text
-	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& color = glm::vec4(1, 1, 1, 1));
+	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& color = glm::vec4(1, 1, 1, 1), const glm::vec4& highlight = glm::vec4(1, 1, 1, 0));
 
 	// The mesh is locked into place on the GPU
 	void Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals);
@@ -30,7 +30,7 @@ public:
 	// Update the hitbox knowing that this point exists in the mesh
 	void Update_Hitbox(glm::vec3 vertex);
 	// Texture the entire mesh with one file
-	void Texture(const char * filename=nullptr, const bool allow_transparency=true);
+	void Texture(const char * filename = nullptr, const glm::vec3 background = glm::vec3(-1, -1, -1));
 
 	// Hitbox used for collision, normally auto-generated. Radius of shape around center, rotation dependent
 	glm::vec3 Hitbox[2];

@@ -212,7 +212,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 
 
 // Specialized constructor for creating text
-Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color)
+Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color, const glm::vec4& highlight)
 {
 	Mesh mesh;
 	mesh.Color = color;
@@ -263,7 +263,14 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 
 	}
 	mesh.Initialize(vertices, uvs, normals);
-	mesh.Texture(font);
+	if (highlight.a == 0)
+	{
+		mesh.Texture(font);
+	}
+	else
+	{
+		mesh.Texture(font, glm::vec3(highlight.r, highlight.g, highlight.b));
+	}
 	return mesh;
 }
 
@@ -409,8 +416,14 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 
 
 // Texture the entire mesh with one file
-void Mesh::Texture(const char * filename, const bool allow_transparancy)
+void Mesh::Texture(const char * filename, const glm::vec3 background)
 {
+
+	if (Texture_ID != 0)
+	{
+		glDeleteTextures(1, &Texture_ID);
+	}
+
 	unsigned char * data;
 	int width;
 	int height;
@@ -427,22 +440,44 @@ void Mesh::Texture(const char * filename, const bool allow_transparancy)
 	else
 	{
 		data = stbi_load(filename, &width, &height, &channels, 0);
-	}
-
-	if (Texture_ID != 0)
-	{
-		glDeleteTextures(1, &Texture_ID);
+		if (background != glm::vec3(-1, -1, -1) && channels == 4)
+		{
+			channels = 3;
+			unsigned char * bged = new unsigned char[width*height * 3];
+			int insert = 0;
+			for (int i = 3; i < width*height * 4; i += 4)
+			{
+				if (data[i] < 128)
+				{
+					bged[insert] = background.r;
+					bged[insert + 1] = background.g;
+					bged[insert + 2] = background.b;
+				}
+				else
+				{
+					bged[insert] = data[i - 3];
+					bged[insert + 1] = data[i - 2];
+					bged[insert + 2] = data[i - 1];
+				}
+				insert += 3;
+			}
+			delete[] data;
+			data = bged;
+		}
 	}
 
 	glGenTextures(1, &Texture_ID);
 	glBindTexture(GL_TEXTURE_2D, Texture_ID);
-	glTexImage2D(GL_TEXTURE_2D, 0, allow_transparancy ? GL_RGBA8 : GL_RGB8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	delete [] data;
+	if (!filename)
+	{
+		delete [] data;
+	}
 
 	return;
 }
