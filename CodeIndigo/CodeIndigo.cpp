@@ -218,7 +218,7 @@ void GUI(float time)
 			Position_Marker = Indigo::Current_World.Add_2D_Object(Object(-1.1, -0.9, 0, Mesh::Text("")));
 		}
 		std::string display = std::to_string(To_Move->X) + "  " + std::to_string(To_Move->Y) + "  " + std::to_string(To_Move->Z);
-		Indigo::Current_World.Get_2D_Object(Position_Marker).Data = Mesh::Text(display.c_str(), 0.04);
+		//Indigo::Current_World.Get_2D_Object(Position_Marker).Data = Mesh::Text(display.c_str(), 0.04, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1));
 	}
 	Indigo::Current_World.View.Place(Motion.X, Motion.Y, Motion.Z);
 	Indigo::Current_World.View.Eye = Motion.Facing;
@@ -331,6 +331,7 @@ void Key_Pressed(int key)
 			if (texture_yet)
 			{
 				Print(space_menu, "Loading...");
+				Indigo::Render();
 				Mesh add = Mesh(mesh.c_str(), texture.length() ? texture.c_str() : nullptr);
 				float up = 0.05;
 				if (add.Size && !(add.Texture_ID == 0 && texture.length()))

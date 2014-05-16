@@ -24,6 +24,8 @@ Mesh::Mesh(void)
 	Shine = 0;
 	Vertices_ID = 0;
 	Elements_ID = 0;
+	Normals_ID = 0;
+	UV_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
 	References = new unsigned int;
@@ -42,8 +44,8 @@ Mesh::Mesh(const Mesh& mesh)
 	Vertices_ID = mesh.Vertices_ID;
 	Elements_ID = mesh.Elements_ID;
 	Normals_ID = mesh.Normals_ID;
-	Texture_ID = mesh.Texture_ID;
 	UV_ID = mesh.UV_ID;
+	Texture_ID = mesh.Texture_ID;
 	Size = mesh.Size;
 	References = mesh.References;
 	(*References) += 1; // Copied once
@@ -62,8 +64,8 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 	Vertices_ID = mesh.Vertices_ID;
 	Elements_ID = mesh.Elements_ID;
 	Normals_ID = mesh.Normals_ID;
-	Texture_ID = mesh.Texture_ID;
 	UV_ID = mesh.UV_ID;
+	Texture_ID = mesh.Texture_ID;
 	Size = mesh.Size;
 	References = mesh.References;
 	(*References) += 1; // Copied once
@@ -78,12 +80,24 @@ Mesh::~Mesh(void)
 	if ((*References) == 0)
 	{
 		// We're the last, lonely reference.
-		if (Size)
+		if (Vertices_ID)
 		{
 			glDeleteBuffers(1, &Vertices_ID);
+		}
+		if (Elements_ID)
+		{
 			glDeleteBuffers(1, &Elements_ID);
+		}
+		if (Normals_ID)
+		{
 			glDeleteBuffers(1, &Normals_ID);
+		}
+		if (UV_ID)
+		{
 			glDeleteBuffers(1, &UV_ID);
+		}
+		if (Texture_ID)
+		{
 			glDeleteBuffers(1, &Texture_ID);
 		}
 		delete References;
@@ -102,6 +116,8 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	Shine = shine;
 	Vertices_ID = 0;
 	Elements_ID = 0;
+	Normals_ID = 0;
+	UV_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
 	References = new unsigned int;
@@ -419,15 +435,11 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 void Mesh::Texture(const char * filename, const glm::vec3 background)
 {
 
-	if (Texture_ID != 0)
-	{
-		glDeleteTextures(1, &Texture_ID);
-	}
-
 	unsigned char * data;
 	int width;
 	int height;
 	int channels = 3;
+	bool std_free = false;
 	if (!filename)
 	{
 		data = new unsigned char[3];
@@ -436,10 +448,17 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 		data[2] = 255;
 		width = 1;
 		height = 1;
+		std_free = true;
 	}
 	else
 	{
 		data = stbi_load(filename, &width, &height, &channels, 0);
+		if (channels < 3)
+		{
+			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently." << std::endl;
+			stbi_image_free(data);
+			return;
+		}
 		if (background != glm::vec3(-1, -1, -1) && channels == 4)
 		{
 			channels = 3;
@@ -461,9 +480,15 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 				}
 				insert += 3;
 			}
-			delete[] data;
+			stbi_image_free(data);
 			data = bged;
+			std_free = true;
 		}
+	}
+
+	if (Texture_ID != 0 && (*References) == 1)
+	{
+		glDeleteTextures(1, &Texture_ID);
 	}
 
 	glGenTextures(1, &Texture_ID);
@@ -474,9 +499,13 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	if (!filename)
+	if (std_free)
 	{
 		delete [] data;
+	}
+	else
+	{
+		stbi_image_free(data);
 	}
 
 	return;
