@@ -22,10 +22,6 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 	Place(x, y, z);
 	Data = mesh;
 	Is_Blank = mesh.Size == 0;
-	if (!Is_Blank)
-	{
-		//Data.Initialize();
-	}
 	Update_Function = update_function;
 	Render_Function = nullptr;
 	Facing = towards;

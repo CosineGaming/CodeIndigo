@@ -442,7 +442,7 @@ void Key_Pressed(int key)
 			{
 				success = Save(save_location.c_str());
 			}
-			if (Save(save_location.c_str()))
+			if (success)
 			{
 				Indigo::Current_World.Remove_2D_Object(save_menu);
 				save_menu = -1;
@@ -450,7 +450,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				Indigo::Current_World.Add_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to save file. Check for write permissions.", 0.05, "Texture/Font.png", glm::vec4(1,1,1,1)), Fade_Text));
+				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to save file. Check for write permissions.", 0.05, "Texture/Font.png", glm::vec4(1, 1, 1, 1)), Fade_Text));
 			}
 		}
 		else if (key == GLFW_KEY_ESCAPE)
@@ -484,7 +484,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				Indigo::Current_World.Add_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to open file.", 0.05, "Textures/Font.png", glm::vec4(1,1,1,1), glm::vec4(0,0,0,1)), Fade_Text));
+				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to open file.", 0.05, "Textures/Font.png", glm::vec4(1,1,1,1), glm::vec4(0,0,0,1)), Fade_Text));
 			}
 		}
 		else if (key == GLFW_KEY_ESCAPE)

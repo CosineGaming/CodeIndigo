@@ -48,7 +48,7 @@ Mesh::Mesh(const Mesh& mesh)
 	Texture_ID = mesh.Texture_ID;
 	Size = mesh.Size;
 	References = mesh.References;
-	(*References) += 1; // Copied once
+	*References += 1; // Copied once
 	return;
 }
 
@@ -56,19 +56,22 @@ Mesh::Mesh(const Mesh& mesh)
 // Assign a mesh. Resource management -- Needs to be wibbled and yall
 Mesh& Mesh::operator=(const Mesh& mesh)
 {
-	this->~Mesh(); // This one is dying, as much as it's sad to admit it.
-	Hitbox[0] = mesh.Hitbox[0];
-	Hitbox[1] = mesh.Hitbox[1];
-	Color = mesh.Color;
-	Shine = mesh.Shine;
-	Vertices_ID = mesh.Vertices_ID;
-	Elements_ID = mesh.Elements_ID;
-	Normals_ID = mesh.Normals_ID;
-	UV_ID = mesh.UV_ID;
-	Texture_ID = mesh.Texture_ID;
-	Size = mesh.Size;
-	References = mesh.References;
-	(*References) += 1; // Copied once
+	if (this != &mesh)
+	{
+		this->~Mesh(); // This one is dying, as much as it's sad to admit it.
+		Hitbox[0] = mesh.Hitbox[0];
+		Hitbox[1] = mesh.Hitbox[1];
+		Color = mesh.Color;
+		Shine = mesh.Shine;
+		Vertices_ID = mesh.Vertices_ID;
+		Elements_ID = mesh.Elements_ID;
+		Normals_ID = mesh.Normals_ID;
+		UV_ID = mesh.UV_ID;
+		Texture_ID = mesh.Texture_ID;
+		Size = mesh.Size;
+		References = mesh.References;
+		*References += 1; // Copied once
+	}
 	return *this;
 }
 
@@ -76,8 +79,8 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 // Destroy the mesh. Free the GPU resources if it's the last one.
 Mesh::~Mesh(void)
 {
-	(*References) -= 1; // Destroyed once
-	if ((*References) == 0)
+	*References -= 1; // Destroyed once
+	if (*References == 0)
 	{
 		// We're the last, lonely reference.
 		if (Vertices_ID)
