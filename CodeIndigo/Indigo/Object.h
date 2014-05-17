@@ -33,6 +33,8 @@ public:
 	// Moves the forward, side, and up based on the facing direction
 	void Move(const float forward, const float side=0.0, const float up=0.0);
 
+	// Find the AABB needed for collisions
+	void AABB(glm::vec3 out_less, glm::vec3 out_more) const;
 	// Checks whether this object collides with another object
 	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0) const;
 	// Checks whether this object was clicked on at world coord (x, y)

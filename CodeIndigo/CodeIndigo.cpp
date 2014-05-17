@@ -759,6 +759,29 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
+	Mesh splash;
+	std::vector<glm::vec3> splashverts;
+	std::vector<glm::vec2> splashuvs;
+	std::vector<glm::vec3> splashnormals;
+	splashverts.push_back(glm::vec3(-1, -1, 0));
+	splashverts.push_back(glm::vec3(1, 1, 0));
+	splashverts.push_back(glm::vec3(-1, 1, 0));
+	splashverts.push_back(glm::vec3(-1, -1, 0));
+	splashverts.push_back(glm::vec3(1, -1, 0));
+	splashverts.push_back(glm::vec3(1, 1, 0));
+	splashuvs.push_back(glm::vec2(0, 1));
+	splashuvs.push_back(glm::vec2(1, 0));
+	splashuvs.push_back(glm::vec2(0, 0));
+	splashuvs.push_back(glm::vec2(0, 1));
+	splashuvs.push_back(glm::vec2(1, 1));
+	splashuvs.push_back(glm::vec2(1, 0));
+	for (int i = 0; i<6; ++i)
+	{
+		splashnormals.push_back(glm::vec3(0, -1, 0));
+	}
+	splash.Texture("Textures/Indigo.png");
+	splash.Initialize(splashverts, splashuvs, splashnormals);
+	Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, splash, Fade_Text));
 	if (argc > 1)
 	{
 		Load(argv[1]);

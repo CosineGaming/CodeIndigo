@@ -176,35 +176,118 @@ void Object::Move(const float forward, const float side, const float up)
 }
 
 
+// Find the AABB needed for collisions
+void Object::AABB(glm::vec3 out_less, glm::vec3 out_more) const
+{
+	// Construct actual hitbox for this
+	glm::vec3 hitbox[8];
+	// Every possible combination of 2 is like counting in binary
+	hitbox[0] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[0].y, Data.Hitbox[0].z);
+	hitbox[1] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[0].y, Data.Hitbox[1].z);
+	hitbox[2] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[1].y, Data.Hitbox[0].z);
+	hitbox[3] = glm::vec3(Data.Hitbox[0].x, Data.Hitbox[1].y, Data.Hitbox[1].z);
+	hitbox[4] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[0].y, Data.Hitbox[0].z);
+	hitbox[5] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[0].y, Data.Hitbox[1].z);
+	hitbox[6] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[1].y, Data.Hitbox[0].z);
+	hitbox[7] = glm::vec3(Data.Hitbox[1].x, Data.Hitbox[1].y, Data.Hitbox[1].z);
+
+	// Find the matrix to rotate / translate
+	glm::mat4 modeling = glm::mat4(1);
+	modeling = glm::translate(modeling, glm::vec3(X, Y, Z));
+	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
+	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
+	modeling = glm::scale(modeling, Scale);
+
+	// Construct the new least / most
+	glm::vec3 least;
+	glm::vec3 most;
+
+	for (int i = 0; i < 8; ++i)
+	{
+		glm::vec4 actual = modeling * glm::vec4(hitbox[i], 1);
+		if (i == 0)
+		{
+			least.x = actual.x;
+			least.y = actual.y;
+			least.z = actual.z;
+			most.x = actual.x;
+			most.y = actual.y;
+			most.z = actual.z;
+		}
+		else
+		{
+			if (actual.x < least.x)
+			{
+				least.x = actual.x;
+			}
+			if (actual.x > most.x)
+			{
+				most.x = actual.x;
+			}
+			if (actual.y < least.y)
+			{
+				least.y = actual.y;
+			}
+			if (actual.y > most.y)
+			{
+				most.y = actual.y;
+			}
+			if (actual.z < least.z)
+			{
+				least.z = actual.z;
+			}
+			if (actual.z > most.z)
+			{
+				most.z = actual.z;
+			}
+		}
+	}
+
+	out_less = least;
+	out_more = most;
+
+}
+
+
 // Checks whether this object collides with another object
 bool Object::Collide(const Object& object, const float add_x, const float add_y, const float add_z) const
 {
+
+	glm::vec3 least_this;
+	glm::vec3 most_this;
+	AABB(least_this, most_this);
+
+	glm::vec3 least_that;
+	glm::vec3 most_that;
+	object.AABB(least_this, most_that);
+
 	return (
 		// Collides in some way
-		   X + add_x + Data.Hitbox[0].x < object.X + object.Data.Hitbox[1].x
-		&& X + add_x + Data.Hitbox[1].x > object.X + object.Data.Hitbox[0].x
-		&& Y + add_y + Data.Hitbox[0].y < object.Y + object.Data.Hitbox[1].y
-		&& Y + add_y + Data.Hitbox[1].y > object.Y + object.Data.Hitbox[0].y
-		&& Z + add_z + Data.Hitbox[0].z < object.Z + object.Data.Hitbox[1].z
-		&& Z + add_z + Data.Hitbox[1].z > object.Z + object.Data.Hitbox[0].z
+		add_x + least_this.x < most_that.x
+		&& add_x + most_this.x >least_that.x
+		&& add_y + least_this.y < most_that.y
+		&& add_y + most_this.y >least_that.y
+		&& add_z + least_this.z < most_that.z
+		&& add_z + most_this.z >least_that.z
 		// Not fully contained in object
 		&& !(
-		   X + add_x + Data.Hitbox[0].x > object.X + object.Data.Hitbox[0].x
-		&& X + add_x + Data.Hitbox[1].x < object.X + object.Data.Hitbox[1].x
-		&& Y + add_y + Data.Hitbox[0].y > object.Y + object.Data.Hitbox[0].y
-		&& Y + add_y + Data.Hitbox[1].y < object.Y + object.Data.Hitbox[1].y
-		&& Z + add_z + Data.Hitbox[0].z > object.Z + object.Data.Hitbox[0].z
-		&& Z + add_z + Data.Hitbox[1].z < object.Z + object.Data.Hitbox[1].z
+		add_x + least_this.x >least_that.x
+		&& add_x + most_this.x < most_that.x
+		&& add_y + least_this.y >least_that.y
+		&& add_y + most_this.y < most_that.y
+		&& add_z + least_this.z >least_that.z
+		&& add_z + most_this.z < most_that.z
 		// Object not fully contained in this
 		) && !(
-		   object.X + object.Data.Hitbox[0].x > X + add_x + Data.Hitbox[0].x
-		&& object.X + object.Data.Hitbox[1].x < X + add_x + Data.Hitbox[1].x
-		&& object.Y + object.Data.Hitbox[0].y > Y + add_y + Data.Hitbox[0].y
-		&& object.Y + object.Data.Hitbox[1].y < Y + add_y + Data.Hitbox[1].y
-		&& object.Z + object.Data.Hitbox[0].z > Z + add_z + Data.Hitbox[0].z
-		&& object.Z + object.Data.Hitbox[1].z < Z + add_z + Data.Hitbox[1].z
+		least_that.x > add_x + least_this.x
+		&& most_that.x < add_x + most_this.x
+		&&least_that.y > add_y + least_this.y
+		&& most_that.y < add_y + most_this.y
+		&&least_that.z > add_z + least_this.z
+		&& most_that.z < add_z + most_this.z
 		)
 		);
+
 }
 
 
@@ -304,8 +387,18 @@ float Object::Collide(const glm::vec2& position, const glm::mat4& camera_positio
 // Checks whether this vertex is withing this object
 bool Object::Collide(const glm::vec3& vertex, const float add_x, const float add_y, const float add_z) const
 {
-	//return (Direction(X, Y, Z).Distance(Direction::Coordinates(vertex.x + add_x, vertex.y + add_y, vertex.z + add_z)).Get_Distance() < Data.Hitbox);
-	return false;
+	glm::vec3 least;
+	glm::vec3 most;
+	AABB(least, most);
+
+	return (
+		add_x + vertex.x > least.x
+		&& add_x + vertex.x < most.x
+		&& add_y + vertex.y > least.y
+		&& add_y + vertex.y < most.y
+		&& add_z + vertex.z > least.z
+		&& add_z + vertex.z < most.z
+		);
 }
 
 
