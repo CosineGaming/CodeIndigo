@@ -28,7 +28,7 @@ Mesh::Mesh(void)
 	UV_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
-	References = new unsigned int;
+	References = new unsigned short;
 	*References = 1;
 	return;
 }
@@ -59,6 +59,8 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 	if (this != &mesh)
 	{
 		this->~Mesh(); // This one is dying, as much as it's sad to admit it.
+		References = mesh.References; // But there's a new one!
+		*References += 1; // Copied once
 		Hitbox[0] = mesh.Hitbox[0];
 		Hitbox[1] = mesh.Hitbox[1];
 		Color = mesh.Color;
@@ -69,8 +71,6 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 		UV_ID = mesh.UV_ID;
 		Texture_ID = mesh.Texture_ID;
 		Size = mesh.Size;
-		References = mesh.References;
-		*References += 1; // Copied once
 	}
 	return *this;
 }
@@ -101,7 +101,7 @@ Mesh::~Mesh(void)
 		}
 		if (Texture_ID)
 		{
-			glDeleteBuffers(1, &Texture_ID);
+			glDeleteTextures(1, &Texture_ID);
 		}
 		delete References;
 	}
@@ -123,7 +123,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 	UV_ID = 0;
 	Texture_ID = 0;
 	Size = 0;
-	References = new unsigned int;
+	References = new unsigned short;
 	*References = 1;
 
 	std::ifstream file(filename, std::ios::in);
@@ -332,7 +332,7 @@ struct Vertex_Compare
 // Once added to the object, the mesh is locked into place. (on the GPU)
 void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals)
 {
-
+	
 	// Smooth the normals
 	std::vector<unsigned short> normal_indices;
 	std::vector<glm::vec3> vertex_normals;

@@ -95,7 +95,7 @@ void World::Render(void) const
 	Indigo::Current_World.Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
-	if (!skybox.Is_Blank)
+	if (skybox.Data.Size != 0)
 	{
 		skybox.Render(project, View.Look_In_Place());
 	}

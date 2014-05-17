@@ -21,7 +21,6 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 {
 	Place(x, y, z);
 	Data = mesh;
-	Is_Blank = mesh.Size == 0;
 	Update_Function = update_function;
 	Render_Function = nullptr;
 	Facing = towards;
@@ -45,7 +44,6 @@ Object::Object(const Object& object)
 	Facing = object.Facing;
 	Scale = object.Scale;
 	World_Collide = object.World_Collide;
-	Is_Blank = object.Is_Blank;
 	User_Data = object.User_Data;
 	Shader_Argument_Names = object.Shader_Argument_Names;
 	Shader_Arguments = object.Shader_Arguments;
@@ -80,7 +78,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 		Render_Function();
 	}
 
-	if (Is_Blank)
+	if (Data.Size == 0)
 	{
 		return;
 	}

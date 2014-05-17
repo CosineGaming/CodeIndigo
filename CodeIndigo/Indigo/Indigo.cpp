@@ -91,8 +91,6 @@ namespace Indigo
 				last = now;
 				Update(delta);
 				Render();
-				glfwSwapBuffers(Indigo::Window);
-				glfwPollEvents();
 			}
 		}
 		glfwTerminate();
@@ -309,6 +307,8 @@ namespace Indigo
 			Render_Function();
 		}
 		Current_World.Render();
+		glfwSwapBuffers(Indigo::Window);
+		glfwPollEvents();
 		return;
 	}
 

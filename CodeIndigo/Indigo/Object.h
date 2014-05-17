@@ -47,8 +47,6 @@ public:
 	// Add a custom argument to send to the shader for this object.
 	void Shader_Argument(char * argument, float value);
 
-	// Check if it's been fully initialized
-	int Is_Blank;
 	// An ID used for accessing and deleting the object
 	int ID;
 	// Called every time the World updates, set this as you please

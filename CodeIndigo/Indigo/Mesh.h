@@ -55,7 +55,7 @@ public:
 	unsigned int Size;
 
 	// Reference counting so we can destroy elements when we're done
-	unsigned int * References;
+	unsigned short * References;
 
 private:
 
