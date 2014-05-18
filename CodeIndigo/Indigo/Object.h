@@ -51,6 +51,10 @@ public:
 
 	// An ID used for accessing and deleting the object
 	int ID;
+	// So that the mesh can be animated the starting element can be set
+	unsigned short Start_Index;
+	// If 0, Data.Size. Otherwise, renders this many elements
+	unsigned short Length_Index;
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time, Object& self);
 	// Called right before the Object renders, set this as you please

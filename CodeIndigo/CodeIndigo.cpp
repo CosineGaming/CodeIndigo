@@ -748,6 +748,29 @@ void Key_Pressed(int key)
 	}
 }
 
+void Animate_Splash(float time, Object& self)
+{
+	static float total;
+	const float each = 1000;
+	if (self.Start_Index < 6 * 15)
+	{
+		total += time;
+		if (total > each)
+		{
+			total = 0;
+			self.Start_Index += 6;
+		}
+	}
+	else
+	{
+		self.Data.Color.a -= time / 750;
+		if (self.Data.Color.a < 0)
+		{
+			Indigo::Current_World.Remove_2D_Object(self.ID);
+		}
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1280, 720, 24, false);
@@ -763,25 +786,36 @@ int main(int argc, char ** argv)
 	std::vector<glm::vec3> splashverts;
 	std::vector<glm::vec2> splashuvs;
 	std::vector<glm::vec3> splashnormals;
-	splashverts.push_back(glm::vec3(-1, -1, 0));
-	splashverts.push_back(glm::vec3(1, 1, 0));
-	splashverts.push_back(glm::vec3(-1, 1, 0));
-	splashverts.push_back(glm::vec3(-1, -1, 0));
-	splashverts.push_back(glm::vec3(1, -1, 0));
-	splashverts.push_back(glm::vec3(1, 1, 0));
-	splashuvs.push_back(glm::vec2(0, 1));
-	splashuvs.push_back(glm::vec2(1, 0));
-	splashuvs.push_back(glm::vec2(0, 0));
-	splashuvs.push_back(glm::vec2(0, 1));
-	splashuvs.push_back(glm::vec2(1, 1));
-	splashuvs.push_back(glm::vec2(1, 0));
-	for (int i = 0; i<6; ++i)
+	for (int i = 0; i < 16; ++i)
+	{
+		splashverts.push_back(glm::vec3(-1, -1, 0));
+		splashverts.push_back(glm::vec3(1, 1, 0));
+		splashverts.push_back(glm::vec3(-1, 1, 0));
+		splashverts.push_back(glm::vec3(-1, -1, 0));
+		splashverts.push_back(glm::vec3(1, -1, 0));
+		splashverts.push_back(glm::vec3(1, 1, 0));
+	}
+	float start = 0;
+	float delta = 1 / 16.0;
+	for (int i = 0; i < 16; ++i)
+	{
+		splashuvs.push_back(glm::vec2(start, 1));
+		splashuvs.push_back(glm::vec2(start + delta, 0));
+		splashuvs.push_back(glm::vec2(start, 0));
+		splashuvs.push_back(glm::vec2(start, 1));
+		splashuvs.push_back(glm::vec2(start + delta, 1));
+		splashuvs.push_back(glm::vec2(start + delta, 0));
+		start += delta;
+	}
+	for (int i = 0; i<16 * 6; ++i)
 	{
 		splashnormals.push_back(glm::vec3(0, -1, 0));
 	}
-	splash.Texture("Textures/Indigo.png");
+	splash.Texture("Textures/LargeIntro.png");
 	splash.Initialize(splashverts, splashuvs, splashnormals);
-	Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, splash, Fade_Text));
+	Object splash_screen = Object(0, 0, 0, splash, Animate_Splash);
+	splash_screen.Length_Index = 6;
+	Indigo::Current_World.Add_2D_Object(splash_screen);
 	if (argc > 1)
 	{
 		Load(argv[1]);

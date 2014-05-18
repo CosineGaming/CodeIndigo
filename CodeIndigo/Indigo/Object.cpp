@@ -21,6 +21,8 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 {
 	Place(x, y, z);
 	Data = mesh;
+	Start_Index = 0;
+	Length_Index = 0;
 	Update_Function = update_function;
 	Render_Function = nullptr;
 	Facing = towards;
@@ -39,6 +41,8 @@ Object::Object(const Object& object)
 {
 	Place(object.X, object.Y, object.Z);
 	Data = object.Data;
+	Start_Index = object.Start_Index;
+	Length_Index = object.Length_Index;
 	Update_Function = object.Update_Function;
 	Render_Function = object.Render_Function;
 	Facing = object.Facing;
@@ -135,7 +139,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 
 	// Draw!
-	glDrawElements(GL_TRIANGLES, Data.Size, GL_UNSIGNED_SHORT, (void*) 0);
+	glDrawElements(GL_TRIANGLES, Length_Index ? Length_Index : Data.Size, GL_UNSIGNED_SHORT, (void*) Start_Index);
 
 	// Finished
 	//glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
