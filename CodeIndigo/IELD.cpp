@@ -1,8 +1,4 @@
-#include "Indigo/IndigoEngine.h"
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <string>
+#include "IELD.h"
 
 
 struct Mesh_Texture
@@ -223,6 +219,26 @@ void GUI(float time)
 		std::string display = std::to_string(instances.size()) + " Objects\n" + "Camera Speed: " + std::to_string(int(total_speed * 1000)) + " M/S\n" + "Position " + std::to_string(To_Move->X) + "  " + std::to_string(To_Move->Y) + "  " + std::to_string(To_Move->Z);
 		Indigo::Current_World.Get_2D_Object(position_marker).Data = Mesh::Text(display.c_str(), 0.04, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1));
 	}
+	else
+	{
+		static float backspace = 0;
+		static bool already = false;
+		if (Indigo::Keys[GLFW_KEY_BACKSPACE])
+		{
+			backspace += time;
+			if ((already && backspace > 50) || (!already && backspace > 500))
+			{
+				backspace = 0;
+				already = true;
+				Key_Pressed(GLFW_KEY_BACKSPACE);
+			}
+		}
+		else
+		{
+			backspace = 0;
+			already = false;
+		}
+	}
 	Indigo::Current_World.View.Place(Motion.X, Motion.Y, Motion.Z);
 	Indigo::Current_World.View.Eye = Motion.Facing;
 }
@@ -298,7 +314,20 @@ bool Text_Edit(int key, std::string& output)
 
 void Print(const int handle, const std::string toprint)
 {
-	Indigo::Current_World.Get_2D_Object(handle).Data = Mesh::Text(toprint.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1));
+	Object& affect = Indigo::Current_World.Get_2D_Object(handle);
+	affect.Data = Mesh::Text(toprint.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1));
+	if (affect.X + affect.Data.Hitbox[0].x < -1 * Indigo::Aspect_Ratio)
+	{
+		affect.X = -1 * Indigo::Aspect_Ratio - affect.Data.Hitbox[0].x;
+	}
+	if (affect.X + affect.Data.Hitbox[1].x > Indigo::Aspect_Ratio)
+	{
+		affect.X = Indigo::Aspect_Ratio - affect.Data.Hitbox[1].x;
+	}
+	if (affect.Y + affect.Data.Hitbox[0].y < -1)
+	{
+		affect.Y = -1 - affect.Data.Hitbox[0].y;
+	}
 }
 
 void Key_Pressed(int key)
@@ -390,12 +419,12 @@ void Key_Pressed(int key)
 				if (texture_yet)
 				{
 					texture = "";
-					Print(space_menu, "Texture: \n");
+					Print(space_menu, "Texture:\n ");
 				}
 				else
 				{
 					mesh = "";
-					Print(space_menu, "Mesh: \n");
+					Print(space_menu, "Mesh:\n ");
 				}
 			}
 			else
@@ -662,7 +691,8 @@ void Key_Pressed(int key)
 			menu_y = Indigo::Mouse_Position.y - 0.07;
 			texture_yet = false;
 			std::string display = "Mesh:\n" + mesh + " ";
-			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1))));
+			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0));
+			Print(space_menu, display);
 			Typing = true;
 		}
 		if (key == GLFW_KEY_TAB) // Position
@@ -674,7 +704,8 @@ void Key_Pressed(int key)
 			pos_part = 0;
 			position = std::to_string(To_Move->X);
 			std::string display = "X:\n" + position + " ";
-			position_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1))));
+			position_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0));
+			Print(position_menu, display);
 			Typing = true;
 		}
 		if (key == 'f') // Facing
@@ -686,7 +717,8 @@ void Key_Pressed(int key)
 			pos_part = 0;
 			facing = std::to_string(To_Move->Facing.Get_X_Angle());
 			std::string display = "X Angle:\n" + facing + " ";
-			facing_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1))));
+			facing_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0));
+			Print(facing_menu, display);
 			Typing = true;
 		}
 		if (key == GLFW_KEY_BACKSPACE || key == GLFW_KEY_DELETE || key == 'x')
@@ -717,7 +749,8 @@ void Key_Pressed(int key)
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
 				std::string display = "Save Here:\n" + save_location + " ";
-				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1))));
+				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0));
+				Print(save_menu, display);
 				Typing = true;
 				compile = Indigo::Shift;
 			}
@@ -726,7 +759,8 @@ void Key_Pressed(int key)
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
 				std::string display = "Open From:\n" + save_location + " ";
-				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0, Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1), glm::vec4(0, 0, 0, 1))));
+				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y, 0));
+				Print(open_menu, display);
 				Typing = true;
 			}
 			if (key == 'n') // New
@@ -735,6 +769,8 @@ void Key_Pressed(int key)
 				models = std::vector<Mesh_Texture>();
 				instances = std::vector<unsigned short>();
 				ids = std::vector<unsigned short>();
+				To_Move = &Motion;
+				Undo_Index = -1;
 				Indigo::Current_World = restore;
 			}
 			if (key == 'z')
@@ -744,29 +780,6 @@ void Key_Pressed(int key)
 					Indigo::Current_World.Get_Object(Undo_Index) = Undo_Object;
 				}
 			}
-		}
-	}
-}
-
-void Animate_Splash(float time, Object& self)
-{
-	static float total;
-	const float each = 1000;
-	if (self.Start_Index < 6 * 15)
-	{
-		total += time;
-		if (total > each)
-		{
-			total = 0;
-			self.Start_Index += 6;
-		}
-	}
-	else
-	{
-		self.Data.Color.a -= time / 750;
-		if (self.Data.Color.a < 0)
-		{
-			Indigo::Current_World.Remove_2D_Object(self.ID);
 		}
 	}
 }
@@ -782,40 +795,7 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-	Mesh splash;
-	std::vector<glm::vec3> splashverts;
-	std::vector<glm::vec2> splashuvs;
-	std::vector<glm::vec3> splashnormals;
-	for (int i = 0; i < 16; ++i)
-	{
-		splashverts.push_back(glm::vec3(-1, -1, 0));
-		splashverts.push_back(glm::vec3(1, 1, 0));
-		splashverts.push_back(glm::vec3(-1, 1, 0));
-		splashverts.push_back(glm::vec3(-1, -1, 0));
-		splashverts.push_back(glm::vec3(1, -1, 0));
-		splashverts.push_back(glm::vec3(1, 1, 0));
-	}
-	float start = 0;
-	float delta = 1 / 16.0;
-	for (int i = 0; i < 16; ++i)
-	{
-		splashuvs.push_back(glm::vec2(start, 1));
-		splashuvs.push_back(glm::vec2(start + delta, 0));
-		splashuvs.push_back(glm::vec2(start, 0));
-		splashuvs.push_back(glm::vec2(start, 1));
-		splashuvs.push_back(glm::vec2(start + delta, 1));
-		splashuvs.push_back(glm::vec2(start + delta, 0));
-		start += delta;
-	}
-	for (int i = 0; i<16 * 6; ++i)
-	{
-		splashnormals.push_back(glm::vec3(0, -1, 0));
-	}
-	splash.Texture("Textures/LargeIntro.png");
-	splash.Initialize(splashverts, splashuvs, splashnormals);
-	Object splash_screen = Object(0, 0, 0, splash, Animate_Splash);
-	splash_screen.Length_Index = 6;
-	Indigo::Current_World.Add_2D_Object(splash_screen);
+	Indigo::Current_World.Add_2D_Object(Indigo::Construct_Splash());
 	if (argc > 1)
 	{
 		Load(argv[1]);

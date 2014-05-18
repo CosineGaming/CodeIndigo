@@ -45,6 +45,11 @@ namespace Indigo
 	// Renders world
 	void Render(void);
 
+	// Callback for the spashscreen
+	void Animate_Splash(float time, Object& self);
+	// A nice little splashscreen for load routines. Returns an Object for Add_2D_Object
+	Object Construct_Splash(void);
+
 	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
 	inline float Elapsed();
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start

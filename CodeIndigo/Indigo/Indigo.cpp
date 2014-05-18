@@ -81,7 +81,7 @@ namespace Indigo
 		Render();
 		glfwSwapBuffers(Indigo::Window);
 		glfwPollEvents();
-		float last = 0;
+		float last = Elapsed();
 		while (!glfwWindowShouldClose(Window))
 		{
 			float now = Elapsed();
@@ -310,6 +310,83 @@ namespace Indigo
 		glfwSwapBuffers(Indigo::Window);
 		glfwPollEvents();
 		return;
+	}
+
+	// Callback for the spashscreen
+	void Animate_Splash(float time, Object& self)
+	{
+		static float total;
+		const float each = 64;
+		total += time;
+		if (self.Data.Color.a == 0)
+		{
+			if (total > 500)
+			{
+				total = 0;
+				self.Data.Color.a = 1;
+			}
+		}
+		else if (self.Start_Index < 6 * 15)
+		{
+			if (total > each)
+			{
+				total = 0;
+				self.Start_Index += 6;
+			}
+		}
+		else
+		{
+			if (total > 1500)
+			{
+				self.Data.Color.a -= time / 1500;
+				if (self.Data.Color.a < 0)
+				{
+					Indigo::Current_World.Remove_2D_Object(self.ID);
+				}
+			}
+		}
+	}
+
+	// A nice little splashscreen for load routines. Returns an Object for Add_2D_Object
+	Object Construct_Splash(void)
+	{
+
+		Mesh splash;
+		std::vector<glm::vec3> splashverts;
+		std::vector<glm::vec2> splashuvs;
+		std::vector<glm::vec3> splashnormals;
+		for (int i = 0; i < 16; ++i)
+		{
+			splashverts.push_back(glm::vec3(-1, -1, 0));
+			splashverts.push_back(glm::vec3(1, 1, 0));
+			splashverts.push_back(glm::vec3(-1, 1, 0));
+			splashverts.push_back(glm::vec3(-1, -1, 0));
+			splashverts.push_back(glm::vec3(1, -1, 0));
+			splashverts.push_back(glm::vec3(1, 1, 0));
+		}
+		float start = 0;
+		float delta = 1 / 16.0;
+		for (int i = 0; i < 16; ++i)
+		{
+			splashuvs.push_back(glm::vec2(start, 1));
+			splashuvs.push_back(glm::vec2(start + delta, 0));
+			splashuvs.push_back(glm::vec2(start, 0));
+			splashuvs.push_back(glm::vec2(start, 1));
+			splashuvs.push_back(glm::vec2(start + delta, 1));
+			splashuvs.push_back(glm::vec2(start + delta, 0));
+			start += delta;
+		}
+		for (int i = 0; i < 16 * 6; ++i)
+		{
+			splashnormals.push_back(glm::vec3(0, -1, 0));
+		}
+		splash.Initialize(splashverts, splashuvs, splashnormals);
+		splash.Texture("Textures/SplashScreen.png");
+		splash.Color = glm::vec4(1, 1, 1, 0);
+		Object splash_screen = Object(0, 0, 0, splash, Animate_Splash);
+		splash_screen.Length_Index = 6;
+		return splash_screen;
+
 	}
 
 	// Get elapsed time in the game, optional minus for partial times, in milliseconds

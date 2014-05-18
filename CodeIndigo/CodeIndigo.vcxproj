@@ -157,9 +157,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="29.cpp" />
-    <ClCompile Include="CodeIndigo.cpp" />
-    <ClCompile Include="Stripped.cpp" />
+    <ClCompile Include="IELD.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IELD.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
