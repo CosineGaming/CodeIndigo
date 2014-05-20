@@ -1,8 +1,10 @@
-#include "Indigo/IndigoEngine.h"
+#include "../Indigo/IndigoEngine.h"
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <string>
+#include <thread>
+#include <stdlib.h>
 
 bool Load(const char * filename);
 

@@ -317,7 +317,7 @@ namespace Indigo
 	// Callback for the spashscreen
 	void Animate_Splash(float time, Object& self)
 	{
-		static float total;
+		static float total = 0;
 		static int last_frame = 0;
 		total += time;
 		int frame = int(total / 32);
@@ -345,6 +345,8 @@ namespace Indigo
 				self.Data.Color.a -= time / 1500;
 				if (self.Data.Color.a <= 0)
 				{
+					total = 0;
+					last_frame = 0;
 					Indigo::Current_World.Remove_2D_Object(self.ID);
 				}
 			}
@@ -375,6 +377,8 @@ namespace Indigo
 			self.Data.Color.a -= time / 1500;
 			if (self.Data.Color.a <= 0)
 			{
+				total = 0;
+				started = false;
 				Indigo::Current_World.Remove_2D_Object(self.ID);
 			}
 		}

@@ -183,6 +183,14 @@ void Object::Move(const float forward, const float side, const float up)
 // Find the AABB needed for collisions
 void Object::AABB(glm::vec3 out_less, glm::vec3 out_more) const
 {
+
+	if (Data.Size == 0)
+	{
+		out_more = glm::vec3(0, 0, 0);
+		out_less = glm::vec3(0, 0, 0);
+		return;
+	}
+
 	// Construct actual hitbox for this
 	glm::vec3 hitbox[8];
 	// Every possible combination of 2 is like counting in binary
