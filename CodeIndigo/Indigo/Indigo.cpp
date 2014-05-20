@@ -5,6 +5,8 @@
 
 #include "Indigo.h"
 
+#include <string>
+
 
 namespace Indigo
 {
@@ -316,8 +318,9 @@ namespace Indigo
 	void Animate_Splash(float time, Object& self)
 	{
 		static float total;
-		const float each = 64;
+		static int last_frame = 0;
 		total += time;
+		int frame = int(total / 32);
 		if (self.Data.Color.a == 0)
 		{
 			if (total > 500)
@@ -326,20 +329,21 @@ namespace Indigo
 				self.Data.Color.a = 1;
 			}
 		}
-		else if (self.Start_Index < 6 * 15)
+		else if (frame < 61)
 		{
-			if (total > each)
+			if (last_frame != frame)
 			{
-				total = 0;
-				self.Start_Index += 6;
+				glDeleteTextures(1, &self.Data.Texture_ID);
+				self.Data.Texture_ID = self.User_Data[frame];
 			}
+			last_frame = frame;
 		}
 		else
 		{
-			if (total > 1500)
+			if (frame > 100)
 			{
 				self.Data.Color.a -= time / 1500;
-				if (self.Data.Color.a < 0)
+				if (self.Data.Color.a <= 0)
 				{
 					Indigo::Current_World.Remove_2D_Object(self.ID);
 				}
@@ -347,45 +351,103 @@ namespace Indigo
 		}
 	}
 
-	// A nice little splashscreen for load routines. Returns an Object for Add_2D_Object
-	Object Construct_Splash(void)
+	// Callback for the spashscreen's text
+	void Splash_Label_Fade(float time, Object& self)
+	{
+		static float total = 0;
+		static bool started = false;
+		total += time;
+		int frame = int(total / 32);
+		if (!started)
+		{
+			if (total > 500)
+			{
+				total = 0;
+				started = true;
+			}
+		}
+		else if (frame > 50 && frame < 61)
+		{
+			self.Data.Color.a = (frame - 50) / 10.0;
+		}
+		else if (frame > 100)
+		{
+			self.Data.Color.a -= time / 1500;
+			if (self.Data.Color.a <= 0)
+			{
+				Indigo::Current_World.Remove_2D_Object(self.ID);
+			}
+		}
+	}
+
+	// A nice little splashscreen for load routines
+	void Construct_Splash(World& add_to)
 	{
 
+		Object splash_screen = Object(0, 0, 0, Mesh(), Animate_Splash);
 		Mesh splash;
 		std::vector<glm::vec3> splashverts;
 		std::vector<glm::vec2> splashuvs;
 		std::vector<glm::vec3> splashnormals;
-		for (int i = 0; i < 16; ++i)
+		for (int i = 0; i < 61; ++i)
 		{
-			splashverts.push_back(glm::vec3(-1, -1, 0));
-			splashverts.push_back(glm::vec3(1, 1, 0));
-			splashverts.push_back(glm::vec3(-1, 1, 0));
-			splashverts.push_back(glm::vec3(-1, -1, 0));
-			splashverts.push_back(glm::vec3(1, -1, 0));
-			splashverts.push_back(glm::vec3(1, 1, 0));
+			splashverts.push_back(glm::vec3(-0.75, -0.5, 0));
+			splashverts.push_back(glm::vec3(0.75, 1, 0));
+			splashverts.push_back(glm::vec3(-0.75, 1, 0));
+			splashverts.push_back(glm::vec3(-0.75, -0.5, 0));
+			splashverts.push_back(glm::vec3(0.75, -0.5, 0));
+			splashverts.push_back(glm::vec3(0.75, 1, 0));
 		}
-		float start = 0;
-		float delta = 1 / 16.0;
-		for (int i = 0; i < 16; ++i)
+		for (int i = 0; i < 61; ++i)
 		{
-			splashuvs.push_back(glm::vec2(start, 1));
-			splashuvs.push_back(glm::vec2(start + delta, 0));
-			splashuvs.push_back(glm::vec2(start, 0));
-			splashuvs.push_back(glm::vec2(start, 1));
-			splashuvs.push_back(glm::vec2(start + delta, 1));
-			splashuvs.push_back(glm::vec2(start + delta, 0));
-			start += delta;
+			splashuvs.push_back(glm::vec2(0, 1));
+			splashuvs.push_back(glm::vec2(1, 0));
+			splashuvs.push_back(glm::vec2(0, 0));
+			splashuvs.push_back(glm::vec2(0, 1));
+			splashuvs.push_back(glm::vec2(1, 1));
+			splashuvs.push_back(glm::vec2(1, 0));
 		}
-		for (int i = 0; i < 16 * 6; ++i)
+		for (int i = 0; i < 61 * 6; ++i)
 		{
 			splashnormals.push_back(glm::vec3(0, -1, 0));
 		}
 		splash.Initialize(splashverts, splashuvs, splashnormals);
-		splash.Texture("Textures/SplashScreen.png");
+		for (int i = 0; i < 61; ++i)
+		{
+			std::string frame = ("Textures/SplashScreen/" + std::to_string(i) + ".png");
+			splash.Texture_ID = 0;
+			splash.Texture(frame.c_str());
+			splash_screen.User_Data.push_back(splash.Texture_ID);
+		}
 		splash.Color = glm::vec4(1, 1, 1, 0);
-		Object splash_screen = Object(0, 0, 0, splash, Animate_Splash);
+		splash_screen.Data = splash;
 		splash_screen.Length_Index = 6;
-		return splash_screen;
+		add_to.Add_2D_Object(splash_screen);
+		std::vector<glm::vec3> textverts;
+		std::vector<glm::vec2> textuvs;
+		std::vector<glm::vec3> textnormals;
+		textverts.push_back(glm::vec3(-1, -1, 0));
+		textverts.push_back(glm::vec3(1, 1, 0));
+		textverts.push_back(glm::vec3(-1, 1, 0));
+		textverts.push_back(glm::vec3(-1, -1, 0));
+		textverts.push_back(glm::vec3(1, -1, 0));
+		textverts.push_back(glm::vec3(1, 1, 0));
+		textuvs.push_back(glm::vec2(0, 1));
+		textuvs.push_back(glm::vec2(1, 0));
+		textuvs.push_back(glm::vec2(0, 0));
+		textuvs.push_back(glm::vec2(0, 1));
+		textuvs.push_back(glm::vec2(1, 1));
+		textuvs.push_back(glm::vec2(1, 0));
+		for (int i = 0; i < 6; ++i)
+		{
+			textnormals.push_back(glm::vec3(0, -1, 0));
+		}
+		Mesh label;
+		label.Initialize(textverts, textuvs, textnormals);
+		label.Texture("Textures/SplashScreen/Label.png");
+		label.Color = glm::vec4(1, 1, 1, 0);
+		add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade));
+		return;
 
 	}
 

@@ -45,10 +45,15 @@ namespace Indigo
 	// Renders world
 	void Render(void);
 
+	// Stores the current world to render
+	extern World Current_World;
+
 	// Callback for the spashscreen
 	void Animate_Splash(float time, Object& self);
-	// A nice little splashscreen for load routines. Returns an Object for Add_2D_Object
-	Object Construct_Splash(void);
+	// Callback for the spashscreen's text
+	void Splash_Label_Fade(float time, Object& self);
+	// A nice little splashscreen for load routines
+	void Construct_Splash(World& add_to = Current_World);
 
 	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
 	inline float Elapsed();
@@ -59,8 +64,7 @@ namespace Indigo
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void);
 
-	// Stores the current world to render
-	extern World Current_World;
+
 	// Stores the window we're rendering onto
 	extern GLFWwindow * Window;
 	// Takes care of managing all the buffers
