@@ -12,7 +12,7 @@ bool Save(const char * filename);
 
 bool Save_For_Compile(const char * filename);
 
-void Add_And_Save(glm::vec3& position, const std::string& mesh, const std::string& texture, const Mesh& actual);
+bool Add_And_Save(glm::vec3& position, const std::string& mesh, const std::string& texture);
 
 void Fade_Text(float time, Object& self);
 

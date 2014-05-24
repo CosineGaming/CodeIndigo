@@ -97,7 +97,6 @@ namespace Indigo
 		}
 		glfwTerminate();
 		return 0;
-
 	}
 
 	void Close(void)
@@ -318,7 +317,7 @@ namespace Indigo
 	void Animate_Splash(float time, Object& self)
 	{
 		static float total = 0;
-		static int last_frame = 0;
+		static int last_frame = -1;
 		total += time;
 		int frame = int(total / 32);
 		if (self.Data.Color.a == 0)
@@ -335,8 +334,8 @@ namespace Indigo
 			{
 				glDeleteTextures(1, &self.Data.Texture_ID);
 				self.Data.Texture_ID = self.User_Data[frame];
+				last_frame = frame;
 			}
-			last_frame = frame;
 		}
 		else
 		{

@@ -361,7 +361,6 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
 	for (int point = 0; point < vertices.size(); ++point)
 	{
-		unsigned short index = 0;
 		Vertex_Texture_Normal together = { vertices[point], uvs[point], vertex_normals[normal_indices[point]] };
 		std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
 		if (location == vertex_to_index.end())
@@ -458,8 +457,9 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 		data = stbi_load(filename, &width, &height, &channels, 0);
 		if (channels < 3)
 		{
-			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently." << std::endl;
+			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
 			stbi_image_free(data);
+			Texture();
 			return;
 		}
 		if (background != glm::vec3(-1, -1, -1) && channels == 4)
