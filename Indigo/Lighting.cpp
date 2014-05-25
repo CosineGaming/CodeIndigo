@@ -14,7 +14,6 @@ Lighting::Lighting(void)
 	position = glm::vec4(0, 0, 0, 0);
 	color = glm::vec3(0, 0, 0);
 	ambient = 0; // .075;
-	light_power = 0;
 	return;
 }
 
@@ -24,7 +23,6 @@ Lighting::Lighting(const Lighting& arrangement)
 	position = arrangement.position;
 	color = arrangement.color;
 	ambient = arrangement.ambient;
-	light_power = arrangement.light_power;
 	return;
 }
 
@@ -46,8 +44,7 @@ void Lighting::Set_Light(float X, float Y, float Z, bool coordinate,
 	float power, glm::vec3 light_color)
 {
 	position = glm::vec4(X, Y, Z, coordinate);
-	light_power = power;
-	color = light_color;
+	color = light_color * power;
 	return;
 }
 
@@ -57,7 +54,6 @@ void Lighting::Update_Lights(void) const
 {
 	// Light position
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Ambient", true), ambient);
-	glUniform1f(Indigo::Current_World.Shader_Location("F_Light_Power", true), light_power);
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Light_Color", true), color.r, color.g, color.b);
 	glUniform4f(Indigo::Current_World.Shader_Location("V_Light", true), position.x, position.y, position.z, position.w);
 }

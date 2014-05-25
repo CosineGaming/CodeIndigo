@@ -30,7 +30,5 @@ private:
 	glm::vec3 color;
 	// The stored ambient value for update
 	float ambient;
-	// The power of the light -- how far it stretches
-	float light_power;
 
 };

@@ -142,9 +142,9 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glDrawElements(GL_TRIANGLES, Length_Index ? Length_Index : Data.Size, GL_UNSIGNED_SHORT, (void*) (Start_Index*sizeof(unsigned short)));
 
 	// Finished
-	//glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
-	//glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
-	//glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
 
 	return;
 }

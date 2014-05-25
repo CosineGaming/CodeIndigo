@@ -161,7 +161,7 @@ bool Add_And_Save(glm::vec3& position, const std::string& mesh, const std::strin
 	std::map<Mesh_Texture, unsigned short>::iterator location = model_to_index.find(together);
 	if (location == model_to_index.end())
 	{
-		Mesh add = Mesh(mesh.c_str(), texture.length() ? texture.c_str() : nullptr);
+		Mesh add = Mesh(mesh.c_str(), texture.length() ? texture.c_str() : nullptr, 0);
 		if (add.Size == 0)
 		{
 			return false;
@@ -865,7 +865,7 @@ int main(int argc, char ** argv)
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-	Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, false);
+	Indigo::Current_World.Light_Setup.Set_Light(0, -1, 0, false, 2);
 	Indigo::Mouse_Button_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;

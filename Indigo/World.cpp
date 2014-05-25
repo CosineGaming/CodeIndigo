@@ -131,14 +131,26 @@ void World::Shader(const char * vertex, const char * fragment)
 {
 
 	// Vertex
+	std::ifstream vs_func_stream = std::ifstream("Indigo/Shaders/Universal.vs");
+	if (!vs_func_stream)
+	{
+		std::cout << "Uhh... Huh? Couldn't find default vertex functions file \"Indigo/Shaders/Universal.vs\"! Failing silently." << std::endl;
+		return;
+	}
+	std::string total;
+	std::string line;
+	while (std::getline(vs_func_stream, line))
+	{
+		total += line;
+		total += "\n";
+	}
+	vs_func_stream.close();
 	std::ifstream vs_stream = std::ifstream(vertex, std::ios::in);
 	if (!vs_stream)
 	{
 		std::cout << "Uhh... Huh? Couldn't find vertex shader \"" << vertex << "\"! Failing silently." << std::endl;
 		return;
 	}
-	std::string total;
-	std::string line;
 	while (std::getline(vs_stream, line))
 	{
 		total += line;
@@ -163,13 +175,25 @@ void World::Shader(const char * vertex, const char * fragment)
 	}
 
 	// Fragment
+	std::ifstream fs_func_stream = std::ifstream("Indigo/Shaders/Universal.fs", std::ios::in);
+	if (!fs_func_stream)
+	{
+		std::cout << "Uhh... Huh? Couldn't find default fragment functions file \"Indigo/Shaders/Universal.fs\"! Failing silently." << std::endl;
+		return;
+	}
+	total = std::string();
+	while (std::getline(fs_func_stream, line))
+	{
+		total += line;
+		total += "\n";
+	}
+	fs_func_stream.close();
 	std::ifstream fs_stream = std::ifstream(fragment, std::ios::in);
 	if (!fs_stream)
 	{
 		std::cout << "Uhh... Huh? Couldn't find fragment shader \"" << fragment << "\"! Failing silently." << std::endl;
 		return;
 	}
-	total = std::string();
 	while (std::getline(fs_stream, line))
 	{
 		total += line;
@@ -187,7 +211,7 @@ void World::Shader(const char * vertex, const char * fragment)
 		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size + 1];
 		glGetShaderInfoLog(fragment_shader, size, NULL, data);
-		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
+		std::cout << "KITTEN KILLER! Failing silently. In fragment shader:" << std::endl << data << std::endl;
 		delete [] data;
 		return;
 	}
