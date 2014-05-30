@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "Direction.h"
 #include "Indigo.h"
-#include "Lighting.h"
+#include "Light.h"
 #include "Mesh.h"
 #include "Object.h"
 #include "World.h"
