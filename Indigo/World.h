@@ -54,6 +54,8 @@ public:
 	Object& Get_Object(const int id) const;
 	// Removes an object from the world based on an object ID
 	void Remove_Object(const int id);
+	// Returns the number of objects in the world, simply objects.size()
+	int Number_Of_Objects(void) const;
 
 	// Adds a front object to the world to be rendered and updated, returns an object ID.
 	// A front object is 3D, but doesn't get covered up by normal 3D objects. (Drawn in order of added)
@@ -63,6 +65,8 @@ public:
 	Object& Get_Front_Object(const int id) const;
 	// Removes a front object from the world based on an object ID
 	void Remove_Front_Object(const int id);
+	// Returns the number of texts in the world, simply objects_front.size()
+	int Number_Of_Front_Objects(void) const;
 
 	// Adds a 2D object to the world to be rendered and updated, returns an object ID
 	int Add_2D_Object(const Object& object);
@@ -70,18 +74,15 @@ public:
 	Object& Get_2D_Object(const int id) const;
 	// Removes a 2D object from the world based on an object ID
 	void Remove_2D_Object(const int id);
+	// Returns the number of 2d objects in the world, simply objects_2d.size()
+	int Number_Of_2D_Objects(void) const;
 
 	// Add animation along with its nested animations to the world to be rendered, returns no handle to the text
 	int Add_Animation(const Animation& animation);
 	// Removes the animation (and nested ones) from the world based on an object ID
 	void Remove_Animation(const int id);
-
-	// Returns the number of objects in the world, simply objects.size()
-	int Number_Of_Objects(void) const;
-	// Returns the number of 2d objects in the world, simply objects_2d.size()
-	int Number_Of_2D_Objects(void) const;
-	// Returns the number of texts in the world, simply texts.size()
-	int Number_Of_Texts(void) const;
+	// Returns the number of texts in the world, simply animations.size()
+	int Number_Of_Animations(void) const;
 
 	// Checks whether any object collides with another object, each collision testing returns -1 if no collision or object id for first
 	int Collide(const Object& object, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;

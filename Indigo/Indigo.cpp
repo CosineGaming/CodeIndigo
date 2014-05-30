@@ -20,7 +20,6 @@ namespace Indigo
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		if (fullscreen)
 		{
 			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -62,7 +61,6 @@ namespace Indigo
 		glEnable(GL_DITHER);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glEnable(GL_TEXTURE_2D);
 		// Setup fog
 		//glEnable(GL_FOG);
 		//glFogfv(GL_FOG_COLOR, White_Color);

@@ -197,6 +197,10 @@ void GUI(float time)
 	static float total_speed = 0.005;
 	static bool lighting_enabled = false;
 	static int cursor_object = -1;
+	if (cursor_object == -1)
+	{
+		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1))));
+	}
 	if (Current_Menu == -1)
 	{
 		if (Indigo::Keys['2'])
@@ -276,10 +280,7 @@ void GUI(float time)
 
 		if (cursor_object < Current_Menu) // The cursor must be always on top
 		{
-			if (cursor_object != -1)
-			{
-				Indigo::Current_World.Remove_2D_Object(cursor_object);
-			}
+			Indigo::Current_World.Remove_2D_Object(cursor_object);
 			cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1))));
 		}
 		Cursor_Delay += time;
@@ -871,7 +872,7 @@ int main(int argc, char ** argv)
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
 
-	//Indigo::Construct_Splash();
+	Indigo::Construct_Splash();
 	if (argc > 1)
 	{
 		Load(argv[1]);

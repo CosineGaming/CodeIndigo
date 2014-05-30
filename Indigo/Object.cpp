@@ -36,7 +36,7 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 }
 
 
-// Copy an object, used as main constructor
+// Copy an object
 Object::Object(const Object& object)
 {
 	Place(object.X, object.Y, object.Z);

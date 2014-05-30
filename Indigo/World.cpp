@@ -341,6 +341,13 @@ void World::Remove_Object(const int id)
 }
 
 
+// Returns the number of objects in the world, simply objects.size()
+int World::Number_Of_Objects(void) const
+{
+	return (objects.size());
+}
+
+
 // Adds a front object to the world to be rendered and updated, returns an object ID.
 // A front object is 3D, but doesn't get covered up by normal 3D objects. (Drawn in order of added)
 // A front object is also not affected by the view. The camera is assumed to look in the negative Z direction at 0,0,0.
@@ -363,6 +370,12 @@ void World::Remove_Front_Object(const int id)
 {
 	objects_front[id] = Object();
 	return;
+}
+
+// Returns the number of texts in the world, simply objects_front.size()
+int World::Number_Of_Front_Objects(void) const
+{
+	return (objects_front.size());
 }
 
 
@@ -388,6 +401,12 @@ void World::Remove_2D_Object(const int id)
 	return;
 }
 
+// Returns the number of 2d objects in the world, simply objects_2d.size()
+int World::Number_Of_2D_Objects(void) const
+{
+	return (objects_2d.size());
+}
+
 
 // Add text to the world to be rendered, returns no handle to the text
 int World::Add_Animation(const Animation& animation)
@@ -405,18 +424,10 @@ void World::Remove_Animation(const int id)
 	return;
 }
 
-
-// Returns the number of objects in the world, simply objects.size()
-int World::Number_Of_Objects(void) const
+// Returns the number of texts in the world, simply animations.size()
+int World::Number_Of_Animations(void) const
 {
-	return (objects.size());
-}
-
-
-// Returns the number of 2d objects in the world, simply objects_2d.size()
-int World::Number_Of_2D_Objects(void) const
-{
-	return (objects_2d.size());
+	return (animations.size());
 }
 
 
