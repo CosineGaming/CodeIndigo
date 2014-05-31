@@ -92,10 +92,10 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
 	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
 	modeling = glm::scale(modeling, Scale);
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_Model", true), 1, GL_FALSE, &modeling[0][0]);
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_View", true), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_Model", true), 1, GL_FALSE, &modeling[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_View", true), 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("M_All", true), 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_MVP", true), 1, GL_FALSE, &mvp[0][0]);
 
 	// Custom data
 	for (int i = 0; i < Shader_Argument_Names.size(); ++i)
@@ -115,7 +115,7 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glUniform4f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.r, Data.Color.g, Data.Color.b, Data.Color.a);
 
 	// Lighting enabled?
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Light_Enabled", true), lighting);
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Lighting_Enabled", true), lighting);
 
 	// Vertices
 	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));

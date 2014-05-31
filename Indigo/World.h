@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Camera.h"
-#include "Light.h"
+#include "Lighting.h"
 #include "Object.h"
 
 #include <vector>
@@ -94,8 +94,8 @@ public:
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time);
 
-	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc.
-	std::vector<Light> Light_Setup;
+	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc
+	Lighting Light_Setup;
 	// The camera for looking in the world
 	Camera View;
 
@@ -115,7 +115,6 @@ private:
 	std::vector<Object> objects_front;
 	std::vector<Object> objects_2d;
 	std::vector<Animation> animations;
-	std::vector<Light> lights;
 
 	// A skybox is a box which is always in the back, textured to look like the game background
 	Object skybox;

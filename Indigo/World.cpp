@@ -18,11 +18,11 @@ World::World(void)
 	objects = std::vector<Object>();
 	objects_front = std::vector<Object>();
 	objects_2d = std::vector<Object>();
-	lights = std::vector<Light>();
 	animations = std::vector<Animation>();
 	skybox = Object();
 	Update_Function = nullptr;
 	View = Camera();
+	Light_Setup = Lighting();
 	Matrix_Handle = 0;
 	View_Matrix = 0;
 	Model_Matrix = 0;
@@ -92,7 +92,7 @@ void World::Render(void) const
 	glm::mat4 project_2d = View.Project_2D();
 	glm::mat4 view = View.Look();
 
-	//Indigo::Current_World.Light_Setup.Update_Lights();
+	Indigo::Current_World.Light_Setup.Update_Lights();
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (skybox.Data.Size != 0)

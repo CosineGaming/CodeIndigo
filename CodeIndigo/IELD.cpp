@@ -374,9 +374,9 @@ bool Text_Edit(int key, std::string& output)
 {
 	if (key == GLFW_KEY_ESCAPE)
 	{
-		if (Typing.length() != 0)
+		if (output.length() != 0)
 		{
-			Typing = "";
+			output = "";
 			Cursor_Pos = 0;
 			return true;
 		}
@@ -407,9 +407,9 @@ bool Text_Edit(int key, std::string& output)
 	else if (key == GLFW_KEY_RIGHT)
 	{
 		Cursor_Pos++;
-		if (Cursor_Pos > Typing.length())
+		if (Cursor_Pos > output.length())
 		{
-			Cursor_Pos = Typing.length();
+			Cursor_Pos = output.length();
 		}
 		return true;
 	}
@@ -866,7 +866,9 @@ int main(int argc, char ** argv)
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	//Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-	//Indigo::Current_World.Light_Setup.Set_Lamp(0, 1, 0, glm::vec3(0,0,1), 600);
+	Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
+	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1, 0, 10);
+	Indigo::Current_World.Light_Setup.Add_Lamp(0, 0.5, -3, glm::vec3(1, 0, 0), 180, 20);
 	Indigo::Mouse_Button_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
