@@ -383,7 +383,7 @@ bool Text_Edit(int key, std::string& output)
 	}
 	else if (key == GLFW_KEY_BACKSPACE)
 	{
-		if (output.length())
+		if (Cursor_Pos > 0 && Cursor_Pos <= output.length())
 		{
 			output.erase(output.begin() + (Cursor_Pos - 1));
 			Cursor_Pos--;
@@ -392,8 +392,11 @@ bool Text_Edit(int key, std::string& output)
 	}
 	else if (key == GLFW_KEY_DELETE)
 	{
-		output.erase(output.begin() + Cursor_Pos);
-		return true;
+		if (Cursor_Pos < output.length())
+		{
+			output.erase(output.begin() + Cursor_Pos);
+			return true;
+		}
 	}
 	else if (key == GLFW_KEY_LEFT)
 	{
@@ -753,7 +756,6 @@ void Key_Pressed(int key)
 			menu_y = Indigo::Mouse_Position.y - 0.07;
 			texture_yet = false;
 			Typing = mesh;
-			Cursor_Pos = 0;
 			std::string display = "Mesh:\n" + Typing;
 			space_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y));
 			Current_Menu = space_menu;
@@ -857,6 +859,7 @@ void Key_Pressed(int key)
 				}
 			}
 		}
+		Cursor_Pos = Typing.length();
 	}
 }
 
