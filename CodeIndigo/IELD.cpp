@@ -769,7 +769,6 @@ void Key_Pressed(int key)
 			menu_y = Indigo::Mouse_Position.y - 0.07;
 			pos_part = 0;
 			Typing = std::to_string(To_Move->X);
-			Cursor_Pos = 0;
 			std::string display = "X:\n" + Typing;
 			position_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y));
 			Current_Menu = position_menu;
@@ -783,7 +782,6 @@ void Key_Pressed(int key)
 			menu_y = Indigo::Mouse_Position.y - 0.07;
 			pos_part = 0;
 			Typing = std::to_string(To_Move->Facing.Get_X_Angle());
-			Cursor_Pos = 0;
 			std::string display = "X Angle:\n" + Typing;
 			facing_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y));
 			Current_Menu = facing_menu;
@@ -823,7 +821,6 @@ void Key_Pressed(int key)
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
 				Typing = save_location;
-				Cursor_Pos = 0;
 				std::string display = "Save Here:\n" + Typing;
 				save_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y));
 				Current_Menu = save_menu;
@@ -835,7 +832,6 @@ void Key_Pressed(int key)
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
 				Typing = save_location;
-				Cursor_Pos = 0;
 				std::string display = "Open From:\n" + Typing;
 				open_menu = Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y));
 				Current_Menu = open_menu;

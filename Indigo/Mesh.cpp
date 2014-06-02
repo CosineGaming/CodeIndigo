@@ -292,28 +292,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		return;
 	}
 
-	std::string texture_file = std::string(texture);
-	for (int i = 0; i < texture_file.length(); ++i)
-	{
-		Texture_File_Hash += int(texture_file[i]);
-		Texture_File_Hash %= 4294967291; // Largest prime < 2^32
-	}
-	location = Load_Once.find(Texture_File_Hash);
-	if (location != Load_Once.end() && location->second.size() > 1)
-	{
-		std::vector<unsigned int>& items = location->second;
-		Texture_ID = items[0];
-		Texture_References = (unsigned short *)items[1];
-		*Texture_References += 1; // Essentially a copy of a texture
-	}
-	else
-	{
-		Texture(texture);
-		std::vector<unsigned int> id;
-		id.push_back(Texture_ID);
-		id.push_back((unsigned int) Texture_References);
-		Load_Once[Texture_File_Hash] = id;
-	}
+	Texture(texture);
 
 	return;
 
@@ -375,7 +354,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		}
 
 	}
-	mesh.Initialize(vertices, uvs, normals);
+	mesh.Initialize(vertices, uvs, normals, false);
 	if (highlight.a == 0)
 	{
 		mesh.Texture(font);
@@ -424,7 +403,7 @@ struct Vertex_Compare
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals)
+void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const bool memory_optimize)
 {
 
 	// Index for the VBO!
@@ -432,24 +411,38 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	std::vector<glm::vec2> final_uvs = std::vector<glm::vec2>();
 	std::vector<glm::vec3> final_normals = std::vector<glm::vec3>();
 	std::vector<unsigned short> elements = std::vector<unsigned short>();
-	std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
-	for (int point = 0; point < vertices.size(); ++point)
+	if (memory_optimize)
 	{
-		Vertex_Texture_Normal together = { vertices[point], uvs[point], normals[point] };
-		std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
-		if (location == vertex_to_index.end())
+		std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
+		for (int point = 0; point < vertices.size(); ++point)
+		{
+			Vertex_Texture_Normal together = { vertices[point], uvs[point], normals[point] };
+			std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
+			if (location == vertex_to_index.end())
+			{
+				final_vertices.push_back(vertices[point]);
+				final_uvs.push_back(uvs[point]);
+				final_normals.push_back(normals[point]);
+				Update_Hitbox(vertices[point]);
+				unsigned short index = final_vertices.size() - 1;
+				elements.push_back(index);
+				vertex_to_index[together] = index;
+			}
+			else
+			{
+				elements.push_back(location->second);
+			}
+		}
+	}
+	else
+	{
+		for (int point = 0; point < vertices.size(); ++point)
 		{
 			final_vertices.push_back(vertices[point]);
 			final_uvs.push_back(uvs[point]);
 			final_normals.push_back(normals[point]);
 			Update_Hitbox(vertices[point]);
-			unsigned short index = final_vertices.size() - 1;
-			elements.push_back(index);
-			vertex_to_index[together] = index;
-		}
-		else
-		{
-			elements.push_back(location->second);
+			elements.push_back(point);
 		}
 	}
 
@@ -567,9 +560,10 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 				{
 					if (data[i] < 128)
 					{
-						bged[insert] = background.r * 256;
-						bged[insert + 1] = background.g * 256;
-						bged[insert + 2] = background.b * 256;
+						bged[insert] = (unsigned char)(background.r * 255);
+						bged[insert + 1] = (unsigned char)(background.g * 255);
+						bged[insert + 2] = (unsigned char)(background.b * 255);
+						std::cout << int(bged[insert]) << ", " << int(bged[insert + 1]) << ", " << int(bged[insert + 2]) << std::endl;
 					}
 					else
 					{

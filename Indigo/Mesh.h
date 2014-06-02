@@ -27,7 +27,7 @@ public:
 	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& color = glm::vec4(1, 1, 1, 1), const glm::vec4& highlight = glm::vec4(1, 1, 1, 0));
 
 	// The mesh is locked into place on the GPU
-	void Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals);
+	void Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const bool memory_optimize=true);
 
 	// Update the hitbox knowing that this point exists in the mesh
 	void Update_Hitbox(glm::vec3 vertex);
