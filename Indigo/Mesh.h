@@ -4,6 +4,8 @@
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
+#include <map>
+#include <string>
 
 
 class Mesh
@@ -54,8 +56,17 @@ public:
 	// The size of the mesh In Elements
 	unsigned int Size;
 
+	// Stores this Mesh's hash in order to remove references when deleted
+	unsigned int Obj_File_Hash;
+	// Stores this Mesh's texture's hash
+	unsigned int Texture_File_Hash;
+	// Stores a hash of the filename mapped to the handle, so that the same file isn't loaded twice
+	static std::map<unsigned int, std::vector<unsigned int>> Load_Once;
+
 	// Reference counting so we can destroy elements when we're done
-	unsigned short * References;
+	unsigned short * Vertex_References;
+	// Reference counting so we can destroy textures when we're done
+	unsigned short * Texture_References;
 
 private:
 

@@ -876,8 +876,7 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-
-	Indigo::Construct_Splash();
+	//Indigo::Construct_Splash();
 	if (argc > 1)
 	{
 		Load(argv[1]);

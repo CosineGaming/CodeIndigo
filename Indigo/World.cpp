@@ -86,8 +86,6 @@ void World::Render(void) const
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(Shader_Index);
-
 	glm::mat4 project = View.Project();
 	glm::mat4 project_2d = View.Project_2D();
 	glm::mat4 view = View.Look();
@@ -228,7 +226,7 @@ void World::Shader(const char * vertex, const char * fragment)
 		glGetProgramiv(Shader_Index, GL_INFO_LOG_LENGTH, &size);
 		char * data = new char[size];
 		glGetProgramInfoLog(Shader_Index, size, NULL, data);
-		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being a nerd. Failing silently, but: " << std::endl << data << std::endl;
+		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being stupid. Failing silently, but: " << std::endl << data << std::endl;
 		delete[] data;
 		glDeleteShader(vertex_shader);
 		return;
@@ -237,6 +235,9 @@ void World::Shader(const char * vertex, const char * fragment)
 	// Cleanup
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
+
+	// All that work shant be for nothing!
+	glUseProgram(Shader_Index);
 
 	return;
 

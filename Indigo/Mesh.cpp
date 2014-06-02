@@ -10,45 +10,51 @@
 
 #include <fstream>
 #include <iostream>
-#include <string>
-#include <map>
 #include "GLFW/glfw3.h"
 
 
 // Create a new, empty mesh
-Mesh::Mesh(void)
+Mesh::Mesh(void) :
+	Color(glm::vec4(1, 1, 1, 1)),
+	Shine(0),
+	Vertices_ID(0),
+	Elements_ID(0),
+	Normals_ID(0),
+	UV_ID(0),
+	Texture_ID(0),
+	Size(0),
+	Obj_File_Hash(0),
+	Texture_File_Hash(0),
+	Vertex_References(new unsigned short),
+	Texture_References(new unsigned short)
 {
 	Hitbox[0] = glm::vec3(0, 0, 0);
 	Hitbox[1] = glm::vec3(0, 0, 0);
-	Color = glm::vec4(1,1,1,1);
-	Shine = 0;
-	Vertices_ID = 0;
-	Elements_ID = 0;
-	Normals_ID = 0;
-	UV_ID = 0;
-	Texture_ID = 0;
-	Size = 0;
-	References = new unsigned short;
-	*References = 1;
+	*Vertex_References = 1;
+	*Texture_References = 1;
 	return;
 }
 
 
 // Copy a mesh
-Mesh::Mesh(const Mesh& mesh)
+Mesh::Mesh(const Mesh& mesh) : 
+	Color(mesh.Color),
+	Shine(mesh.Shine),
+	Vertices_ID(mesh.Vertices_ID),
+	Elements_ID(mesh.Elements_ID),
+	Normals_ID(mesh.Normals_ID),
+	UV_ID(mesh.UV_ID),
+	Texture_ID(mesh.Texture_ID),
+	Size(mesh.Size),
+	Obj_File_Hash(mesh.Obj_File_Hash),
+	Texture_File_Hash(mesh.Texture_File_Hash),
+	Vertex_References(mesh.Vertex_References),
+	Texture_References(mesh.Texture_References)
 {
 	Hitbox[0] = mesh.Hitbox[0];
 	Hitbox[1] = mesh.Hitbox[1];
-	Color = mesh.Color;
-	Shine = mesh.Shine;
-	Vertices_ID = mesh.Vertices_ID;
-	Elements_ID = mesh.Elements_ID;
-	Normals_ID = mesh.Normals_ID;
-	UV_ID = mesh.UV_ID;
-	Texture_ID = mesh.Texture_ID;
-	Size = mesh.Size;
-	References = mesh.References;
-	*References += 1; // Copied once
+	*Vertex_References += 1; // Copied once
+	*Texture_References += 1;
 	return;
 }
 
@@ -59,8 +65,10 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 	if (this != &mesh)
 	{
 		this->~Mesh(); // This one is dying, as much as it's sad to admit it.
-		References = mesh.References; // But there's a new one!
-		*References += 1; // Copied once
+		Vertex_References = mesh.Vertex_References; // But there's a new one!
+		Texture_References = mesh.Texture_References;
+		*Vertex_References += 1; // Copied once
+		*Texture_References += 1;
 		Hitbox[0] = mesh.Hitbox[0];
 		Hitbox[1] = mesh.Hitbox[1];
 		Color = mesh.Color;
@@ -79,8 +87,8 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 // Destroy the mesh. Free the GPU resources if it's the last one.
 Mesh::~Mesh(void)
 {
-	*References -= 1; // Destroyed once
-	if (*References == 0)
+	*Vertex_References -= 1; // Destroyed once
+	if (*Vertex_References == 0)
 	{
 		// We're the last, lonely reference.
 		if (Vertices_ID)
@@ -99,40 +107,70 @@ Mesh::~Mesh(void)
 		{
 			glDeleteBuffers(1, &UV_ID);
 		}
+		if (Obj_File_Hash)
+		{
+			Load_Once[Obj_File_Hash] = std::vector<unsigned int>();
+		}
+		delete Vertex_References;
+	}
+	if (*Texture_References == 0)
+	{
 		if (Texture_ID)
 		{
 			glDeleteTextures(1, &Texture_ID);
 		}
-		delete References;
+		if (Texture_File_Hash)
+		{
+			Load_Once[Texture_File_Hash] = std::vector<unsigned int>();
+		}
+		delete Texture_References;
 	}
 	return;
 }
 
 
 // Create a new mesh by loading it from an obj file
-Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec4& color)
+Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec4& color) :
+	Mesh()
 {
 
-	Hitbox[0] = glm::vec3(0, 0, 0);
-	Hitbox[1] = glm::vec3(0, 0, 0);
 	Color = color;
 	Shine = shine;
-	Vertices_ID = 0;
-	Elements_ID = 0;
-	Normals_ID = 0;
-	UV_ID = 0;
-	Texture_ID = 0;
-	Size = 0;
-	References = new unsigned short;
-	*References = 1;
 
-	std::ifstream file(filename, std::ios::in);
-	if (!file)
+	for (int i = 0; filename[i] != '\0'; ++i)
 	{
-		std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh." << std::endl;
+		Obj_File_Hash += int(filename[i]);
+		Obj_File_Hash %= 4294967291; // Largest prime < 2^32
+	}
+	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Obj_File_Hash);
+	if (location != Load_Once.end() && location->second.size())
+	{
+		std::vector<unsigned int>& items = location->second;
+		Vertices_ID = items[0];
+		Elements_ID = items[1];
+		Normals_ID = items[2];
+		UV_ID = items[3];
+		Size = items[4];
+		Hitbox[0].x = *reinterpret_cast<float *>(&items[5]);
+		Hitbox[0].y = *reinterpret_cast<float *>(&items[6]);
+		Hitbox[0].z = *reinterpret_cast<float *>(&items[7]);
+		Hitbox[1].x = *reinterpret_cast<float *>(&items[8]);
+		Hitbox[1].y = *reinterpret_cast<float *>(&items[9]);
+		Hitbox[1].z = *reinterpret_cast<float *>(&items[10]);
+		delete Vertex_References;
+		Vertex_References = reinterpret_cast<unsigned short *>(items[11]);
+		*Vertex_References += 1; // Essentially a copy of the vertices
 	}
 	else
 	{
+
+		std::ifstream file(filename, std::ios::in);
+		if (!file)
+		{
+			std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh." << std::endl;
+			return;
+		}
+
 		std::string line;
 		std::vector<glm::vec3> temp_vertices;
 		std::vector<glm::vec2> temp_textures;
@@ -140,6 +178,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec2> textures;
 		std::vector<glm::vec3> normals;
+
 		while (std::getline(file, line))
 		{
 			if (line[0] == 'v' && line[1] == ' ')
@@ -228,12 +267,56 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		}
 		file.close();
 
-		Texture(texture);
-
 		Initialize(vertices, textures, normals);
 
+		std::vector<unsigned int> items;
+		items.push_back(Vertices_ID);
+		items.push_back(Elements_ID);
+		items.push_back(Normals_ID);
+		items.push_back(UV_ID);
+		items.push_back(Size);
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[0].x));
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[0].y));
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[0].z));
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[1].x));
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[1].y));
+		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[1].z));
+		items.push_back(reinterpret_cast<unsigned int>(Vertex_References));
+		Load_Once[Obj_File_Hash] = items;
+
 	}
+
+	if (texture == nullptr)
+	{
+		Texture();
+		return;
+	}
+
+	std::string texture_file = std::string(texture);
+	for (int i = 0; i < texture_file.length(); ++i)
+	{
+		Texture_File_Hash += int(texture_file[i]);
+		Texture_File_Hash %= 4294967291; // Largest prime < 2^32
+	}
+	location = Load_Once.find(Texture_File_Hash);
+	if (location != Load_Once.end() && location->second.size() > 1)
+	{
+		std::vector<unsigned int>& items = location->second;
+		Texture_ID = items[0];
+		Texture_References = (unsigned short *)items[1];
+		*Texture_References += 1; // Essentially a copy of a texture
+	}
+	else
+	{
+		Texture(texture);
+		std::vector<unsigned int> id;
+		id.push_back(Texture_ID);
+		id.push_back((unsigned int) Texture_References);
+		Load_Once[Texture_File_Hash] = id;
+	}
+
 	return;
+
 }
 
 
@@ -428,79 +511,103 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 void Mesh::Texture(const char * filename, const glm::vec3 background)
 {
 
-	unsigned char * data;
-	int width;
-	int height;
-	int channels = 3;
-	bool std_free = false;
-	if (!filename)
+	if (filename)
 	{
-		data = new unsigned char[3];
-		data[0] = 255;
-		data[1] = 255;
-		data[2] = 255;
-		width = 1;
-		height = 1;
-		std_free = true;
+		for (int i = 0; filename[i] != '\0'; ++i)
+		{
+			Texture_File_Hash += int(filename[i]);
+			Texture_File_Hash %= 4294967291; // Largest prime < 2^32
+		}
 	}
 	else
 	{
-		data = stbi_load(filename, &width, &height, &channels, 0);
-		if (channels < 3)
+		Texture_File_Hash = 2304927; // Some random fun number for blank texture's handle hash
+	}
+	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Texture_File_Hash);
+	if (location != Load_Once.end() && location->second.size() > 1)
+	{
+		std::vector<unsigned int>& items = location->second;
+		Texture_ID = items[0];
+		Texture_References = (unsigned short *) items[1];
+		*Texture_References += 1; // Essentially a copy of a texture
+	}
+	else
+	{
+		unsigned char * data;
+		int width;
+		int height;
+		int channels = 3;
+		bool std_free = false;
+		if (!filename)
 		{
-			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
-			stbi_image_free(data);
-			Texture();
-			return;
-		}
-		if (background != glm::vec3(-1, -1, -1) && channels == 4)
-		{
-			channels = 3;
-			unsigned char * bged = new unsigned char[width*height * 3];
-			int insert = 0;
-			for (int i = 3; i < width*height * 4; i += 4)
-			{
-				if (data[i] < 128)
-				{
-					bged[insert] = background.r;
-					bged[insert + 1] = background.g;
-					bged[insert + 2] = background.b;
-				}
-				else
-				{
-					bged[insert] = data[i - 3];
-					bged[insert + 1] = data[i - 2];
-					bged[insert + 2] = data[i - 1];
-				}
-				insert += 3;
-			}
-			stbi_image_free(data);
-			data = bged;
+			data = new unsigned char[3];
+			data[0] = 255;
+			data[1] = 255;
+			data[2] = 255;
+			width = 1;
+			height = 1;
 			std_free = true;
 		}
-	}
+		else
+		{
+			data = stbi_load(filename, &width, &height, &channels, 0);
+			if (channels < 3)
+			{
+				std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
+				stbi_image_free(data);
+				Texture();
+				return;
+			}
+			if (background != glm::vec3(-1, -1, -1) && channels == 4)
+			{
+				channels = 3;
+				unsigned char * bged = new unsigned char[width*height * 3];
+				int insert = 0;
+				for (int i = 3; i < width*height * 4; i += 4)
+				{
+					if (data[i] < 128)
+					{
+						bged[insert] = background.r * 256;
+						bged[insert + 1] = background.g * 256;
+						bged[insert + 2] = background.b * 256;
+					}
+					else
+					{
+						bged[insert] = data[i - 3];
+						bged[insert + 1] = data[i - 2];
+						bged[insert + 2] = data[i - 1];
+					}
+					insert += 3;
+				}
+				stbi_image_free(data);
+				data = bged;
+				std_free = true;
+			}
+		}
 
-	if (Texture_ID != 0 && (*References) == 1)
-	{
-		glDeleteTextures(1, &Texture_ID);
-	}
-
-	glGenTextures(1, &Texture_ID);
-	glBindTexture(GL_TEXTURE_2D, Texture_ID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	if (std_free)
-	{
-		delete [] data;
-	}
-	else
-	{
-		stbi_image_free(data);
+		glGenTextures(1, &Texture_ID);
+		glBindTexture(GL_TEXTURE_2D, Texture_ID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		if (std_free)
+		{
+			delete[] data;
+		}
+		else
+		{
+			stbi_image_free(data);
+		}
+		std::vector<unsigned int> id;
+		id.push_back(Texture_ID);
+		id.push_back((unsigned int) Texture_References);
+		Load_Once[Texture_File_Hash] = id;
 	}
 
 	return;
 }
+
+std::map<unsigned int, std::vector<unsigned int>> Mesh::Load_Once = std::map<unsigned int, std::vector<unsigned int>>();
