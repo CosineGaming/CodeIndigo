@@ -20,15 +20,15 @@ public:
 	// Set the lighting for the scene that is applied to all areas
 	void Set_Ambient(float power = 0, glm::vec3 color = glm::vec3(1, 1, 1));
 	// Add a light that emits in all directions. Returns an ID
-	int Add_Bulb(float X, float Y, float Z, float power = 60, glm::vec3 color = glm::vec3(1, 1, 1));
+	int Add_Bulb(float X, float Y, float Z, float power = 1, glm::vec3 color = glm::vec3(1, 1, 1));
 	// Add a light that emits in one direction. Returns an ID
 	int Add_Sun(float X, float Y, float Z, float power = 1, glm::vec3 color = glm::vec3(1, 1, 1));
 	// Add a light that shines in one direction. Returns an ID
-	int Add_Lamp(float X, float Y, float Z, glm::vec3 direction, float lighted_angle = 180, float power = 60, glm::vec3 color = glm::vec3(1, 1, 1));
+	int Add_Lamp(float X, float Y, float Z, glm::vec3 direction, float lighted_angle = 180, float power = 1, glm::vec3 color = glm::vec3(1, 1, 1));
 	// Remove a light, given an ID
 	void Remove_Light(int ID);
 	// Set the shader uniforms for the frame
-	void Update_Lights(void) const;
+	void Update_Lights(const glm::mat4& view) const;
 
 private:
 
@@ -40,7 +40,7 @@ private:
 	// The ambient value applied to all fragments
 	glm::vec3 ambient;
 
-	// The direction for lamps. W is 0 if not enabled.
+	// The direction for lamps. W is 1 if not enabled.
 	glm::vec4 directions[8];
 	// The full angle given light from each lamp.
 	float angles[8];

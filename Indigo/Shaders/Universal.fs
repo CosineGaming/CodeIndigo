@@ -33,26 +33,30 @@ vec4 Get_Standard_Lighting()
 		o_color.rgb += F_Ambient * color.rgb;
 		vec3 n_normal = normalize(F_Normal);
 		vec3 n_f_to_camera = normalize(F_To_Camera);
-		float camera_distance_squared = dot(F_To_Camera, F_To_Camera);
+		//float camera_distance_squared = dot(F_To_Camera, F_To_Camera);
 		for (int i = 0; i < F_Number_Of_Lights; ++i)
 		{
 			if (F_Light_Colors[i] != vec3(0, 0, 0))
 			{
 				vec3 n_f_to_light = normalize(F_To_Lights[i].xyz);
 				float cosine_theta = clamp(dot(n_normal, n_f_to_light), 0, 1);
-				float cosine_alpha = clamp(dot(n_f_to_camera, reflect(normalize(-1 * n_f_to_light), n_normal)), 0, 1);
+				float cosine_alpha = clamp(dot(n_f_to_camera, reflect(-1 * n_f_to_light, n_normal)), 0, 1);
 				float impacts = 1;
 				if (F_To_Lights[i].w > 0.5)
 				{
 					impacts = 1 / dot(F_To_Lights[i].xyz, F_To_Lights[i].xyz);
 				}
-				if (F_N_Lamp_Directions[i].w > 0.5)
+				if (F_N_Lamp_Directions[i].w < 0.5)
 				{
-					impacts *= pow(clamp(dot(n_f_to_light, -1 * F_N_Lamp_Directions[i].xyz), 0, 1), 1);
+					impacts *= pow(clamp(dot(n_f_to_light, -1 * F_N_Lamp_Directions[i].xyz), 0, 1), F_Lamp_Angles[i]);
 				}
-				o_color.rgb += F_Light_Colors[i] * color.rgb * cosine_theta * impacts
-					//+ 0.25 * F_Light_Colors[i] * pow(cosine_alpha, F_Shininess) * impacts
-					;
+				vec3 specular = vec3(0, 0, 0);
+				if (F_Shininess != 0)
+				{
+					specular = 0.25 * F_Light_Colors[i] * pow(cosine_alpha, F_Shininess) * impacts;
+				}
+				o_color.rgb += color.rgb * F_Light_Colors[i] * cosine_theta * impacts
+					+ specular;
 			}
 		}
 		return o_color;

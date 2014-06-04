@@ -90,7 +90,7 @@ void World::Render(void) const
 	glm::mat4 project_2d = View.Project_2D();
 	glm::mat4 view = View.Look();
 
-	Indigo::Current_World.Light_Setup.Update_Lights();
+	Indigo::Current_World.Light_Setup.Update_Lights(view);
 
 	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 	if (skybox.Data.Size != 0)

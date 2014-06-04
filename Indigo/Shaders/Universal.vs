@@ -30,13 +30,13 @@ void Lighting_Requirements()
 	F_To_Camera = -1 * (V_View*V_Model*vec4(V_Position, 1)).xyz;
 	for (int i = 0; i < 8; ++i)
 	{
-		if (V_Lights[i].w == 1)
+		if (V_Lights[i].w > 0.5)
 		{
 			F_To_Lights[i] = vec4(F_To_Camera + (V_View*V_Lights[i]).xyz, 1);
 		}
 		else
 		{
-			F_To_Lights[i] = vec4(-1 * (V_View * V_Lights[i]).xyz, 0);
+			F_To_Lights[i] = vec4(-1 * (V_View*V_Lights[i]).xyz, 0);
 		}
 	}
 }
