@@ -15,6 +15,7 @@ Lighting::Lighting(void)
 	{
 		Remove_Light(i);
 	}
+	Set_Ambient(0);
 	number_of_lights = 0;
 	return;
 }
@@ -37,6 +38,13 @@ Lighting::Lighting(const Lighting& lighting) : Lighting()
 Lighting::~Lighting(void)
 {
 	return;
+}
+
+
+// Set the lighting for the scene that is applied to all areas
+void Lighting::Set_Ambient(float power, glm::vec3 color)
+{
+	ambient = color * power;
 }
 
 
@@ -90,5 +98,6 @@ void Lighting::Update_Lights(void) const
 	glUniform3fv(Indigo::Current_World.Shader_Location("F_Light_Colors", true), 8, &colors[0][0]);
 	glUniform4fv(Indigo::Current_World.Shader_Location("F_N_Light_Directions", true), 8, &directions[0][0]);
 	glUniform1fv(Indigo::Current_World.Shader_Location("F_Light_Angles", true), 8, &angles[0]);
+	glUniform3f(Indigo::Current_World.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Number_Of_Lights", true), number_of_lights);
 }

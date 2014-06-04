@@ -511,6 +511,10 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 			Texture_File_Hash += int(filename[i]);
 			Texture_File_Hash %= 4294967291; // Largest prime < 2^32
 		}
+		if (background != glm::vec3(-1, -1, -1))
+		{
+			Texture_File_Hash += 351; // Different hash if we're modifying the source file. (We're highlighting)
+		}
 	}
 	else
 	{
@@ -563,7 +567,6 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 						bged[insert] = (unsigned char)(background.r * 255);
 						bged[insert + 1] = (unsigned char)(background.g * 255);
 						bged[insert + 2] = (unsigned char)(background.b * 255);
-						std::cout << int(bged[insert]) << ", " << int(bged[insert + 1]) << ", " << int(bged[insert + 2]) << std::endl;
 					}
 					else
 					{

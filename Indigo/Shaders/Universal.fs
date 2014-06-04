@@ -8,7 +8,7 @@ varying vec4 F_To_Lights[8];
 
 uniform vec4 F_Color;
 uniform sampler2D F_Sampler;
-uniform float F_Ambient;
+uniform vec3 F_Ambient;
 uniform float F_Shininess;
 
 uniform int F_Lighting_Enabled;
@@ -31,7 +31,6 @@ vec4 Get_Standard_Lighting()
 	{
 		vec4 o_color = vec4(0, 0, 0, color.a);
 		o_color.rgb += F_Ambient * color.rgb;
-		//o_color.rgb += (camera_distance_squared / 1000000l) * vec3(1, 1, 1); // Fog with 1000 m end
 		vec3 n_normal = normalize(F_Normal);
 		vec3 n_f_to_camera = normalize(F_To_Camera);
 		float camera_distance_squared = dot(F_To_Camera, F_To_Camera);
@@ -49,7 +48,7 @@ vec4 Get_Standard_Lighting()
 				}
 				if (F_N_Lamp_Directions[i].w > 0.5)
 				{
-					impacts *= pow(clamp(dot(n_f_to_light, F_N_Lamp_Directions[i].xyz), 0, 1), 1);
+					impacts *= pow(clamp(dot(n_f_to_light, -1 * F_N_Lamp_Directions[i].xyz), 0, 1), 1);
 				}
 				o_color.rgb += F_Light_Colors[i] * color.rgb * cosine_theta * impacts
 					//+ 0.25 * F_Light_Colors[i] * pow(cosine_alpha, F_Shininess) * impacts

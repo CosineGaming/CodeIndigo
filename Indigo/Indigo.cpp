@@ -20,15 +20,21 @@ namespace Indigo
 		glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		if (fullscreen)
+		int width = window_width;
+		int height = window_height;
+		if (window_width < 1 || window_height < 1)
 		{
 			const GLFWvidmode * monitor = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			Window = glfwCreateWindow(window_width ? window_width : monitor->width, window_height ? window_height : monitor->height, window_name, glfwGetPrimaryMonitor(), NULL);
+			if (window_width < 1)
+			{
+				width += monitor->width;
+			}
+			if (window_height < 1)
+			{
+				height += monitor->height;
+			}
 		}
-		else
-		{
-			Window = glfwCreateWindow(window_width, window_height, window_name, NULL, NULL);
-		}
+		Window = glfwCreateWindow(width, height, window_name, fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 		glfwSetFramebufferSizeCallback(Window, Reshape);
 		glfwSetCursorPosCallback(Window, Mouse_Moved);
 		glfwSetMouseButtonCallback(Window, Mouse_Button);
