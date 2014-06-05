@@ -15,11 +15,11 @@
 
 // Create a new, empty mesh
 Mesh::Mesh(void) :
-	Color(glm::vec4(1, 1, 1, 1)),
-	Shine(0),
 	Vertices_ID(0),
 	Elements_ID(0),
 	Normals_ID(0),
+	Bump_X_Normals_ID(0),
+	Bump_Y_Normals_ID(0),
 	UV_ID(0),
 	Texture_ID(0),
 	Size(0),
@@ -38,11 +38,11 @@ Mesh::Mesh(void) :
 
 // Copy a mesh
 Mesh::Mesh(const Mesh& mesh) : 
-	Color(mesh.Color),
-	Shine(mesh.Shine),
 	Vertices_ID(mesh.Vertices_ID),
 	Elements_ID(mesh.Elements_ID),
 	Normals_ID(mesh.Normals_ID),
+	Bump_X_Normals_ID(mesh.Bump_X_Normals_ID),
+	Bump_Y_Normals_ID(mesh.Bump_Y_Normals_ID),
 	UV_ID(mesh.UV_ID),
 	Texture_ID(mesh.Texture_ID),
 	Size(mesh.Size),
@@ -71,11 +71,11 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 		*Texture_References += 1;
 		Hitbox[0] = mesh.Hitbox[0];
 		Hitbox[1] = mesh.Hitbox[1];
-		Color = mesh.Color;
-		Shine = mesh.Shine;
 		Vertices_ID = mesh.Vertices_ID;
 		Elements_ID = mesh.Elements_ID;
 		Normals_ID = mesh.Normals_ID;
+		Bump_X_Normals_ID = mesh.Bump_X_Normals_ID;
+		Bump_Y_Normals_ID = mesh.Bump_Y_Normals_ID;
 		UV_ID = mesh.UV_ID;
 		Texture_ID = mesh.Texture_ID;
 		Size = mesh.Size;
@@ -102,6 +102,14 @@ Mesh::~Mesh(void)
 		if (Normals_ID)
 		{
 			glDeleteBuffers(1, &Normals_ID);
+		}
+		if (Bump_X_Normals_ID)
+		{
+			glDeleteBuffers(1, &Bump_X_Normals_ID);
+		}
+		if (Bump_Y_Normals_ID)
+		{
+			glDeleteBuffers(1, &Bump_Y_Normals_ID);
 		}
 		if (UV_ID)
 		{
@@ -130,12 +138,9 @@ Mesh::~Mesh(void)
 
 
 // Create a new mesh by loading it from an obj file
-Mesh::Mesh(const char * filename, const char * texture, const float shine, const glm::vec4& color) :
+Mesh::Mesh(const char * filename, const char * texture) :
 	Mesh()
 {
-
-	Color = color;
-	Shine = shine;
 
 	for (int i = 0; filename[i] != '\0'; ++i)
 	{
@@ -178,6 +183,8 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec2> textures;
 		std::vector<glm::vec3> normals;
+		std::vector<glm::vec3> bump_x_normals;
+		std::vector<glm::vec3> bump_y_normals;
 
 		while (std::getline(file, line))
 		{
@@ -244,15 +251,32 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 							}
 							else
 							{
-								if (point == 0)
+								if (point == 2)
 								{
-									normals.push_back(glm::cross(vertices[point + 1] - vertices[point], vertices[point + 2] - vertices[point]));
-								}
-								else
-								{
-									normals.push_back(normals[normals.size() - 1]);
+									int start = vertices.size() - 1;
+									glm::vec3 flat_normal = glm::cross(vertices[start - 1] - vertices[start - 2], vertices[start] - vertices[start - 2]);
+									normals.push_back(flat_normal);
+									normals.push_back(flat_normal);
+									normals.push_back(flat_normal);
 								}
 							}
+						}
+						if (point == 2)
+						{
+							int start = vertices.size() - 1;
+							glm::vec2 uv_dir_1 = textures[start] - textures[start - 1];
+							glm::vec2 uv_dir_2 = textures[start] - textures[start - 2];
+							glm::vec3 vert_dir_1 = vertices[start] - vertices[start - 1];
+							glm::vec3 vert_dir_2 = vertices[start] - vertices[start - 2];
+							float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
+							glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
+							glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
+							bump_x_normals.push_back(bump_x_add);
+							bump_x_normals.push_back(bump_x_add);
+							bump_x_normals.push_back(bump_x_add);
+							bump_y_normals.push_back(bump_y_add);
+							bump_y_normals.push_back(bump_y_add);
+							bump_y_normals.push_back(bump_y_add);
 						}
 					}
 					else
@@ -267,7 +291,7 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 		}
 		file.close();
 
-		Initialize(vertices, textures, normals);
+		Initialize(vertices, textures, normals, bump_x_normals, bump_y_normals);
 
 		std::vector<unsigned int> items;
 		items.push_back(Vertices_ID);
@@ -300,10 +324,9 @@ Mesh::Mesh(const char * filename, const char * texture, const float shine, const
 
 
 // Specialized constructor for creating text
-Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& color, const glm::vec4& highlight)
+Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& highlight)
 {
 	Mesh mesh;
-	mesh.Color = color;
 	float bottom = 0;
 	float top = size;
 	float left = 0;
@@ -312,6 +335,8 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> bump_x;
+	std::vector<glm::vec3> bump_y;
 	for (char check_letter = text[0]; check_letter != '\0'; check_letter = text[++i])
 	{
 
@@ -336,12 +361,26 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
 		uvs.push_back(glm::vec2(tex_l, tex_t)); // TL
 
-		normals.push_back(glm::vec3(0, 0, 1));
-		normals.push_back(glm::vec3(0, 0, 1));
-		normals.push_back(glm::vec3(0, 0, 1));
-		normals.push_back(glm::vec3(0, 0, 1));
-		normals.push_back(glm::vec3(0, 0, 1));
-		normals.push_back(glm::vec3(0, 0, 1));
+		normals.push_back(glm::vec3(0, 0, 0));
+		normals.push_back(glm::vec3(0, 0, 0));
+		normals.push_back(glm::vec3(0, 0, 0));
+		normals.push_back(glm::vec3(0, 0, 0));
+		normals.push_back(glm::vec3(0, 0, 0));
+		normals.push_back(glm::vec3(0, 0, 0));
+
+		bump_x.push_back(glm::vec3(0, 0, 0));
+		bump_x.push_back(glm::vec3(0, 0, 0));
+		bump_x.push_back(glm::vec3(0, 0, 0));
+		bump_x.push_back(glm::vec3(0, 0, 0));
+		bump_x.push_back(glm::vec3(0, 0, 0));
+		bump_x.push_back(glm::vec3(0, 0, 0));
+
+		bump_y.push_back(glm::vec3(0, 0, 0));
+		bump_y.push_back(glm::vec3(0, 0, 0));
+		bump_y.push_back(glm::vec3(0, 0, 0));
+		bump_y.push_back(glm::vec3(0, 0, 0));
+		bump_y.push_back(glm::vec3(0, 0, 0));
+		bump_y.push_back(glm::vec3(0, 0, 0));
 
 		left += size;
 		right += size;
@@ -354,7 +393,7 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		}
 
 	}
-	mesh.Initialize(vertices, uvs, normals, false);
+	mesh.Initialize(vertices, uvs, normals, bump_x, bump_y, false);
 	if (highlight.a == 0)
 	{
 		mesh.Texture(font);
@@ -403,13 +442,16 @@ struct Vertex_Compare
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const bool memory_optimize)
+void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
+	const std::vector<glm::vec3>& bump_x_normals, const std::vector<glm::vec3>& bump_y_normals, const bool memory_optimize)
 {
 
 	// Index for the VBO!
 	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
 	std::vector<glm::vec2> final_uvs = std::vector<glm::vec2>();
 	std::vector<glm::vec3> final_normals = std::vector<glm::vec3>();
+	std::vector<glm::vec3> final_bump_x = std::vector<glm::vec3>();
+	std::vector<glm::vec3> final_bump_y = std::vector<glm::vec3>();
 	std::vector<unsigned short> elements = std::vector<unsigned short>();
 	if (memory_optimize)
 	{
@@ -423,6 +465,8 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 				final_vertices.push_back(vertices[point]);
 				final_uvs.push_back(uvs[point]);
 				final_normals.push_back(normals[point]);
+				final_bump_x.push_back(bump_x_normals[point]);
+				final_bump_y.push_back(bump_y_normals[point]);
 				Update_Hitbox(vertices[point]);
 				unsigned short index = final_vertices.size() - 1;
 				elements.push_back(index);
@@ -430,6 +474,8 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 			}
 			else
 			{
+				final_bump_x[location->second] += bump_x_normals[point];
+				final_bump_y[location->second] += bump_y_normals[point];
 				elements.push_back(location->second);
 			}
 		}
@@ -441,6 +487,8 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 			final_vertices.push_back(vertices[point]);
 			final_uvs.push_back(uvs[point]);
 			final_normals.push_back(normals[point]);
+			final_bump_x.push_back(bump_x_normals[point]);
+			final_bump_y.push_back(bump_y_normals[point]);
 			Update_Hitbox(vertices[point]);
 			elements.push_back(point);
 		}
@@ -454,6 +502,14 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);
 	glBufferData(GL_ARRAY_BUFFER, final_normals.size() * sizeof(glm::vec3), &final_normals[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &Bump_X_Normals_ID);
+	glBindBuffer(GL_ARRAY_BUFFER, Bump_X_Normals_ID);
+	glBufferData(GL_ARRAY_BUFFER, final_bump_x.size() * sizeof(glm::vec3), &final_bump_x[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &Bump_Y_Normals_ID);
+	glBindBuffer(GL_ARRAY_BUFFER, Bump_Y_Normals_ID);
+	glBufferData(GL_ARRAY_BUFFER, final_bump_y.size() * sizeof(glm::vec3), &final_bump_y[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &UV_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
@@ -606,5 +662,14 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 
 	return;
 }
+
+
+// A special texture that adds normals to each pixel. Default blue.
+void Mesh::Bump_Map(const char * filename)
+{
+	//
+}
+
+
 
 std::map<unsigned int, std::vector<unsigned int>> Mesh::Load_Once = std::map<unsigned int, std::vector<unsigned int>>();

@@ -7,7 +7,6 @@
 
 #include "Indigo.h"
 
-#include <iostream> // DELETE
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
@@ -16,42 +15,50 @@
 
 // Create an object given optional position, a mesh,
 // and whether the object should render in wireframe
-Object::Object(const float x, const float y, const float z, const Mesh& mesh, void(*update_function)(const float time, Object& self),
-	const Direction& towards, const bool world_collide)
+Object::Object(const float x, const float y, const float z, const Mesh& mesh, void(*update_function)(const float time, Object& self), const float shine,
+	const Direction& towards, const glm::vec4& color, const bool world_collide) :
+	X(x),
+	Y(y),
+	Z(z),
+	Shine(shine),
+	Data(mesh),
+	Start_Index(0),
+	Length_Index(0),
+	Update_Function(update_function),
+	Render_Function(nullptr),
+	Facing(towards),
+	Scale(1, 1, 1),
+	Color(color),
+	World_Collide(world_collide),
+	User_Data(),
+	Shader_Argument_Names(),
+	Shader_Arguments(),
+	ID(-1)
 {
-	Place(x, y, z);
-	Data = mesh;
-	Start_Index = 0;
-	Length_Index = 0;
-	Update_Function = update_function;
-	Render_Function = nullptr;
-	Facing = towards;
-	Scale = glm::vec3(1, 1, 1);
-	World_Collide = world_collide;
-	User_Data = std::vector<float>();
-	Shader_Argument_Names = std::vector<char *>();
-	Shader_Arguments = std::vector<float>();
-	ID = -1;
 	return;
 }
 
 
 // Copy an object
-Object::Object(const Object& object)
+Object::Object(const Object& object) : 
+	X(object.X),
+	Y(object.Y),
+	Z(object.Z),
+	Shine(object.Shine),
+	Data(object.Data),
+	Start_Index(object.Start_Index),
+	Length_Index(object.Length_Index),
+	Update_Function(object.Update_Function),
+	Render_Function(object.Render_Function),
+	Facing(object.Facing),
+	Scale(object.Scale),
+	Color(object.Color),
+	World_Collide(object.World_Collide),
+	User_Data(object.User_Data),
+	Shader_Argument_Names(object.Shader_Argument_Names),
+	Shader_Arguments(object.Shader_Arguments),
+	ID(object.ID)
 {
-	Place(object.X, object.Y, object.Z);
-	Data = object.Data;
-	Start_Index = object.Start_Index;
-	Length_Index = object.Length_Index;
-	Update_Function = object.Update_Function;
-	Render_Function = object.Render_Function;
-	Facing = object.Facing;
-	Scale = object.Scale;
-	World_Collide = object.World_Collide;
-	User_Data = object.User_Data;
-	Shader_Argument_Names = object.Shader_Argument_Names;
-	Shader_Arguments = object.Shader_Arguments;
-	ID = object.ID;
 	return;
 }
 
@@ -109,10 +116,10 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Sampler", true), 0);
 
 	// Shininess
-	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Data.Shine);
+	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Shine);
 
 	// Color
-	glUniform4f(Indigo::Current_World.Shader_Location("F_Color", true), Data.Color.r, Data.Color.g, Data.Color.b, Data.Color.a);
+	glUniform4f(Indigo::Current_World.Shader_Location("F_Color", true), Color.r, Color.g, Color.b, Color.a);
 
 	// Lighting enabled?
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Lighting_Enabled", true), lighting);
@@ -181,7 +188,7 @@ void Object::Move(const float forward, const float side, const float up)
 
 
 // Find the AABB needed for collisions
-void Object::AABB(glm::vec3 out_less, glm::vec3 out_more) const
+void Object::AABB(glm::vec3& out_less, glm::vec3& out_more) const
 {
 
 	if (Data.Size == 0)

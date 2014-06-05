@@ -324,12 +324,12 @@ namespace Indigo
 		static int last_frame = -1;
 		total += time;
 		int frame = int(total / 32);
-		if (self.Data.Color.a == 0)
+		if (self.Color.a == 0)
 		{
 			if (total > 500)
 			{
 				total = 0;
-				self.Data.Color.a = 1;
+				self.Color.a = 1;
 			}
 		}
 		else if (frame < 61)
@@ -345,8 +345,8 @@ namespace Indigo
 		{
 			if (frame > 100)
 			{
-				self.Data.Color.a -= time / 1500;
-				if (self.Data.Color.a <= 0)
+				self.Color.a -= time / 1500;
+				if (self.Color.a <= 0)
 				{
 					total = 0;
 					last_frame = 0;
@@ -373,12 +373,12 @@ namespace Indigo
 		}
 		else if (frame > 50 && frame < 61)
 		{
-			self.Data.Color.a = (frame - 50) / 10.0;
+			self.Color.a = (frame - 50) / 10.0;
 		}
 		else if (frame > 100)
 		{
-			self.Data.Color.a -= time / 1500;
-			if (self.Data.Color.a <= 0)
+			self.Color.a -= time / 1500;
+			if (self.Color.a <= 0)
 			{
 				total = 0;
 				started = false;
@@ -418,7 +418,7 @@ namespace Indigo
 		{
 			splashnormals.push_back(glm::vec3(0, -1, 0));
 		}
-		splash.Initialize(splashverts, splashuvs, splashnormals);
+		//splash.Initialize(splashverts, splashuvs, splashnormals);
 		for (int i = 0; i < 61; ++i)
 		{
 			std::string frame = ("Textures/SplashScreen/" + std::to_string(i) + ".png");
@@ -426,7 +426,7 @@ namespace Indigo
 			splash.Texture(frame.c_str());
 			splash_screen.User_Data.push_back(splash.Texture_ID);
 		}
-		splash.Color = glm::vec4(1, 1, 1, 0);
+		splash_screen.Color = glm::vec4(1, 1, 1, 0);
 		splash_screen.Data = splash;
 		splash_screen.Length_Index = 6;
 		add_to.Add_2D_Object(splash_screen);
@@ -450,10 +450,9 @@ namespace Indigo
 			textnormals.push_back(glm::vec3(0, -1, 0));
 		}
 		Mesh label;
-		label.Initialize(textverts, textuvs, textnormals);
+		//label.Initialize(textverts, textuvs, textnormals);
 		label.Texture("Textures/SplashScreen/Label.png");
-		label.Color = glm::vec4(1, 1, 1, 0);
-		add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade));
+		add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade, 0, Direction(), glm::vec4(1, 1, 1, 0)));
 		return;
 
 	}

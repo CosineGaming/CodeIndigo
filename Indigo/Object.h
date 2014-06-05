@@ -16,8 +16,8 @@ class Object
 public:
 
 	// Create an object given optional position, a mesh, and whether the object should render in wireframe
-	Object(const float x = 0.0, const float y = 0.0, const float z = 0.0, const Mesh& mesh = Mesh(), void(*update_function)(const float time, Object& self) = nullptr,
-		const Direction& towards = Direction(1, 0, 0), const bool world_collide = true);
+	Object(const float x = 0, const float y = 0, const float z = 0, const Mesh& mesh = Mesh(), void(*update_function)(const float time, Object& self) = nullptr, const float shine = 0,
+		const Direction& towards = Direction(), const glm::vec4& color = glm::vec4(1, 1, 1, 1), const bool world_collide = true);
 	// Copy an object
 	Object(const Object& object);
 	// Destroys the object
@@ -34,7 +34,7 @@ public:
 	void Move(const float forward, const float side=0.0, const float up=0.0);
 
 	// Find the AABB needed for collisions
-	void AABB(glm::vec3 out_less, glm::vec3 out_more) const;
+	void AABB(glm::vec3& out_less, glm::vec3& out_more) const;
 	// Checks whether this object collides with another object
 	bool Collide(const Object& object, const float add_x=0, const float add_y=0, const float add_z=0) const;
 	// Checks whether this object was clicked on at world coord (x, y)
@@ -51,20 +51,10 @@ public:
 
 	// An ID used for accessing and deleting the object
 	int ID;
-	// So that the mesh can be animated the starting element can be set
-	unsigned short Start_Index;
-	// If 0, Data.Size. Otherwise, renders this many elements
-	unsigned short Length_Index;
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time, Object& self);
 	// Called right before the Object renders, set this as you please
 	void(*Render_Function)(void);
-	// Relative position of points
-	Mesh Data;
-	// The Direction the object is facing. Rotates in rendering!
-	Direction Facing;
-	// The scale of the object, 1, 1, 1, normally. XYZ.
-	glm::vec3 Scale;
 	// Whether or not to collide when searching through World::Collide
 	bool World_Collide;
 	// Data for the user to define for whatever purpose.
@@ -72,6 +62,22 @@ public:
 	// Custom data can be send to the shaders!
 	std::vector<char *> Shader_Argument_Names;
 	std::vector<float> Shader_Arguments;
+
+	// Relative position of points
+	Mesh Data;
+	// So that the mesh can be animated the starting element can be set
+	unsigned short Start_Index;
+	// If 0, Data.Size. Otherwise, renders this many elements
+	unsigned short Length_Index;
+	// The Direction the object is facing. Rotates in rendering!
+	Direction Facing;
+	// The scale of the object. 1, 1, 1, normally. XYZ
+	glm::vec3 Scale;
+	// The color for the whole object. Multiplied times texture color
+	glm::vec4 Color;
+	// The shininess of the mesh, actually the size of specular highlights. Higher is smaller highlights is shinier
+	float Shine;
+
 	// X, Y, and Z position of center. Z is a constant if 2D.
 	float X;
 	float Y;
