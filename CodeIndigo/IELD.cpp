@@ -826,14 +826,6 @@ void Key_Pressed(int key)
 	}
 }
 
-void Splash_Thread(void)
-{
-	glfwMakeContextCurrent(Indigo::Window);
-	Indigo::Error_Dump();
-	Indigo::Construct_Splash();
-	Indigo::Error_Dump();
-}
-
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize("IELD", Indigo::Sky_Color, -240, -135, 24, false);
@@ -846,8 +838,8 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-	std::thread add_splash = std::thread(Splash_Thread);
-	//add_splash.detach();
+	Indigo::Error_Dump();
+	Indigo::Construct_Splash();
 	if (argc > 1)
 	{
 		Load(argv[1]);

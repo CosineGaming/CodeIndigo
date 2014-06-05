@@ -429,7 +429,7 @@ namespace Indigo
 		splash.Color = glm::vec4(1, 1, 1, 0);
 		splash_screen.Data = splash;
 		splash_screen.Length_Index = 6;
-		/*add_to*/Indigo::Current_World.Add_2D_Object(splash_screen);
+		add_to.Add_2D_Object(splash_screen);
 		std::vector<glm::vec3> textverts;
 		std::vector<glm::vec2> textuvs;
 		std::vector<glm::vec3> textnormals;
@@ -453,7 +453,7 @@ namespace Indigo
 		label.Initialize(textverts, textuvs, textnormals);
 		label.Texture("Textures/SplashScreen/Label.png");
 		label.Color = glm::vec4(1, 1, 1, 0);
-		/*add_to.*/Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade));
+		add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade));
 		return;
 
 	}
