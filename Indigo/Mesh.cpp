@@ -556,6 +556,19 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 }
 
 
+void Mesh::Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels)
+{
+	glGenTextures(1, &handle);
+	glBindTexture(GL_TEXTURE_2D, handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+}
+
+
 // Texture the entire mesh with one file
 void Mesh::Texture(const char * filename, const glm::vec3 background)
 {
@@ -638,14 +651,8 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 			}
 		}
 
-		glGenTextures(1, &Texture_ID);
-		glBindTexture(GL_TEXTURE_2D, Texture_ID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		Initialize_Texture(Texture_ID, data, width, height, channels);
+
 		if (std_free)
 		{
 			delete[] data;
@@ -667,7 +674,71 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 // A special texture that adds normals to each pixel. Default blue.
 void Mesh::Bump_Map(const char * filename)
 {
-	//
+
+	if (filename)
+	{
+		for (int i = 0; filename[i] != '\0'; ++i)
+		{
+			Texture_File_Hash += int(filename[i]);
+			Texture_File_Hash %= 4294967291; // Largest prime < 2^32
+		}
+	}
+	else
+	{
+		Texture_File_Hash = 2304927; // Some random fun number for blank texture's handle hash
+	}
+	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Texture_File_Hash);
+	if (location != Load_Once.end() && location->second.size() > 1)
+	{
+		std::vector<unsigned int>& items = location->second;
+		Bump_Texture_ID = items[0];
+		Texture_References = (unsigned short *) items[1];
+		*Texture_References += 1; // Essentially a copy of a texture
+	}
+	else
+	{
+		unsigned char * data;
+		int width;
+		int height;
+		int channels = 3;
+		bool std_free = false;
+		if (!filename)
+		{
+			data = new unsigned char[3];
+			data[0] = 0;
+			data[1] = 0;
+			data[2] = 255;
+			width = 1;
+			height = 1;
+			std_free = true;
+		}
+		else
+		{
+			data = stbi_load(filename, &width, &height, &channels, 0);
+			if (channels < 3)
+			{
+				std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
+				stbi_image_free(data);
+				Texture();
+				return;
+			}
+		}
+
+		Initialize_Texture(Bump_Texture_ID, data, width, height, channels);
+
+		if (std_free)
+		{
+			delete[] data;
+		}
+		else
+		{
+			stbi_image_free(data);
+		}
+		std::vector<unsigned int> id;
+		id.push_back(Bump_Texture_ID);
+		id.push_back((unsigned int) Texture_References);
+		Load_Once[Texture_File_Hash] = id;
+	}
 }
 
 

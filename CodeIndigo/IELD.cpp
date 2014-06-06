@@ -588,7 +588,6 @@ void Key_Pressed(int key)
 		bool changed = true;
 		if (key == GLFW_KEY_ESCAPE && Typing.length() == 0)
 		{
-			std::cout << Typing << " is " << Typing.length() << " long?!" << std::endl;
 			if (pos_part > 0)
 			{
 				pos_part--;

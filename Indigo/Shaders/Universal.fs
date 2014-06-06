@@ -7,7 +7,8 @@ varying vec3 F_To_Camera;
 varying vec4 F_To_Lights[8];
 
 uniform vec4 F_Color;
-uniform sampler2D F_Sampler;
+uniform sampler2D F_Texture;
+uniform sampler2D F_Bump_Map;
 uniform vec3 F_Ambient;
 uniform float F_Shininess;
 
@@ -21,7 +22,7 @@ uniform int F_Number_Of_Lights;
 
 vec4 Get_Standard_Color()
 {
-	return F_Color * texture2D(F_Sampler, F_UV);
+	return F_Color * texture2D(F_Texture, F_UV);
 }
 
 vec4 Get_Standard_Lighting()

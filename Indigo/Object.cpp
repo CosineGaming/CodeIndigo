@@ -113,7 +113,12 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	// Texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Sampler", true), 0);
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Texture", true), 0);
+
+	// Bump map texture
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, Data.Bump_Texture_ID);
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Bump_Map", true), 0);
 
 	// Shininess
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Shine);
@@ -142,6 +147,18 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Bump map normals X
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_X"));
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Bump_X_Normals_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Bump_X"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Bump map normals Y
+	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_Y"));
+	glBindBuffer(GL_ARRAY_BUFFER, Data.Bump_Y_Normals_ID);
+	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Bump_Y"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	// Indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Data.Elements_ID);
 
@@ -152,6 +169,8 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_X"));
+	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_Y"));
 
 	return;
 }

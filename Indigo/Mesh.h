@@ -32,9 +32,11 @@ public:
 
 	// Update the hitbox knowing that this point exists in the mesh
 	void Update_Hitbox(glm::vec3 vertex);
-	// Texture the entire mesh with one file.
+	// Actually push the texture to the GPU.
+	void Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels);
+	// Texture the entire mesh with one file. PNGs Costly.
 	void Texture(const char * filename = nullptr, glm::vec3 background = glm::vec3(-1, -1, -1));
-	// A special texture that adds normals to each pixel. Default blue.
+	// A special texture that adds normals to each pixel. Default blue. PNGs Costly.
 	void Bump_Map(const char * filename = nullptr);
 
 	// The actual data for each vertex is stored on the GPU.
@@ -51,6 +53,8 @@ public:
 	unsigned int UV_ID;
 	// The actual texture image's handle number
 	unsigned int Texture_ID;
+	// The texture for the bump map
+	unsigned int Bump_Texture_ID;
 
 	// The size of the mesh In Elements
 	unsigned int Size;
