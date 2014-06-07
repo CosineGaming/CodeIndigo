@@ -270,6 +270,7 @@ Mesh::Mesh(const char * filename, const char * texture) :
 							glm::vec3 vert_dir_2 = vertices[start] - vertices[start - 2];
 							float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
 							glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
+							bump_x_add = bump_x_add - normals[start] * glm::dot(normals[start], bump_x_add);
 							glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
 							bump_x_normals.push_back(bump_x_add);
 							bump_x_normals.push_back(bump_x_add);
@@ -313,10 +314,11 @@ Mesh::Mesh(const char * filename, const char * texture) :
 	if (texture == nullptr)
 	{
 		Texture();
-		return;
 	}
-
-	Texture(texture);
+	else
+	{
+		Texture(texture);
+	}
 
 	return;
 

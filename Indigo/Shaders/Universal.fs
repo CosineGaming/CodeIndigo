@@ -60,6 +60,7 @@ vec4 Get_Standard_Lighting()
 					+ specular;
 			}
 		}
+		o_color = F_To_Lights[1];
 		return o_color;
 	}
 	else
