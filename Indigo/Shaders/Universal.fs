@@ -41,26 +41,26 @@ vec4 Get_Standard_Lighting()
 			{
 				vec3 n_f_to_light = normalize(F_To_Lights[i].xyz);
 				float cosine_theta = clamp(dot(n_normal, n_f_to_light), 0, 1);
-				float cosine_alpha = clamp(dot(n_f_to_camera, reflect(-1 * n_f_to_light, n_normal)), 0, 1);
 				float impacts = 1;
-				if (F_To_Lights[i].w > 0.5)
+				/*if (F_To_Lights[i].w > 0.5)
 				{
 					impacts = 1 / dot(F_To_Lights[i].xyz, F_To_Lights[i].xyz);
 				}
 				if (F_N_Lamp_Directions[i].w < 0.5)
 				{
 					impacts *= pow(clamp(dot(n_f_to_light, -1 * F_N_Lamp_Directions[i].xyz), 0, 1), F_Lamp_Angles[i]);
-				}
+				}*/
 				vec3 specular = vec3(0, 0, 0);
 				if (F_Shininess != 0)
 				{
+					float cosine_alpha = clamp(dot(n_f_to_camera, reflect(-1 * n_f_to_light, n_normal)), 0, 1);
 					specular = 0.25 * F_Light_Colors[i] * pow(cosine_alpha, F_Shininess) * impacts;
 				}
 				o_color.rgb += color.rgb * F_Light_Colors[i] * cosine_theta * impacts
-					+ specular;
+					+ specular; 
 			}
 		}
-		o_color = F_To_Lights[1];
+		//o_color = F_To_Lights[1];
 		return o_color;
 	}
 	else

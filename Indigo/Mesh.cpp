@@ -264,9 +264,9 @@ Mesh::Mesh(const char * filename, const char * texture) :
 						if (point == 2)
 						{
 							int start = vertices.size() - 1;
-							glm::vec2 uv_dir_1 = textures[start] - textures[start - 1];
+							glm::vec2 uv_dir_1 = textures[start - 1] - textures[start - 2];
 							glm::vec2 uv_dir_2 = textures[start] - textures[start - 2];
-							glm::vec3 vert_dir_1 = vertices[start] - vertices[start - 1];
+							glm::vec3 vert_dir_1 = vertices[start - 1] - vertices[start - 2];
 							glm::vec3 vert_dir_2 = vertices[start] - vertices[start - 2];
 							float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
 							glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
@@ -409,36 +409,14 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 
 
 // Used by Initialize's maps
-struct Vertex_Texture_Normal
+struct All_Vertex_Data
 {
 	glm::vec3 vertex;
 	glm::vec2 texture;
 	glm::vec3 normal;
-	bool operator< (const Vertex_Texture_Normal& compare) const
+	bool operator< (const All_Vertex_Data& compare) const
 	{
-		return memcmp(this, &compare, sizeof(Vertex_Texture_Normal)) > 0;
-	}
-};
-
-
-// Used by Initialize's maps
-struct Vertex_Normal
-{
-	glm::vec3 vertex;
-	glm::vec3 normal;
-	bool operator< (const Vertex_Normal& compare) const
-	{
-		return memcmp(this, &compare, sizeof(Vertex_Normal)) > 0;
-	}
-};
-
-
-struct Vertex_Compare
-{
-	glm::vec3 vertex;
-	bool operator< (const Vertex_Compare& compare) const
-	{
-		return memcmp(this, &compare, sizeof(Vertex_Compare)) > 0;
+		return memcmp(this, &compare, sizeof(All_Vertex_Data)) > 0;
 	}
 };
 
@@ -457,11 +435,11 @@ void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<
 	std::vector<unsigned short> elements = std::vector<unsigned short>();
 	if (memory_optimize)
 	{
-		std::map<Vertex_Texture_Normal, unsigned short> vertex_to_index;
+		std::map<All_Vertex_Data, unsigned short> vertex_to_index;
 		for (int point = 0; point < vertices.size(); ++point)
 		{
-			Vertex_Texture_Normal together = { vertices[point], uvs[point], normals[point] };
-			std::map<Vertex_Texture_Normal, unsigned short>::iterator location = vertex_to_index.find(together);
+			All_Vertex_Data together = { vertices[point], uvs[point], normals[point] };
+			std::map<All_Vertex_Data, unsigned short>::iterator location = vertex_to_index.find(together);
 			if (location == vertex_to_index.end())
 			{
 				final_vertices.push_back(vertices[point]);

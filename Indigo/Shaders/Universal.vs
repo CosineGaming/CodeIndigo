@@ -28,18 +28,36 @@ void Render_Requirements()
 
 void Lighting_Requirements()
 {
-	mat3 bump_space = transpose(mat3(normalize(V_View*V_Model*vec4(V_Bump_X, 0)).xyz, normalize(V_View*V_Model*vec4(V_Bump_Y, 0)).xyz, normalize(V_View*V_Model*vec4(V_Normal, 0)).xyz));
-	F_Normal = bump_space*(V_View*V_Model*vec4(V_Normal, 0)).xyz;
-	F_To_Camera = -1 * (bump_space*((V_View*V_Model*vec4(V_Position, 1)).xyz));
+	//mat3 bump_space = transpose(mat3(normalize(V_View*V_Model*vec4(V_Bump_X, 0)).xyz, normalize(V_View*V_Model*vec4(V_Bump_Y, 0)).xyz, normalize(V_View*V_Model*vec4(V_Normal, 0)).xyz));
+	//vec3 world_normal = (V_View*V_Model*vec4(V_Normal, 0)).xyz;
+	//vec3 world_f_to_camera = -1 * ((V_View*V_Model*vec4(V_Position, 1)).xyz);
+	//F_Normal = bump_space*world_normal;
+	//F_To_Camera = bump_space*world_f_to_camera;
+	//for (int i = 0; i<V_Lights.length(); ++i)
+	//{
+	//	if (V_Lights[i].w > 0.5)
+	//	{
+	//		vec3 world_f_to_light = (world_f_to_camera + (V_View*V_Lights[i]).xyz);
+	//		F_To_Lights[i] = vec4(bump_space*world_f_to_light, 1);
+	//	}
+	//	else
+	//	{
+	//		vec3 world_f_to_light = -1 * (V_View*V_Lights[i]).xyz;
+	//		F_To_Lights[i] = vec4(bump_space*world_f_to_light, 0);
+	//	}
+	//}
+	mat3 bump_space = transpose(mat3(normalize(V_Bump_X), normalize(V_Bump_Y), normalize(V_Normal)));
+	F_Normal = bump_space*V_Normal;
+	F_To_Camera = bump_space*V_Position;
 	for (int i = 0; i<V_Lights.length(); ++i)
 	{
 		if (V_Lights[i].w > 0.5)
 		{
-			F_To_Lights[i] = vec4(F_To_Camera + bump_space*((V_View*V_Lights[i]).xyz), 1);
+			F_To_Lights[i] = vec4(bump_space*(V_Lights[i].xyz) + F_To_Camera, 1);
 		}
 		else
 		{
-			F_To_Lights[i] = vec4(-1 * bump_space*((V_View*V_Lights[i]).xyz), 0);
+			F_To_Lights[i] = vec4(-1 * bump_space*V_Lights[i].xyz, 0);
 		}
 	}
 }
