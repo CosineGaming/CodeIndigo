@@ -11,13 +11,13 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
-	void Initialize(const char * window_name, glm::vec3 background, const int window_width,
-		const int window_height, const int max_framerate, const bool fullscreen)
+	void Initialize(const char * window_name, glm::vec3 background, const int aa_samples,
+		const int max_framerate, const int window_width, const int window_height, const bool fullscreen)
 	{
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
 		glfwInit();
-		glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_SAMPLES, aa_samples);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		int width = window_width;

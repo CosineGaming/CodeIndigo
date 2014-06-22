@@ -49,7 +49,7 @@ void Lighting_Requirements()
 	mat3 bump_space = transpose(mat3(normalize(V_Bump_X), normalize(V_Bump_Y), normalize(V_Normal)));
 	F_Normal = bump_space*V_Normal;
 	F_To_Camera = bump_space*V_Position;
-	for (int i = 0; i<V_Lights.length(); ++i)
+	for (int i = 0; i<8; ++i)
 	{
 		if (V_Lights[i].w > 0.5)
 		{

@@ -13,8 +13,8 @@
 namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
-	void Initialize(const char * window_name = "Indigo", glm::vec3 background = glm::vec3(0.5, 0.8, 1.0), const int window_width = 0,
-		const int window_height = 0, const int max_framerate = 60, const bool fullscreen = true);
+	void Initialize(const char * window_name = "Indigo", glm::vec3 background = glm::vec3(0.5, 0.8, 1.0), const int aa_samples = 4,
+		const int max_framerate = 60, const int window_width = 0, const int window_height = 0, const bool fullscreen = true);
 
 	// Starts the main loop with update, render, and input. Returns 0 ideally... 1 on problem.
 	int Run(void);
