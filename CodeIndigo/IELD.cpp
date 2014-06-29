@@ -345,11 +345,12 @@ void GUI(float time)
 		Object& marker = Indigo::Current_World.Get_2D_Object(Position_Marker);
 		if (Indigo::Elapsed() > 10000 && Render_Marker)
 		{
-			std::string display = "Objects  " + std::to_string(Indigo::Current_World.Number_Of_Objects()) + "\n"
+			std::string display = "Indigo Engine Level Designer\n"
+				"Objects  " + std::to_string(Indigo::Current_World.Number_Of_Objects()) + "\n"
 				+ "FPS  " + std::to_string(Indigo::Actual_FPS) + "  MPF  " + std::to_string(int(time)) + "\n"
-				+ "Camera Speed  " + std::to_string(int(total_speed * 1000)) + "  M/S\n"
+				+ "Camera Speed  " + std::to_string(int(total_speed * 1000)) + "  M/S" "\n"
 				+ "Position  " + std::to_string(To_Move->X) + "  " + std::to_string(To_Move->Y) + "  " + std::to_string(To_Move->Z) + "\n"
-				+ "Press H for help.";
+				+ "Press H for help";
 			marker.Data = Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 1));
 			marker.X = -1 * Indigo::Aspect_Ratio + 0.1;
 			marker.Y = -0.9 - marker.Data.Hitbox[0].y;
@@ -820,7 +821,7 @@ void Key_Pressed(int key)
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize("IELD", Indigo::Sky_Color, -240, -135, 24, false);
+	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
