@@ -75,7 +75,7 @@ int Lighting::Add_Lamp(float X, float Y, float Z, glm::vec3 direction, float lig
 {
 	positions[number_of_lights] = glm::vec4(X, Y, Z, 1);
 	colors[number_of_lights] = color * power;
-	directions[number_of_lights] = glm::normalize(glm::vec4(direction, 0));
+	directions[number_of_lights] = glm::vec4(direction, 0);
 	angles[number_of_lights] = 180 / lighted_angle;
 	return number_of_lights++;
 }
@@ -105,7 +105,7 @@ void Lighting::Update_Lights(const glm::mat4& view) const
 			world_directions[i] = view * world_directions[i];
 		}
 	}
-	glUniform4fv(Indigo::Current_World.Shader_Location("F_N_Lamp_Directions", true), 8, &world_directions[0][0]);
+	glUniform4fv(Indigo::Current_World.Shader_Location("V_Lamp_Directions", true), 8, &world_directions[0][0]);
 	glUniform1fv(Indigo::Current_World.Shader_Location("F_Lamp_Angles", true), 8, &angles[0]);
 	glUniform3f(Indigo::Current_World.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
 	glUniform1i(Indigo::Current_World.Shader_Location("F_Number_Of_Lights", true), number_of_lights);

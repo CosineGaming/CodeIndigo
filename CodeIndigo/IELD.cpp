@@ -709,7 +709,7 @@ void Key_Pressed(int key)
 	// These keys add menus
 	else
 	{
-		if (key == ' ' || (Indigo::Control && key == 'a')) // Space
+		if (key == ' ' || (Indigo::Control && key == 'a')) // Space (or Ctrl+A)
 		{
 			menu_x = Indigo::Mouse_Position.x + 0.07;
 			menu_y = Indigo::Mouse_Position.y - 0.07;
@@ -824,7 +824,7 @@ int main(int argc, char ** argv)
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-	Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
+	//Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
 	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
 	Indigo::Current_World.Light_Setup.Add_Lamp(-0.35662, 0.6792, 1.92358, glm::vec3(-1, -1, 0), 90, 0.4);
 	Indigo::Mouse_Button_Function = Mouse_Interact;

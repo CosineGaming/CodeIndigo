@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <stdlib.h>
+#include <Windows.h>
 
 bool Load(const char * filename);
 

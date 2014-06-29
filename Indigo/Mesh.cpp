@@ -1,7 +1,5 @@
 // Defines a mesh of points for render
 
-#include "GL/glew.h"
-
 #include "Mesh.h"
 
 #include "Direction.h"
@@ -408,6 +406,39 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 }
 
 
+// Specialized constructor for creating 2D flat rectangles
+Mesh Mesh::Rectangle(const float width, const float height, const char * texture)
+{
+	std::vector<glm::vec3> verts;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> filler1;
+	std::vector<glm::vec3> filler2;
+	std::vector<glm::vec3> filler3;
+	float hw = width / 2;
+	float hh = height / 2;
+	verts.push_back(glm::vec3(-hw, -hh, 0));
+	verts.push_back(glm::vec3(hw, -hh, 0));
+	verts.push_back(glm::vec3(hw, hh, 0));
+	verts.push_back(glm::vec3(-hw, -hh, 0));
+	verts.push_back(glm::vec3(hw, hh, 0));
+	verts.push_back(glm::vec3(-hw, hh, 0));
+	uvs.push_back(glm::vec2(0, 0));
+	uvs.push_back(glm::vec2(1, 0));
+	uvs.push_back(glm::vec2(1, 1));
+	uvs.push_back(glm::vec2(0, 0));
+	uvs.push_back(glm::vec2(1, 1));
+	uvs.push_back(glm::vec2(0, 1));
+	for (int i = 0; i < 6; ++i)
+	{
+		filler1.push_back(glm::vec3(0, 0, 0));
+		filler2.push_back(glm::vec3(0, 0, 0));
+		filler3.push_back(glm::vec3(0, 0, 0));
+	}
+	Mesh mesh;
+	mesh.Initialize(verts, uvs, filler1, filler2, filler3);
+}
+
+
 // Used by Initialize's maps
 struct All_Vertex_Data
 {
@@ -536,21 +567,21 @@ void Mesh::Update_Hitbox(glm::vec3 vertex)
 }
 
 
-void Mesh::Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels)
+void Mesh::Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels, const int interpolation)
 {
 	glGenTextures(1, &handle);
 	glBindTexture(GL_TEXTURE_2D, handle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 
 // Texture the entire mesh with one file
-void Mesh::Texture(const char * filename, const glm::vec3 background)
+void Mesh::Texture(const char * filename, const glm::vec3 background, const int interpolation)
 {
 
 	if (filename)
@@ -631,7 +662,7 @@ void Mesh::Texture(const char * filename, const glm::vec3 background)
 			}
 		}
 
-		Initialize_Texture(Texture_ID, data, width, height, channels);
+		Initialize_Texture(Texture_ID, data, width, height, channels, interpolation);
 
 		if (std_free)
 		{

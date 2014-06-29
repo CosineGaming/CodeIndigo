@@ -20,6 +20,7 @@ varying vec2 F_UV;
 varying vec3 F_Normal;
 varying vec3 F_To_Camera;
 varying vec4 F_To_Lights[8];
+varying vec4 F_Lamp_Directions[8];
 
 void Render_Requirements()
 {
@@ -47,9 +48,8 @@ void Lighting_Requirements()
 	//		F_To_Lights[i] = vec4(bump_space*world_f_to_light, 0);
 	//	}
 	//}
-	v_model_vector = vec3(V_Model);
-	mat3 bump_space = transpose(mat3(normalize(v_model_vector * V_Bump_X), normalize(v_model_vector * V_Bump_Y), normalize(v_model_vector * V_Normal)));
-	F_Normal = bump_space*v_model_vector*V_Normal;
+	mat3 bump_space = transpose(mat3(normalize(V_Model * vec4(V_Bump_X, 0)).xyz, normalize(V_Model * vec4(V_Bump_Y, 0)).xyz, normalize(V_Model * vec4(V_Normal, 0)).xyz));
+	F_Normal = bump_space*(V_Model*vec4(V_Normal, 0)).xyz;
 	F_To_Camera = bump_space*(V_Model*vec4(V_Position, 1)).xyz;
 	for (int i = 0; i<V_Lights.length(); ++i)
 	{
@@ -63,7 +63,7 @@ void Lighting_Requirements()
 		}
 		if (V_Lamp_Directions.w < 0.5)
 		{
-			F_Lamp_Directions[i] = bump_space * V_Lamp_Directions.xyz;
+			F_Lamp_Directions[i] = vec4(bump_space * V_Lamp_Directions.xyz, 0);
 		}
 		else
 		{

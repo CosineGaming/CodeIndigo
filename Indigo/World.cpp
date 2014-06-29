@@ -129,10 +129,10 @@ void World::Shader(const char * vertex, const char * fragment)
 {
 
 	// Vertex
-	std::ifstream vs_func_stream = std::ifstream("Indigo/Shaders/Universal.vs");
+	std::ifstream vs_func_stream = std::ifstream("Indigo/Shaders/Library.vs");
 	if (!vs_func_stream)
 	{
-		std::cout << "Uhh... Huh? Couldn't find default vertex functions file \"Indigo/Shaders/Universal.vs\"! Failing silently." << std::endl;
+		std::cout << "Uhh... Huh? Couldn't find default vertex functions file \"Indigo/Shaders/Library.vs\"! Failing silently." << std::endl;
 		return;
 	}
 	std::string total;
@@ -173,10 +173,10 @@ void World::Shader(const char * vertex, const char * fragment)
 	}
 
 	// Fragment
-	std::ifstream fs_func_stream = std::ifstream("Indigo/Shaders/Universal.fs", std::ios::in);
+	std::ifstream fs_func_stream = std::ifstream("Indigo/Shaders/Library.fs", std::ios::in);
 	if (!fs_func_stream)
 	{
-		std::cout << "Uhh... Huh? Couldn't find default fragment functions file \"Indigo/Shaders/Universal.fs\"! Failing silently." << std::endl;
+		std::cout << "Uhh... Huh? Couldn't find default fragment functions file \"Indigo/Shaders/Library.fs\"! Failing silently." << std::endl;
 		return;
 	}
 	total = std::string();

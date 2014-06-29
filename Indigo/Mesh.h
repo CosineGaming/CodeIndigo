@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GL/glew.h"
+
 #include <vector>
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
@@ -25,6 +27,8 @@ public:
 	Mesh(const char * filename, const char * texture = nullptr);
 	// Specialized constructor for creating text
 	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& highlight = glm::vec4(1, 1, 1, 0));
+	// Specialized constructor for creating 2D flat rectangles
+	static Mesh Rectangle(const float width, const float height, const char * texture = nullptr);
 
 	// The mesh is locked into place on the GPU
 	void Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
@@ -33,9 +37,9 @@ public:
 	// Update the hitbox knowing that this point exists in the mesh
 	void Update_Hitbox(glm::vec3 vertex);
 	// Actually push the texture to the GPU.
-	void Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels);
+	void Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels, const int interpolation = GL_LINEAR_MIPMAP_LINEAR);
 	// Texture the entire mesh with one file. PNGs Costly.
-	void Texture(const char * filename = nullptr, glm::vec3 background = glm::vec3(-1, -1, -1));
+	void Texture(const char * filename = nullptr, glm::vec3 background = glm::vec3(-1, -1, -1), const int interpolation = GL_LINEAR_MIPMAP_LINEAR);
 	// A special texture that adds normals to each pixel. Default blue. PNGs Costly.
 	void Bump_Map(const char * filename = nullptr);
 
@@ -58,7 +62,7 @@ public:
 
 	// The size of the mesh In Elements
 	unsigned int Size;
-	// Hitbox used for collision, normally auto-generated. Radius of shape around center, rotation dependent
+	// Hitbox used for collision, normally auto-generated. [0] = Least, [1] = Most.
 	glm::vec3 Hitbox[2];
 
 	// Stores this Mesh's hash in order to remove references when deleted

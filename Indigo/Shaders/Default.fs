@@ -1,4 +1,4 @@
 void main()
 {
-	gl_FragColor = Get_Standard_Lighting();
+	gl_FragColor = Standard_Lighting(Standard_Material_Color());
 }

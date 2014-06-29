@@ -21,18 +21,17 @@ uniform int F_Number_Of_Lights;
 
 // Automatic: out vec4 gl_FragColor;
 
-vec4 Get_Standard_Color()
+vec4 Standard_Material_Color()
 {
 	return F_Color * texture2D(F_Texture, F_UV);
 }
 
-vec4 Get_Standard_Lighting(bool a_diffuse = true, bool a_specular = true)
+vec4 Standard_Lighting(vec4 a_base, bool a_diffuse = true, bool a_specular = true)
 {
-	vec4 color = Get_Standard_Color();
 	if (F_Lighting_Enabled == 1)
 	{
-		vec4 f_color = vec4(0, 0, 0, color.a);
-		f_color.rgb += F_Ambient * color.rgb;
+		vec4 f_color = vec4(0, 0, 0, a_base.a);
+		f_color.rgb += F_Ambient * a_base.rgb;
 		vec3 n_normal = normalize(F_Normal);
 		vec3 n_f_to_camera = normalize(F_To_Camera);
 		//float camera_distance_squared = dot(F_To_Camera, F_To_Camera);
@@ -49,7 +48,7 @@ vec4 Get_Standard_Lighting(bool a_diffuse = true, bool a_specular = true)
 				}
 				if (F_Lamp_Directions[i].w < 0.5)
 				{
-					f_impacts *= pow(clamp(dot(f_n_to_light, -1 * F_N_Lamp_Directions[i].xyz), 0, 1), F_Lamp_Angles[i]);
+					f_impacts *= pow(clamp(dot(f_n_to_light, -1 * normalize(F_Lamp_Directions[i].xyz)), 0, 1), F_Lamp_Angles[i]);
 				}
 				if (a_specular)
 				{
@@ -61,7 +60,7 @@ vec4 Get_Standard_Lighting(bool a_diffuse = true, bool a_specular = true)
 				}
 				if (a_diffuse)
 				{
-					f_color.rgb += color.rgb * F_Light_Colors[i] * f_cosine_theta * f_impacts;
+					f_color.rgb += a_base.rgb * F_Light_Colors[i] * f_cosine_theta * f_impacts;
 				}
 			}
 		}
@@ -69,6 +68,6 @@ vec4 Get_Standard_Lighting(bool a_diffuse = true, bool a_specular = true)
 	}
 	else
 	{
-		return f_color;
+		return a_base;
 	}
 }
