@@ -1,4 +1,6 @@
 #version 120
+#pragma unroll
+#pragma optionNV unroll all
 
 attribute vec3 V_Position;
 attribute vec2 V_UV;

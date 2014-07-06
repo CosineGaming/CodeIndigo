@@ -44,11 +44,11 @@ vec4 Standard_Lighting(vec4 a_base, bool a_diffuse = true, bool a_specular = tru
 				float f_impacts = 1;
 				if (F_To_Lights[i].w > 0.5)
 				{
-					f_impacts = 1 / dot(F_To_Lights[i].xyz, F_To_Lights[i].xyz);
+					//f_impacts = 1 / dot(F_To_Lights[i].xyz, F_To_Lights[i].xyz);
 				}
 				if (F_Lamp_Directions[i].w < 0.5)
 				{
-					f_impacts *= pow(clamp(dot(f_n_to_light, -1 * normalize(F_Lamp_Directions[i].xyz)), 0, 1), F_Lamp_Angles[i]);
+					//f_impacts *= pow(clamp(dot(f_n_to_light, -1 * normalize(F_Lamp_Directions[i].xyz)), 0, 1), F_Lamp_Angles[i]);
 				}
 				if (a_specular)
 				{

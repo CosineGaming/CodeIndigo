@@ -823,7 +823,7 @@ int main(int argc, char ** argv)
 {
 	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
-	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
+	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "IELD.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
 	//Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
 	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
