@@ -1,4 +1,4 @@
 void main()
 {
-	gl_FragColor = Standard_Lighting(Standard_Material_Color());
+	gl_FragColor = Light_3D_Only(Standard_Material_Color());
 }

@@ -301,7 +301,7 @@ void GUI(float time)
 	static int cursor_object = -1;
 	if (cursor_object == -1)
 	{
-		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1))));
+		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05)));
 	}
 	if (Current_Menu == -1)
 	{
@@ -823,7 +823,7 @@ int main(int argc, char ** argv)
 {
 	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
-	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "IELD.fs");
+	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
 	//Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
 	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
@@ -832,7 +832,7 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-	Indigo::Construct_Splash();
+	//Indigo::Construct_Splash();
 	if (argc > 1)
 	{
 		Load(argv[1]);

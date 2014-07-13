@@ -26,12 +26,12 @@ public:
 	// Create a new mesh by loading it from an obj file
 	Mesh(const char * filename, const char * texture = nullptr);
 	// Specialized constructor for creating text
-	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& highlight = glm::vec4(1, 1, 1, 0));
+	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& highlight = glm::vec4(0, 0, 0, 0));
 	// Specialized constructor for creating 2D flat rectangles
 	static Mesh Rectangle(const float width, const float height, const char * texture = nullptr);
 
 	// The mesh is locked into place on the GPU
-	void Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
+	void Vertex_Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
 		const std::vector<glm::vec3>& bump_x_normals, const std::vector<glm::vec3>& bump_y_normals, const bool memory_optimize = true);
 
 	// Update the hitbox knowing that this point exists in the mesh

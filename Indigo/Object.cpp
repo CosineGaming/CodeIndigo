@@ -118,8 +118,8 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	// Bump map texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, Data.Bump_Texture_ID);
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Bump_Map", true), 0);
-
+	glUniform1i(Indigo::Current_World.Shader_Location("F_Bump_Map", true), 1);
+	
 	// Shininess
 	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Shine);
 

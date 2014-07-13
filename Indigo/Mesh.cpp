@@ -20,6 +20,7 @@ Mesh::Mesh(void) :
 	Bump_Y_Normals_ID(0),
 	UV_ID(0),
 	Texture_ID(0),
+	Bump_Texture_ID(0),
 	Size(0),
 	Obj_File_Hash(0),
 	Texture_File_Hash(0),
@@ -43,6 +44,7 @@ Mesh::Mesh(const Mesh& mesh) :
 	Bump_Y_Normals_ID(mesh.Bump_Y_Normals_ID),
 	UV_ID(mesh.UV_ID),
 	Texture_ID(mesh.Texture_ID),
+	Bump_Texture_ID(mesh.Bump_Texture_ID),
 	Size(mesh.Size),
 	Obj_File_Hash(mesh.Obj_File_Hash),
 	Texture_File_Hash(mesh.Texture_File_Hash),
@@ -76,6 +78,7 @@ Mesh& Mesh::operator=(const Mesh& mesh)
 		Bump_Y_Normals_ID = mesh.Bump_Y_Normals_ID;
 		UV_ID = mesh.UV_ID;
 		Texture_ID = mesh.Texture_ID;
+		Bump_Texture_ID = mesh.Bump_Texture_ID;
 		Size = mesh.Size;
 	}
 	return *this;
@@ -124,6 +127,10 @@ Mesh::~Mesh(void)
 		if (Texture_ID)
 		{
 			glDeleteTextures(1, &Texture_ID);
+		}
+		if (Bump_Texture_ID)
+		{
+			glDeleteTextures(1, &Bump_Texture_ID);
 		}
 		if (Texture_File_Hash)
 		{
@@ -318,6 +325,8 @@ Mesh::Mesh(const char * filename, const char * texture) :
 		Texture(texture);
 	}
 
+	Bump_Map(texture);
+
 	return;
 
 }
@@ -361,26 +370,12 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
 		uvs.push_back(glm::vec2(tex_l, tex_t)); // TL
 
-		normals.push_back(glm::vec3(0, 0, 0));
-		normals.push_back(glm::vec3(0, 0, 0));
-		normals.push_back(glm::vec3(0, 0, 0));
-		normals.push_back(glm::vec3(0, 0, 0));
-		normals.push_back(glm::vec3(0, 0, 0));
-		normals.push_back(glm::vec3(0, 0, 0));
-
-		bump_x.push_back(glm::vec3(0, 0, 0));
-		bump_x.push_back(glm::vec3(0, 0, 0));
-		bump_x.push_back(glm::vec3(0, 0, 0));
-		bump_x.push_back(glm::vec3(0, 0, 0));
-		bump_x.push_back(glm::vec3(0, 0, 0));
-		bump_x.push_back(glm::vec3(0, 0, 0));
-
-		bump_y.push_back(glm::vec3(0, 0, 0));
-		bump_y.push_back(glm::vec3(0, 0, 0));
-		bump_y.push_back(glm::vec3(0, 0, 0));
-		bump_y.push_back(glm::vec3(0, 0, 0));
-		bump_y.push_back(glm::vec3(0, 0, 0));
-		bump_y.push_back(glm::vec3(0, 0, 0));
+		for (int trash = 0; trash < 6; ++trash)
+		{
+			normals.push_back(glm::vec3(0, 0, 0));
+			bump_x.push_back(glm::vec3(0, 0, 0));
+			bump_y.push_back(glm::vec3(0, 0, 0));
+		}
 
 		left += size;
 		right += size;
@@ -402,6 +397,9 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 	{
 		mesh.Texture(font, glm::vec3(highlight.r, highlight.g, highlight.b));
 	}
+
+	mesh.Bump_Map(font);
+
 	return mesh;
 }
 
@@ -453,7 +451,7 @@ struct All_Vertex_Data
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
+void Mesh::Vertex_Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
 	const std::vector<glm::vec3>& bump_x_normals, const std::vector<glm::vec3>& bump_y_normals, const bool memory_optimize)
 {
 
@@ -637,6 +635,8 @@ void Mesh::Texture(const char * filename, const glm::vec3 background, const int 
 			}
 			if (background != glm::vec3(-1, -1, -1) && channels == 4)
 			{
+				std::cout << background.r << ", " << background.g << ", " << background.b << std::endl;
+				std::cout << (int) (unsigned char) (background.r * 255) << ", " << (int) (unsigned char) (background.g * 255) << ", " << (int) (unsigned char) (background.b * 255) << std::endl;
 				channels = 3;
 				unsigned char * bged = new unsigned char[width*height * 3];
 				int insert = 0;
@@ -753,5 +753,5 @@ void Mesh::Bump_Map(const char * filename)
 }
 
 
-
+// Stores a hash of the filename mapped to the handle, so that the same file isn't loaded twice
 std::map<unsigned int, std::vector<unsigned int>> Mesh::Load_Once = std::map<unsigned int, std::vector<unsigned int>>();
