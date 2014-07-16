@@ -383,71 +383,71 @@ namespace Indigo
 	void Construct_Splash(World& add_to)
 	{
 
-		Object splash_screen = Object(0, 0, 0, Mesh(), Animate_Splash);
-		Mesh splash;
-		std::vector<glm::vec3> verts;
-		std::vector<glm::vec2> uvs;
-		std::vector<glm::vec3> trash1;
-		std::vector<glm::vec3> trash2;
-		std::vector<glm::vec3> trash3;
-		for (int i = 0; i < 61; ++i)
-		{
-			verts.push_back(glm::vec3(-0.75, -0.5, 0));
-			verts.push_back(glm::vec3(0.75, 1, 0));
-			verts.push_back(glm::vec3(-0.75, 1, 0));
-			verts.push_back(glm::vec3(-0.75, -0.5, 0));
-			verts.push_back(glm::vec3(0.75, -0.5, 0));
-			verts.push_back(glm::vec3(0.75, 1, 0));
-		}
-		for (int i = 0; i < 61; ++i)
-		{
-			uvs.push_back(glm::vec2(0, 1));
-			uvs.push_back(glm::vec2(1, 0));
-			uvs.push_back(glm::vec2(0, 0));
-			uvs.push_back(glm::vec2(0, 1));
-			uvs.push_back(glm::vec2(1, 1));
-			uvs.push_back(glm::vec2(1, 0));
-		}
-		for (int i = 0; i < 61 * 6; ++i)
-		{
-			trash1.push_back(glm::vec3(0, 0, 0));
-			trash2.push_back(glm::vec3(0, 0, 0));
-			trash3.push_back(glm::vec3(0, 0, 0));
-		}
-		splash.Initialize(verts, uvs, trash1, trash2, trash3);
-		for (int i = 0; i < 61; ++i)
-		{
-			std::string frame = ("Textures/IESS/" + std::to_string(i) + ".png");
-			splash.Texture(frame.c_str());
-			splash_screen.User_Data.push_back(splash.Texture_ID);
-		}
-		splash_screen.Color = glm::vec4(1, 1, 1, 0);
-		splash_screen.Data = splash;
-		splash_screen.Length_Index = 6;
-		add_to.Add_2D_Object(splash_screen);
-		//std::vector<glm::vec3> textverts;
-		//std::vector<glm::vec2> textuvs;
-		//std::vector<glm::vec3> textnormals;
-		//textverts.push_back(glm::vec3(-1, -1, 0));
-		//textverts.push_back(glm::vec3(1, 1, 0));
-		//textverts.push_back(glm::vec3(-1, 1, 0));
-		//textverts.push_back(glm::vec3(-1, -1, 0));
-		//textverts.push_back(glm::vec3(1, -1, 0));
-		//textverts.push_back(glm::vec3(1, 1, 0));
-		//textuvs.push_back(glm::vec2(0, 1));
-		//textuvs.push_back(glm::vec2(1, 0));
-		//textuvs.push_back(glm::vec2(0, 0));
-		//textuvs.push_back(glm::vec2(0, 1));
-		//textuvs.push_back(glm::vec2(1, 1));
-		//textuvs.push_back(glm::vec2(1, 0));
-		//for (int i = 0; i < 6; ++i)
+		//Object splash_screen = Object(0, 0, 0, Mesh(), Animate_Splash);
+		//Mesh splash;
+		//std::vector<glm::vec3> verts;
+		//std::vector<glm::vec2> uvs;
+		//std::vector<glm::vec3> trash1;
+		//std::vector<glm::vec3> trash2;
+		//std::vector<glm::vec3> trash3;
+		//for (int i = 0; i < 61; ++i)
 		//{
-		//	textnormals.push_back(glm::vec3(0, -1, 0));
+		//	verts.push_back(glm::vec3(-0.75, -0.5, 0));
+		//	verts.push_back(glm::vec3(0.75, 1, 0));
+		//	verts.push_back(glm::vec3(-0.75, 1, 0));
+		//	verts.push_back(glm::vec3(-0.75, -0.5, 0));
+		//	verts.push_back(glm::vec3(0.75, -0.5, 0));
+		//	verts.push_back(glm::vec3(0.75, 1, 0));
 		//}
-		//Mesh label;
-		////label.Initialize(textverts, textuvs, textnormals);
-		//label.Texture("Textures/SplashScreen/Label.png");
-		//add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade, 0, Direction(), glm::vec4(1, 1, 1, 0)));
+		//for (int i = 0; i < 61; ++i)
+		//{
+		//	uvs.push_back(glm::vec2(0, 1));
+		//	uvs.push_back(glm::vec2(1, 0));
+		//	uvs.push_back(glm::vec2(0, 0));
+		//	uvs.push_back(glm::vec2(0, 1));
+		//	uvs.push_back(glm::vec2(1, 1));
+		//	uvs.push_back(glm::vec2(1, 0));
+		//}
+		//for (int i = 0; i < 61 * 6; ++i)
+		//{
+		//	trash1.push_back(glm::vec3(0, 0, 0));
+		//	trash2.push_back(glm::vec3(0, 0, 0));
+		//	trash3.push_back(glm::vec3(0, 0, 0));
+		//}
+		//splash.Initialize(verts, uvs, trash1, trash2, trash3);
+		//for (int i = 0; i < 61; ++i)
+		//{
+		//	std::string frame = ("Textures/IESS/" + std::to_string(i) + ".png");
+		//	splash.Texture(frame.c_str());
+		//	splash_screen.User_Data.push_back(splash.Texture_ID);
+		//}
+		//splash_screen.Color = glm::vec4(1, 1, 1, 0);
+		//splash_screen.Data = splash;
+		//splash_screen.Length_Index = 6;
+		//add_to.Add_2D_Object(splash_screen);
+		////std::vector<glm::vec3> textverts;
+		////std::vector<glm::vec2> textuvs;
+		////std::vector<glm::vec3> textnormals;
+		////textverts.push_back(glm::vec3(-1, -1, 0));
+		////textverts.push_back(glm::vec3(1, 1, 0));
+		////textverts.push_back(glm::vec3(-1, 1, 0));
+		////textverts.push_back(glm::vec3(-1, -1, 0));
+		////textverts.push_back(glm::vec3(1, -1, 0));
+		////textverts.push_back(glm::vec3(1, 1, 0));
+		////textuvs.push_back(glm::vec2(0, 1));
+		////textuvs.push_back(glm::vec2(1, 0));
+		////textuvs.push_back(glm::vec2(0, 0));
+		////textuvs.push_back(glm::vec2(0, 1));
+		////textuvs.push_back(glm::vec2(1, 1));
+		////textuvs.push_back(glm::vec2(1, 0));
+		////for (int i = 0; i < 6; ++i)
+		////{
+		////	textnormals.push_back(glm::vec3(0, -1, 0));
+		////}
+		////Mesh label;
+		//////label.Initialize(textverts, textuvs, textnormals);
+		////label.Texture("Textures/SplashScreen/Label.png");
+		////add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade, 0, Direction(), glm::vec4(1, 1, 1, 0)));
 		return;
 
 	}

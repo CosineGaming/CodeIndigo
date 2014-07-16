@@ -301,7 +301,7 @@ void GUI(float time)
 	static int cursor_object = -1;
 	if (cursor_object == -1)
 	{
-		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05)));
+		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05), nullptr, 0, Direction(), glm::vec4(1,1,1,1)));
 	}
 	if (Current_Menu == -1)
 	{
@@ -821,17 +821,18 @@ void Key_Pressed(int key)
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
+	Indigo::Initialize("IELD", Indigo::Sky_Color, 16, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
-	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
-	//Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
-	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
-	Indigo::Current_World.Light_Setup.Add_Lamp(-0.35662, 0.6792, 1.92358, glm::vec3(-1, -1, 0), 90, 0.4);
+	Indigo::Current_World.Light_Setup.Set_Ambient(0);
+	Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
+	//Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
+	//Indigo::Current_World.Light_Setup.Add_Lamp(-0.35662, 0.6792, 1.92358, glm::vec3(-1, -1, 0), 90, 0.4);
 	Indigo::Mouse_Button_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
+	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.png")));
 	//Indigo::Construct_Splash();
 	if (argc > 1)
 	{

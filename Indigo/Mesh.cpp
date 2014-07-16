@@ -10,6 +10,31 @@
 #include <iostream>
 #include "GLFW/glfw3.h"
 
+#define Hash_Modulo 4294967291 // Largest Prime < 2^32
+
+
+// When we're done we have to delete the image (done by Initialize_Texture automatically)
+void Texture_Data::Free(void)
+{
+	if (Width == 0 && Height == 0)
+	{
+		// Never allocated, nothing to do
+	}
+	else if (Width == 1 && Height == 1)
+	{
+		// C++ allocation
+		delete[] Image;
+	}
+	else
+	{
+		// STBI allocation
+		stbi_image_free(Image);
+	}
+	// To prevent double frees, we set it to "never allocated"
+	Width = 0;
+	Height = 0;
+}
+
 
 // Create a new, empty mesh
 Mesh::Mesh(void) :
@@ -143,14 +168,14 @@ Mesh::~Mesh(void)
 
 
 // Create a new mesh by loading it from an obj file
-Mesh::Mesh(const char * filename, const char * texture) :
+Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 	Mesh()
 {
 
 	for (int i = 0; filename[i] != '\0'; ++i)
 	{
 		Obj_File_Hash += int(filename[i]);
-		Obj_File_Hash %= 4294967291; // Largest prime < 2^32
+		Obj_File_Hash %= Hash_Modulo; // Largest prime < 2^32
 	}
 	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Obj_File_Hash);
 	if (location != Load_Once.end() && location->second.size())
@@ -174,130 +199,7 @@ Mesh::Mesh(const char * filename, const char * texture) :
 	else
 	{
 
-		std::ifstream file(filename, std::ios::in);
-		if (!file)
-		{
-			std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh." << std::endl;
-			return;
-		}
-
-		std::string line;
-		std::vector<glm::vec3> temp_vertices;
-		std::vector<glm::vec2> temp_textures;
-		std::vector<glm::vec3> temp_normals;
-		std::vector<glm::vec3> vertices;
-		std::vector<glm::vec2> textures;
-		std::vector<glm::vec3> normals;
-		std::vector<glm::vec3> bump_x_normals;
-		std::vector<glm::vec3> bump_y_normals;
-
-		while (std::getline(file, line))
-		{
-			if (line[0] == 'v' && line[1] == ' ')
-			{
-				line = line.substr(2);
-				const char * stream = line.c_str();
-				glm::vec3 option;
-				int next;
-				option.x = Indigo::Fast_Float(stream, &next);
-				option.y = Indigo::Fast_Float(stream, &next, next);
-				option.z = Indigo::Fast_Float(stream, nullptr, next);
-				temp_vertices.push_back(option);
-			}
-			if (line[0] == 'v' && line[1] == 't')
-			{
-				line = line.substr(3);
-				const char * stream = line.c_str();
-				glm::vec2 option;
-				int next;
-				option.x = Indigo::Fast_Float(stream, &next);
-				option.y = 1 - Indigo::Fast_Float(stream, nullptr, next); // For some reason all UVs are Upside-Down!
-				temp_textures.push_back(option);
-			}
-			if (line[0] == 'v' && line[1] == 'n')
-			{
-				line = line.substr(3);
-				const char * stream = line.c_str();
-				glm::vec3 normal;
-				int next;
-				normal.x = Indigo::Fast_Float(stream, &next);
-				normal.y = Indigo::Fast_Float(stream, &next, next);
-				normal.z = Indigo::Fast_Float(stream, nullptr, next);
-				temp_normals.push_back(normal);
-			}
-			else if (line[0] == 'f' && line[1] == ' ')
-			{
-				std::string values(line.substr(2));
-				for (int point = 0; point < 3; ++point)
-				{
-					// Vertex
-					vertices.push_back(temp_vertices[atoi(values.c_str()) - 1]);
-					// Vertex Texture
-					int texturenormal = values.find('/') + 1;
-					if (texturenormal != std::string::npos)
-					{
-						values = values.substr(texturenormal);
-						if (values[0] != '/')
-						{
-							textures.push_back(temp_textures[atoi(values.c_str()) - 1]);
-						}
-						else
-						{
-							textures.push_back(glm::vec2(0, 0));
-						}
-						// Vertex Normal
-						values = values.substr(values.find('/') + 1);
-						if (values[0] != ' ')
-						{
-							int place = atoi(values.c_str()) - 1;
-							if (temp_normals.size() > place)
-							{
-								normals.push_back(temp_normals[place]);
-							}
-							else
-							{
-								if (point == 2)
-								{
-									int start = vertices.size() - 1;
-									glm::vec3 flat_normal = glm::cross(vertices[start - 1] - vertices[start - 2], vertices[start] - vertices[start - 2]);
-									normals.push_back(flat_normal);
-									normals.push_back(flat_normal);
-									normals.push_back(flat_normal);
-								}
-							}
-						}
-						if (point == 2)
-						{
-							int start = vertices.size() - 1;
-							glm::vec2 uv_dir_1 = textures[start - 1] - textures[start - 2];
-							glm::vec2 uv_dir_2 = textures[start] - textures[start - 2];
-							glm::vec3 vert_dir_1 = vertices[start - 1] - vertices[start - 2];
-							glm::vec3 vert_dir_2 = vertices[start] - vertices[start - 2];
-							float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
-							glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
-							bump_x_add = bump_x_add - normals[start] * glm::dot(normals[start], bump_x_add);
-							glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
-							bump_x_normals.push_back(bump_x_add);
-							bump_x_normals.push_back(bump_x_add);
-							bump_x_normals.push_back(bump_x_add);
-							bump_y_normals.push_back(bump_y_add);
-							bump_y_normals.push_back(bump_y_add);
-							bump_y_normals.push_back(bump_y_add);
-						}
-					}
-					else
-					{
-						textures.push_back(glm::vec2(0, 0));
-						normals.push_back(glm::cross(vertices[point - 1] - vertices[point - 2], vertices[point] - vertices[point - 2]));
-					}
-					// Move on to next point
-					values = values.substr(values.find(' ') + 1);
-				}
-			}
-		}
-		file.close();
-
-		Initialize(vertices, textures, normals, bump_x_normals, bump_y_normals);
+		Initialize_Vertices(File_Vertices(filename));
 
 		std::vector<unsigned int> items;
 		items.push_back(Vertices_ID);
@@ -316,16 +218,9 @@ Mesh::Mesh(const char * filename, const char * texture) :
 
 	}
 
-	if (texture == nullptr)
-	{
-		Texture();
-	}
-	else
-	{
-		Texture(texture);
-	}
+	Texture(texture);
 
-	Bump_Map(texture);
+	Bump_Map(bump_map);
 
 	return;
 
@@ -333,48 +228,263 @@ Mesh::Mesh(const char * filename, const char * texture) :
 
 
 // Specialized constructor for creating text
-Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& highlight)
+Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& highlight, const int reduce_filter, const int enlarge_filter)
+{
+
+	Mesh mesh;
+	Vertex_Data data = Text_Vertices(text, size);
+	mesh.Initialize_Vertices(data, false);
+
+	// Modified version of Texture() inserted here for highlighting
+	if (font)
+	{
+		for (int i = 0; font[i] != '\0'; ++i)
+		{
+			mesh.Texture_File_Hash += int(font[i]);
+			mesh.Texture_File_Hash %= Hash_Modulo; // Largest prime < 2^32
+		}
+		// If an image was passed with different filters, we unfortunately need to load it twice with different parameters
+		mesh.Texture_File_Hash += reduce_filter * 2; // If we switch the filters, it should still change. So we multiply times two to seperate them
+		mesh.Texture_File_Hash %= Hash_Modulo;
+		mesh.Texture_File_Hash += enlarge_filter;
+		mesh.Texture_File_Hash %= Hash_Modulo;
+		mesh.Texture_File_Hash += glm::dot(highlight, glm::vec4(25, 25, 25, 25)); // Value up to 100 based on highlight
+		mesh.Texture_File_Hash %= Hash_Modulo;
+	}
+	else
+	{
+		// Some random fun number for blank texture's handle hash. You can't sample a 1x1 so filter's aren't used
+		mesh.Texture_File_Hash = 2304927;
+	}
+	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(mesh.Texture_File_Hash);
+	if (location != Load_Once.end() && location->second.size() > 1)
+	{
+		// Already been loaded
+		std::vector<unsigned int>& items = location->second;
+		mesh.Texture_ID = items[0];
+		mesh.Texture_References = (unsigned short *) items[1];
+		*mesh.Texture_References += 1; // Essentially a copy of a texture
+	}
+	else
+	{
+		// Need to load it
+		Texture_Data texture = Load_Image(font);
+		texture.Reduce_Filter = reduce_filter;
+		texture.Enlarge_Filter = enlarge_filter;
+
+		// Here's where we highlight it if we have alpha and we've been asked to highlight it
+		if (highlight.a != 0 && texture.Channels == 4)
+		{
+			for (int i = 0; i < texture.Width * texture.Height * 4; i += 4) // Loop through each pixel
+			{
+				if (texture.Image[i + 3] < 32) // Alpha is esentially zero (Universal photoshop "close enough" is 32)
+				{
+					// Replace it (passed as 0..1 used as 0..255)
+					texture.Image[i] = highlight.r * 255;
+					texture.Image[i + 1] = highlight.g * 255;
+					texture.Image[i + 2] = highlight.b * 255;
+					texture.Image[i + 3] = highlight.a * 255;
+				}
+			}
+		}
+
+		mesh.Initialize_Texture(texture, &mesh.Texture_ID);
+
+		// Remember we loaded it
+		std::vector<unsigned int> id;
+		id.push_back(mesh.Texture_ID);
+		id.push_back((unsigned int) mesh.Texture_References);
+		Load_Once[mesh.Texture_File_Hash] = id;
+	}
+
+	mesh.Bump_Map();
+
+	return mesh;
+
+}
+
+
+// Specialized constructor for creating 2D flat rectangles
+Mesh Mesh::Rectangle(const float width, const float height, const char * texture, const char * bump_map, const int reduce_filter, const int enlarge_filter)
 {
 	Mesh mesh;
+	mesh.Texture(texture);
+	mesh.Bump_Map(bump_map);
+	Vertex_Data data = Rectangle_Vertices(width, height);
+	mesh.Initialize_Vertices(data);
+	return mesh;
+}
+
+
+// Returns CPU Mesh_Data of a Mesh from file
+Vertex_Data Mesh::File_Vertices(const char * filename)
+{
+
+	Vertex_Data data;
+
+	std::ifstream file(filename, std::ios::in);
+	if (!file)
+	{
+		std::cout << "Unable to open file " << filename << ". Replacing mesh with empty mesh." << std::endl;
+		return data;
+	}
+
+	std::string line;
+	std::vector<glm::vec3> temp_vertices;
+	std::vector<glm::vec2> temp_textures;
+	std::vector<glm::vec3> temp_normals;
+
+	while (std::getline(file, line))
+	{
+		if (line[0] == 'v' && line[1] == ' ')
+		{
+			line = line.substr(2);
+			const char * stream = line.c_str();
+			glm::vec3 option;
+			int next;
+			option.x = Indigo::Fast_Float(stream, &next);
+			option.y = Indigo::Fast_Float(stream, &next, next);
+			option.z = Indigo::Fast_Float(stream, nullptr, next);
+			temp_vertices.push_back(option);
+		}
+		if (line[0] == 'v' && line[1] == 't')
+		{
+			line = line.substr(3);
+			const char * stream = line.c_str();
+			glm::vec2 option;
+			int next;
+			option.x = Indigo::Fast_Float(stream, &next);
+			option.y = 1 - Indigo::Fast_Float(stream, nullptr, next); // For some reason all UVs are Upside-Down!
+			temp_textures.push_back(option);
+		}
+		if (line[0] == 'v' && line[1] == 'n')
+		{
+			line = line.substr(3);
+			const char * stream = line.c_str();
+			glm::vec3 normal;
+			int next;
+			normal.x = Indigo::Fast_Float(stream, &next);
+			normal.y = Indigo::Fast_Float(stream, &next, next);
+			normal.z = Indigo::Fast_Float(stream, nullptr, next);
+			temp_normals.push_back(normal);
+		}
+		else if (line[0] == 'f' && line[1] == ' ')
+		{
+			std::string values(line.substr(2));
+			for (int point = 0; point < 3; ++point)
+			{
+				// Vertex
+				data.Positions.push_back(temp_vertices[atoi(values.c_str()) - 1]);
+				// Vertex Texture
+				int texturenormal = values.find('/') + 1;
+				if (texturenormal != std::string::npos)
+				{
+					values = values.substr(texturenormal);
+					if (values[0] != '/')
+					{
+						data.UVs.push_back(temp_textures[atoi(values.c_str()) - 1]);
+					}
+					else
+					{
+						data.UVs.push_back(glm::vec2(0, 0));
+					}
+					// Vertex Normal
+					values = values.substr(values.find('/') + 1);
+					if (values[0] != ' ')
+					{
+						int place = atoi(values.c_str()) - 1;
+						if (temp_normals.size() > place)
+						{
+							data.Normals.push_back(temp_normals[place]);
+						}
+						else
+						{
+							if (point == 2)
+							{
+								int start = data.Positions.size() - 1;
+								glm::vec3 flat_normal = glm::cross(data.Positions[start - 1] - data.Positions[start - 2], data.Positions[start] - data.Positions[start - 2]);
+								data.Normals.push_back(flat_normal);
+								data.Normals.push_back(flat_normal);
+								data.Normals.push_back(flat_normal);
+							}
+						}
+					}
+					if (point == 2)
+					{
+						int start = data.Positions.size() - 1;
+						glm::vec2 uv_dir_1 = data.UVs[start - 1] - data.UVs[start - 2];
+						glm::vec2 uv_dir_2 = data.UVs[start] - data.UVs[start - 2];
+						glm::vec3 vert_dir_1 = data.Positions[start - 1] - data.Positions[start - 2];
+						glm::vec3 vert_dir_2 = data.Positions[start] - data.Positions[start - 2];
+						float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
+						glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
+						bump_x_add = bump_x_add - data.Normals[start] * glm::dot(data.Normals[start], bump_x_add);
+						glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
+						data.Bump_X_Normals.push_back(bump_x_add);
+						data.Bump_X_Normals.push_back(bump_x_add);
+						data.Bump_X_Normals.push_back(bump_x_add);
+						data.Bump_Y_Normals.push_back(bump_y_add);
+						data.Bump_Y_Normals.push_back(bump_y_add);
+						data.Bump_Y_Normals.push_back(bump_y_add);
+					}
+				}
+				else
+				{
+					data.UVs.push_back(glm::vec2(0, 0));
+					data.Normals.push_back(glm::cross(data.Positions[point - 1] - data.Positions[point - 2], data.Positions[point] - data.Positions[point - 2]));
+				}
+				// Move on to next point
+				values = values.substr(values.find(' ') + 1);
+			}
+		}
+	}
+
+	file.close();
+
+	return data;
+
+}
+
+
+// Returns CPU Vertex_Data of a Text
+Vertex_Data Mesh::Text_Vertices(const char * text, const float size)
+{
+
 	float bottom = 0;
 	float top = size;
 	float left = 0;
 	float right = size;
 	int i = 0;
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec2> uvs;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec3> bump_x;
-	std::vector<glm::vec3> bump_y;
+	Vertex_Data mesh;
 	for (char check_letter = text[0]; check_letter != '\0'; check_letter = text[++i])
 	{
 
 		int letter = check_letter - 32;
 		float y = (letter / 16) / 16.0; // The most 16s you can get
 		float x = (letter % 16) / 16.0; // The rest
-		vertices.push_back(glm::vec3(left, bottom, 0)); // BL
-		vertices.push_back(glm::vec3(right, bottom, 0)); // BR
-		vertices.push_back(glm::vec3(right, top, 0)); // TR
-		vertices.push_back(glm::vec3(left, bottom, 0)); // BL
-		vertices.push_back(glm::vec3(right, top, 0)); // TR
-		vertices.push_back(glm::vec3(left, top, 0)); // TL
+		mesh.Positions.push_back(glm::vec3(left, bottom, 0)); // BL
+		mesh.Positions.push_back(glm::vec3(right, bottom, 0)); // BR
+		mesh.Positions.push_back(glm::vec3(right, top, 0)); // TR
+		mesh.Positions.push_back(glm::vec3(left, bottom, 0)); // BL
+		mesh.Positions.push_back(glm::vec3(right, top, 0)); // TR
+		mesh.Positions.push_back(glm::vec3(left, top, 0)); // TL
 
 		float tex_l = x;
 		float tex_r = x + 0.0625;
 		float tex_t = y;
 		float tex_b = y + 0.0625;
-		uvs.push_back(glm::vec2(tex_l, tex_b)); // BL
-		uvs.push_back(glm::vec2(tex_r, tex_b)); // BR
-		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
-		uvs.push_back(glm::vec2(tex_l, tex_b)); // BL
-		uvs.push_back(glm::vec2(tex_r, tex_t)); // TR
-		uvs.push_back(glm::vec2(tex_l, tex_t)); // TL
+		mesh.UVs.push_back(glm::vec2(tex_l, tex_b)); // BL
+		mesh.UVs.push_back(glm::vec2(tex_r, tex_b)); // BR
+		mesh.UVs.push_back(glm::vec2(tex_r, tex_t)); // TR
+		mesh.UVs.push_back(glm::vec2(tex_l, tex_b)); // BL
+		mesh.UVs.push_back(glm::vec2(tex_r, tex_t)); // TR
+		mesh.UVs.push_back(glm::vec2(tex_l, tex_t)); // TL
 
 		for (int trash = 0; trash < 6; ++trash)
 		{
-			normals.push_back(glm::vec3(0, 0, 0));
-			bump_x.push_back(glm::vec3(0, 0, 0));
-			bump_y.push_back(glm::vec3(0, 0, 0));
+			mesh.Normals.push_back(glm::vec3(0, 0, 0));
+			mesh.Bump_X_Normals.push_back(glm::vec3(0, 0, 0));
+			mesh.Bump_Y_Normals.push_back(glm::vec3(0, 0, 0));
 		}
 
 		left += size;
@@ -388,141 +498,128 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		}
 
 	}
-	mesh.Initialize(vertices, uvs, normals, bump_x, bump_y, false);
-	if (highlight.a == 0)
-	{
-		mesh.Texture(font);
-	}
-	else
-	{
-		mesh.Texture(font, glm::vec3(highlight.r, highlight.g, highlight.b));
-	}
-
-	mesh.Bump_Map(font);
 
 	return mesh;
+
 }
 
 
-// Specialized constructor for creating 2D flat rectangles
-Mesh Mesh::Rectangle(const float width, const float height, const char * texture)
+// Returns CPU Mesh_Data of a Rectangle
+Vertex_Data Mesh::Rectangle_Vertices(const float width, const float height)
 {
-	std::vector<glm::vec3> verts;
-	std::vector<glm::vec2> uvs;
-	std::vector<glm::vec3> filler1;
-	std::vector<glm::vec3> filler2;
-	std::vector<glm::vec3> filler3;
+
 	float hw = width / 2;
 	float hh = height / 2;
-	verts.push_back(glm::vec3(-hw, -hh, 0));
-	verts.push_back(glm::vec3(hw, -hh, 0));
-	verts.push_back(glm::vec3(hw, hh, 0));
-	verts.push_back(glm::vec3(-hw, -hh, 0));
-	verts.push_back(glm::vec3(hw, hh, 0));
-	verts.push_back(glm::vec3(-hw, hh, 0));
-	uvs.push_back(glm::vec2(0, 0));
-	uvs.push_back(glm::vec2(1, 0));
-	uvs.push_back(glm::vec2(1, 1));
-	uvs.push_back(glm::vec2(0, 0));
-	uvs.push_back(glm::vec2(1, 1));
-	uvs.push_back(glm::vec2(0, 1));
+	// Texture coordinates shouldn't stretch. Texture is in top-left
+	float wth = width / height;
+	float htw = 1 / wth;
+	if (wth > 1)
+		wth = 1;
+	if (htw > 1)
+		htw = 1;
+	Vertex_Data data;
+	data.Positions.push_back(glm::vec3(-hw, -hh, 0));
+	data.Positions.push_back(glm::vec3(hw, -hh, 0));
+	data.Positions.push_back(glm::vec3(hw, hh, 0));
+	data.Positions.push_back(glm::vec3(-hw, -hh, 0));
+	data.Positions.push_back(glm::vec3(hw, hh, 0));
+	data.Positions.push_back(glm::vec3(-hw, hh, 0));
+	data.UVs.push_back(glm::vec2(0, 0));
+	data.UVs.push_back(glm::vec2(wth, 0));
+	data.UVs.push_back(glm::vec2(wth, htw));
+	data.UVs.push_back(glm::vec2(0, 0));
+	data.UVs.push_back(glm::vec2(wth, htw));
+	data.UVs.push_back(glm::vec2(0, htw));
 	for (int i = 0; i < 6; ++i)
 	{
-		filler1.push_back(glm::vec3(0, 0, 0));
-		filler2.push_back(glm::vec3(0, 0, 0));
-		filler3.push_back(glm::vec3(0, 0, 0));
+		// Same lighting for each vertex: out
+		data.Bump_X_Normals.push_back(glm::vec3(1, 0, 0));
+		data.Bump_Y_Normals.push_back(glm::vec3(0, 1, 0));
+		data.Normals.push_back(glm::vec3(0, 0, 1));
 	}
-	Mesh mesh;
-	mesh.Initialize(verts, uvs, filler1, filler2, filler3);
+	return data;
+
 }
 
 
 // Used by Initialize's maps
-struct All_Vertex_Data
+struct Compared_Vertex
 {
 	glm::vec3 vertex;
 	glm::vec2 texture;
 	glm::vec3 normal;
-	bool operator< (const All_Vertex_Data& compare) const
+	bool operator< (const Compared_Vertex& compare) const
 	{
-		return memcmp(this, &compare, sizeof(All_Vertex_Data)) > 0;
+		return memcmp(this, &compare, sizeof(Compared_Vertex)) > 0;
 	}
 };
 
 
 // Once added to the object, the mesh is locked into place. (on the GPU)
-void Mesh::Vertex_Initialize(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals,
-	const std::vector<glm::vec3>& bump_x_normals, const std::vector<glm::vec3>& bump_y_normals, const bool memory_optimize)
+void Mesh::Initialize_Vertices(const Vertex_Data& initialize, const bool memory_optimize)
 {
 
-	// Index for the VBO!
-	std::vector<glm::vec3> final_vertices = std::vector<glm::vec3>();
-	std::vector<glm::vec2> final_uvs = std::vector<glm::vec2>();
-	std::vector<glm::vec3> final_normals = std::vector<glm::vec3>();
-	std::vector<glm::vec3> final_bump_x = std::vector<glm::vec3>();
-	std::vector<glm::vec3> final_bump_y = std::vector<glm::vec3>();
+	// Index for the VBO
+	const Vertex_Data * data;
+	Vertex_Data output;
 	std::vector<unsigned short> elements = std::vector<unsigned short>();
 	if (memory_optimize)
 	{
-		std::map<All_Vertex_Data, unsigned short> vertex_to_index;
-		for (int point = 0; point < vertices.size(); ++point)
+		std::map<Compared_Vertex, unsigned short> vertex_to_index;
+		for (int point = 0; point < initialize.Positions.size(); ++point)
 		{
-			All_Vertex_Data together = { vertices[point], uvs[point], normals[point] };
-			std::map<All_Vertex_Data, unsigned short>::iterator location = vertex_to_index.find(together);
+			Compared_Vertex together = { initialize.Positions[point], initialize.UVs[point], initialize.Normals[point] };
+			std::map<Compared_Vertex, unsigned short>::iterator location = vertex_to_index.find(together);
 			if (location == vertex_to_index.end())
 			{
-				final_vertices.push_back(vertices[point]);
-				final_uvs.push_back(uvs[point]);
-				final_normals.push_back(normals[point]);
-				final_bump_x.push_back(bump_x_normals[point]);
-				final_bump_y.push_back(bump_y_normals[point]);
-				Update_Hitbox(vertices[point]);
-				unsigned short index = final_vertices.size() - 1;
+				output.Positions.push_back(initialize.Positions[point]);
+				output.UVs.push_back(initialize.UVs[point]);
+				output.Normals.push_back(initialize.Normals[point]);
+				output.Bump_X_Normals.push_back(initialize.Bump_X_Normals[point]);
+				output.Bump_Y_Normals.push_back(initialize.Bump_Y_Normals[point]);
+				Update_Hitbox(initialize.Positions[point]);
+				unsigned short index = output.Positions.size() - 1;
 				elements.push_back(index);
 				vertex_to_index[together] = index;
 			}
 			else
 			{
-				final_bump_x[location->second] += bump_x_normals[point];
-				final_bump_y[location->second] += bump_y_normals[point];
+				output.Bump_X_Normals[location->second] += initialize.Bump_X_Normals[point];
+				output.Bump_Y_Normals[location->second] += initialize.Bump_Y_Normals[point];
 				elements.push_back(location->second);
 			}
 		}
+		data = &output;
 	}
 	else
 	{
-		for (int point = 0; point < vertices.size(); ++point)
+		data = &initialize;
+		for (int i = 0; i < initialize.Positions.size(); ++i)
 		{
-			final_vertices.push_back(vertices[point]);
-			final_uvs.push_back(uvs[point]);
-			final_normals.push_back(normals[point]);
-			final_bump_x.push_back(bump_x_normals[point]);
-			final_bump_y.push_back(bump_y_normals[point]);
-			Update_Hitbox(vertices[point]);
-			elements.push_back(point);
+			elements.push_back(i);
 		}
 	}
 
 	// Let's do it! It's ready! Let's send it to the GPU!
 	glGenBuffers(1, &Vertices_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertices_ID);
-	glBufferData(GL_ARRAY_BUFFER, final_vertices.size() * sizeof(glm::vec3), &final_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data->Positions.size() * sizeof(glm::vec3), &data->Positions[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Normals_ID);
-	glBufferData(GL_ARRAY_BUFFER, final_normals.size() * sizeof(glm::vec3), &final_normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data->Normals.size() * sizeof(glm::vec3), &data->Normals[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Bump_X_Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Bump_X_Normals_ID);
-	glBufferData(GL_ARRAY_BUFFER, final_bump_x.size() * sizeof(glm::vec3), &final_bump_x[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data->Bump_X_Normals.size() * sizeof(glm::vec3), &data->Bump_X_Normals[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Bump_Y_Normals_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, Bump_Y_Normals_ID);
-	glBufferData(GL_ARRAY_BUFFER, final_bump_y.size() * sizeof(glm::vec3), &final_bump_y[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data->Bump_Y_Normals.size() * sizeof(glm::vec3), &data->Bump_Y_Normals[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &UV_ID);
 	glBindBuffer(GL_ARRAY_BUFFER, UV_ID);
-	glBufferData(GL_ARRAY_BUFFER, final_uvs.size() * sizeof(glm::vec2), &final_uvs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data->UVs.size() * sizeof(glm::vec2), &data->UVs[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &Elements_ID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Elements_ID);
@@ -532,6 +629,7 @@ void Mesh::Vertex_Initialize(const std::vector<glm::vec3>& vertices, const std::
 	Size = elements.size();
 
 	return;
+
 }
 
 
@@ -539,217 +637,141 @@ void Mesh::Vertex_Initialize(const std::vector<glm::vec3>& vertices, const std::
 void Mesh::Update_Hitbox(glm::vec3 vertex)
 {
 	if (vertex.x < Hitbox[0].x)
-	{
 		Hitbox[0].x = vertex.x;
-	}
 	if (vertex.x > Hitbox[1].x)
-	{
 		Hitbox[1].x = vertex.x;
-	}
 	if (vertex.y < Hitbox[0].y)
-	{
 		Hitbox[0].y = vertex.y;
-	}
 	if (vertex.y > Hitbox[1].y)
-	{
 		Hitbox[1].y = vertex.y;
-	}
 	if (vertex.z < Hitbox[0].z)
-	{
 		Hitbox[0].z = vertex.z;
-	}
 	if (vertex.z > Hitbox[1].z)
-	{
 		Hitbox[1].z = vertex.z;
+	return;
+}
+
+
+// Load the texture and initialize it to the handle, if it's not a duplicate
+void Mesh::Texture(const char * filename, unsigned int * texture_handle, const int reduce_filter, const int enlarge_filter)
+{
+
+	if (texture_handle == nullptr)
+	{
+		texture_handle = &Texture_ID;
 	}
-}
-
-
-void Mesh::Initialize_Texture(unsigned int& handle, const unsigned char * data, const int width, const int height, const int channels, const int interpolation)
-{
-	glGenTextures(1, &handle);
-	glBindTexture(GL_TEXTURE_2D, handle);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, (channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpolation);
-	glGenerateMipmap(GL_TEXTURE_2D);
-}
-
-
-// Texture the entire mesh with one file
-void Mesh::Texture(const char * filename, const glm::vec3 background, const int interpolation)
-{
 
 	if (filename)
 	{
 		for (int i = 0; filename[i] != '\0'; ++i)
 		{
 			Texture_File_Hash += int(filename[i]);
-			Texture_File_Hash %= 4294967291; // Largest prime < 2^32
+			Texture_File_Hash %= Hash_Modulo; // Largest prime < 2^32
 		}
-		if (background != glm::vec3(-1, -1, -1))
-		{
-			Texture_File_Hash += 351; // Different hash if we're modifying the source file. (We're highlighting)
-		}
+		// If an image was passed with different filters, we unfortunately need to load it twice with different parameters
+		Texture_File_Hash += reduce_filter * 2; // If we switch the filters, it should still change. So we multiply times two to seperate them
+		Texture_File_Hash %= Hash_Modulo;
+		Texture_File_Hash += enlarge_filter;
+		Texture_File_Hash %= Hash_Modulo;
 	}
 	else
 	{
-		Texture_File_Hash = 2304927; // Some random fun number for blank texture's handle hash
+		// Some random fun number for blank texture's handle hash. You can't sample a 1x1 so filter's aren't used
+		Texture_File_Hash = 2304927;
 	}
 	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Texture_File_Hash);
 	if (location != Load_Once.end() && location->second.size() > 1)
 	{
+		// Already been loaded
 		std::vector<unsigned int>& items = location->second;
-		Texture_ID = items[0];
+		*texture_handle = items[0];
 		Texture_References = (unsigned short *) items[1];
 		*Texture_References += 1; // Essentially a copy of a texture
 	}
 	else
 	{
-		unsigned char * data;
-		int width;
-		int height;
-		int channels = 3;
-		bool std_free = false;
-		if (!filename)
+		// Need to load it
+		Texture_Data texture = Load_Image(filename);
+		texture.Reduce_Filter = reduce_filter;
+		texture.Enlarge_Filter = enlarge_filter;
+		if (texture_handle == &Bump_Texture_ID)
 		{
-			data = new unsigned char[3];
-			data[0] = 255;
-			data[1] = 255;
-			data[2] = 255;
-			width = 1;
-			height = 1;
-			std_free = true;
-		}
-		else
-		{
-			data = stbi_load(filename, &width, &height, &channels, 0);
-			if (channels < 3)
+			// By default, bump texture should be completely blue
+			if (texture.Width == 1 && texture.Height == 1)
 			{
-				std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
-				stbi_image_free(data);
-				Texture();
-				return;
-			}
-			if (background != glm::vec3(-1, -1, -1) && channels == 4)
-			{
-				std::cout << background.r << ", " << background.g << ", " << background.b << std::endl;
-				std::cout << (int) (unsigned char) (background.r * 255) << ", " << (int) (unsigned char) (background.g * 255) << ", " << (int) (unsigned char) (background.b * 255) << std::endl;
-				channels = 3;
-				unsigned char * bged = new unsigned char[width*height * 3];
-				int insert = 0;
-				for (int i = 3; i < width*height * 4; i += 4)
-				{
-					if (data[i] < 128)
-					{
-						bged[insert] = (unsigned char)(background.r * 255);
-						bged[insert + 1] = (unsigned char)(background.g * 255);
-						bged[insert + 2] = (unsigned char)(background.b * 255);
-					}
-					else
-					{
-						bged[insert] = data[i - 3];
-						bged[insert + 1] = data[i - 2];
-						bged[insert + 2] = data[i - 1];
-					}
-					insert += 3;
-				}
-				stbi_image_free(data);
-				data = bged;
-				std_free = true;
+				texture.Image[0] = 0;
+				texture.Image[1] = 0;
+				texture.Image[2] = 255; // rgb: Blue
 			}
 		}
+		Initialize_Texture(texture, texture_handle);
 
-		Initialize_Texture(Texture_ID, data, width, height, channels, interpolation);
-
-		if (std_free)
-		{
-			delete[] data;
-		}
-		else
-		{
-			stbi_image_free(data);
-		}
+		// Remember we loaded it
 		std::vector<unsigned int> id;
-		id.push_back(Texture_ID);
+		id.push_back(*texture_handle);
 		id.push_back((unsigned int) Texture_References);
 		Load_Once[Texture_File_Hash] = id;
 	}
 
 	return;
+
 }
 
 
-// A special texture that adds normals to each pixel. Default blue.
-void Mesh::Bump_Map(const char * filename)
+// Simply calls Texture with texture_handle = &Bump_Texture_ID
+void Mesh::Bump_Map(const char * filename, const int reduce_filter, const int enlarge_filter)
+{
+	Texture(filename, &Bump_Texture_ID, reduce_filter, enlarge_filter);
+}
+
+
+// Initialize only the texture data, for animations which use the same mesh for example
+unsigned int Mesh::Initialize_Texture(Texture_Data& initialize, unsigned int * texture_handle)
 {
 
-	if (filename)
+	if (!texture_handle)
 	{
-		for (int i = 0; filename[i] != '\0'; ++i)
-		{
-			Texture_File_Hash += int(filename[i]);
-			Texture_File_Hash %= 4294967291; // Largest prime < 2^32
-		}
+		texture_handle = &Texture_ID;
+	}
+	glGenTextures(1, texture_handle);
+	glBindTexture(GL_TEXTURE_2D, *texture_handle);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, initialize.Width, initialize.Height, 0, (initialize.Channels == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, initialize.Image);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, initialize.Reduce_Filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, initialize.Enlarge_Filter);
+	initialize.Free();
+	glGenerateMipmap(GL_TEXTURE_2D);
+	return *texture_handle;
+
+}
+
+
+// Get the data from an image and return it
+Texture_Data Mesh::Load_Image(const char * filename)
+{
+
+	Texture_Data texture;
+	if (!filename)
+	{
+		texture.Image = new unsigned char[3];
+		texture.Image[0] = 255;
+		texture.Image[1] = 255;
+		texture.Image[2] = 255;
+		texture.Width = 1;
+		texture.Height = 1;
 	}
 	else
 	{
-		Texture_File_Hash = 2304927; // Some random fun number for blank texture's handle hash
-	}
-	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Texture_File_Hash);
-	if (location != Load_Once.end() && location->second.size() > 1)
-	{
-		std::vector<unsigned int>& items = location->second;
-		Bump_Texture_ID = items[0];
-		Texture_References = (unsigned short *) items[1];
-		*Texture_References += 1; // Essentially a copy of a texture
-	}
-	else
-	{
-		unsigned char * data;
-		int width;
-		int height;
-		int channels = 3;
-		bool std_free = false;
-		if (!filename)
+		texture.Image = stbi_load(filename, &texture.Width, &texture.Height, &texture.Channels, 0);
+		if (texture.Channels < 3)
 		{
-			data = new unsigned char[3];
-			data[0] = 0;
-			data[1] = 0;
-			data[2] = 255;
-			width = 1;
-			height = 1;
-			std_free = true;
+			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
+			return Load_Image();
 		}
-		else
-		{
-			data = stbi_load(filename, &width, &height, &channels, 0);
-			if (channels < 3)
-			{
-				std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
-				stbi_image_free(data);
-				Texture();
-				return;
-			}
-		}
+	}
+	return texture;
 
-		Initialize_Texture(Bump_Texture_ID, data, width, height, channels);
-
-		if (std_free)
-		{
-			delete[] data;
-		}
-		else
-		{
-			stbi_image_free(data);
-		}
-		std::vector<unsigned int> id;
-		id.push_back(Bump_Texture_ID);
-		id.push_back((unsigned int) Texture_References);
-		Load_Once[Texture_File_Hash] = id;
-	}
 }
 
 
