@@ -461,7 +461,7 @@ void Key_Pressed(int key)
 				Indigo::Render();
 				texture = Typing;
 				glm::vec3 position = glm::vec3(Indigo::Current_World.View.X, Indigo::Current_World.View.Y, Indigo::Current_World.View.Z);
-				if (Add_And_Save(position, mesh.c_str(), texture.length() ? texture.c_str() : ""))
+				if (Add_And_Save(position, mesh, texture))
 				{
 					Undo_Index = Indigo::Current_World.Number_Of_Objects() - 1;
 					Undo_Object = Object();
@@ -821,7 +821,7 @@ void Key_Pressed(int key)
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize("IELD", Indigo::Sky_Color, 16, 24, -240, -135, false);
+	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Current_World.Light_Setup.Set_Ambient(0);
@@ -832,7 +832,7 @@ int main(int argc, char ** argv)
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.png")));
+	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.png", "C:/Users/Judah/Desktop/Test.png")));
 	//Indigo::Construct_Splash();
 	if (argc > 1)
 	{

@@ -678,6 +678,8 @@ void Mesh::Texture(const char * filename, unsigned int * texture_handle, const i
 	{
 		// Some random fun number for blank texture's handle hash. You can't sample a 1x1 so filter's aren't used
 		Texture_File_Hash = 2304927;
+		// A blank bump is different from a blank non-bump
+		Texture_File_Hash += texture_handle == &Bump_Texture_ID;
 	}
 	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Texture_File_Hash);
 	if (location != Load_Once.end() && location->second.size() > 1)
