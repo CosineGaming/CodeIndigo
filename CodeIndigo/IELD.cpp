@@ -96,7 +96,7 @@ bool Text_Edit(int key, std::string& output)
 void Print(const int handle, const std::string toprint)
 {
 	Object& affect = Indigo::Current_World.Get_2D_Object(handle);
-	affect.Data = Mesh::Text(toprint.c_str(), 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 1));
+	affect.Data = Mesh::Text(toprint.c_str(), 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 0.9));
 	if (affect.X + affect.Data.Hitbox[0].x < -1 * Indigo::Aspect_Ratio)
 	{
 		affect.X = -1 * Indigo::Aspect_Ratio - affect.Data.Hitbox[0].x;
@@ -301,7 +301,7 @@ void GUI(float time)
 	static int cursor_object = -1;
 	if (cursor_object == -1)
 	{
-		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05), nullptr, 0, Direction(), glm::vec4(1,1,1,1)));
+		cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05)));
 	}
 	if (Current_Menu == -1)
 	{
@@ -351,7 +351,7 @@ void GUI(float time)
 				+ "Camera Speed  " + std::to_string(int(total_speed * 1000)) + "  M/S" "\n"
 				+ "Position  " + std::to_string(To_Move->X) + "  " + std::to_string(To_Move->Y) + "  " + std::to_string(To_Move->Z) + "\n"
 				+ "Press H for help";
-			marker.Data = Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 1));
+			marker.Data = Mesh::Text(display.c_str(), 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 0.9));
 			marker.X = -1 * Indigo::Aspect_Ratio + 0.1;
 			marker.Y = -0.9 - marker.Data.Hitbox[0].y;
 		}
@@ -384,7 +384,7 @@ void GUI(float time)
 		if (cursor_object < Current_Menu) // The cursor must be always on top
 		{
 			Indigo::Current_World.Remove_2D_Object(cursor_object);
-			cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05, "Textures/Font.png", glm::vec4(1, 1, 1, 1))));
+			cursor_object = Indigo::Current_World.Add_2D_Object(Object(0, 0, 0, Mesh::Text("|", 0.05, "Textures/Font.png")));
 		}
 		Cursor_Delay += time;
 		Object& marker = Indigo::Current_World.Get_2D_Object(cursor_object);
@@ -471,7 +471,7 @@ void Key_Pressed(int key)
 				}
 				else
 				{
-					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Couldn't find / load OBJ.", 0.05, "Textures/Font.png", glm::vec4(0,0,0,1)), Fade_Text));
+					Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Couldn't find / load OBJ.", 0.05, "Textures/Font.png", glm::vec4(0,0,0,0.9)), Fade_Text));
 					texture_yet = false;
 					changed = true;
 				}
@@ -543,7 +543,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to save file. Check for write permissions.", 0.05, "Texture/Font.png", glm::vec4(1, 1, 1, 1)), Fade_Text));
+				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to save file. Check for write permissions.", 0.05, "Texture/Font.png", glm::vec4(0, 0, 0, 0.9)), Fade_Text));
 				Print(save_menu, "Save Here:\n" + Typing);
 			}
 		}
@@ -573,7 +573,7 @@ void Key_Pressed(int key)
 			}
 			else
 			{
-				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to open file.", 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 1)), Fade_Text));
+				Indigo::Current_World.Add_2D_Object(Object(menu_x, menu_y + 0.05, 0, Mesh::Text("Unable to open file.", 0.05, "Textures/Font.png", glm::vec4(0, 0, 0, 0.9)), Fade_Text));
 				Print(open_menu, "Open From:\n" + Typing);
 			}
 		}
@@ -824,15 +824,15 @@ int main(int argc, char ** argv)
 	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Indigo::Update_Function = GUI;
 	Indigo::Current_World.Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
-	Indigo::Current_World.Light_Setup.Set_Ambient(0);
-	Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
-	//Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
-	//Indigo::Current_World.Light_Setup.Add_Lamp(-0.35662, 0.6792, 1.92358, glm::vec3(-1, -1, 0), 90, 0.4);
+	Indigo::Current_World.Light_Setup.Set_Ambient(0.075);
+	//Indigo::Current_World.Light_Setup.Add_Sun(0, -1, 0);
+	Indigo::Current_World.Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
+	Indigo::Current_World.Light_Setup.Add_Lamp(-0.35662, 0.6792, 1.92358, glm::vec3(-1, -1, 0), 90, 0.4);
 	Indigo::Mouse_Button_Function = Mouse_Interact;
 	Indigo::Relative_Mouse_Moved_Function = Mouse_Look;
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	restore = Indigo::Current_World;
-	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.png", "C:/Users/Judah/Desktop/Test.png")));
+	Indigo::Current_World.Add_Object(Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Frost/SpawnTunnel.obj", "C:/Users/Judah/Documents/Frost/SpawnTunnel.png", "C:/Users/Judah/Desktop/Test.jpg"), nullptr, 30));
 	//Indigo::Construct_Splash();
 	if (argc > 1)
 	{

@@ -594,9 +594,10 @@ void Mesh::Initialize_Vertices(const Vertex_Data& initialize, const bool memory_
 	else
 	{
 		data = &initialize;
-		for (int i = 0; i < initialize.Positions.size(); ++i)
+		for (int point = 0; point < initialize.Positions.size(); ++point)
 		{
-			elements.push_back(i);
+			elements.push_back(point);
+			Update_Hitbox(initialize.Positions[point]);
 		}
 	}
 

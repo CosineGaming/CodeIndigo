@@ -30,9 +30,8 @@ vec4 Standard_Lighting(vec4 a_base, bool a_diffuse = true, bool a_specular = tru
 {
 	vec4 f_color = vec4(0, 0, 0, a_base.a);
 	f_color.rgb += F_Ambient * a_base.rgb;
-	vec3 n_normal = normalize(texture2D(F_Bump_Map, F_UV).rgb);
+	vec3 n_normal = normalize(texture2D(F_Bump_Map, F_UV).rgb * 2 - 1);
 	vec3 n_f_to_camera = normalize(F_To_Camera);
-	//float camera_distance_squared = dot(F_To_Camera, F_To_Camera);
 	for (int i = 0; i < F_Number_Of_Lights; ++i)
 	{
 		if (F_Light_Colors[i] != vec3(0, 0, 0))
