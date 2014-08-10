@@ -84,7 +84,7 @@ Mesh::Mesh(const Mesh& mesh) :
 }
 
 
-// Assign a mesh. Resource management -- Needs to be wibbled and yall
+// Assign a mesh. Resource management - Needs to be wibbled and yall
 Mesh& Mesh::operator=(const Mesh& mesh)
 {
 	if (this != &mesh)
@@ -184,16 +184,18 @@ Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 		Vertices_ID = items[0];
 		Elements_ID = items[1];
 		Normals_ID = items[2];
-		UV_ID = items[3];
-		Size = items[4];
-		Hitbox[0].x = *reinterpret_cast<float *>(&items[5]);
-		Hitbox[0].y = *reinterpret_cast<float *>(&items[6]);
-		Hitbox[0].z = *reinterpret_cast<float *>(&items[7]);
-		Hitbox[1].x = *reinterpret_cast<float *>(&items[8]);
-		Hitbox[1].y = *reinterpret_cast<float *>(&items[9]);
-		Hitbox[1].z = *reinterpret_cast<float *>(&items[10]);
+		Bump_X_Normals_ID = items[3];
+		Bump_Y_Normals_ID = items[4];
+		UV_ID = items[5];
+		Size = items[6];
+		Hitbox[0].x = *reinterpret_cast<float *>(&items[7]);
+		Hitbox[0].y = *reinterpret_cast<float *>(&items[8]);
+		Hitbox[0].z = *reinterpret_cast<float *>(&items[9]);
+		Hitbox[1].x = *reinterpret_cast<float *>(&items[10]);
+		Hitbox[1].y = *reinterpret_cast<float *>(&items[11]);
+		Hitbox[1].z = *reinterpret_cast<float *>(&items[12]);
 		delete Vertex_References;
-		Vertex_References = reinterpret_cast<unsigned short *>(items[11]);
+		Vertex_References = reinterpret_cast<unsigned short *>(items[13]);
 		*Vertex_References += 1; // Essentially a copy of the vertices
 	}
 	else
@@ -205,6 +207,8 @@ Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 		items.push_back(Vertices_ID);
 		items.push_back(Elements_ID);
 		items.push_back(Normals_ID);
+		items.push_back(Bump_X_Normals_ID);
+		items.push_back(Bump_Y_Normals_ID);
 		items.push_back(UV_ID);
 		items.push_back(Size);
 		items.push_back(*reinterpret_cast<unsigned int *>(&Hitbox[0].x));
@@ -228,7 +232,7 @@ Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 
 
 // Specialized constructor for creating text
-Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& highlight, const int reduce_filter, const int enlarge_filter)
+Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& text_color, const glm::vec4& highlight, const int reduce_filter, const int enlarge_filter)
 {
 
 	Mesh mesh;
@@ -248,7 +252,9 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		mesh.Texture_File_Hash %= Hash_Modulo;
 		mesh.Texture_File_Hash += enlarge_filter;
 		mesh.Texture_File_Hash %= Hash_Modulo;
-		mesh.Texture_File_Hash += glm::dot(highlight, glm::vec4(25, 25, 25, 25)); // Value up to 100 based on highlight
+		mesh.Texture_File_Hash += glm::dot(text_color, glm::vec4(25, 25, 25, 25)); // Value up to 100 based on text color
+		mesh.Texture_File_Hash %= Hash_Modulo;
+		mesh.Texture_File_Hash += glm::dot(highlight, glm::vec4(25, 25, 25, 25)); // Value based on highlight
 		mesh.Texture_File_Hash %= Hash_Modulo;
 	}
 	else
@@ -272,18 +278,32 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		texture.Reduce_Filter = reduce_filter;
 		texture.Enlarge_Filter = enlarge_filter;
 
-		// Here's where we highlight it if we have alpha and we've been asked to highlight it
-		if (highlight.a != 0 && texture.Channels == 4)
+		// Here's where we color the text if required
+		if (texture.Channels == 4 && (highlight.a != 0 || text_color != glm::vec4(1, 1, 1, 1)))
 		{
-			for (int i = 0; i < texture.Width * texture.Height * 4; i += 4) // Loop through each pixel
+			for (int i = 0; i < texture.Width * texture.Height * texture.Channels; i += texture.Channels) // Loop through each pixel
 			{
 				if (texture.Image[i + 3] < 32) // Alpha is esentially zero (Universal photoshop "close enough" is 32)
 				{
 					// Replace it (passed as 0..1 used as 0..255)
-					texture.Image[i] = highlight.r * 255;
-					texture.Image[i + 1] = highlight.g * 255;
-					texture.Image[i + 2] = highlight.b * 255;
-					texture.Image[i + 3] = highlight.a * 255;
+					if (highlight.a != 0)
+					{
+						texture.Image[i] = highlight.r * 255;
+						texture.Image[i + 1] = highlight.g * 255;
+						texture.Image[i + 2] = highlight.b * 255;
+						texture.Image[i + 3] = highlight.a * 255;
+					}
+				}
+				else
+				{
+					// Color the text
+					if (text_color != glm::vec4(1, 1, 1, 1))
+					{
+						texture.Image[i] = text_color.r * 255;
+						texture.Image[i + 1] = text_color.g * 255;
+						texture.Image[i + 2] = text_color.b * 255;
+						texture.Image[i + 3] = text_color.a * 255;
+					}
 				}
 			}
 		}

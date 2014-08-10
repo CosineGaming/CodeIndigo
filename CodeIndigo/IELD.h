@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <Windows.h>
 
-bool Load(const char * filename);
+bool Load(const char * filename, const bool Render = true);
 
 bool Save(const char * filename);
 

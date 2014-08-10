@@ -64,7 +64,7 @@ public:
 	Mesh(const Vertex_Data& initialize, const bool memory_optimize);
 
 	// Specialized constructor for creating text
-	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& highlight = glm::vec4(0, 0, 0, 0), const int reduce_filter = GL_LINEAR_MIPMAP_LINEAR, const int enlarge_filter = GL_LINEAR);
+	static Mesh Text(const char * text, const float size = 0.1, const char * font = "Textures/Font.png", const glm::vec4& text_color = glm::vec4(1, 1, 1, 1), const glm::vec4& highlight = glm::vec4(0, 0, 0, 0), const int reduce_filter = GL_LINEAR_MIPMAP_LINEAR, const int enlarge_filter = GL_LINEAR);
 	// Specialized constructor for creating 2D flat rectangles
 	static Mesh Rectangle(const float width, const float height, const char * texture = nullptr, const char * bump_map = nullptr, const int reduce_filter = GL_LINEAR_MIPMAP_LINEAR, const int enlarge_filter = GL_LINEAR);
 	// Returns CPU Mesh_Data of a Mesh from file
