@@ -534,20 +534,19 @@ void Key_Pressed(int key)
 			}
 			else if (menu_stage == 1)
 			{
-				texture = Typing;
 				menu_stage = 2;
-				if (bump_map == "")
+				if (texture != Typing)
 				{
 					bump_map = texture.substr(0, mesh.length() - 4) + "_Bump.png";
 				}
+				texture = Typing;
 				Typing = bump_map;
 				Cursor_Pos = Typing.length();
 				changed = true;
 			}
 			else
 			{
-				mesh = Typing;
-				if (!mesh.length())
+				if (!Typing.length())
 				{
 					Indigo::Current_World.Remove_2D_Object(space_menu);
 					space_menu = -1;
@@ -557,11 +556,13 @@ void Key_Pressed(int key)
 				else
 				{
 					menu_stage = 1;
-					if (texture == "")
+					if (mesh != Typing)
 					{
-						texture = mesh.substr(0, mesh.length() - 4) + ".png";
+						texture = Typing.substr(0, Typing.length() - 4) + ".png";
 					}
+					mesh = Typing;
 					Typing = texture;
+					Cursor_Pos = Typing.length();
 					changed = true;
 				}
 			}
@@ -575,13 +576,10 @@ void Key_Pressed(int key)
 			if (menu_stage == 0)
 			{
 				Print(space_menu, "Mesh:\n" + Typing);
-				texture = "";
-				bump_map = "";
 			}
 			if (menu_stage == 1)
 			{
 				Print(space_menu, "Texture:\n" + Typing);
-				bump_map = "";
 			}
 			if (menu_stage == 2)
 			{
