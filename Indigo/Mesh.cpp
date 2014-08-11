@@ -235,7 +235,7 @@ Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 Mesh Mesh::Text(const char * text, const float size, const char * font, const glm::vec4& text_color, const glm::vec4& highlight, const int reduce_filter, const int enlarge_filter)
 {
 
-	Mesh mesh;
+ 	Mesh mesh;
 	Vertex_Data data = Text_Vertices(text, size);
 	mesh.Initialize_Vertices(data, false);
 
@@ -277,6 +277,8 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		Texture_Data texture = Load_Image(font);
 		texture.Reduce_Filter = reduce_filter;
 		texture.Enlarge_Filter = enlarge_filter;
+
+		std::cout << texture.Channels << ": " << highlight.r << ", " << highlight.g << ", " << highlight.b << ", " << highlight.a << " | " << text_color.r << ", " << text_color.g << ", " << text_color.b << ", " << text_color.a << std::endl;
 
 		// Here's where we color the text if required
 		if (texture.Channels == 4 && (highlight.a != 0 || text_color != glm::vec4(1, 1, 1, 1)))
@@ -781,15 +783,16 @@ Texture_Data Mesh::Load_Image(const char * filename)
 		texture.Image[0] = 255;
 		texture.Image[1] = 255;
 		texture.Image[2] = 255;
+		texture.Channels = 3;
 		texture.Width = 1;
 		texture.Height = 1;
 	}
 	else
 	{
 		texture.Image = stbi_load(filename, &texture.Width, &texture.Height, &texture.Channels, 0);
-		if (texture.Channels < 3)
+		if (!texture.Image)
 		{
-			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason << ". Failing silently with White texture." << std::endl;
+			std::cout << "Unable to load texture " << filename << ": " << stbi_failure_reason() << ". Failing silently with White texture." << std::endl;
 			return Load_Image();
 		}
 	}

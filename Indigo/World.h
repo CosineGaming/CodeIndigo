@@ -92,7 +92,11 @@ public:
 	int Collide(const glm::vec3& vertex, const float add_x = 0, const float add_y = 0, const float add_z = 0) const;
 
 	// Called every time the World updates, set this as you please
-	void(*Update_Function)(const float time);
+	void (*Update_Function)(const float time);
+	// Called before each render cycle. Set however you like
+	void (*Pre_Render_Function)(void);
+	// Called after each render cycle
+	void (*Post_Render_Function)(void);
 
 	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc
 	Lighting Light_Setup;

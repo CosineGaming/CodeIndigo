@@ -74,6 +74,8 @@ namespace Indigo
 	extern void(*Key_Pressed_Function)(int key);
 	// ... when a key is released
 	extern void(*Key_Released_Function)(int key);
+	// ... when the OS identifies a held key and repeats
+	extern void(*Key_Repeat_Function)(int key);
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	extern void(*Mouse_Button_Function)(int button, int state, float x, float y);
 	// ... when the mouse is moved

@@ -54,7 +54,9 @@ public:
 	// Called every time the World updates, set this as you please
 	void(*Update_Function)(const float time, Object& self);
 	// Called right before the Object renders, set this as you please
-	void(*Render_Function)(void);
+	void(*Pre_Render_Function)(void);
+	// Called right after the Object renders, perhaps for cleanup / state setting
+	void(*Post_Render_Function)(void);
 	// Whether or not to collide when searching through World::Collide
 	bool World_Collide;
 	// Data for the user to define for whatever purpose.

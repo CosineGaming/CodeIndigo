@@ -142,13 +142,20 @@ namespace Indigo
 			Keys[key] = true;
 			Keys_Pressed[key] = true;
 		}
-		if (action == GLFW_RELEASE)
+		else if (action == GLFW_RELEASE)
 		{
 			if (Key_Released_Function)
 			{
 				Key_Released_Function(key);
 			}
 			Keys[key] = false;
+		}
+		else
+		{
+			if (Key_Repeat_Function)
+			{
+				Key_Repeat_Function(key);
+			}
 		}
 		return;
 	}
@@ -579,6 +586,9 @@ namespace Indigo
 
 	// ... when a key is released
 	void(*Key_Released_Function)(int key);
+
+	// ... when the OS identifies a held key and repeats
+	void(*Key_Repeat_Function)(int key);
 
 	// ... when the mouse is pressed or released. Given in 2D_Object space
 	void(*Mouse_Button_Function)(int button, int state, float x, float y);

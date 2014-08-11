@@ -13,39 +13,43 @@
 
 
 // Create a new, empty world
-World::World(void)
+World::World(void) :
+	objects(std::vector<Object>()),
+	objects_front(std::vector<Object>()),
+	objects_2d(std::vector<Object>()),
+	animations(std::vector<Animation>()),
+	skybox(Object()),
+	Update_Function(nullptr),
+	Pre_Render_Function(nullptr),
+	Post_Render_Function(nullptr),
+	View(Camera()),
+	Light_Setup(Lighting()),
+	Matrix_Handle(0),
+	View_Matrix(0),
+	Model_Matrix(0),
+	Shader_Index(0)
 {
-	objects = std::vector<Object>();
-	objects_front = std::vector<Object>();
-	objects_2d = std::vector<Object>();
-	animations = std::vector<Animation>();
-	skybox = Object();
-	Update_Function = nullptr;
-	View = Camera();
-	Light_Setup = Lighting();
-	Matrix_Handle = 0;
-	View_Matrix = 0;
-	Model_Matrix = 0;
-	Shader_Index = 0;
 	return;
 }
 
 
 // Copy a world
-World::World(const World& world)
+World::World(const World& world) :
+	objects(world.objects),
+	objects_front(world.objects_front),
+	objects_2d(world.objects_2d),
+	animations(world.animations),
+	skybox(world.skybox),
+	Update_Function(world.Update_Function),
+	Pre_Render_Function(world.Pre_Render_Function),
+	Post_Render_Function(world.Post_Render_Function),
+	Light_Setup(world.Light_Setup),
+	View(world.View),
+	Matrix_Handle(world.Matrix_Handle),
+	View_Matrix(world.View_Matrix),
+	Model_Matrix(world.Model_Matrix),
+	Shader_Index(world.Shader_Index)
 {
-	objects = world.objects;
-	objects_front = world.objects_front;
-	objects_2d = world.objects_2d;
-	animations = world.animations;
-	skybox = world.skybox;
-	Update_Function = world.Update_Function;
-	Light_Setup = world.Light_Setup;
-	View = world.View;
-	Matrix_Handle = world.Matrix_Handle;
-	View_Matrix = world.View_Matrix;
-	Model_Matrix = world.Model_Matrix;
-	Shader_Index = world.Shader_Index;
 	return;
 }
 

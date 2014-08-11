@@ -29,4 +29,6 @@ void Print(const int handle, const std::string toprint);
 
 void Key_Pressed(int key);
 
+void Global_Values(void);
+
 int main(int argc, char ** argv);

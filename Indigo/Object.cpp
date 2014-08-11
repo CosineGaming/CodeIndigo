@@ -25,7 +25,8 @@ Object::Object(const float x, const float y, const float z, const Mesh& mesh, vo
 	Start_Index(0),
 	Length_Index(0),
 	Update_Function(update_function),
-	Render_Function(nullptr),
+	Pre_Render_Function(nullptr),
+	Post_Render_Function(nullptr),
 	Facing(towards),
 	Scale(1, 1, 1),
 	Color(color),
@@ -49,7 +50,8 @@ Object::Object(const Object& object) :
 	Start_Index(object.Start_Index),
 	Length_Index(object.Length_Index),
 	Update_Function(object.Update_Function),
-	Render_Function(object.Render_Function),
+	Pre_Render_Function(object.Pre_Render_Function),
+	Post_Render_Function(object.Post_Render_Function),
 	Facing(object.Facing),
 	Scale(object.Scale),
 	Color(object.Color),
@@ -84,9 +86,9 @@ void Object::Update(const float time)
 void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bool lighting) const
 {
 
-	if (Render_Function)
+	if (Pre_Render_Function)
 	{
-		Render_Function();
+		Pre_Render_Function();
 	}
 
 	if (Data.Size == 0)
@@ -171,6 +173,11 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_X"));
 	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_Y"));
+
+	if (Post_Render_Function)
+	{
+		Post_Render_Function();
+	}
 
 	return;
 }
