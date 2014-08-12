@@ -35,6 +35,8 @@ int Cursor_Pos;
 float Cursor_Delay;
 bool Cursor_On;
 
+const int Splash_Time = 0;
+
 void Fade_Text(float time, Object& self)
 {
 	self.Color.a -= 0.0002 * time;
@@ -408,7 +410,7 @@ void GUI(float time)
 			Position_Marker = Indigo::Current_World.Add_2D_Object(Object());
 		}
 		Object& marker = Indigo::Current_World.Get_2D_Object(Position_Marker);
-		if (Indigo::Elapsed() > 10000 && Render_Marker)
+		if (Indigo::Elapsed() > Splash_Time && Render_Marker)
 		{
 			std::string x = std::to_string(To_Move->X);
 			std::string y = std::to_string(To_Move->Y);
