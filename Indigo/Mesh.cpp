@@ -278,8 +278,6 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 		texture.Reduce_Filter = reduce_filter;
 		texture.Enlarge_Filter = enlarge_filter;
 
-		std::cout << texture.Channels << ": " << highlight.r << ", " << highlight.g << ", " << highlight.b << ", " << highlight.a << " | " << text_color.r << ", " << text_color.g << ", " << text_color.b << ", " << text_color.a << std::endl;
-
 		// Here's where we color the text if required
 		if (texture.Channels == 4 && (highlight.a != 0 || text_color != glm::vec4(1, 1, 1, 1)))
 		{

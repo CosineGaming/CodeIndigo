@@ -135,20 +135,20 @@ namespace Indigo
 
 		if (action == GLFW_PRESS)
 		{
+			Keys[key] = true;
+			Keys_Pressed[key] = true;
 			if (Key_Pressed_Function)
 			{
 				Key_Pressed_Function(key);
 			}
-			Keys[key] = true;
-			Keys_Pressed[key] = true;
 		}
 		else if (action == GLFW_RELEASE)
 		{
+			Keys[key] = false;
 			if (Key_Released_Function)
 			{
 				Key_Released_Function(key);
 			}
-			Keys[key] = false;
 		}
 		else
 		{
