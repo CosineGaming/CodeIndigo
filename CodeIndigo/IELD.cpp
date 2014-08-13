@@ -1314,7 +1314,7 @@ int main(int argc, char ** argv)
 	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Global_Values();
 	Indigo::Update_Function = GUI;
-	Indigo::Worlds[0].Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
+	//Indigo::Worlds[0].Views[0].Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Worlds[0].Light_Setup.Set_Ambient(0.075);
 	Indigo::Worlds[0].Light_Setup.Add_Sun(0, -1, 0);
 	//Indigo::Worlds[0].Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
@@ -1324,7 +1324,12 @@ int main(int argc, char ** argv)
 	Indigo::Key_Pressed_Function = Key_Pressed;
 	Indigo::Key_Repeat_Function = Key_Pressed;
 	Restore = Indigo::Worlds[0];
-	//Indigo::Construct_Splash();
+	//Indigo::Construct_Splash
+
+	unsigned int handle = Indigo::Worlds[0].Views[0].Generate_Render_Target(glm::vec2(), true);
+	Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
+	data.Texture_ID = handle;
+	Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
 
 	if (argc > 1)
 	{

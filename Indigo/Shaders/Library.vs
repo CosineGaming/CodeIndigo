@@ -14,7 +14,8 @@ uniform mat4 V_Model;
 uniform mat4 V_View;
 
 uniform vec4 V_Lights[8];
-uniform vec4 V_Lamp_Directions;
+uniform mat4 V_Light_Matrices[8];
+uniform vec4 V_Lamp_Directions[8];
 
 // Automatic: varying vec3 gl_Position
 varying vec2 F_UV;
@@ -63,9 +64,9 @@ void Lighting_Requirements()
 		{
 			F_To_Lights[i] = vec4(-1 * bump_space*V_Lights[i].xyz, 0);
 		}
-		if (V_Lamp_Directions.w < 0.5)
+		if (V_Lamp_Directions[i].w < 0.5)
 		{
-			F_Lamp_Directions[i] = vec4(bump_space * V_Lamp_Directions.xyz, 0);
+			F_Lamp_Directions[i] = vec4(bump_space * V_Lamp_Directions[i].xyz, 0);
 		}
 		else
 		{

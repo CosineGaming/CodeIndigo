@@ -10,8 +10,6 @@
 #include <iostream>
 #include "GLFW/glfw3.h"
 
-#define Hash_Modulo 4294967291 // Largest Prime < 2^32
-
 
 // When we're done we have to delete the image (done by Initialize_Texture automatically)
 void Texture_Data::Free(void)
@@ -174,9 +172,10 @@ Mesh::Mesh(const char * filename, const char * texture, const char * bump_map) :
 
 	for (int i = 0; filename[i] != '\0'; ++i)
 	{
-		Obj_File_Hash += int(filename[i]);
-		Obj_File_Hash %= Hash_Modulo; // Largest prime < 2^32
+		Obj_File_Hash += filename[i];
 	}
+	Obj_File_Hash %= Hash_Modulo; // Largest prime < 2^32
+
 	std::map<unsigned int, std::vector<unsigned int>>::iterator location = Load_Once.find(Obj_File_Hash);
 	if (location != Load_Once.end() && location->second.size())
 	{
@@ -244,16 +243,12 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 	{
 		for (int i = 0; font[i] != '\0'; ++i)
 		{
-			mesh.Texture_File_Hash += int(font[i]);
-			mesh.Texture_File_Hash %= Hash_Modulo; // Largest prime < 2^32
+			mesh.Texture_File_Hash += font[i];
 		}
 		// If an image was passed with different filters, we unfortunately need to load it twice with different parameters
 		mesh.Texture_File_Hash += reduce_filter * 2; // If we switch the filters, it should still change. So we multiply times two to seperate them
-		mesh.Texture_File_Hash %= Hash_Modulo;
 		mesh.Texture_File_Hash += enlarge_filter;
-		mesh.Texture_File_Hash %= Hash_Modulo;
 		mesh.Texture_File_Hash += glm::dot(text_color, glm::vec4(25, 25, 25, 25)); // Value up to 100 based on text color
-		mesh.Texture_File_Hash %= Hash_Modulo;
 		mesh.Texture_File_Hash += glm::dot(highlight, glm::vec4(25, 25, 25, 25)); // Value based on highlight
 		mesh.Texture_File_Hash %= Hash_Modulo;
 	}
@@ -699,12 +694,10 @@ void Mesh::Texture(const char * filename, unsigned int * texture_handle, const i
 	{
 		for (int i = 0; filename[i] != '\0'; ++i)
 		{
-			Texture_File_Hash += int(filename[i]);
-			Texture_File_Hash %= Hash_Modulo; // Largest prime < 2^32
+			Texture_File_Hash += filename[i];
 		}
 		// If an image was passed with different filters, we unfortunately need to load it twice with different parameters
 		Texture_File_Hash += reduce_filter * 2; // If we switch the filters, it should still change. So we multiply times two to seperate them
-		Texture_File_Hash %= Hash_Modulo;
 		Texture_File_Hash += enlarge_filter;
 		Texture_File_Hash %= Hash_Modulo;
 	}

@@ -7,8 +7,6 @@
 #include "Animation.h"
 #include "Indigo.h"
 
-#include <fstream>
-#include <string>
 #include <iostream>
 
 
@@ -26,8 +24,7 @@ World::World(void) :
 	Light_Setup(Lighting()),
 	Matrix_Handle(0),
 	View_Matrix(0),
-	Model_Matrix(0),
-	Shader_Index(0)
+	Model_Matrix(0)
 {
 	Views.push_back(Camera());
 	return;
@@ -48,8 +45,7 @@ World::World(const World& world) :
 	Views(world.Views),
 	Matrix_Handle(world.Matrix_Handle),
 	View_Matrix(world.View_Matrix),
-	Model_Matrix(world.Model_Matrix),
-	Shader_Index(world.Shader_Index)
+	Model_Matrix(world.Model_Matrix)
 {
 	return;
 }
@@ -86,7 +82,7 @@ void World::Update(const float time)
 
 
 // Renders every object in the world
-void World::Render(void) const
+void World::Render(void)
 {
 
 	// These loops are in reverse order so that the screen is drawn last
@@ -102,39 +98,41 @@ void World::Render(void) const
 			glBindFramebuffer(GL_FRAMEBUFFER, Views[render].Render_Targets[target]);
 			glViewport(0, 0, Views[render].Resolutions[target].x == 0 ? Indigo::Screen_Width : Views[render].Resolutions[target].x, Views[render].Resolutions[target].y == 0 ? Indigo::Screen_Height : Views[render].Resolutions[target].y);
 
+			glUseProgram(Views[render].Shader_Index);
+
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glm::mat4 project = Views[render].Project();
 			glm::mat4 project_2d = Views[render].Project_2D();
 			glm::mat4 view = Views[render].Look();
 
-			Light_Setup.Update_Lights(*this, view);
+			Light_Setup.Update_Lights(Views[render], view);
 
 			// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
 			if (skybox.Data.Size != 0)
 			{
-				skybox.Render(*this, project, Views[render].Look_In_Place());
+				skybox.Render(Views[render], project, Views[render].Look_In_Place());
 			}
 
 			// Standard Object: View Transform, Perspective, Lighting, Depth Test
 			glEnable(GL_DEPTH_TEST);
 			for (std::size_t object = 0; object < objects.size(); ++object)
 			{
-				objects[object].Render(*this, project, view);
+				objects[object].Render(Views[render], project, view);
 			}
 
 			// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
 			glClear(GL_DEPTH_BUFFER_BIT);
 			for (std::size_t object = 0; object < objects_front.size(); ++object)
 			{
-				objects_front[object].Render(*this, project, glm::mat4(1));
+				objects_front[object].Render(Views[render], project, glm::mat4(1));
 			}
 
 			// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
 			glDisable(GL_DEPTH_TEST);
 			for (std::size_t object = 0; object < objects_2d.size(); ++object)
 			{
-				objects_2d[object].Render(*this, project_2d, glm::mat4(1), false);
+				objects_2d[object].Render(Views[render], project_2d, glm::mat4(1), false);
 			}
 
 		}
@@ -143,140 +141,6 @@ void World::Render(void) const
 
 	return;
 
-}
-
-
-// Compiles and puts in place custom Vertex and Fragment Shaders
-void World::Shader(const char * vertex, const char * fragment)
-{
-
-	// Vertex
-	std::ifstream vs_func_stream = std::ifstream("Indigo/Shaders/Library.vs");
-	if (!vs_func_stream)
-	{
-		std::cout << "Uhh... Huh? Couldn't find default vertex functions file \"Indigo/Shaders/Library.vs\"! Failing silently." << std::endl;
-		return;
-	}
-	std::string total;
-	std::string line;
-	while (std::getline(vs_func_stream, line))
-	{
-		total += line;
-		total += "\n";
-	}
-	vs_func_stream.close();
-	std::ifstream vs_stream = std::ifstream(vertex, std::ios::in);
-	if (!vs_stream)
-	{
-		std::cout << "Uhh... Huh? Couldn't find vertex shader \"" << vertex << "\"! Failing silently." << std::endl;
-		return;
-	}
-	while (std::getline(vs_stream, line))
-	{
-		total += line;
-		total += "\n";
-	}
-	vs_stream.close();
-	const char * source = total.c_str();
-	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &source, NULL);
-	glCompileShader(vertex_shader);
-	int succeeded;
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &succeeded);
-	if (succeeded == GL_FALSE)
-	{
-		int size;
-		glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &size);
-		char * data = new char[size + 1];
-		glGetShaderInfoLog(vertex_shader, size, NULL, data);
-		std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
-		delete[] data;
-		return;
-	}
-
-	// Fragment
-	std::ifstream fs_func_stream = std::ifstream("Indigo/Shaders/Library.fs", std::ios::in);
-	if (!fs_func_stream)
-	{
-		std::cout << "Uhh... Huh? Couldn't find default fragment functions file \"Indigo/Shaders/Library.fs\"! Failing silently." << std::endl;
-		return;
-	}
-	total = std::string();
-	while (std::getline(fs_func_stream, line))
-	{
-		total += line;
-		total += "\n";
-	}
-	fs_func_stream.close();
-	std::ifstream fs_stream = std::ifstream(fragment, std::ios::in);
-	if (!fs_stream)
-	{
-		std::cout << "Uhh... Huh? Couldn't find fragment shader \"" << fragment << "\"! Failing silently." << std::endl;
-		return;
-	}
-	while (std::getline(fs_stream, line))
-	{
-		total += line;
-		total += "\n";
-	}
-	fs_stream.close();
-	const char * fragment_source = total.c_str();
-	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &fragment_source, NULL);
-	glCompileShader(fragment_shader);
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &succeeded);
-	if (succeeded == GL_FALSE)
-	{
-		int size;
-		glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
-		char * data = new char[size + 1];
-		glGetShaderInfoLog(fragment_shader, size, NULL, data);
-		std::cout << "KITTEN KILLER! Failing silently. In fragment shader:" << std::endl << data << std::endl;
-		delete [] data;
-		return;
-	}
-
-	// Link
-	Shader_Index = glCreateProgram();
-	glAttachShader(Shader_Index, vertex_shader);
-	glAttachShader(Shader_Index, fragment_shader);
-	glLinkProgram(Shader_Index);
-	glGetProgramiv(Shader_Index, GL_LINK_STATUS, &succeeded);
-	if (succeeded == GL_FALSE)
-	{
-		int size;
-		glGetProgramiv(Shader_Index, GL_INFO_LOG_LENGTH, &size);
-		char * data = new char[size];
-		glGetProgramInfoLog(Shader_Index, size, NULL, data);
-		std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being stupid. Failing silently, but: " << std::endl << data << std::endl;
-		delete[] data;
-		glDeleteShader(vertex_shader);
-		return;
-	}
-
-	// Cleanup
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
-
-	// All that work shant be for nothing!
-	glUseProgram(Shader_Index);
-
-	return;
-
-}
-
-
-// Get the location of a variable in a shader
-int World::Shader_Location(const char * name, const bool uniform) const
-{
-	if (uniform)
-	{
-		return glGetUniformLocation(Shader_Index, name);
-	}
-	else
-	{
-		return glGetAttribLocation(Shader_Index, name);
-	}
 }
 
 

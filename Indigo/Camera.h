@@ -16,7 +16,7 @@ public:
 
 	// Create a new camera by a position and a direction
 	Camera(const float x = 0.0, const float y = 0.0, const float z = 0.0,
-		const Direction looking=Direction(1.0), const float near = 0.2, const float far = 1000.0,
+		const Direction looking = Direction(1.0), const float near = 0.2, const float far = 1000.0,
 		const Direction above = Direction(1.0, 0.0, 90.0), const int field_of_view_x = 90);
 	// Create a camera based off another
 	Camera(const Camera& camera);
@@ -49,7 +49,7 @@ public:
 	glm::mat4 Look_In_Place(void) const;
 
 	// Generates a target for rendering other than the screen for render to texture (for shadows, gfx, etc)
-	// If resolution is 0,0 it will be Indigo::Screen_Width, Indigo::Screen_Height
+	// If resolution is 0,0 it will be treated as Indigo::Screen_Width, Indigo::Screen_Height
 	// Returns handle to texture
 	// If we don't succeed, Render_Target is reset to 0 (screen) and texture handle is 0
 	unsigned int Generate_Render_Target(const glm::vec2& resolution = glm::vec2(0, 0), const bool is_depth_map = false, const bool is_3d = true);
@@ -57,6 +57,11 @@ public:
 	void Delete_Render_Target(const int id = 0);
 	// Resets render target to the screen (Render Target = 0)
 	void Screen_Render(void);
+	// Compiles the vertex and fragment shaders to use for completing the rendering
+	// Uses many files from Indigo/Shaders/; recommend copying whole Shaders directory into Indigo/ in release directory
+	void Shader(const char * vertex, const char * fragment);
+	// Gets the location of a shader argument. Must be used for uploading data
+	int Shader_Location(const char * name, const bool uniform = false);
 
 	// The direction of the camera that is up.
 	Direction Up;
@@ -72,10 +77,16 @@ public:
 	Direction Eye;
 	// The angle of the field of view on the x axis
 	int Field_Of_View;
+
 	// The render resolution for the camera. If (0,0) it's (Indigo::Screen_Width, Indigo::Screen_Height)
 	std::vector<glm::vec2> Resolutions;
 	// The render target: 0 is the screen
 	std::vector<unsigned int> Render_Targets;
+	// The handle for the shader attached to this camera, defaults to Indigo/Shaders/Default.vs, and .fs
+	unsigned int Shader_Index;
+
+	// Stores a hash of the filename mapped to each shader so that the same shader isn't loaded twice (basically Mesh.Load_Once)
+	static std::map<unsigned int, unsigned int> Load_Once;
 
 private:
 

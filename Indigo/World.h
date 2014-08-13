@@ -27,12 +27,7 @@ public:
 	// Updates every object in the world, prepares to render again
 	void Update(const float time);
 	// Renders every object in the world
-	void Render(void) const;
-
-	// Compiles and puts in place custom Vertex or Fragment Shaders
-	void Shader(const char * vertex, const char * fragment);
-	// Get the location of a variable in a shader
-	int Shader_Location(const char * name, const bool uniform = false) const;
+	void Render(void);
 
 	/*
 	Add a skybox, a backdrop to the world. Accepts a filename of a texture.
@@ -109,8 +104,6 @@ public:
 	unsigned int View_Matrix;
 	// The handle for the matrix defined by each Object
 	unsigned int Model_Matrix;
-	// The handle for the full shader together.
-	unsigned int Shader_Index;
 
 private:
 

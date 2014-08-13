@@ -3,12 +3,15 @@
 #include "Camera.h"
 #include "Indigo.h"
 
+#include <fstream>
+#include <string>
 #include <stdlib.h>
 #include <iostream>
 #include "GLFW/glfw3.h"
 #include "glm/vec3.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+
 
 
 // Create a new camera by a position and a direction
@@ -22,7 +25,8 @@ Camera::Camera(const float x, const float y, const float z, const Direction look
 	Up(above),
 	Field_Of_View(field_of_view_x),
 	Resolutions(std::vector<glm::vec2>(1, glm::vec2(0,0))),
-	Render_Targets(std::vector<unsigned int>(1, 0))
+	Render_Targets(std::vector<unsigned int>(1, 0)),
+	Shader_Index(0)
 {
 	return;
 }
@@ -38,7 +42,8 @@ Camera::Camera(const Camera& camera) :
 	Up(camera.Up),
 	Field_Of_View(camera.Field_Of_View),
 	Resolutions(camera.Resolutions),
-	Render_Targets(camera.Render_Targets)
+	Render_Targets(camera.Render_Targets),
+	Shader_Index(camera.Shader_Index)
 {
 	Place(camera.X, camera.Y, camera.Z);
 	Look_At(camera.Eye);
@@ -182,10 +187,12 @@ unsigned int Camera::Generate_Render_Target(const glm::vec2& resolution, const b
 	unsigned int output;
 	glGenTextures(1, &output);
 	glBindTexture(GL_TEXTURE_2D, output);
-	glTexImage2D(GL_TEXTURE_2D, 0, is_depth_map ? GL_DEPTH_COMPONENT16 : GL_RGB, res.x, res.y, 0, is_depth_map ? GL_DEPTH_COMPONENT : GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, is_depth_map ? GL_DEPTH_COMPONENT16 : GL_RGB, res.x, res.y, 0, is_depth_map ? GL_DEPTH_COMPONENT : GL_RGB, is_depth_map ? GL_FLOAT : GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	if (is_3d)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (is_3d && !is_depth_map)
 	{
 		unsigned int depth_test;
 		glGenRenderbuffers(1, &depth_test);
@@ -193,9 +200,16 @@ unsigned int Camera::Generate_Render_Target(const glm::vec2& resolution, const b
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, res.x, res.y);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_test);
 	}
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, output, 0);
-	unsigned int buffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, buffers);
+	glFramebufferTexture(GL_FRAMEBUFFER, is_depth_map ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0, output, 0);
+	if (is_depth_map)
+	{
+		glDrawBuffer(GL_NONE);
+	}
+	else
+	{
+		unsigned int buffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, buffers);
+	}
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		Screen_Render();
@@ -220,3 +234,169 @@ void Camera::Screen_Render(void)
 	Resolutions = std::vector<glm::vec2>(1, glm::vec2(0,0));
 	Render_Targets = std::vector<unsigned int>(1, 0);
 }
+
+
+// Compiles the vertex and fragment shaders to use for completing the rendering
+// Uses many files from Indigo/Shaders/; recommend copying whole Shaders directory into Indigo/ in release directory
+void Camera::Shader(const char * vertex, const char * fragment)
+{
+
+	unsigned int hash = 0;
+	for (int i = 0; vertex[i] != '\0'; ++i)
+	{
+		hash += vertex[i];
+	}
+	for (int i = 0; fragment[i] != '\0'; ++i)
+	{
+		hash += fragment[i];
+	}
+	hash %= Hash_Modulo;
+
+	std::map<unsigned int, unsigned int>::iterator location = Load_Once.find(hash);
+
+	if (location != Load_Once.end())
+	{
+		Shader_Index = location->second;
+	}
+	else
+	{
+
+		// Vertex
+		std::ifstream vs_func_stream = std::ifstream("Indigo/Shaders/Library.vs");
+		if (!vs_func_stream)
+		{
+			std::cout << "Uhh... Huh? Couldn't find default vertex functions file \"Indigo/Shaders/Library.vs\"! Failing silently." << std::endl;
+			return;
+		}
+		std::string total;
+		std::string line;
+		while (std::getline(vs_func_stream, line))
+		{
+			total += line;
+			total += "\n";
+		}
+		vs_func_stream.close();
+		std::ifstream vs_stream = std::ifstream(vertex, std::ios::in);
+		if (!vs_stream)
+		{
+			std::cout << "Uhh... Huh? Couldn't find vertex shader \"" << vertex << "\"! Failing silently." << std::endl;
+			return;
+		}
+		while (std::getline(vs_stream, line))
+		{
+			total += line;
+			total += "\n";
+		}
+		vs_stream.close();
+		const char * source = total.c_str();
+		unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex_shader, 1, &source, NULL);
+		glCompileShader(vertex_shader);
+		int succeeded;
+		glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &succeeded);
+		if (succeeded == GL_FALSE)
+		{
+			int size;
+			glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &size);
+			char * data = new char[size + 1];
+			glGetShaderInfoLog(vertex_shader, size, NULL, data);
+			std::cout << "KITTEN KILLER! Failing silently. In vertex shader:" << std::endl << data << std::endl;
+			delete [] data;
+			return;
+		}
+
+		// Fragment
+		std::ifstream fs_func_stream = std::ifstream("Indigo/Shaders/Library.fs", std::ios::in);
+		if (!fs_func_stream)
+		{
+			std::cout << "Uhh... Huh? Couldn't find default fragment functions file \"Indigo/Shaders/Library.fs\"! Failing silently." << std::endl;
+			return;
+		}
+		total = std::string();
+		while (std::getline(fs_func_stream, line))
+		{
+			total += line;
+			total += "\n";
+		}
+		fs_func_stream.close();
+		std::ifstream fs_stream = std::ifstream(fragment, std::ios::in);
+		if (!fs_stream)
+		{
+			std::cout << "Uhh... Huh? Couldn't find fragment shader \"" << fragment << "\"! Failing silently." << std::endl;
+			return;
+		}
+		while (std::getline(fs_stream, line))
+		{
+			total += line;
+			total += "\n";
+		}
+		fs_stream.close();
+		const char * fragment_source = total.c_str();
+		unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment_shader, 1, &fragment_source, NULL);
+		glCompileShader(fragment_shader);
+		glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &succeeded);
+		if (succeeded == GL_FALSE)
+		{
+			int size;
+			glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &size);
+			char * data = new char[size + 1];
+			glGetShaderInfoLog(fragment_shader, size, NULL, data);
+			std::cout << "KITTEN KILLER! Failing silently. In fragment shader:" << std::endl << data << std::endl;
+			delete [] data;
+			return;
+		}
+
+		// Link
+		Shader_Index = glCreateProgram();
+		glAttachShader(Shader_Index, vertex_shader);
+		glAttachShader(Shader_Index, fragment_shader);
+		glLinkProgram(Shader_Index);
+		glGetProgramiv(Shader_Index, GL_LINK_STATUS, &succeeded);
+		if (succeeded == GL_FALSE)
+		{
+			int size;
+			glGetProgramiv(Shader_Index, GL_INFO_LOG_LENGTH, &size);
+			char * data = new char[size];
+			glGetProgramInfoLog(Shader_Index, size, NULL, data);
+			std::cout << "KITTEN KILLER! Actually, linker, so probably just GLSL being stupid. Failing silently, but: " << std::endl << data << std::endl;
+			delete [] data;
+			glDeleteShader(vertex_shader);
+			return;
+		}
+
+		// Cleanup
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+
+		Load_Once[hash] = Shader_Index;
+
+	}
+
+	return;
+
+}
+
+
+// Gets the location of a shader argument. Must be used for uploading data
+int Camera::Shader_Location(const char * name, const bool uniform)
+{
+	if (Shader_Index == 0)
+	{
+		// To avoid the common pitfall of forgetting to assign shaders; a "default argument" of sorts
+		Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
+		glUseProgram(Shader_Index);
+	}
+	if (uniform)
+	{
+		return glGetUniformLocation(Shader_Index, name);
+	}
+	else
+	{
+		return glGetAttribLocation(Shader_Index, name);
+	}
+}
+
+
+// Stores a hash of the filename mapped to each shader so that the same shader isn't loaded twice (basically Mesh.Load_Once)
+std::map<unsigned int, unsigned int> Camera::Load_Once = std::map<unsigned int, unsigned int>();

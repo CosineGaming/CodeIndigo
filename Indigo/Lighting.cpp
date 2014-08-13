@@ -5,10 +5,14 @@
 #include "Lighting.h"
 
 #include "Indigo.h"
+#include "Camera.h"
 #include "World.h"
 
 #include "GLFW/glfw3.h"
 #include <iostream>
+#include "glm/vec3.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 
 Lighting::Lighting(void)
@@ -68,6 +72,7 @@ int Lighting::Add_Sun(float X, float Y, float Z, float power, glm::vec3 color)
 	colors[number_of_lights] = color * power;
 	directions[number_of_lights] = glm::vec4(0, 0, 0, 1);
 	angles[number_of_lights] = 0;
+	shadow_matrices[number_of_lights] = glm::mat4(glm::ortho(-10, 10, -10, 10, -10, 20)) * glm::mat4(glm::lookAt(glm::vec3(-1 * X, -1 * Y, -1 * Z), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
 	return number_of_lights++;
 }
 
@@ -94,10 +99,10 @@ void Lighting::Remove_Light(int ID)
 
 
 // Set the shader uniforms for the frame
-void Lighting::Update_Lights(const World& holder, const glm::mat4& view) const
+void Lighting::Update_Lights(Camera& camera, const glm::mat4& view) const
 {
-	glUniform4fv(holder.Shader_Location("V_Lights", true), 8, &positions[0][0]);
-	glUniform3fv(holder.Shader_Location("F_Light_Colors", true), 8, &colors[0][0]);
+	glUniform4fv(camera.Shader_Location("V_Lights", true), 8, &positions[0][0]);
+	glUniform3fv(camera.Shader_Location("F_Light_Colors", true), 8, &colors[0][0]);
 	glm::vec4 world_directions[8];
 	for (int i = 0; i < number_of_lights; ++i)
 	{
@@ -107,8 +112,8 @@ void Lighting::Update_Lights(const World& holder, const glm::mat4& view) const
 			world_directions[i] = view * world_directions[i];
 		}
 	}
-	glUniform4fv(holder.Shader_Location("V_Lamp_Directions", true), 8, &world_directions[0][0]);
-	glUniform1fv(holder.Shader_Location("F_Lamp_Angles", true), 8, &angles[0]);
-	glUniform3f(holder.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
-	glUniform1i(holder.Shader_Location("F_Number_Of_Lights", true), number_of_lights);
+	glUniform4fv(camera.Shader_Location("V_Lamp_Directions", true), 8, &world_directions[0][0]);
+	glUniform1fv(camera.Shader_Location("F_Lamp_Angles", true), 8, &angles[0]);
+	glUniform3f(camera.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
+	glUniform1i(camera.Shader_Location("F_Number_Of_Lights", true), number_of_lights);
 }

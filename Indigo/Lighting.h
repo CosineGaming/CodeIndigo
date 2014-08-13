@@ -6,6 +6,7 @@
 #include "glm/vec3.hpp"
 
 class World;
+class Camera;
 
 
 class Lighting
@@ -30,7 +31,7 @@ public:
 	// Remove a light, given an ID
 	void Remove_Light(int ID);
 	// Set the shader uniforms for the frame
-	void Update_Lights(const World& holder, const glm::mat4& view) const;
+	void Update_Lights(Camera& camera, const glm::mat4& view) const;
 
 private:
 
@@ -46,6 +47,8 @@ private:
 	glm::vec4 directions[8];
 	// The full angle given light from each lamp.
 	float angles[8];
+	// The matrix for rendering the shadows for shadowing lights
+	glm::mat4 shadow_matrices[8];
 
 	// The number of lights that have actually been dedicated
 	int number_of_lights;

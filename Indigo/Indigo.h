@@ -10,6 +10,8 @@
 #include <vector>
 #include "GLFW/glfw3.h"
 
+#define Hash_Modulo 4294967291 // Largest Prime < 2^32 used for 32-bit integer simple fast hashes
+
 
 namespace Indigo
 {
