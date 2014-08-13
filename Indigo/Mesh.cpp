@@ -395,63 +395,71 @@ Vertex_Data Mesh::File_Vertices(const char * filename)
 			{
 				// Vertex
 				data.Positions.push_back(temp_vertices[atoi(values.c_str()) - 1]);
-				// Vertex Texture
-				int texturenormal = values.find('/') + 1;
+				int texturenormal = values.find('/');
 				if (texturenormal != std::string::npos)
 				{
-					values = values.substr(texturenormal);
+					// Either we have vertex/texture OR vertex/texture/normal OR vertex//normal
+					values = values.substr(texturenormal + 1);
+					// Vertex Texture
 					if (values[0] != '/')
 					{
+						// We have vertex/texture OR vertex/texture/normal. This is texture:
 						data.UVs.push_back(temp_textures[atoi(values.c_str()) - 1]);
 					}
 					else
 					{
-						data.UVs.push_back(glm::vec2(0, 0));
+						// We have vertex//normal (fill trash; will not render properly, but try to get it at least to render)
+						if (data.UVs.size() == 0)
+							data.UVs.push_back(glm::vec2(0, 0));
+						else
+							data.UVs.push_back(glm::vec2(data.UVs[data.UVs.size() - 1].x + 0.001, data.UVs[data.UVs.size() - 1].y + 0.001));
 					}
 					// Vertex Normal
-					values = values.substr(values.find('/') + 1);
-					if (values[0] != ' ')
+					if (values.find(' ') > values.find('/'))
 					{
-						int place = atoi(values.c_str()) - 1;
-						if (temp_normals.size() > place)
-						{
-							data.Normals.push_back(temp_normals[place]);
-						}
-						else
-						{
-							if (point == 2)
-							{
-								int start = data.Positions.size() - 1;
-								glm::vec3 flat_normal = glm::cross(data.Positions[start - 1] - data.Positions[start - 2], data.Positions[start] - data.Positions[start - 2]);
-								data.Normals.push_back(flat_normal);
-								data.Normals.push_back(flat_normal);
-								data.Normals.push_back(flat_normal);
-							}
-						}
+						// There is another slash: We have a normal! (vertex/texture/normal OR vertex//normal)
+						values = values.substr(values.find('/') + 1);
+						data.Normals.push_back(temp_normals[atoi(values.c_str()) - 1]);
 					}
-					if (point == 2)
+					else
 					{
-						int start = data.Positions.size() - 1;
-						glm::vec2 uv_dir_1 = data.UVs[start - 1] - data.UVs[start - 2];
-						glm::vec2 uv_dir_2 = data.UVs[start] - data.UVs[start - 2];
-						glm::vec3 vert_dir_1 = data.Positions[start - 1] - data.Positions[start - 2];
-						glm::vec3 vert_dir_2 = data.Positions[start] - data.Positions[start - 2];
-						float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
-						glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
-						bump_x_add = bump_x_add - data.Normals[start] * glm::dot(data.Normals[start], bump_x_add);
-						glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
-						data.Bump_X_Normals.push_back(bump_x_add);
-						data.Bump_X_Normals.push_back(bump_x_add);
-						data.Bump_X_Normals.push_back(bump_x_add);
-						data.Bump_Y_Normals.push_back(bump_y_add);
-						data.Bump_Y_Normals.push_back(bump_y_add);
-						data.Bump_Y_Normals.push_back(bump_y_add);
+						// No normal: We have vertex/texture
+						if (point == 2)
+						{
+							int start = data.Positions.size() - 1;
+							glm::vec3 flat_normal = glm::cross(data.Positions[start - 1] - data.Positions[start - 2], data.Positions[start] - data.Positions[start - 2]);
+							data.Normals.push_back(flat_normal);
+							data.Normals.push_back(flat_normal);
+							data.Normals.push_back(flat_normal);
+						}
 					}
 				}
 				else
 				{
-					data.UVs.push_back(glm::vec2(0, 0));
+					// We have just vertex vertex vertex
+					if (data.UVs.size() == 0)
+						data.UVs.push_back(glm::vec2(0, 0));
+					else
+						data.UVs.push_back(glm::vec2(data.UVs[data.UVs.size() - 1].x + 0.001, data.UVs[data.UVs.size() - 1].y + 0.001));
 					data.Normals.push_back(glm::cross(data.Positions[point - 1] - data.Positions[point - 2], data.Positions[point] - data.Positions[point - 2]));
+				}
+				if (point == 2)
+				{
+					int start = data.Positions.size() - 1;
+					glm::vec2 uv_dir_1 = data.UVs[start - 1] - data.UVs[start - 2];
+					glm::vec2 uv_dir_2 = data.UVs[start] - data.UVs[start - 2];
+					glm::vec3 vert_dir_1 = data.Positions[start - 1] - data.Positions[start - 2];
+					glm::vec3 vert_dir_2 = data.Positions[start] - data.Positions[start - 2];
+					float denominator = 1.0 / (uv_dir_1.x * uv_dir_2.y - uv_dir_1.y * uv_dir_2.x);
+					glm::vec3 bump_x_add = (vert_dir_1 * uv_dir_2.y - vert_dir_2 * uv_dir_1.y) * denominator;
+					bump_x_add = bump_x_add - data.Normals[start] * glm::dot(data.Normals[start], bump_x_add);
+					glm::vec3 bump_y_add = (vert_dir_2 * uv_dir_1.x - vert_dir_1 * uv_dir_2.x) * denominator;
+					data.Bump_X_Normals.push_back(bump_x_add);
+					data.Bump_X_Normals.push_back(bump_x_add);
+					data.Bump_X_Normals.push_back(bump_x_add);
+					data.Bump_Y_Normals.push_back(bump_y_add);
+					data.Bump_Y_Normals.push_back(bump_y_add);
+					data.Bump_Y_Normals.push_back(bump_y_add);
 				}
 				// Move on to next point
 				values = values.substr(values.find(' ') + 1);

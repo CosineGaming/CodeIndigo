@@ -125,8 +125,9 @@ bool Load(const char * filename, const bool render)
 	camx|camy|camz|camspeed|snap
 	// Subsequent lines are each objects
 	x|y|z|facex|facey|r|g|b|a|shine|model|texture|bumpmap
-	x|y|z|facex|facey|r|g|b|a|shine|model|texture|bumpmap
+	x|y|...
 	*/
+	// Covers all feasibly implementable object properties
 	std::ifstream file(filename);
 	if (!file)
 	{
@@ -368,7 +369,7 @@ void GUI(float time)
 		if (To_Move != &Motion)
 		{
 			// Objects move away from the camera on W, left on A, etc, but only to the nearest right angle
-			To_Move->Facing = Direction(1, int((Motion.Facing.Get_X_Angle() + To_Move->Facing.Get_X_Angle() + 45) / 90) * 90, int((To_Move->Facing.Get_Y_Angle() + 45) / 90) * 90);
+			To_Move->Facing = Direction(1, int((Motion.Facing.Get_X_Angle() + 45) / 90) * 90 + To_Move->Facing.Get_X_Angle(), int((To_Move->Facing.Get_Y_Angle() + 45) / 90) * 90);
 		}
 		if (Indigo::Keys['w'])
 		{
@@ -1177,6 +1178,10 @@ void Key_Pressed(int key)
 			}
 			if (key == 'o') // Open
 			{
+
+				Global_Values();
+				Indigo::Current_World = Restore;
+
 				menu_x = Indigo::Mouse_Position.x + 0.07;
 				menu_y = Indigo::Mouse_Position.y - 0.07;
 
