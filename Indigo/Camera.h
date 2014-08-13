@@ -48,6 +48,16 @@ public:
 	// Look through the camera, but at the position 0,0,0. Used for Skybox.
 	glm::mat4 Look_In_Place(void) const;
 
+	// Generates a target for rendering other than the screen for render to texture (for shadows, gfx, etc)
+	// If resolution is 0,0 it will be Indigo::Screen_Width, Indigo::Screen_Height
+	// Returns handle to texture
+	// If we don't succeed, Render_Target is reset to 0 (screen) and texture handle is 0
+	unsigned int Generate_Render_Target(const glm::vec2& resolution = glm::vec2(0, 0), const bool is_depth_map = false, const bool is_3d = true);
+	// Deletes a render target that was added id'th after the first. 0 to delete screen render, 1 to delete a Generated one, etc
+	void Delete_Render_Target(const int id = 0);
+	// Resets render target to the screen (Render Target = 0)
+	void Screen_Render(void);
+
 	// The direction of the camera that is up.
 	Direction Up;
 	// The camera's position
@@ -62,6 +72,10 @@ public:
 	Direction Eye;
 	// The angle of the field of view on the x axis
 	int Field_Of_View;
+	// The render resolution for the camera. If (0,0) it's (Indigo::Screen_Width, Indigo::Screen_Height)
+	std::vector<glm::vec2> Resolutions;
+	// The render target: 0 is the screen
+	std::vector<unsigned int> Render_Targets;
 
 private:
 

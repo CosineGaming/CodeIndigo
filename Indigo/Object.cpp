@@ -6,6 +6,7 @@
 #include "Object.h"
 
 #include "Indigo.h"
+#include "World.h"
 
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
@@ -83,7 +84,7 @@ void Object::Update(const float time)
 
 
 // Renders the object
-void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bool lighting) const
+void Object::Render(const World& world, const glm::mat4& projection, const glm::mat4& view, const bool lighting) const
 {
 
 	if (Pre_Render_Function)
@@ -101,64 +102,64 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	modeling = glm::rotate(modeling, Facing.Get_X_Angle(), glm::vec3(0, -1, 0));
 	modeling = glm::rotate(modeling, Facing.Get_Y_Angle(), glm::vec3(1, 0, 0));
 	modeling = glm::scale(modeling, Scale);
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_Model", true), 1, GL_FALSE, &modeling[0][0]);
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_View", true), 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(world.Shader_Location("V_Model", true), 1, GL_FALSE, &modeling[0][0]);
+	glUniformMatrix4fv(world.Shader_Location("V_View", true), 1, GL_FALSE, &view[0][0]);
 	glm::mat4 mvp = projection * view * modeling;
-	glUniformMatrix4fv(Indigo::Current_World.Shader_Location("V_MVP", true), 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(world.Shader_Location("V_MVP", true), 1, GL_FALSE, &mvp[0][0]);
 
 	// Custom data
 	for (int i = 0; i < Shader_Argument_Names.size(); ++i)
 	{
-		glUniform1f(Indigo::Current_World.Shader_Location(Shader_Argument_Names[i], true), Shader_Arguments[i]);
+		glUniform1f(world.Shader_Location(Shader_Argument_Names[i], true), Shader_Arguments[i]);
 	}
 
 	// Texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Data.Texture_ID);
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Texture", true), 0);
+	glUniform1i(world.Shader_Location("F_Texture", true), 0);
 
 	// Bump map texture
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, Data.Bump_Texture_ID);
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Bump_Map", true), 1);
+	glUniform1i(world.Shader_Location("F_Bump_Map", true), 1);
 	
 	// Shininess
-	glUniform1f(Indigo::Current_World.Shader_Location("F_Shininess", true), Shine);
+	glUniform1f(world.Shader_Location("F_Shininess", true), Shine);
 
 	// Color
-	glUniform4f(Indigo::Current_World.Shader_Location("F_Color", true), Color.r, Color.g, Color.b, Color.a);
+	glUniform4f(world.Shader_Location("F_Color", true), Color.r, Color.g, Color.b, Color.a);
 
 	// Lighting enabled?
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Lighting_Enabled", true), lighting);
+	glUniform1i(world.Shader_Location("F_Lighting_Enabled", true), lighting);
 
 	// Vertices
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
+	glEnableVertexAttribArray(world.Shader_Location("V_Position"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Vertices_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+	glVertexAttribPointer(world.Shader_Location("V_Position"), 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Texture UVs
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
+	glEnableVertexAttribArray(world.Shader_Location("V_UV"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.UV_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(world.Shader_Location("V_UV"), 2, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Light normals
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
+	glEnableVertexAttribArray(world.Shader_Location("V_Normal"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Normals_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(world.Shader_Location("V_Normal"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Bump map normals X
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_X"));
+	glEnableVertexAttribArray(world.Shader_Location("V_Bump_X"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Bump_X_Normals_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Bump_X"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(world.Shader_Location("V_Bump_X"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Bump map normals Y
-	glEnableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_Y"));
+	glEnableVertexAttribArray(world.Shader_Location("V_Bump_Y"));
 	glBindBuffer(GL_ARRAY_BUFFER, Data.Bump_Y_Normals_ID);
-	glVertexAttribPointer(Indigo::Current_World.Shader_Location("V_Bump_Y"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
+	glVertexAttribPointer(world.Shader_Location("V_Bump_Y"), 3, GL_FLOAT, GL_TRUE, 0, (void *) 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Indices
@@ -168,11 +169,11 @@ void Object::Render(const glm::mat4& projection, const glm::mat4& view, const bo
 	glDrawElements(GL_TRIANGLES, Length_Index ? Length_Index : Data.Size, GL_UNSIGNED_SHORT, (void*) (Start_Index*sizeof(unsigned short)));
 
 	// Finished
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Position"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_UV"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Normal"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_X"));
-	glDisableVertexAttribArray(Indigo::Current_World.Shader_Location("V_Bump_Y"));
+	glDisableVertexAttribArray(world.Shader_Location("V_Position"));
+	glDisableVertexAttribArray(world.Shader_Location("V_UV"));
+	glDisableVertexAttribArray(world.Shader_Location("V_Normal"));
+	glDisableVertexAttribArray(world.Shader_Location("V_Bump_X"));
+	glDisableVertexAttribArray(world.Shader_Location("V_Bump_Y"));
 
 	if (Post_Render_Function)
 	{
@@ -363,7 +364,7 @@ float Object::Collide(const glm::vec2& position, const glm::mat4& camera_positio
 	modeling = glm::scale(modeling, Scale);
 	if (MVP == glm::mat4(0))
 	{
-		MVP = Indigo::Current_World.View.Project() * Indigo::Current_World.View.Look() * modeling;
+		MVP = Indigo::Worlds[0].Views[0].Project() * Indigo::Worlds[0].Views[0].Look() * modeling;
 	}
 	else
 	{

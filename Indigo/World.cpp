@@ -22,13 +22,14 @@ World::World(void) :
 	Update_Function(nullptr),
 	Pre_Render_Function(nullptr),
 	Post_Render_Function(nullptr),
-	View(Camera()),
+	Views(std::vector<Camera>()),
 	Light_Setup(Lighting()),
 	Matrix_Handle(0),
 	View_Matrix(0),
 	Model_Matrix(0),
 	Shader_Index(0)
 {
+	Views.push_back(Camera());
 	return;
 }
 
@@ -44,7 +45,7 @@ World::World(const World& world) :
 	Pre_Render_Function(world.Pre_Render_Function),
 	Post_Render_Function(world.Post_Render_Function),
 	Light_Setup(world.Light_Setup),
-	View(world.View),
+	Views(world.Views),
 	Matrix_Handle(world.Matrix_Handle),
 	View_Matrix(world.View_Matrix),
 	Model_Matrix(world.Model_Matrix),
@@ -88,39 +89,56 @@ void World::Update(const float time)
 void World::Render(void) const
 {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// These loops are in reverse order so that the screen is drawn last
 
-	glm::mat4 project = View.Project();
-	glm::mat4 project_2d = View.Project_2D();
-	glm::mat4 view = View.Look();
-
-	Indigo::Current_World.Light_Setup.Update_Lights(view);
-
-	// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
-	if (skybox.Data.Size != 0)
+	for (int render = Views.size() - 1; render >= 0; --render)
 	{
-		skybox.Render(project, View.Look_In_Place());
-	}
 
-	// Standard Object: View Transform, Perspective, Lighting, Depth Test
-	glEnable(GL_DEPTH_TEST);
-	for (std::size_t object = 0; object<objects.size(); ++object)
-	{
-		objects[object].Render(project, view);
-	}
+		for (int target = Views[render].Render_Targets.size() - 1; target >= 0; --target)
+		{
 
-	// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
-	glClear(GL_DEPTH_BUFFER_BIT);
-	for (std::size_t object = 0; object < objects_front.size(); ++object)
-	{
-		objects_front[object].Render(project, glm::mat4(1));
-	}
+			// Though this looks like a complex and long-lasting for loop, for standard rendering this will only run once
 
-	// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
-	glDisable(GL_DEPTH_TEST);
-	for (std::size_t object = 0; object<objects_2d.size(); ++object)
-	{
-		objects_2d[object].Render(project_2d, glm::mat4(1), false);
+			glBindFramebuffer(GL_FRAMEBUFFER, Views[render].Render_Targets[target]);
+			glViewport(0, 0, Views[render].Resolutions[target].x == 0 ? Indigo::Screen_Width : Views[render].Resolutions[target].x, Views[render].Resolutions[target].y == 0 ? Indigo::Screen_Height : Views[render].Resolutions[target].y);
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glm::mat4 project = Views[render].Project();
+			glm::mat4 project_2d = Views[render].Project_2D();
+			glm::mat4 view = Views[render].Look();
+
+			Light_Setup.Update_Lights(*this, view);
+
+			// Skbybox: Perspective, View Pointing, No View Translate, No Lighting, No Depth Test
+			if (skybox.Data.Size != 0)
+			{
+				skybox.Render(*this, project, Views[render].Look_In_Place());
+			}
+
+			// Standard Object: View Transform, Perspective, Lighting, Depth Test
+			glEnable(GL_DEPTH_TEST);
+			for (std::size_t object = 0; object < objects.size(); ++object)
+			{
+				objects[object].Render(*this, project, view);
+			}
+
+			// Front Object: View Pointing, Perspective, Lighting, Depth Test Cleared, No View Transform
+			glClear(GL_DEPTH_BUFFER_BIT);
+			for (std::size_t object = 0; object < objects_front.size(); ++object)
+			{
+				objects_front[object].Render(*this, project, glm::mat4(1));
+			}
+
+			// 2D Object / Text: No View Transform, Orthographic, No Lighting, No Depth Test
+			glDisable(GL_DEPTH_TEST);
+			for (std::size_t object = 0; object < objects_2d.size(); ++object)
+			{
+				objects_2d[object].Render(*this, project_2d, glm::mat4(1), false);
+			}
+
+		}
+
 	}
 
 	return;
@@ -249,7 +267,7 @@ void World::Shader(const char * vertex, const char * fragment)
 
 
 // Get the location of a variable in a shader
-int World::Shader_Location(const char * name, const bool uniform)
+int World::Shader_Location(const char * name, const bool uniform) const
 {
 	if (uniform)
 	{

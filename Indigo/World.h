@@ -32,7 +32,7 @@ public:
 	// Compiles and puts in place custom Vertex or Fragment Shaders
 	void Shader(const char * vertex, const char * fragment);
 	// Get the location of a variable in a shader
-	int Shader_Location(const char * name, const bool uniform = false);
+	int Shader_Location(const char * name, const bool uniform = false) const;
 
 	/*
 	Add a skybox, a backdrop to the world. Accepts a filename of a texture.
@@ -100,8 +100,8 @@ public:
 
 	// Used to modify the lighting arrangement of the world. Does not hold light normals, etc
 	Lighting Light_Setup;
-	// The camera for looking in the world
-	Camera View;
+	// The cameras for looking in the world and different types of render
+	std::vector<Camera> Views;
 
 	// The handle for the full MVP matrix
 	unsigned int Matrix_Handle;

@@ -7,6 +7,7 @@
 #include "Animation.h"
 
 #include <iostream>
+#include <vector>
 #include "GLFW/glfw3.h"
 
 
@@ -36,7 +37,7 @@ namespace Indigo
 	// Default parameter call, needed for FPS mouse callback. Used intrinsically, do not call.
 	void FPS_Mouse_Function(int x, int y);
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
-	// Then, use Indigo::Current_World.camera.facing = player.facing;
+	// Then, use Indigo::Worlds[0].camera.facing = player.facing;
 	void FPS_Mouse(Object * player = nullptr, float sensitivity = 0.2);
 	// Acts for when an error is encountered
 	void Error_Found(int type, const char * message);
@@ -45,15 +46,12 @@ namespace Indigo
 	// Renders world
 	void Render(void);
 
-	// Stores the current world to render
-	extern World Current_World;
-
 	// Callback for the spashscreen
 	void Animate_Splash(float time, Object& self);
 	// Callback for the spashscreen's text
 	void Splash_Label_Fade(float time, Object& self);
 	// A nice little splashscreen for load routines
-	void Construct_Splash(World& add_to = Current_World);
+	void Construct_Splash(World& add_to);
 
 	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
 	inline float Elapsed();
@@ -64,7 +62,8 @@ namespace Indigo
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void);
 
-
+	// Stores each world to render each frame
+	extern std::vector<World> Worlds;
 	// Stores the window we're rendering onto
 	extern GLFWwindow * Window;
 	// Takes care of managing all the buffers
@@ -83,9 +82,10 @@ namespace Indigo
 	// ... when the mouse is moved, given relative to the center
 	// Also hides mouse when defined.
 	extern void(*Relative_Mouse_Moved_Function)(int x, int y);
+	// ... when the window is resized
+	extern void(*Reshape_Function)(int width, int height);
 	// ... on an error
 	extern void(*Error_Function)(int type, const char * message);
-	// Use the default FPS-style mouse by calling this, then all 
 	// ... every time the world updates
 	extern void(*Update_Function)(float time);
 	// ... just before the rendering of objects in the world

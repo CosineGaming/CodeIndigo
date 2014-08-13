@@ -325,12 +325,12 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 
 
 // Specialized constructor for creating 2D flat rectangles
-Mesh Mesh::Rectangle(const float width, const float height, const char * texture, const char * bump_map, const int reduce_filter, const int enlarge_filter)
+Mesh Mesh::Rectangle(const float width, const float height, const char * texture, const char * bump_map, const bool normalize_texture, const int reduce_filter, const int enlarge_filter)
 {
 	Mesh mesh;
 	mesh.Texture(texture);
 	mesh.Bump_Map(bump_map);
-	Vertex_Data data = Rectangle_Vertices(width, height);
+	Vertex_Data data = Rectangle_Vertices(width, height, normalize_texture);
 	mesh.Initialize_Vertices(data);
 	return mesh;
 }
@@ -533,18 +533,23 @@ Vertex_Data Mesh::Text_Vertices(const char * text, const float size)
 
 
 // Returns CPU Mesh_Data of a Rectangle
-Vertex_Data Mesh::Rectangle_Vertices(const float width, const float height)
+Vertex_Data Mesh::Rectangle_Vertices(const float width, const float height, const bool normalize_texture_coords)
 {
 
 	float hw = width / 2;
 	float hh = height / 2;
 	// Texture coordinates shouldn't stretch. Texture is in top-left
-	float wth = width / height;
-	float htw = 1 / wth;
-	if (wth > 1)
-		wth = 1;
-	if (htw > 1)
-		htw = 1;
+	float wth = 1;
+	float htw = 1;
+	if (normalize_texture_coords)
+	{
+		wth = width / height;
+		htw = 1 / wth;
+		if (wth > 1)
+			wth = 1;
+		if (htw > 1)
+			htw = 1;
+	}
 	Vertex_Data data;
 	data.Positions.push_back(glm::vec3(-hw, -hh, 0));
 	data.Positions.push_back(glm::vec3(hw, -hh, 0));

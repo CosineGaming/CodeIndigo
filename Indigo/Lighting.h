@@ -5,6 +5,8 @@
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
 
+class World;
+
 
 class Lighting
 {
@@ -28,7 +30,7 @@ public:
 	// Remove a light, given an ID
 	void Remove_Light(int ID);
 	// Set the shader uniforms for the frame
-	void Update_Lights(const glm::mat4& view) const;
+	void Update_Lights(const World& holder, const glm::mat4& view) const;
 
 private:
 

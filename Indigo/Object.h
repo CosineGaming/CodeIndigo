@@ -9,6 +9,8 @@
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
 
+class World;
+
 
 class Object
 {
@@ -26,7 +28,7 @@ public:
 	// Updates the object, preparing for User-Defined Update_Function
 	void Update(const float time);
 	// Renders the object
-	void Render(const glm::mat4& projection, const glm::mat4& view, const bool lighting=true) const;
+	void Render(const World& world, const glm::mat4& projection, const glm::mat4& view, const bool lighting=true) const;
 
 	// Places the object at the X, Y, and Z coordinates
 	void Place(const float x, const float y=0.0, const float z=0.0);

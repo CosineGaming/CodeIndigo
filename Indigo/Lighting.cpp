@@ -2,8 +2,10 @@
 
 #include "GL/glew.h"
 
-#include "Indigo.h"
 #include "Lighting.h"
+
+#include "Indigo.h"
+#include "World.h"
 
 #include "GLFW/glfw3.h"
 #include <iostream>
@@ -92,10 +94,10 @@ void Lighting::Remove_Light(int ID)
 
 
 // Set the shader uniforms for the frame
-void Lighting::Update_Lights(const glm::mat4& view) const
+void Lighting::Update_Lights(const World& holder, const glm::mat4& view) const
 {
-	glUniform4fv(Indigo::Current_World.Shader_Location("V_Lights", true), 8, &positions[0][0]);
-	glUniform3fv(Indigo::Current_World.Shader_Location("F_Light_Colors", true), 8, &colors[0][0]);
+	glUniform4fv(holder.Shader_Location("V_Lights", true), 8, &positions[0][0]);
+	glUniform3fv(holder.Shader_Location("F_Light_Colors", true), 8, &colors[0][0]);
 	glm::vec4 world_directions[8];
 	for (int i = 0; i < number_of_lights; ++i)
 	{
@@ -105,8 +107,8 @@ void Lighting::Update_Lights(const glm::mat4& view) const
 			world_directions[i] = view * world_directions[i];
 		}
 	}
-	glUniform4fv(Indigo::Current_World.Shader_Location("V_Lamp_Directions", true), 8, &world_directions[0][0]);
-	glUniform1fv(Indigo::Current_World.Shader_Location("F_Lamp_Angles", true), 8, &angles[0]);
-	glUniform3f(Indigo::Current_World.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
-	glUniform1i(Indigo::Current_World.Shader_Location("F_Number_Of_Lights", true), number_of_lights);
+	glUniform4fv(holder.Shader_Location("V_Lamp_Directions", true), 8, &world_directions[0][0]);
+	glUniform1fv(holder.Shader_Location("F_Lamp_Angles", true), 8, &angles[0]);
+	glUniform3f(holder.Shader_Location("F_Ambient", true), ambient.r, ambient.g, ambient.b);
+	glUniform1i(holder.Shader_Location("F_Number_Of_Lights", true), number_of_lights);
 }

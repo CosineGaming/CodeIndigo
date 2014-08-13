@@ -119,6 +119,10 @@ namespace Indigo
 		Screen_Width = window_width;
 		Screen_Height = window_height;
 		Aspect_Ratio = (float) window_width / (float) window_height;
+		if (Reshape_Function)
+		{
+			Reshape_Function(width, height);
+		}
 	}
 
 	// Acts for Keys which act once, and stores for multi-acting Keys
@@ -262,7 +266,7 @@ namespace Indigo
 	}
 
 	// Default FPS-style mouse for looking around. Set an object pointer that sets onto your camera.
-	// Then, use Indigo::Current_World.camera.facing = player.facing;
+	// Then, use Indigo::Worlds[0].camera.facing = player.facing;
 	void FPS_Mouse(Object * player, float sensitivity)
 	{
 		static bool enable = true;
@@ -299,7 +303,10 @@ namespace Indigo
 		{
 			Update_Function(time);
 		}
-		Current_World.Update(time);
+		for (int i = 0; i < Worlds.size(); ++i)
+		{
+			Worlds[i].Update(time);
+		}
 		return;
 	}
 
@@ -310,7 +317,10 @@ namespace Indigo
 		{
 			Render_Function();
 		}
-		Current_World.Render();
+		for (int i = 0; i < Worlds.size(); ++i)
+		{
+			Worlds[i].Render();
+		}
 		glfwSwapBuffers(Indigo::Window);
 		glfwPollEvents();
 		return;
@@ -349,7 +359,7 @@ namespace Indigo
 				{
 					total = 0;
 					last_frame = 0;
-					Indigo::Current_World.Remove_2D_Object(self.ID);
+					Indigo::Worlds[0].Remove_2D_Object(self.ID);
 				}
 			}
 		}
@@ -381,7 +391,7 @@ namespace Indigo
 			{
 				total = 0;
 				started = false;
-				Indigo::Current_World.Remove_2D_Object(self.ID);
+				Indigo::Worlds[0].Remove_2D_Object(self.ID);
 			}
 		}
 	}
@@ -574,8 +584,8 @@ namespace Indigo
 	}
 
 
-	// Stores the current world to render
-	World Current_World;
+	// Stores each world to render each frame
+	std::vector<World> Worlds = std::vector<World>(1, World());
 
 	// Stores the window we're rendering onto
 	GLFWwindow * Window = nullptr;
@@ -599,15 +609,18 @@ namespace Indigo
 	// ... when the mouse is moved, given relative to the center.
 	// Also hides mouse when defined.
 	void(*Relative_Mouse_Moved_Function)(int x, int y);
+
+	// ... when the window is resized
+	void(*Reshape_Function)(int width, int height);
+
+	// ... on an error
+	void(*Error_Function)(int type, const char * message);
 	
 	// ... every time the world updates
 	void(*Update_Function)(float time);
 
 	// ... just before the rendering of objects in the world
 	void(*Render_Function)(void);
-
-	// ... on an error
-	void(*Error_Function)(int type, const char * message);
 
 
 	// Members with the index of a key which is currently down are true, always lowercase. Abnormals are GLFW_ESCAPE, etc.
