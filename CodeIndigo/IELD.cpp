@@ -37,6 +37,11 @@ bool Cursor_On;
 
 const int Splash_Time = 0;
 
+unsigned int tex1;
+unsigned int tex2;
+unsigned int tex12;
+unsigned int tex21;
+
 void Fade_Text(float time, Object& self)
 {
 	self.Color.a -= 0.0002 * time;
@@ -1309,6 +1314,33 @@ void Global_Values(void)
 	Cursor_On = false;
 }
 
+void Walking(float time, Object& self)
+{
+	// Starting point of walking: 0, 0, -20
+	if (Motion.X < 0 && Motion.Z > 0)
+	{
+		if (self.Data.Texture_ID == tex1)
+		{
+			self.Data.Texture_ID = tex12;
+		}
+		if (self.Data.Texture_ID == tex2)
+		{
+			self.Data.Texture_ID = tex21;
+		}
+	}
+	if (Motion.X > 18 && Motion.Z > 0)
+	{
+		if (self.Data.Texture_ID == tex12)
+		{
+			self.Data.Texture_ID = tex2;
+		}
+		if (self.Data.Texture_ID == tex21)
+		{
+			self.Data.Texture_ID = tex1;
+		}
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
@@ -1326,10 +1358,23 @@ int main(int argc, char ** argv)
 	Restore = Indigo::Worlds[0];
 	//Indigo::Construct_Splash
 
-	unsigned int handle = Indigo::Worlds[0].Views[0].Generate_Render_Target(glm::vec2(), true);
-	Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
-	data.Texture_ID = handle;
-	Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
+	Object torus = Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Torus/Torus.obj"), Walking);
+	torus.Data.Texture("C:/Users/Judah/Documents/Torus/2.png");
+	tex2 = torus.Data.Texture_ID;
+	torus.Data.Texture("C:/Users/Judah/Documents/Torus/12.png");
+	tex12 = torus.Data.Texture_ID;
+	torus.Data.Texture("C:/Users/Judah/Documents/Torus/21.png");
+	tex21 = torus.Data.Texture_ID;
+	torus.Data.Texture("C:/Users/Judah/Documents/Torus/1.png");
+	tex1 = torus.Data.Texture_ID;
+	Indigo::Worlds[0].Add_Object(torus);
+
+	Motion.Place(0, 0, -20);
+
+	//unsigned int handle = Indigo::Worlds[0].Views[0].Generate_Render_Target(glm::vec2(), true);
+	//Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
+	//data.Texture_ID = handle;
+	//Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
 
 	if (argc > 1)
 	{
