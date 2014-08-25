@@ -1314,39 +1314,12 @@ void Global_Values(void)
 	Cursor_On = false;
 }
 
-void Walking(float time, Object& self)
-{
-	// Starting point of walking: 0, 0, -20
-	if (Motion.X < 0 && Motion.Z > 0)
-	{
-		if (self.Data.Texture_ID == tex1)
-		{
-			self.Data.Texture_ID = tex12;
-		}
-		if (self.Data.Texture_ID == tex2)
-		{
-			self.Data.Texture_ID = tex21;
-		}
-	}
-	if (Motion.X > 18 && Motion.Z > 0)
-	{
-		if (self.Data.Texture_ID == tex12)
-		{
-			self.Data.Texture_ID = tex2;
-		}
-		if (self.Data.Texture_ID == tex21)
-		{
-			self.Data.Texture_ID = tex1;
-		}
-	}
-}
-
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize("IELD", Indigo::Sky_Color, 1, 24, -240, -135, false);
+	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1, 24, -240, -135, false);
 	Global_Values();
 	Indigo::Update_Function = GUI;
-	//Indigo::Worlds[0].Views[0].Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
+	Indigo::Worlds[0].Views[0].Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Worlds[0].Light_Setup.Set_Ambient(0.075);
 	Indigo::Worlds[0].Light_Setup.Add_Sun(0, -1, 0);
 	//Indigo::Worlds[0].Light_Setup.Add_Bulb(0, 1.88, 0, 0.5);
@@ -1358,23 +1331,13 @@ int main(int argc, char ** argv)
 	Restore = Indigo::Worlds[0];
 	//Indigo::Construct_Splash
 
-	Object torus = Object(0, 0, 0, Mesh("C:/Users/Judah/Documents/Torus/Torus.obj"), Walking);
-	torus.Data.Texture("C:/Users/Judah/Documents/Torus/2.png");
-	tex2 = torus.Data.Texture_ID;
-	torus.Data.Texture("C:/Users/Judah/Documents/Torus/12.png");
-	tex12 = torus.Data.Texture_ID;
-	torus.Data.Texture("C:/Users/Judah/Documents/Torus/21.png");
-	tex21 = torus.Data.Texture_ID;
-	torus.Data.Texture("C:/Users/Judah/Documents/Torus/1.png");
-	tex1 = torus.Data.Texture_ID;
-	Indigo::Worlds[0].Add_Object(torus);
+	Indigo::Worlds[0].Views.push_back(Camera());
+	Indigo::Worlds[0].Views[1].Shader("Indigo/Shaders/Shadow_Map.vs", "Indigo/Shaders/Shadow_Map.fs");
+	unsigned int handle = Indigo::Worlds[0].Views[1].Generate_Render_Target(glm::vec2(1024, 1024), true);
 
-	Motion.Place(0, 0, -20);
-
-	//unsigned int handle = Indigo::Worlds[0].Views[0].Generate_Render_Target(glm::vec2(), true);
-	//Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
-	//data.Texture_ID = handle;
-	//Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
+	Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
+	data.Texture_ID = handle;
+	Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
 
 	if (argc > 1)
 	{

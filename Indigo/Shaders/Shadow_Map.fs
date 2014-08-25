@@ -1,4 +1,4 @@
-int main()
+void main()
 {
 	// Done automatically!
 }
