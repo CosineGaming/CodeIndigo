@@ -26,7 +26,8 @@ Camera::Camera(const float x, const float y, const float z, const Direction look
 	Field_Of_View(field_of_view_x),
 	Resolutions(std::vector<glm::vec2>(1, glm::vec2(0,0))),
 	Render_Targets(std::vector<unsigned int>(1, 0)),
-	Shader_Index(0)
+	Shader_Index(0)//,
+	//Motion_Blur(1)
 {
 	return;
 }
@@ -43,7 +44,8 @@ Camera::Camera(const Camera& camera) :
 	Field_Of_View(camera.Field_Of_View),
 	Resolutions(camera.Resolutions),
 	Render_Targets(camera.Render_Targets),
-	Shader_Index(camera.Shader_Index)
+	Shader_Index(camera.Shader_Index)//,
+	//Motion_Blur(camera.Motion_Blur)
 {
 	Place(camera.X, camera.Y, camera.Z);
 	Look_At(camera.Eye);

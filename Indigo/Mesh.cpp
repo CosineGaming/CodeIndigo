@@ -319,13 +319,13 @@ Mesh Mesh::Text(const char * text, const float size, const char * font, const gl
 }
 
 
-// Specialized constructor for creating 2D flat rectangles
-Mesh Mesh::Rectangle(const float width, const float height, const char * texture, const char * bump_map, const bool normalize_texture, const int reduce_filter, const int enlarge_filter)
+// Specialized constructor for creating 2D flat rectangles. If not stretched, texture is centered
+Mesh Mesh::Rectangle(const float width, const float height, const char * texture, const char * bump_map, const bool stretch_texture, const int reduce_filter, const int enlarge_filter)
 {
 	Mesh mesh;
 	mesh.Texture(texture);
 	mesh.Bump_Map(bump_map);
-	Vertex_Data data = Rectangle_Vertices(width, height, normalize_texture);
+	Vertex_Data data = Rectangle_Vertices(width, height, !stretch_texture);
 	mesh.Initialize_Vertices(data);
 	return mesh;
 }
@@ -533,17 +533,25 @@ Vertex_Data Mesh::Rectangle_Vertices(const float width, const float height, cons
 
 	float hw = width / 2;
 	float hh = height / 2;
-	// Texture coordinates shouldn't stretch. Texture is in top-left
-	float wth = 1;
-	float htw = 1;
+	// Texture coordinates shouldn't stretch. Placed in center.
+	float top = 0;
+	float bottom = 1;
+	float left = 0;
+	float right = 1;
 	if (normalize_texture_coords)
 	{
-		wth = width / height;
-		htw = 1 / wth;
-		if (wth > 1)
-			wth = 1;
-		if (htw > 1)
-			htw = 1;
+		float max_width = width / height;
+		float max_height = 1 / max_width;
+		if (max_width > 1)
+			max_width = 1;
+		if (max_height > 1)
+			max_height = 1;
+		max_width /= 2;
+		max_height /= 2;
+		top = 0.5 - max_height;
+		bottom = 0.5 + max_height;
+		right = 0.5 + max_width;
+		left = 0.5 - max_width;
 	}
 	Vertex_Data data;
 	data.Positions.push_back(glm::vec3(-hw, -hh, 0));
@@ -552,12 +560,12 @@ Vertex_Data Mesh::Rectangle_Vertices(const float width, const float height, cons
 	data.Positions.push_back(glm::vec3(-hw, -hh, 0));
 	data.Positions.push_back(glm::vec3(hw, hh, 0));
 	data.Positions.push_back(glm::vec3(-hw, hh, 0));
-	data.UVs.push_back(glm::vec2(0, 0));
-	data.UVs.push_back(glm::vec2(wth, 0));
-	data.UVs.push_back(glm::vec2(wth, htw));
-	data.UVs.push_back(glm::vec2(0, 0));
-	data.UVs.push_back(glm::vec2(wth, htw));
-	data.UVs.push_back(glm::vec2(0, htw));
+	data.UVs.push_back(glm::vec2(left, bottom));
+	data.UVs.push_back(glm::vec2(right, bottom));
+	data.UVs.push_back(glm::vec2(right, top));
+	data.UVs.push_back(glm::vec2(left, bottom));
+	data.UVs.push_back(glm::vec2(right, top));
+	data.UVs.push_back(glm::vec2(left, top));
 	for (int i = 0; i < 6; ++i)
 	{
 		// Same lighting for each vertex: out
@@ -703,8 +711,8 @@ void Mesh::Texture(const char * filename, unsigned int * texture_handle, const i
 	}
 	else
 	{
-		// Some random fun number for blank texture's handle hash. You can't sample a 1x1 so filter's aren't used
-		Texture_File_Hash = 2304927;
+		// Some random fun number for blank texture's handle hash. You can't sample a 1x1 so filters aren't used
+		Texture_File_Hash = 2004927;
 		// A blank bump is different from a blank non-bump
 		Texture_File_Hash += texture_handle == &Bump_Texture_ID;
 	}

@@ -65,7 +65,7 @@ void World::Update(const float time)
 	{
 		Update_Function(time);
 	}
-	for (std::size_t object = 0; object<objects.size(); ++object)
+	for (std::size_t object = 0; object < objects.size(); ++object)
 	{
 		objects[object].Update(time);
 	}
@@ -73,7 +73,7 @@ void World::Update(const float time)
 	{
 		objects_front[object].Update(time);
 	}
-	for (std::size_t object = 0; object<objects_2d.size(); ++object)
+	for (std::size_t object = 0; object < objects_2d.size(); ++object)
 	{
 		objects_2d[object].Update(time);
 	}

@@ -6,6 +6,7 @@
 #include "World.h"
 #include "Animation.h"
 
+#include <thread>
 #include <iostream>
 #include <vector>
 #include "GLFW/glfw3.h"
@@ -17,7 +18,7 @@ namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
 	void Initialize(const char * window_name = "Indigo", glm::vec3 background = glm::vec3(0.5, 0.8, 1.0), const int aa_samples = 4,
-		const int max_framerate = 60, const int window_width = 0, const int window_height = 0, const bool fullscreen = true);
+		const int max_framerate = 60, const bool create_world = true, const int window_width = 0, const int window_height = 0, const bool fullscreen = true);
 
 	// Starts the main loop with update, render, and input. Returns 0 ideally... 1 on problem.
 	int Run(void);
@@ -48,14 +49,10 @@ namespace Indigo
 	// Renders world
 	void Render(void);
 
-	// Callback for the spashscreen
-	void Animate_Splash(float time, Object& self);
-	// Callback for the spashscreen's text
-	void Splash_Label_Fade(float time, Object& self);
-	// A nice little splashscreen for load routines
-	void Construct_Splash(World& add_to);
+	// Set a rectangle's update function to this for a neat Indigo Engine splashscreen
+	void Splash_Screen(float time, Object& self);
 
-	// Get elapsed time in the game, optional modulo for partial times, in milliseconds
+	// Get elapsed time in the game, optional modulo for partial times, in seconds
 	inline float Elapsed();
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
 	float Fast_Float(const char * stream, int* output = nullptr, const int start = 0);
@@ -64,12 +61,12 @@ namespace Indigo
 	// Get all the errors since last error dump to main console window
 	void Error_Dump(void);
 
-	// Stores each world to render each frame
-	extern std::vector<World> Worlds;
+	// Point to the (Active_Worlds) worlds you would like rendered each frame
+	extern World * Worlds;
+	// The number of worlds pointed with Worlds and beyond (2 -> Worlds[0], Worlds[1]) to render each frame
+	extern unsigned int Active_Worlds;
 	// Stores the window we're rendering onto
 	extern GLFWwindow * Window;
-	// Takes care of managing all the buffers
-	extern unsigned int VAO;
 
 	// Stores the function to call when a key is pressed
 	extern void(*Key_Pressed_Function)(int key);
@@ -114,8 +111,10 @@ namespace Indigo
 	extern int Screen_Height;
 	// Stores the aspect ratio of the screen
 	extern float Aspect_Ratio;
-	// Stores the milliseconds to add between each frame
+	// Stores the seconds to add between each frame
 	extern float Frame_Length_Minimum;
+	// Enable motion blur at a cost to speed by setting Motion_Blur to a higher number (default 1: no blur)
+	extern int Motion_Blur;
 	// Stores the current actual FPS of the update loop
 	extern int Actual_FPS;
 

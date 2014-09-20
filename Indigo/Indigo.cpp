@@ -12,7 +12,7 @@ namespace Indigo
 {
 	// Initializes window and rendering matrices. Really ought to be called first.
 	void Initialize(const char * window_name, glm::vec3 background, const int aa_samples,
-		const int max_framerate, const int window_width, const int window_height, const bool fullscreen)
+		const int max_framerate, const bool create_world, const int window_width, const int window_height, const bool fullscreen)
 	{
 		// Initiate glut
 		glfwSetErrorCallback(Error_Found);
@@ -49,6 +49,11 @@ namespace Indigo
 				<< std::endl << "For more info contact the creator of your game." << std::endl;
 		}
 
+		if (create_world)
+		{
+			Worlds = new World();
+		}
+
 		Reshape(Window);
 
 		glClearColor(background[0], background[1], background[2], 1.0);
@@ -58,7 +63,7 @@ namespace Indigo
 		}
 		else
 		{
-			Frame_Length_Minimum = 1000.0 / max_framerate;
+			Frame_Length_Minimum = 1.0 / max_framerate;
 		}
 
 		//glGenVertexArrays(1, &VAO);
@@ -298,12 +303,12 @@ namespace Indigo
 	// Updates world
 	void Update(const float time)
 	{
-		Actual_FPS = 1000 / time;
+		Actual_FPS = 1 / time;
 		if (Update_Function)
 		{
 			Update_Function(time);
 		}
-		for (int i = 0; i < Worlds.size(); ++i)
+		for (int i = 0; i < Active_Worlds; ++i)
 		{
 			Worlds[i].Update(time);
 		}
@@ -317,7 +322,7 @@ namespace Indigo
 		{
 			Render_Function();
 		}
-		for (int i = 0; i < Worlds.size(); ++i)
+		for (int i = 0; i < Active_Worlds; ++i)
 		{
 			Worlds[i].Render();
 		}
@@ -326,153 +331,44 @@ namespace Indigo
 		return;
 	}
 
-	// Callback for the spashscreen
-	void Animate_Splash(float time, Object& self)
+	// Set a 1x1 rectangle's update function to this for a neat Indigo Engine splashscreen
+	void Splash_Screen(float time, Object& self)
 	{
+		self.Scale.x = 2 * Indigo::Aspect_Ratio;
+		self.Scale.y = 2 * Indigo::Aspect_Ratio;
 		static float total = 0;
 		static int last_frame = -1;
 		total += time;
-		int frame = int(total / 32);
-		if (self.Color.a == 0)
-		{
-			if (total > 500)
-			{
-				total = 0;
-				self.Color.a = 1;
-			}
-		}
-		else if (frame < 61)
+		int frame = int(total * 24);
+		if (frame < 200)
 		{
 			if (last_frame != frame)
 			{
-				glDeleteTextures(1, &self.Data.Texture_ID);
-				self.Data.Texture_ID = self.User_Data[frame];
+				if (frame != 0)
+				{
+					glDeleteTextures(1, &self.Data.Texture_ID);
+				}
+				std::string texture_name = "Textures/IESS/" + std::to_string(frame) + ".jpg";
+				self.Data.Texture(texture_name.c_str());
 				last_frame = frame;
 			}
 		}
 		else
 		{
-			if (frame > 100)
-			{
-				self.Color.a -= time / 1500;
-				if (self.Color.a <= 0)
-				{
-					total = 0;
-					last_frame = 0;
-					Indigo::Worlds[0].Remove_2D_Object(self.ID);
-				}
-			}
-		}
-	}
-
-	// Callback for the spashscreen's text
-	void Splash_Label_Fade(float time, Object& self)
-	{
-		static float total = 0;
-		static bool started = false;
-		total += time;
-		int frame = int(total / 32);
-		if (!started)
-		{
-			if (total > 500)
-			{
-				total = 0;
-				started = true;
-			}
-		}
-		else if (frame > 50 && frame < 61)
-		{
-			self.Color.a = (frame - 50) / 10.0;
-		}
-		else if (frame > 100)
-		{
-			self.Color.a -= time / 1500;
+			self.Color.a -= time;
 			if (self.Color.a <= 0)
 			{
 				total = 0;
-				started = false;
+				last_frame = 0;
 				Indigo::Worlds[0].Remove_2D_Object(self.ID);
 			}
 		}
 	}
 
-	// A nice little splashscreen for load routines
-	void Construct_Splash(World& add_to)
-	{
-
-		//Object splash_screen = Object(0, 0, 0, Mesh(), Animate_Splash);
-		//Mesh splash;
-		//std::vector<glm::vec3> verts;
-		//std::vector<glm::vec2> uvs;
-		//std::vector<glm::vec3> trash1;
-		//std::vector<glm::vec3> trash2;
-		//std::vector<glm::vec3> trash3;
-		//for (int i = 0; i < 61; ++i)
-		//{
-		//	verts.push_back(glm::vec3(-0.75, -0.5, 0));
-		//	verts.push_back(glm::vec3(0.75, 1, 0));
-		//	verts.push_back(glm::vec3(-0.75, 1, 0));
-		//	verts.push_back(glm::vec3(-0.75, -0.5, 0));
-		//	verts.push_back(glm::vec3(0.75, -0.5, 0));
-		//	verts.push_back(glm::vec3(0.75, 1, 0));
-		//}
-		//for (int i = 0; i < 61; ++i)
-		//{
-		//	uvs.push_back(glm::vec2(0, 1));
-		//	uvs.push_back(glm::vec2(1, 0));
-		//	uvs.push_back(glm::vec2(0, 0));
-		//	uvs.push_back(glm::vec2(0, 1));
-		//	uvs.push_back(glm::vec2(1, 1));
-		//	uvs.push_back(glm::vec2(1, 0));
-		//}
-		//for (int i = 0; i < 61 * 6; ++i)
-		//{
-		//	trash1.push_back(glm::vec3(0, 0, 0));
-		//	trash2.push_back(glm::vec3(0, 0, 0));
-		//	trash3.push_back(glm::vec3(0, 0, 0));
-		//}
-		//splash.Initialize(verts, uvs, trash1, trash2, trash3);
-		//for (int i = 0; i < 61; ++i)
-		//{
-		//	std::string frame = ("Textures/IESS/" + std::to_string(i) + ".png");
-		//	splash.Texture(frame.c_str());
-		//	splash_screen.User_Data.push_back(splash.Texture_ID);
-		//}
-		//splash_screen.Color = glm::vec4(1, 1, 1, 0);
-		//splash_screen.Data = splash;
-		//splash_screen.Length_Index = 6;
-		//add_to.Add_2D_Object(splash_screen);
-		////std::vector<glm::vec3> textverts;
-		////std::vector<glm::vec2> textuvs;
-		////std::vector<glm::vec3> textnormals;
-		////textverts.push_back(glm::vec3(-1, -1, 0));
-		////textverts.push_back(glm::vec3(1, 1, 0));
-		////textverts.push_back(glm::vec3(-1, 1, 0));
-		////textverts.push_back(glm::vec3(-1, -1, 0));
-		////textverts.push_back(glm::vec3(1, -1, 0));
-		////textverts.push_back(glm::vec3(1, 1, 0));
-		////textuvs.push_back(glm::vec2(0, 1));
-		////textuvs.push_back(glm::vec2(1, 0));
-		////textuvs.push_back(glm::vec2(0, 0));
-		////textuvs.push_back(glm::vec2(0, 1));
-		////textuvs.push_back(glm::vec2(1, 1));
-		////textuvs.push_back(glm::vec2(1, 0));
-		////for (int i = 0; i < 6; ++i)
-		////{
-		////	textnormals.push_back(glm::vec3(0, -1, 0));
-		////}
-		////Mesh label;
-		//////label.Initialize(textverts, textuvs, textnormals);
-		////label.Texture("Textures/SplashScreen/Label.png");
-		////add_to.Add_2D_Object(Object(0, 0, 0, label, Splash_Label_Fade, 0, Direction(), glm::vec4(1, 1, 1, 0)));
-		return;
-
-	}
-
-	// Get elapsed time in the game, optional minus for partial times, in milliseconds
+	// Get elapsed time in the game, optional minus for partial times, in seconds
 	inline float Elapsed()
 	{
-		return glfwGetTime() * 1000;
+		return glfwGetTime();
 	}
 
 	// Get the floating point equivalent and the length of string with standard notation assuming start of float is at start
@@ -584,8 +480,11 @@ namespace Indigo
 	}
 
 
-	// Stores each world to render each frame
-	std::vector<World> Worlds = std::vector<World>(1, World());
+	// Point to the world you would like rendered each frame. You can also point this to an array and set Active_Worlds to the length to render multiple worlds
+	World * Worlds = nullptr;
+
+	// The number of worlds pointed with Worlds and beyond (2 -> Worlds[0], Worlds[1]) to render each frame
+	unsigned int Active_Worlds = 1;
 
 	// Stores the window we're rendering onto
 	GLFWwindow * Window = nullptr;
@@ -661,8 +560,11 @@ namespace Indigo
 	// Stores the aspect ratio of the screen
 	float Aspect_Ratio = 1;
 
-	// Stores the milliseconds to add between each frame
+	// Stores the seconds to add between each frame
 	float Frame_Length_Minimum = 0;
+
+	// Enable motion blur at a cost to speed by setting Motion_Blur to a higher number (default 1: no blur)
+	int Motion_Blur = 1;
 
 	// Stores the current actual FPS of the update loop
 	int Actual_FPS = 60;

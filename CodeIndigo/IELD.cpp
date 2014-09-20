@@ -35,7 +35,7 @@ int Cursor_Pos;
 float Cursor_Delay;
 bool Cursor_On;
 
-const int Splash_Time = 0;
+const float Splash_Time = 10;
 
 unsigned int tex1;
 unsigned int tex2;
@@ -44,7 +44,7 @@ unsigned int tex21;
 
 void Fade_Text(float time, Object& self)
 {
-	self.Color.a -= 0.0002 * time;
+	self.Color.a -= 2 * time;
 	if (self.Color.a < 0)
 	{
 		Indigo::Worlds[0].Remove_2D_Object(self.ID);
@@ -363,11 +363,11 @@ void GUI(float time)
 	{
 		if (Indigo::Keys['2'])
 		{
-			Camera_Speed += 0.001 * Camera_Speed * time;
+			Camera_Speed += 1 * Camera_Speed * time;
 		}
 		if (Indigo::Keys['1'])
 		{
-			Camera_Speed -= 0.001 * Camera_Speed * time;
+			Camera_Speed -= 1 * Camera_Speed * time;
 		}
 		const float speed = Camera_Speed * time;
 		Direction stored_facing = To_Move->Facing;
@@ -421,10 +421,10 @@ void GUI(float time)
 			std::string x = std::to_string(To_Move->X);
 			std::string y = std::to_string(To_Move->Y);
 			std::string z = std::to_string(To_Move->Z);
-			std::string speed = std::to_string(Camera_Speed * 1000);
+			std::string speed = std::to_string(Camera_Speed);
 			std::string display = "Indigo Engine Level Designer\n"
 				"Position  " + x.substr(0, x.length() - 4) + "  " + y.substr(0, y.length() - 4) + "  " + z.substr(0, z.length() - 4) + "\n"
-				+ "FPS  " + std::to_string(Indigo::Actual_FPS) + "  MPF  " + std::to_string(int(time)) + "\n"
+				+ "FPS  " + std::to_string(Indigo::Actual_FPS) + "  MPF  " + std::to_string(int(time * 1000)) + "\n"
 				+ "Camera Speed  " + speed.substr(0, speed.length() - 5) + "  M/S" "\n"
 				+ "Objects  " + std::to_string(Indigo::Worlds[0].Number_Of_Objects()) + "\n"
 				"Press H for help";
@@ -1292,6 +1292,29 @@ void Key_Pressed(int key)
 	}
 }
 
+std::map<char *, char *> Speeches;
+std::map<char *, std::vector<char *>> Responses;
+
+void Initialize_Speech()
+{
+
+	Speeches["Hi"] = "Hello, how are you?";
+	Speeches["Good"] = "I'm doing fancy, thank you!";
+	Speeches["Bad"] = "I am doing terribly.";
+	Speeches["Agree Good"] = "Yeah I'm doing well, too. Thank you.";
+	Speeches["Agree Bad"] = "Me too. I hate this darned boat. It's the damn creaking, isn't it?";
+	Speeches["Ok"] = "Ok. Bye.";
+	Speeches["Bye"] = "Yeah. Bye. See you around.";
+
+	Responses["Hi"].push_back("Good");
+	Responses["Hi"].push_back("Bad");
+	Responses["Bad"].push_back("Agree Bad");
+	Responses["Good"].push_back("Agree Good");
+	Responses["Agree Bad"].push_back("Ok");
+	Responses["Agree Good"].push_back("Ok");
+
+}
+
 void Global_Values(void)
 {
 	Motion = Object();
@@ -1299,7 +1322,7 @@ void Global_Values(void)
 	Objs = std::vector<std::string>();
 	Textures = std::vector<std::string>();
 	Bump_Maps = std::vector<std::string>();
-	Camera_Speed = 0.005;
+	Camera_Speed = 5;
 	Physics = false;
 	Position_Marker = -1;
 	Render_Marker = true;
@@ -1316,9 +1339,9 @@ void Global_Values(void)
 
 int main(int argc, char ** argv)
 {
-	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1, 24, -240, -135, false);
+	Indigo::Initialize("Indigo Engine Level Designer", Indigo::Sky_Color, 1, 24, true, -240, -135, false);
 	Global_Values();
-	Indigo::Update_Function = GUI;
+	Indigo::Worlds[0].Update_Function = GUI;
 	Indigo::Worlds[0].Views[0].Shader("Indigo/Shaders/Default.vs", "Indigo/Shaders/Default.fs");
 	Indigo::Worlds[0].Light_Setup.Set_Ambient(0.075);
 	Indigo::Worlds[0].Light_Setup.Add_Sun(0, -1, 0);
@@ -1331,13 +1354,29 @@ int main(int argc, char ** argv)
 	Restore = Indigo::Worlds[0];
 	//Indigo::Construct_Splash
 
-	Indigo::Worlds[0].Views.push_back(Camera());
-	Indigo::Worlds[0].Views[1].Shader("Indigo/Shaders/Shadow_Map.vs", "Indigo/Shaders/Shadow_Map.fs");
-	unsigned int handle = Indigo::Worlds[0].Views[1].Generate_Render_Target(glm::vec2(1024, 1024), true);
+	//Initialize_Speech();
 
-	Mesh data = Mesh::Rectangle(Indigo::Aspect_Ratio * 2, 2);
-	data.Texture_ID = handle;
-	Indigo::Worlds[0].Add_Object(Object(0, 0, 0, data));
+	/*char * key = "Hi";
+	std::cout << Speeches[key] << std::endl;
+	while (Responses[key].size())
+	{
+		std::cout << std::endl << "Possible responses:" << std::endl;
+		for (int i = 0; i < Responses[key].size(); ++i)
+		{
+			std::cout << i << ": " << Speeches[Responses[key][i]] << std::endl;
+		}
+		std::cout << std::endl << "Your response: ";
+		int response;
+		std::cin >> response;
+		key = Responses[key][response]; // The key is now the character's response (we don't need to print that)
+		if (Responses[key].size())
+		{
+			key = Responses[key][0]; // The key is now the AI's reponse (we need to print it)
+			std::cout << std::endl << Speeches[key] << std::endl;
+		}
+	}*/
+
+	Indigo::Worlds[0].Add_2D_Object(Object(0, 0, 0, Mesh::Rectangle(1, 1), Indigo::Splash_Screen));
 
 	if (argc > 1)
 	{
